@@ -1,21 +1,22 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.core.Holder;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class UnifiedRegistries {
 
     public interface ItemRegistry {
         String modId();
 
-        Item register(String name, Function<Item.Properties, Item> function, Item.Properties properties);
+        Supplier<Item> register(String name, Function<Item.Properties, Item> function, Item.Properties properties);
 
-        Item registerBlockItem(Block block, Item.Properties properties);
+        Supplier<BlockItem> registerBlockItem(String name, Supplier<Block> blockSupplier, Item.Properties properties);
 
         static ItemRegistry create(String modId) {
             return RegistryFactory.get().createItemRegistry(modId);
@@ -25,9 +26,9 @@ public class UnifiedRegistries {
     public interface BlockRegistry {
         String modId();
 
-        <T extends Block> T register(String name, Function<BlockBehaviour.Properties, T> block, BlockBehaviour.Properties properties);
+        <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties);
 
-        <T extends Block> T registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
+        <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
 
         static BlockRegistry create(String modId) {
             return RegistryFactory.get().createBlockRegistry(modId);

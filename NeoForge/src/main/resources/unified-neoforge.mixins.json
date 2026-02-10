@@ -1,12 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.author.examplemod.mixin",
+  "package": "net.rebel459.unified.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],
   "client": [
-    "net.rebel459.unified.mixin.client.ExampleForgeMixin"
+    "client.ExampleForgeMixin"
   ],
   "server": [
   ],
