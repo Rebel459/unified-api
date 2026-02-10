@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.author.examplemod.ExampleFabricMod"
+      "net.rebel459.unified.UnifiedFabric"
     ]
   },
   "mixins": [

@@ -5,7 +5,7 @@ plugins {
 
 // Edit in gradle.properties
 group = project_group
-version = "${version_major}.${version_minor}.${version_patch}"
+version = "${mod_version}"
 
 subprojects {
     apply plugin: "xyz.wagyourtail.unimined"
@@ -35,6 +35,8 @@ subprojects {
         maven {
             url "https://mcentral.firstdark.dev/releases"
         }
+
+        maven { url = "https://api.modrinth.com/maven" }
     }
 
     dependencies {

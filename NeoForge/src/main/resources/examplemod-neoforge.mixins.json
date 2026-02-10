@@ -6,7 +6,7 @@
   "mixins": [
   ],
   "client": [
-    "client.ExampleForgeMixin"
+    "net.rebel459.unified.mixin.client.ExampleForgeMixin"
   ],
   "server": [
   ],
