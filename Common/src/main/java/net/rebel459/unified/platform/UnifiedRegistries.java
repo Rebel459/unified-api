@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.core.Holder;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -38,7 +39,8 @@ public class UnifiedRegistries {
 
     public interface FuelRegistry {
 
-        void add(int time, ItemLike... items);
+        void add(ItemLike item, int ticks);
+        void add(TagKey<Item> item, int ticks);
 
         static FuelRegistry create() {
             return RegistryFactory.get().createFuelRegistry();

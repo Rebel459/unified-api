@@ -10,6 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -84,25 +85,32 @@ public class FabricUnifiedRegistries {
         private static final List<FuelRegistryEvents.BuildCallback> CALLBACKS = new ArrayList<>();
         private static final List<FuelRegistryEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
 
-        public void add(int time, ItemLike... items) {
+        @Override
+        public void add(ItemLike item, int ticks) {
             CALLBACKS.add((builder, context) -> {
-                for (var item : items) {
-                    if (time >= 0) {
-                        builder.add(item, time);
-                    }
+                if (ticks >= 0) {
+                    builder.add(item, ticks);
                 }
             });
             EXCLUSIONS_CALLBACKS.add((builder, context) -> {
-                for (var item : items) {
-                    if (time < 0) {
-                        ((FuelValuesBuilderAccessor) builder).getValues().remove(item.asItem());
-                    }
+                if (ticks < 0) {
+                    ((FuelValuesBuilderAccessor) builder).getValues().remove(item.asItem());
                 }
             });
         }
 
-        public static int get(ItemStack stack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
-            return fuelValues.burnDuration(stack);
+        @Override
+        public void add(TagKey<Item> tag, int ticks) {
+            CALLBACKS.add((builder, context) -> {
+                if (ticks >= 0) {
+                    builder.add(tag, ticks);
+                }
+            });
+            EXCLUSIONS_CALLBACKS.add((builder, context) -> {
+                if (ticks < 0) {
+                    ((FuelValuesBuilderAccessor) builder).getValues().remove(tag);
+                }
+            });
         }
 
         static {

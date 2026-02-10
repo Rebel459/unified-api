@@ -2,6 +2,7 @@ package net.rebel459.unified.test;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -17,7 +18,10 @@ public class UnifiedTest {
     public static UnifiedRegistries.BlockRegistry BLOCKS = UnifiedRegistries.BlockRegistry.create(Unified.MOD_ID);
     public static UnifiedRegistries.FuelRegistry FUELS = UnifiedRegistries.FuelRegistry.create();
 
-    public static void init() {}
+    public static void init() {
+        FUELS.add(TEST_ITEM.get(), 20);
+        CompostingRegistry.INSTANCE.add(TEST_ITEM.get(), 0.2F);
+    }
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",

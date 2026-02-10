@@ -1,27 +1,29 @@
 package net.rebel459.unified.platform;
 
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class NeoForgeUnifiedRegistries {
 
@@ -93,10 +95,17 @@ public class NeoForgeUnifiedRegistries {
             NeoForge.EVENT_BUS.register(FuelRegistry.class);
         }
 
-        public void add(int time, ItemLike... items) {
-            for (ItemLike item : items) {
-                ITEMS.put(item, time);
-            }
+        @Override
+        public void add(ItemLike item, int ticks) {
+            ITEMS.put(item, ticks);
+        }
+
+        @Override
+        public void add(TagKey<Item> tag, int ticks) {
+            List<Holder<Item>> list = VanillaRegistries.createLookup().lookupOrThrow(Registries.ITEM).get(tag).map(HolderSet.Named::stream).orElse(Stream.empty()).toList();
+            list.forEach(itemHolder -> {
+                ITEMS.put(itemHolder.value(), ticks);
+            });
         }
 
         @SubscribeEvent
