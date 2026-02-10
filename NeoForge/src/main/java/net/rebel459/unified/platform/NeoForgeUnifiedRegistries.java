@@ -19,7 +19,6 @@ public class NeoForgeUnifiedRegistries {
     private static final Map<String, DeferredRegister.Blocks> BLOCKS = new ConcurrentHashMap<>();
 
     public static void init() {
-        LogUtils.getLogger().info("NEOFORGE INIT");
         RegistryFactory.set(new RegistryFactory.Factory() {
             @Override
             public UnifiedRegistries.ItemRegistry createItemRegistry(String modId) {
@@ -36,8 +35,6 @@ public class NeoForgeUnifiedRegistries {
     }
 
     public static void registerBus(String modId, IEventBus modEventBus) {
-        LogUtils.getLogger().info("NEOFORGE BUS");
-
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
         DeferredRegister.Blocks blocks = BLOCKS.computeIfAbsent(modId, string -> DeferredRegister.createBlocks(modId));
 

@@ -8,8 +8,8 @@ import net.rebel459.unified.platform.NeoForgeUnifiedRegistries;
 public class UnifiedNeoForge {
 
     public UnifiedNeoForge(IEventBus modEventBus) {
-        NeoForgeUnifiedRegistries.init();                // sets factory, ensures registers exist early
-        NeoForgeUnifiedRegistries.registerBus("unified", modEventBus);  // attaches them to bus
+        NeoForgeUnifiedRegistries.init();
+        NeoForgeUnifiedRegistries.registerBus("unified", modEventBus);
         Unified.initialize();
     }
 }
