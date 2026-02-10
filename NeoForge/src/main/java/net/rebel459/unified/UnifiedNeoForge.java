@@ -12,7 +12,7 @@ public class UnifiedNeoForge {
 
     public UnifiedNeoForge(IEventBus modEventBus) {
         NeoForgeUnifiedRegistries.init();
-        NeoForgeUnifiedRegistries.registerBus("unified", modEventBus);
+        NeoForgeUnifiedRegistries.registerBus(Unified.MOD_ID, modEventBus);
         Unified.initialize();
     }
 }
