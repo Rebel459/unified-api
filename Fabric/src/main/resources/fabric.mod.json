@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/fabricmc/"
+  },
+  "license": "MIT",
+  "icon": "assets/examplemod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.author.examplemod.ExampleFabricMod"
+    ]
+  },
+  "mixins": [
+    "examplemod.mixins.json",
+    "examplemod-fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18",
+    "fabric": "*",
+    "minecraft": ">=1.21.11",
+    "java": ">=21"
+  }
+}
