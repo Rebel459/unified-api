@@ -4,8 +4,6 @@ import net.rebel459.unified.test.UnifiedTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ServiceLoader;
-
 public class Unified {
 
     public static void initialize() {

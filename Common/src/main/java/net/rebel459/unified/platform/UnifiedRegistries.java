@@ -3,6 +3,7 @@ package net.rebel459.unified.platform;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
@@ -32,6 +33,15 @@ public class UnifiedRegistries {
 
         static BlockRegistry create(String modId) {
             return RegistryFactory.get().createBlockRegistry(modId);
+        }
+    }
+
+    public interface FuelRegistry {
+
+        void add(int time, ItemLike... items);
+
+        static FuelRegistry create() {
+            return RegistryFactory.get().createFuelRegistry();
         }
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
+import net.rebel459.unified.util.CompostingRegistry;
 
 import java.util.function.Supplier;
 
@@ -14,10 +15,9 @@ public class UnifiedTest {
 
     public static UnifiedRegistries.ItemRegistry ITEMS = UnifiedRegistries.ItemRegistry.create(Unified.MOD_ID);
     public static UnifiedRegistries.BlockRegistry BLOCKS = UnifiedRegistries.BlockRegistry.create(Unified.MOD_ID);
+    public static UnifiedRegistries.FuelRegistry FUELS = UnifiedRegistries.FuelRegistry.create();
 
-    public static void init() {
-
-    }
+    public static void init() {}
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",

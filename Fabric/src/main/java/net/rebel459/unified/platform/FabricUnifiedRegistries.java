@@ -1,5 +1,10 @@
 package net.rebel459.unified.platform;
 
+import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
+import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
+import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
+import net.fabricmc.fabric.impl.content.registry.StrippableBlockRegistryImpl;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -7,10 +12,18 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.mixin.block.FuelValuesBuilderAccessor;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -26,6 +39,11 @@ public class FabricUnifiedRegistries {
             @Override
             public UnifiedRegistries.BlockRegistry createBlockRegistry(String modId) {
                 return new FabricUnifiedRegistries.BlockRegistry(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.FuelRegistry createFuelRegistry() {
+                return null;
             }
         });
     }
@@ -58,6 +76,46 @@ public class FabricUnifiedRegistries {
             Identifier id = Identifier.fromNamespaceAndPath(modId, name);
             if (BuiltInRegistries.BLOCK.getOptional(id).isEmpty()) return () -> Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id))));
             else throw new IllegalArgumentException("Block with id " + id + " is already in the block registry.");
+        }
+    }
+
+    public static class FuelRegistry implements UnifiedRegistries.FuelRegistry {
+
+        private static final List<FuelRegistryEvents.BuildCallback> CALLBACKS = new ArrayList<>();
+        private static final List<FuelRegistryEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
+
+        public void add(int time, ItemLike... items) {
+            CALLBACKS.add((builder, context) -> {
+                for (var item : items) {
+                    if (time >= 0) {
+                        builder.add(item, time);
+                    }
+                }
+            });
+            EXCLUSIONS_CALLBACKS.add((builder, context) -> {
+                for (var item : items) {
+                    if (time < 0) {
+                        ((FuelValuesBuilderAccessor) builder).getValues().remove(item.asItem());
+                    }
+                }
+            });
+        }
+
+        public static int get(ItemStack stack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
+            return fuelValues.burnDuration(stack);
+        }
+
+        static {
+            FuelRegistryEvents.BUILD.register((builder, context) -> {
+                for (var callback : CALLBACKS) {
+                    callback.build(builder, context);
+                }
+            });
+            FuelRegistryEvents.EXCLUSIONS.register((builder, context) -> {
+                for (var callback : EXCLUSIONS_CALLBACKS) {
+                    callback.buildExclusions(builder, context);
+                }
+            });
         }
     }
 }
