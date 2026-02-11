@@ -11,8 +11,8 @@ public class UnifiedNeoForge {
 
     public UnifiedNeoForge(IEventBus modEventBus) {
         NeoForgeUnifiedRegistries.init();
-        NeoForgeUnifiedRegistries.registerBus(Unified.MOD_ID, modEventBus);
         NeoForgeUnifiedEvents.init();
+        NeoForgeUnifiedRegistries.registerBus(Unified.MOD_ID, modEventBus);
         Unified.initRegistries();
         modEventBus.addListener(UnifiedNeoForge::commonSetup);
         modEventBus.addListener(NeoForgeUnifiedEvents.CreativeEvent::buildContents);

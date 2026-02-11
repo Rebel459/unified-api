@@ -12,9 +12,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class FuelValuesMixin {
 
     @Inject(at = @At("HEAD"), method = "isFuel", cancellable = true)
-    private void burnComponent(ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
+    private void canBurn(ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
         if (itemStack.has(UnifiedComponents.FURNACE_FUEL.get())) {
-            cir.setReturnValue(true);
+            if (itemStack.get(UnifiedComponents.FURNACE_FUEL.get()) > 0) {
+                cir.setReturnValue(true);
+            }
+            else {
+                cir.setReturnValue(false);
+            }
+        }
+    }
+
+    @Inject(at = @At("HEAD"), method = "burnDuration", cancellable = true)
+    private void burnComponent(ItemStack itemStack, CallbackInfoReturnable<Integer> cir) {
+        if (itemStack.has(UnifiedComponents.FURNACE_FUEL.get())) {
+            cir.setReturnValue(Math.max(itemStack.get(UnifiedComponents.FURNACE_FUEL.get()), 0));
         }
     }
 }
