@@ -3,13 +3,9 @@
   "minVersion": "0.8",
   "package": "net.rebel459.unified.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-  ],
-  "client": [
-    "client.ExampleForgeMixin"
-  ],
-  "server": [
-  ],
+  "mixins": [],
+  "client": [],
+  "server": [],
   "injectors": {
     "defaultRequire": 1
   }

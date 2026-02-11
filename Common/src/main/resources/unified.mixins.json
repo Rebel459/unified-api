@@ -5,9 +5,7 @@
   "mixins": [
     "block.FuelValuesMixin"
   ],
-  "client": [
-    "client.ExampleMixin"
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }
