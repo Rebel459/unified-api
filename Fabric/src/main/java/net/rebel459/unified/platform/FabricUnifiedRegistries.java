@@ -3,6 +3,9 @@ package net.rebel459.unified.platform;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +19,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.mixin.block.FuelValuesBuilderAccessor;
+import net.rebel459.unified.util.PackInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +55,11 @@ public class FabricUnifiedRegistries {
             @Override
             public UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId) {
                 return new FabricUnifiedRegistries.ComponentRegistry(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.PackRegistry createPackRegistry(String modId) {
+                return new FabricUnifiedRegistries.PackRegistry(modId);
             }
         });
     }
@@ -203,6 +212,22 @@ public class FabricUnifiedRegistries {
         @Override
         public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
             return () -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, string), unaryOperator.apply(DataComponentType.builder()).build());
+        }
+    }
+
+    public record PackRegistry(String modId) implements UnifiedRegistries.PackRegistry {
+
+        @Override
+        public void register(String path, PackInfo info) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            if (FabricLoader.getInstance().getModContainer(id.getNamespace()).isEmpty()) return;
+            PackActivationType activationType = PackActivationType.DEFAULT_ENABLED;
+            if (info.equals(PackInfo.REQUIRED_DATA) || info.equals(PackInfo.REQUIRED_RESOURCES)) activationType = PackActivationType.ALWAYS_ENABLED;
+            ResourceLoader.registerBuiltinPack(
+                    id, FabricLoader.getInstance().getModContainer(id.getNamespace()).get(),
+                    Component.translatable("pack." + id.getNamespace() + "." + id.getPath()),
+                    activationType
+            );
         }
     }
 }

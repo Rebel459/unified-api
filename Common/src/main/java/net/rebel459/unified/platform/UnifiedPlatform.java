@@ -1,5 +1,7 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.resources.Identifier;
+
 public interface UnifiedPlatform {
 
     UnifiedPlatform INSTANCE = UnifiedLoader.load(UnifiedPlatform.class);

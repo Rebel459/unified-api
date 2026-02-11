@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.util.PackInfo;
 import net.rebel459.unified.util.impl.CompostingRegistryImpl;
 import net.rebel459.unified.util.Item2ObjectMap;
 
@@ -83,6 +84,16 @@ public class UnifiedRegistries {
 
         static ComponentRegistry create(String modId) {
             return RegistryFactory.get().createComponentRegistry(modId);
+        }
+    }
+
+    public interface PackRegistry {
+        String modId();
+
+        void register(String path, PackInfo info);
+
+        static PackRegistry create(String modId) {
+            return RegistryFactory.get().createPackRegistry(modId);
         }
     }
 }

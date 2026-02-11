@@ -9,8 +9,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.Unified;
+import net.rebel459.unified.platform.UnifiedPlatform;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.registry.UnifiedComponents;
+import net.rebel459.unified.util.PackInfo;
 
 import java.util.function.Supplier;
 
@@ -20,6 +22,7 @@ public class UnifiedTest {
     public static UnifiedRegistries.BlockRegistry BLOCKS = UnifiedRegistries.BlockRegistry.create(Unified.MOD_ID);
     public static UnifiedRegistries.CompostingRegistry COMPOSTING = UnifiedRegistries.CompostingRegistry.create();
     public static UnifiedRegistries.CreativeRegistry CREATIVE_TABS = UnifiedRegistries.CreativeRegistry.create();
+    public static UnifiedRegistries.PackRegistry PACKS = UnifiedRegistries.PackRegistry.create(Unified.MOD_ID);
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",
@@ -37,7 +40,9 @@ public class UnifiedTest {
 
     public static final ResourceKey<CreativeModeTab> TEST_TAB = CREATIVE_TABS.registerTab(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "test_tab"), UnifiedTest.TEST_ITEM);
 
-    public static void init() {}
+    public static void init() {
+        PACKS.register("test_pack", PackInfo.REQUIRED_DATA);
+    }
 
     public static void afterInit() {
         COMPOSTING.add(UnifiedTest.TEST_ITEM.get(), 0.2F);
