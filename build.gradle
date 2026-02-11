@@ -16,10 +16,17 @@ subprojects {
     version = rootProject.version
 
     java {
+        withSourcesJar()
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
 
+    configurations {
+        modCompileOnly
+        compileOnly.extendsFrom modCompileOnly
+        modApi
+        api.extendsFrom modApi
+    }
 
     // Add your maven repositories here
     repositories {
@@ -68,11 +75,25 @@ subprojects {
      */
 
     unimined.minecraft(sourceSets.main, true) {
-        version minecraft_version
+        version rootProject.minecraft_version
 
         mappings {
             mojmap()
             devNamespace "mojmap"
+        }
+
+        mods {
+            remap(configurations.modCompileOnly) {
+                catchAWNamespaceAssertion()
+            }
+
+            remap(configurations.modApi)
+
+            // This is basically just a shortcut for `remap(configurations.modImplementation)`.
+            modImplementation {
+                // You can do this if mods have the wrong access widener mapping, but it may break runs.
+                catchAWNamespaceAssertion()
+            }
         }
     }
 

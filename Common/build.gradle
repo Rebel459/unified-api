@@ -32,6 +32,7 @@ publishing {
 unimined.minecraft {
     fabric {
         loader fabric_loader
+        accessWidener file("src/main/resources/unified.accesswidener")
     }
 
     defaultRemapJar = false
@@ -43,4 +44,19 @@ processResources {
     filesMatching(['pack.mcmeta']) {
         expand buildProps
     }
+}
+
+sourceSets {
+    withoutFMJ {
+        java {
+        }
+        resources {
+            exclude 'fabric.mod.json'
+        }
+    }
+}
+
+sourcesJar {
+    from sourceSets.withoutFMJ.allSource
+    exclude 'fabric.mod.json'
 }

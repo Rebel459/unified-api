@@ -21,6 +21,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -28,6 +30,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
@@ -105,6 +108,8 @@ public class NeoForgeUnifiedRegistries {
 
     public record BlockRegistry(String modId) implements UnifiedRegistries.BlockRegistry {
 
+        public static List<Pair<BlockEntityType<?>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
+
         @Override
         public <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
             Supplier<T> blockHolder = registerWithoutItem(name, function, blockProperties);
@@ -113,8 +118,31 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
+        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
+            var block = register(name, function, blockProperties);
+            BLOCK_ENTITIES.add(Pair.of(type, block));
+            return block;
+        }
+
+        @Override
         public <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
             return BLOCKS.get(modId).registerBlock(name, function, () -> properties);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
+            var block = registerWithoutItem(name, function, properties);
+            BLOCK_ENTITIES.add(Pair.of(type, block));
+            return block;
+        }
+
+        @SubscribeEvent
+        public static void modifyBlockEntities(BlockEntityTypeAddBlocksEvent event) {
+            for (Pair<BlockEntityType<?>, Supplier<? extends Block>> pair : BLOCK_ENTITIES) {
+                BlockEntityType<?> type = pair.getFirst();
+                Block block = pair.getSecond().get();
+                event.modify(type, block);
+            }
         }
     }
 

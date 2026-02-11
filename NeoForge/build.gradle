@@ -33,9 +33,13 @@ publishing {
  */
 
 unimined.minecraft {
+    combineWith(project(":Common").sourceSets.withoutFMJ)
+
     neoForged {
         loader neoforge_version
-        mixinConfig("${mod_id}.mixins.json", "${mod_id}-neoforge.mixins.json")
+        mixinConfig("unified.mixins.json", "unified-neoforge.mixins.json")
+        accessTransformer aw2at(file("../common/src/main/resources/unified.accesswidener"))
+        accessTransformer file('src/main/resources/META-INF/accesstransformer-neoforge.cfg')
     }
 }
 

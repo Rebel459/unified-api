@@ -7,11 +7,15 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.util.PackInfo;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class UnifiedEvents {
 
@@ -56,6 +60,15 @@ public class UnifiedEvents {
 
         static LootEvent create() {
             return UnifiedFactory.getEvents().createLootEvent();
+        }
+    }
+
+    public interface StrippableEvent {
+
+        void add(Block original, Block stripped);
+
+        static StrippableEvent create() {
+            return UnifiedFactory.getEvents().createStrippableEvent();
         }
     }
 }

@@ -1,5 +1,7 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.world.level.block.Block;
+
 public final class UnifiedFactory {
 
     private static Registries registries;
@@ -48,5 +50,6 @@ public final class UnifiedFactory {
         UnifiedEvents.LootEvent createLootEvent();
         UnifiedEvents.PackEvent createPackEvent();
         UnifiedEvents.FuelEvent createFuelEvent();
+        UnifiedEvents.StrippableEvent createStrippableEvent();
     }
 }

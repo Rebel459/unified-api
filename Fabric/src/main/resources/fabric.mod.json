@@ -11,7 +11,7 @@
     "homepage": "https://fabricmc.net/",
     "sources": "https://github.com/fabricmc/"
   },
-  "license": "MIT",
+  "license": "LGPL 3.0-Only",
   "icon": "assets/examplemod/icon.png",
   "environment": "*",
   "entrypoints": {
@@ -23,7 +23,7 @@
     "unified.mixins.json",
     "unified-fabric.mixins.json"
   ],
-  "accessWidener": "unified-fabric.accesswidener",
+  "accessWidener": "unified.accesswidener",
   "depends": {
     "fabricloader": ">=0.18",
     "fabric": "*",

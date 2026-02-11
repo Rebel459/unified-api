@@ -1,6 +1,7 @@
 package net.rebel459.unified;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.rebel459.unified.platform.FabricUnifiedEvents;
 import net.rebel459.unified.platform.FabricUnifiedRegistries;
 

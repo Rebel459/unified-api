@@ -13,27 +13,37 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.rebel459.unified.test.UnifiedTest;
 import net.rebel459.unified.util.PackInfo;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class NeoForgeUnifiedEvents {
@@ -58,6 +68,11 @@ public class NeoForgeUnifiedEvents {
             @Override
             public UnifiedEvents.FuelEvent createFuelEvent() {
                 return new NeoForgeUnifiedEvents.FuelEvent();
+            }
+
+            @Override
+            public UnifiedEvents.StrippableEvent createStrippableEvent() {
+                return new NeoForgeUnifiedEvents.StrippableEvent();
             }
         });
     }
@@ -270,6 +285,23 @@ public class NeoForgeUnifiedEvents {
                     event.getTable().addPool(pair.getFirst().build());
                 }
             }
+        }
+    }
+
+    public static class StrippableEvent implements UnifiedEvents.StrippableEvent {
+
+        public static HashMap<Block, Block> STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
+
+        @Override
+        public void add(Block original, Block stripped) {
+            STRIPPABLES.put(original, stripped);
+        }
+
+        @SubscribeEvent
+        public static void strippables(FMLCommonSetupEvent event) {
+            event.enqueueWork(() -> {
+                AxeItem.STRIPPABLES = STRIPPABLES;
+            });
         }
     }
 }

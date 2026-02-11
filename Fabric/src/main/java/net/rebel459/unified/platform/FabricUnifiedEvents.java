@@ -2,27 +2,32 @@ package net.rebel459.unified.platform;
 
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
+import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.rebel459.unified.mixin.block.FuelValuesBuilderAccessor;
 import net.rebel459.unified.util.PackInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class FabricUnifiedEvents {
 
@@ -47,6 +52,11 @@ public class FabricUnifiedEvents {
             public UnifiedEvents.FuelEvent createFuelEvent() {
                 return new FabricUnifiedEvents.FuelEvent();
             }
+
+            @Override
+            public UnifiedEvents.StrippableEvent createStrippableEvent() {
+                return new FabricUnifiedEvents.StrippableEvent();
+            }
         });
     }
 
@@ -64,7 +74,7 @@ public class FabricUnifiedEvents {
             });
             EXCLUSIONS_CALLBACKS.add((builder, context) -> {
                 if (ticks < 0) {
-                    ((FuelValuesBuilderAccessor) builder).getValues().remove(item.asItem());
+                    builder.values.remove(item.asItem());
                 }
             });
         }
@@ -198,6 +208,14 @@ public class FabricUnifiedEvents {
                                 .add(LootItem.lootTableItem(item))
                 );
             }
+        }
+    }
+
+    public static class StrippableEvent implements UnifiedEvents.StrippableEvent {
+
+        @Override
+        public void add(Block original, Block stripped) {
+            StrippableBlockRegistry.register(original, stripped);
         }
     }
 }
