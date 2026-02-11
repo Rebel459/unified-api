@@ -8,14 +8,14 @@ public final class UnifiedFactory {
 
     public static void setRegistries(Registries factory) {
         if (registries != null) {
-            throw new IllegalStateException("RegistryFactory already setRegistries");
+            throw new IllegalStateException("UnifiedFactory Registries already set");
         }
         registries = factory;
     }
 
     public static Registries getRegistries() {
         if (registries == null) {
-            throw new IllegalStateException("RegistryFactory not initialized");
+            throw new IllegalStateException("UnifiedFactory Registries not initialized");
         }
         return registries;
     }
@@ -31,14 +31,14 @@ public final class UnifiedFactory {
 
     public static void setEvents(Events factory) {
         if (events != null) {
-            throw new IllegalStateException("RegistryFactory already setRegistries");
+            throw new IllegalStateException("UnifiedFactory Events already set");
         }
         events = factory;
     }
 
     public static Events getEvents() {
         if (events == null) {
-            throw new IllegalStateException("RegistryFactory not initialized");
+            throw new IllegalStateException("UnifiedFactory Events not initialized");
         }
         return events;
     }
