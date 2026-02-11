@@ -1,11 +1,12 @@
-package net.rebel459.unified.util;
+package net.rebel459.unified.util.impl;
 
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.ComposterBlock;
+import net.rebel459.unified.platform.UnifiedRegistries;
 
-public class CompostingRegistryImpl implements CompostingRegistry {
+public class CompostingRegistryImpl implements UnifiedRegistries.CompostingRegistry {
         public Float get(ItemLike item) {
             return ComposterBlock.COMPOSTABLES.getOrDefault(item.asItem(), 0.0F);
         }

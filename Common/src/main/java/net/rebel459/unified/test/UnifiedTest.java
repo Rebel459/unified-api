@@ -1,14 +1,16 @@
 package net.rebel459.unified.test;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
-import net.rebel459.unified.util.CompostingRegistry;
+import net.rebel459.unified.registry.UnifiedComponents;
 
 import java.util.function.Supplier;
 
@@ -16,18 +18,15 @@ public class UnifiedTest {
 
     public static UnifiedRegistries.ItemRegistry ITEMS = UnifiedRegistries.ItemRegistry.create(Unified.MOD_ID);
     public static UnifiedRegistries.BlockRegistry BLOCKS = UnifiedRegistries.BlockRegistry.create(Unified.MOD_ID);
-    public static UnifiedRegistries.FuelRegistry FUELS = UnifiedRegistries.FuelRegistry.create();
-
-    public static void init() {
-        FUELS.add(TEST_ITEM.get(), 20);
-        CompostingRegistry.INSTANCE.add(TEST_ITEM.get(), 0.2F);
-    }
+    public static UnifiedRegistries.CompostingRegistry COMPOSTING = UnifiedRegistries.CompostingRegistry.create();
+    public static UnifiedRegistries.CreativeRegistry CREATIVE_TABS = UnifiedRegistries.CreativeRegistry.create();
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",
             Item::new,
-            new Item.Properties()
+            () -> new Item.Properties()
                     .rarity(Rarity.UNCOMMON)
+                    .component(UnifiedComponents.FURNACE_FUEL.get(), 100)
     );
 
     public static final Supplier<Block> TEST_BLOCK = BLOCKS.register("test_block",
@@ -35,4 +34,13 @@ public class UnifiedTest {
             BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
                     .strength(1.8F, 8F)
     );
+
+    public static final ResourceKey<CreativeModeTab> TEST_TAB = CREATIVE_TABS.registerTab(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "test_tab"), UnifiedTest.TEST_ITEM);
+
+    public static void init() {}
+
+    public static void afterInit() {
+        COMPOSTING.add(UnifiedTest.TEST_ITEM.get(), 0.2F);
+        CREATIVE_TABS.add(TEST_TAB, TEST_ITEM.get(), TEST_BLOCK.get());
+    }
 }

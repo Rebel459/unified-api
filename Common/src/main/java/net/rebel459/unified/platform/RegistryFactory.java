@@ -24,5 +24,7 @@ public final class RegistryFactory {
         UnifiedRegistries.ItemRegistry createItemRegistry(String modId);
         UnifiedRegistries.BlockRegistry createBlockRegistry(String modId);
         UnifiedRegistries.FuelRegistry createFuelRegistry();
+        UnifiedRegistries.CreativeRegistry createCreativeRegistry();
+        UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId);
     }
 }

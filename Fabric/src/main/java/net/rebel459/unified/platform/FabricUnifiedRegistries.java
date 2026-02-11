@@ -1,32 +1,28 @@
 package net.rebel459.unified.platform;
 
-import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
-import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
-import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
-import net.fabricmc.fabric.impl.content.registry.StrippableBlockRegistryImpl;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.mixin.block.FuelValuesBuilderAccessor;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class FabricUnifiedRegistries {
 
@@ -44,7 +40,17 @@ public class FabricUnifiedRegistries {
 
             @Override
             public UnifiedRegistries.FuelRegistry createFuelRegistry() {
-                return null;
+                return new FabricUnifiedRegistries.FuelRegistry();
+            }
+
+            @Override
+            public UnifiedRegistries.CreativeRegistry createCreativeRegistry() {
+                return new FabricUnifiedRegistries.CreativeRegistry();
+            }
+
+            @Override
+            public UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId) {
+                return new FabricUnifiedRegistries.ComponentRegistry(modId);
             }
         });
     }
@@ -52,15 +58,15 @@ public class FabricUnifiedRegistries {
     public record ItemRegistry(String modId) implements UnifiedRegistries.ItemRegistry {
 
         @Override
-        public Supplier<Item> register(String name, Function<Item.Properties, Item> function, Item.Properties properties) {
+        public Supplier<Item> register(String name, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             var resourceKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, name));
-            return () -> Items.registerItem(resourceKey, function, properties.setId(resourceKey));
+            return () -> Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
         }
 
         @Override
-        public Supplier<BlockItem> registerBlockItem(String name, Supplier<Block> blockSupplier, Item.Properties properties) {
+        public Supplier<BlockItem> registerBlockItem(String name, Supplier<Block> blockSupplier, Supplier<Item.Properties> properties) {
             Block block = blockSupplier.get();
-            return () -> (BlockItem) Items.registerBlock(block, properties);
+            return () -> (BlockItem) Items.registerBlock(block, properties.get());
         }
     }
 
@@ -68,7 +74,7 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
-            UnifiedRegistries.ItemRegistry.create(modId).registerBlockItem(name, () -> function.apply(blockProperties.setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, name)))), new Item.Properties());
+            UnifiedRegistries.ItemRegistry.create(modId).registerBlockItem(name, () -> function.apply(blockProperties.setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, name)))), Item.Properties::new);
             return registerWithoutItem(name, function, blockProperties);
         }
 
@@ -124,6 +130,79 @@ public class FabricUnifiedRegistries {
                     callback.buildExclusions(builder, context);
                 }
             });
+        }
+    }
+
+    public static class CreativeRegistry implements UnifiedRegistries.CreativeRegistry {
+
+        @Override
+        public final void add(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
+            var itemList = Arrays.stream(items).toList();
+            for (ItemLike itemLike : itemList) {
+                add(tab, itemLike.asItem().getDefaultInstance());
+            }
+        }
+
+            @SafeVarargs
+        @Override
+        public final void add(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
+            var itemList = Arrays.stream(items).toList();
+            for (int x = itemList.size() - 1; x >= 0; x--) {
+                ItemStack item = itemList.get(x);
+                ItemGroupEvents.modifyEntriesEvent(tab).register(entries -> {
+                    entries.accept(item);
+                });
+            }
+        }
+
+        @Override
+        public final void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
+            var itemList = Arrays.stream(addedItems).toList();
+            for (ItemLike itemLike : itemList) {
+                addAfter(tab, existingItem, itemLike.asItem().getDefaultInstance());
+            }
+        }
+
+        @Override
+        public void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+            ItemGroupEvents.modifyEntriesEvent(tab).register(entries -> {
+                entries.addAfter(existingItem, addedItems);
+            });
+        }
+
+        @Override
+        public final void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
+            var itemList = Arrays.stream(addedItems).toList();
+            for (ItemLike itemLike : itemList) {
+                addBefore(tab, existingItem, itemLike.asItem().getDefaultInstance());
+            }
+        }
+
+        @Override
+        public void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+            ItemGroupEvents.modifyEntriesEvent(tab).register(entries -> {
+                entries.addBefore(existingItem, addedItems);
+            });
+        }
+
+        @Override
+        public ResourceKey<CreativeModeTab> registerTab(Identifier id, Supplier<? extends ItemLike> icon) {
+            CreativeModeTab tab = FabricItemGroup.builder()
+                    .icon(() -> new ItemStack(icon.get()))
+                    .title(Component.translatable("itemGroup." + id.getNamespace() + "." + id.getPath()))
+                    .displayItems((params, output) -> {})
+                    .build();
+            ResourceKey<CreativeModeTab> tabKey = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), id);
+            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, tabKey, tab);
+            return tabKey;
+        }
+    }
+
+    public record ComponentRegistry(String modId) implements UnifiedRegistries.ComponentRegistry {
+
+        @Override
+        public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
+            return () -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, string), unaryOperator.apply(DataComponentType.builder()).build());
         }
     }
 }

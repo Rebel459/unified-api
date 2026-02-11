@@ -3,8 +3,9 @@
   "package": "net.rebel459.unified.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "block.AbstractFurnaceBlockEntityMixin",
     "block.FuelValuesBuilderAccessor",
-    "util.FuelValuesMixin"
+    "block.FuelValuesMixin"
   ],
   "client": [
     "client.ExampleMixin"
