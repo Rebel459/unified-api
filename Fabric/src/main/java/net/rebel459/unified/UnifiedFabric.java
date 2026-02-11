@@ -1,6 +1,7 @@
 package net.rebel459.unified;
 
 import net.fabricmc.api.ModInitializer;
+import net.rebel459.unified.platform.FabricUnifiedEvents;
 import net.rebel459.unified.platform.FabricUnifiedRegistries;
 
 public class UnifiedFabric implements ModInitializer {
@@ -8,6 +9,7 @@ public class UnifiedFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         FabricUnifiedRegistries.init();
+        FabricUnifiedEvents.init();
         Unified.initRegistries();
         Unified.init();
     }

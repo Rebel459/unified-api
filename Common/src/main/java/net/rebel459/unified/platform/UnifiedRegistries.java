@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.util.PackInfo;
 
 import java.util.function.Function;
@@ -27,7 +29,7 @@ public class UnifiedRegistries {
         Supplier<BlockItem> registerBlockItem(String name, Supplier<Block> blockSupplier, Supplier<Item.Properties> properties);
 
         static ItemRegistry create(String modId) {
-            return RegistryFactory.get().createItemRegistry(modId);
+            return UnifiedFactory.getRegistries().createItemRegistry(modId);
         }
     }
 
@@ -39,33 +41,17 @@ public class UnifiedRegistries {
         <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
 
         static BlockRegistry create(String modId) {
-            return RegistryFactory.get().createBlockRegistry(modId);
-        }
-    }
-
-    public interface FuelRegistry {
-
-        void add(ItemLike item, int ticks);
-        void add(TagKey<Item> item, int ticks);
-
-        static FuelRegistry create() {
-            return RegistryFactory.get().createFuelRegistry();
+            return UnifiedFactory.getRegistries().createBlockRegistry(modId);
         }
     }
 
     public interface CreativeRegistry {
+        String modId();
 
-        void add(ResourceKey<CreativeModeTab> tab, ItemLike... items);
-        void add(ResourceKey<CreativeModeTab> tab, ItemStack... items);
-        void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems);
-        void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems);
+        ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon);
 
-        ResourceKey<CreativeModeTab> registerTab(Identifier id, Supplier<? extends ItemLike> icon);
-
-        static CreativeRegistry create() {
-            return RegistryFactory.get().createCreativeRegistry();
+        static CreativeRegistry create(String modId) {
+            return UnifiedFactory.getRegistries().createCreativeRegistry(modId);
         }
     }
 
@@ -75,17 +61,7 @@ public class UnifiedRegistries {
         <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
 
         static ComponentRegistry create(String modId) {
-            return RegistryFactory.get().createComponentRegistry(modId);
-        }
-    }
-
-    public interface PackRegistry {
-        String modId();
-
-        void register(String path, PackInfo info);
-
-        static PackRegistry create(String modId) {
-            return RegistryFactory.get().createPackRegistry(modId);
+            return UnifiedFactory.getRegistries().createComponentRegistry(modId);
         }
     }
 }
