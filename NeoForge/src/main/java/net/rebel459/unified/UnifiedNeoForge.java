@@ -20,7 +20,6 @@ public class UnifiedNeoForge {
         NeoForgeUnifiedEvents.init();
         NeoForgeUnifiedRegistries.registerBus(Unified.MOD_ID, modEventBus);
         Unified.initRegistries();
-        modEventBus.addListener(NeoForgeUnifiedEvents.BlockEntityEvent::modifyBlockEntities);
         modEventBus.addListener(UnifiedNeoForge::commonSetup);
         modEventBus.addListener(NeoForgeUnifiedEvents.StrippableEvent::strippables);
         modEventBus.addListener(NeoForgeUnifiedEvents.CreativeEvent::buildContents);
