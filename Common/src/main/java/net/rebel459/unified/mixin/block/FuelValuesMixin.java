@@ -24,7 +24,7 @@ public class FuelValuesMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "burnDuration", cancellable = true)
-    private void burnComponent(ItemStack itemStack, CallbackInfoReturnable<Integer> cir) {
+    private void fuelComponent(ItemStack itemStack, CallbackInfoReturnable<Integer> cir) {
         if (itemStack.has(UnifiedComponents.FURNACE_FUEL.get())) {
             cir.setReturnValue(Math.max(itemStack.get(UnifiedComponents.FURNACE_FUEL.get()), 0));
         }
