@@ -1,12 +1,12 @@
 package net.rebel459.unified.test;
 
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -17,7 +17,6 @@ import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.registry.UnifiedComponents;
 import net.rebel459.unified.util.PackInfo;
 
-import java.util.HashMap;
 import java.util.function.Supplier;
 
 public class UnifiedTest {
@@ -25,6 +24,7 @@ public class UnifiedTest {
     public static UnifiedRegistries.ItemRegistry ITEMS = UnifiedRegistries.ItemRegistry.create(Unified.MOD_ID);
     public static UnifiedRegistries.BlockRegistry BLOCKS = UnifiedRegistries.BlockRegistry.create(Unified.MOD_ID);
     public static UnifiedRegistries.CreativeRegistry CREATIVE_TABS = UnifiedRegistries.CreativeRegistry.create(Unified.MOD_ID);
+    public static UnifiedRegistries.ParticleRegistry PARTICLES = UnifiedRegistries.ParticleRegistry.create(Unified.MOD_ID);
 
     public static UnifiedEvents.CreativeEvent CREATIVE_EVENT = UnifiedEvents.CreativeEvent.create();
     public static UnifiedEvents.PackEvent PACK_EVENT = UnifiedEvents.PackEvent.create();
@@ -50,6 +50,8 @@ public class UnifiedTest {
             BlockBehaviour.Properties.ofFullCopy(Blocks.BAMBOO_SHELF),
             BlockEntityType.SHELF
     );
+
+    public static final Supplier<SimpleParticleType> TEST_PARTICLE = PARTICLES.register("test_particle", new SimpleParticleType(false) {});
 
     public static final ResourceKey<CreativeModeTab> TEST_TAB = CREATIVE_TABS.registerTab("test_tab", UnifiedTest.TEST_ITEM);
 

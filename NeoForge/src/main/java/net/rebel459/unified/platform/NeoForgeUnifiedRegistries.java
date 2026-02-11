@@ -6,7 +6,9 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -54,6 +56,7 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister.Blocks> BLOCKS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<CreativeModeTab>> CREATIVE_TABS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister.DataComponents> DATA_COMPONENTS = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<ParticleType<?>>> PARTICLES = new ConcurrentHashMap<>();
 
     public static void init() {
         UnifiedFactory.setRegistries(new UnifiedFactory.Registries() {
@@ -71,12 +74,20 @@ public class NeoForgeUnifiedRegistries {
 
             @Override
             public UnifiedRegistries.CreativeRegistry createCreativeRegistry(String modId) {
+                NeoForgeUnifiedRegistries.CREATIVE_TABS.putIfAbsent(modId, DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId));
                 return new NeoForgeUnifiedRegistries.CreativeRegistry(modId);
             }
 
             @Override
             public UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId) {
+                NeoForgeUnifiedRegistries.DATA_COMPONENTS.putIfAbsent(modId, DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
                 return new NeoForgeUnifiedRegistries.ComponentRegistry(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.ParticleRegistry createParticleRegistry(String modId) {
+                NeoForgeUnifiedRegistries.PARTICLES.putIfAbsent(modId, DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
+                return new NeoForgeUnifiedRegistries.ParticleRegistry(modId);
             }
         });
     }
@@ -84,13 +95,15 @@ public class NeoForgeUnifiedRegistries {
     public static void registerBus(String modId, IEventBus modEventBus) {
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
         DeferredRegister.Blocks blocks = BLOCKS.computeIfAbsent(modId, string -> DeferredRegister.createBlocks(modId));
-        DeferredRegister<CreativeModeTab> creativeTabs = CREATIVE_TABS.computeIfAbsent(modId, string -> DeferredRegister.create(net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB, modId));
-        DeferredRegister.DataComponents components = DATA_COMPONENTS.computeIfAbsent(modId, string -> DeferredRegister.createDataComponents(net.minecraft.core.registries.Registries.DATA_COMPONENT_TYPE, modId));
+        DeferredRegister<CreativeModeTab> creativeTabs = CREATIVE_TABS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId));
+        DeferredRegister.DataComponents components = DATA_COMPONENTS.computeIfAbsent(modId, string -> DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
+        DeferredRegister<ParticleType<?>> particles = PARTICLES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
 
         items.register(modEventBus);
         blocks.register(modEventBus);
         creativeTabs.register(modEventBus);
         components.register(modEventBus);
+        particles.register(modEventBus);
     }
 
     public record ItemRegistry(String modId) implements UnifiedRegistries.ItemRegistry {
@@ -166,6 +179,14 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
             return DATA_COMPONENTS.get(modId).registerComponentType(string, unaryOperator);
+        }
+    }
+
+    public record ParticleRegistry(String modId) implements UnifiedRegistries.ParticleRegistry {
+
+        @Override
+        public <T extends ParticleType> Supplier<T> register(String path, ParticleType type) {
+            return (Supplier<T>) PARTICLES.get(modId).register(path, () -> type);
         }
     }
 }

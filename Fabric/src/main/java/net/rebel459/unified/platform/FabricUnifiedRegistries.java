@@ -2,8 +2,11 @@ package net.rebel459.unified.platform;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
+import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -41,6 +44,11 @@ public class FabricUnifiedRegistries {
             @Override
             public UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId) {
                 return new FabricUnifiedRegistries.ComponentRegistry(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.ParticleRegistry createParticleRegistry(String modId) {
+                return new FabricUnifiedRegistries.ParticleRegistry(modId);
             }
         });
     }
@@ -113,6 +121,14 @@ public class FabricUnifiedRegistries {
         @Override
         public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
             return () -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, string), unaryOperator.apply(DataComponentType.builder()).build());
+        }
+    }
+
+    public record ParticleRegistry(String modId) implements UnifiedRegistries.ParticleRegistry {
+
+        @Override
+        public <T extends ParticleType> Supplier<T> register(String path, ParticleType type) {
+            return () -> (T) Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(modId, path), type);
         }
     }
 }

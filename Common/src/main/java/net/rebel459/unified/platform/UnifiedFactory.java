@@ -27,6 +27,7 @@ public final class UnifiedFactory {
         UnifiedRegistries.BlockRegistry createBlockRegistry(String modId);
         UnifiedRegistries.CreativeRegistry createCreativeRegistry(String modId);
         UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId);
+        UnifiedRegistries.ParticleRegistry createParticleRegistry(String modId);
     }
 
     private static Events events;

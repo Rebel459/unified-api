@@ -1,21 +1,16 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.resources.Identifier;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.rebel459.unified.util.PackInfo;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -66,6 +61,16 @@ public class UnifiedRegistries {
 
         static ComponentRegistry create(String modId) {
             return UnifiedFactory.getRegistries().createComponentRegistry(modId);
+        }
+    }
+
+    public interface ParticleRegistry {
+        String modId();
+
+        <T extends ParticleType> Supplier<T> register(String path, ParticleType type);
+
+        static ParticleRegistry create(String modId) {
+            return UnifiedFactory.getRegistries().createParticleRegistry(modId);
         }
     }
 }
