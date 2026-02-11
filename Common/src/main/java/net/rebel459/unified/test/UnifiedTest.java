@@ -30,7 +30,6 @@ public class UnifiedTest {
     public static UnifiedEvents.PackEvent PACK_EVENT = UnifiedEvents.PackEvent.create();
     public static UnifiedEvents.LootEvent LOOT_EVENT = UnifiedEvents.LootEvent.create();
     public static UnifiedEvents.StrippableEvent STRIPPABLE_EVENT = UnifiedEvents.StrippableEvent.create();
-    public static UnifiedEvents.BlockEntityEvent BLOCK_ENTITY_EVENT = UnifiedEvents.BlockEntityEvent.create();
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",
