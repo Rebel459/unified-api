@@ -7,9 +7,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.platform.UnifiedPlatform;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.registry.UnifiedComponents;
 import net.rebel459.unified.util.PackInfo;
@@ -20,7 +20,6 @@ public class UnifiedTest {
 
     public static UnifiedRegistries.ItemRegistry ITEMS = UnifiedRegistries.ItemRegistry.create(Unified.MOD_ID);
     public static UnifiedRegistries.BlockRegistry BLOCKS = UnifiedRegistries.BlockRegistry.create(Unified.MOD_ID);
-    public static UnifiedRegistries.CompostingRegistry COMPOSTING = UnifiedRegistries.CompostingRegistry.create();
     public static UnifiedRegistries.CreativeRegistry CREATIVE_TABS = UnifiedRegistries.CreativeRegistry.create();
     public static UnifiedRegistries.PackRegistry PACKS = UnifiedRegistries.PackRegistry.create(Unified.MOD_ID);
 
@@ -45,7 +44,7 @@ public class UnifiedTest {
     }
 
     public static void afterInit() {
-        COMPOSTING.add(UnifiedTest.TEST_ITEM.get(), 0.2F);
+        ComposterBlock.COMPOSTABLES.put(UnifiedTest.TEST_ITEM.get(), 0.2F);
         CREATIVE_TABS.add(TEST_TAB, TEST_ITEM.get(), TEST_BLOCK.get());
     }
 }

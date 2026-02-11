@@ -12,8 +12,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.util.PackInfo;
-import net.rebel459.unified.util.impl.CompostingRegistryImpl;
-import net.rebel459.unified.util.Item2ObjectMap;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -68,12 +66,6 @@ public class UnifiedRegistries {
 
         static CreativeRegistry create() {
             return RegistryFactory.get().createCreativeRegistry();
-        }
-    }
-
-    public interface CompostingRegistry extends Item2ObjectMap<Float> {
-        static CompostingRegistry create() {
-            return new CompostingRegistryImpl();
         }
     }
 
