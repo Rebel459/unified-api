@@ -18,7 +18,6 @@ public class UnifiedEvents {
     public interface FuelEvent {
 
         void add(ItemLike item, int ticks);
-        void add(TagKey<Item> item, int ticks);
 
         static FuelEvent create() {
             return UnifiedFactory.getEvents().createFuelEvent();
@@ -50,8 +49,8 @@ public class UnifiedEvents {
 
     public interface LootEvent {
 
-        void addPool(ResourceKey<LootTable> table, LootPool.Builder pool);
-        void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder pool);
+        void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools);
+        void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools);
         void addItem(ResourceKey<LootTable> table, ItemLike item, int chance);
         void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance);
 

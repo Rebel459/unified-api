@@ -75,12 +75,6 @@ public class NeoForgeUnifiedEvents {
             ITEMS.put(item, ticks);
         }
 
-        @Override
-        public void add(TagKey<Item> tag, int ticks) {
-            List<Holder<Item>> list = VanillaRegistries.createLookup().lookupOrThrow(net.minecraft.core.registries.Registries.ITEM).get(tag).map(HolderSet.Named::stream).orElse(Stream.empty()).toList();
-            list.forEach(itemHolder -> ITEMS.put(itemHolder.value(), ticks));
-        }
-
         static {
             NeoForge.EVENT_BUS.register(FuelEvent.class);
         }
@@ -226,14 +220,20 @@ public class NeoForgeUnifiedEvents {
         }
 
         @Override
-        public void addPool(ResourceKey<LootTable> table, LootPool.Builder pool) {
-            addPool(List.of(table), pool);
+        public void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools) {
+            var poolList = Arrays.stream(pools).toList();
+            for (LootPool.Builder pool : poolList) {
+                addPool(List.of(table), pool);
+            }
         }
 
         @Override
-        public final void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder pool) {
-            for (ResourceKey<LootTable> table : tables) {
-                LOOT_APPENDER_LIST.add(Pair.of(pool, table));
+        public final void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools) {
+            var poolList = Arrays.stream(pools).toList();
+            for (LootPool.Builder pool : poolList) {
+                for (ResourceKey<LootTable> table : tables) {
+                    LOOT_APPENDER_LIST.add(Pair.of(pool, table));
+                }
             }
         }
 

@@ -69,20 +69,6 @@ public class FabricUnifiedEvents {
             });
         }
 
-        @Override
-        public void add(TagKey<Item> tag, int ticks) {
-            CALLBACKS.add((builder, context) -> {
-                if (ticks >= 0) {
-                    builder.add(tag, ticks);
-                }
-            });
-            EXCLUSIONS_CALLBACKS.add((builder, context) -> {
-                if (ticks < 0) {
-                    ((FuelValuesBuilderAccessor) builder).getValues().remove(tag);
-                }
-            });
-        }
-
         static {
             FuelRegistryEvents.BUILD.register((builder, context) -> {
                 for (var callback : CALLBACKS) {
@@ -168,16 +154,22 @@ public class FabricUnifiedEvents {
     public static class LootEvent implements UnifiedEvents.LootEvent {
 
         @Override
-        public void addPool(ResourceKey<LootTable> table, LootPool.Builder pool) {
-            addPool(List.of(table), pool);
+        public void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools) {
+            var poolList = Arrays.stream(pools).toList();
+            for (LootPool.Builder pool : poolList) {
+                addPool(List.of(table), pool);
+            }
         }
 
         @Override
-        public final void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder pool) {
+        public final void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools) {
             LootTableEvents.MODIFY.register((targetTable, tableBuilder, source, registries) -> {
-                for (ResourceKey<LootTable> table : tables) {
-                    if (targetTable.equals(table)) {
-                        tableBuilder.withPool(pool);
+                var poolList = Arrays.stream(pools).toList();
+                for (LootPool.Builder pool : poolList) {
+                    for (ResourceKey<LootTable> table : tables) {
+                        if (targetTable.equals(table)) {
+                            tableBuilder.withPool(pool);
+                        }
                     }
                 }
             });
