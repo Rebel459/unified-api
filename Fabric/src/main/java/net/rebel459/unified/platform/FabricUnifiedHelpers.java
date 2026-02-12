@@ -1,15 +1,24 @@
 package net.rebel459.unified.platform;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -20,10 +29,13 @@ import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.rebel459.unified.util.PackInfo;
+import net.rebel459.unified.util.PacketContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class FabricUnifiedHelpers {
 
@@ -52,6 +64,11 @@ public class FabricUnifiedHelpers {
             @Override
             public UnifiedHelpers.StrippableBlocks createStrippableBlocks() {
                 return new StrippableBlocks();
+            }
+
+            @Override
+            public UnifiedHelpers.NetworkPayloads createNetworkPayloads() {
+                return new NetworkPayloads();
             }
         });
     }
@@ -217,6 +234,57 @@ public class FabricUnifiedHelpers {
         @Override
         public void add(Block original, Block stripped) {
             StrippableBlockRegistry.register(original, stripped);
+        }
+    }
+
+    public static class NetworkPayloads implements UnifiedHelpers.NetworkPayloads {
+
+        @Override
+        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.playC2S().register(type, codec);
+        }
+
+        @Override
+        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.playS2C().register(type, codec);
+        }
+
+        @Override
+        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+
+            PayloadTypeRegistry.playC2S().register(type, codec);
+
+            ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
+                PacketContext unifiedCtx = new PacketContext() {
+                    @Override
+                    public ServerPlayer player() {
+                        return context.player();
+                    }
+
+                    @Override
+                    public void respond(CustomPacketPayload p) {
+                        ServerPlayNetworking.send(context.player(), p);
+                    }
+                };
+                handler.accept(payload, unifiedCtx);
+            });
+        }
+
+        @Override
+        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+
+            PayloadTypeRegistry.playS2C().register(type, codec);
+
+            if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
+                    handler.accept(payload);
+                });
+            }
+        }
+
+        @Override
+        public void send(CustomPacketPayload payload, ServerPlayer player) {
+            ServerPlayNetworking.send(player, payload);
         }
     }
 }

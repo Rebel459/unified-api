@@ -3,9 +3,14 @@ package net.rebel459.unified.platform;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -26,13 +31,19 @@ import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.rebel459.unified.util.PackInfo;
+import net.rebel459.unified.util.PacketContext;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class NeoForgeUnifiedHelpers {
 
@@ -61,6 +72,11 @@ public class NeoForgeUnifiedHelpers {
             @Override
             public UnifiedHelpers.StrippableBlocks createStrippableBlocks() {
                 return new StrippableBlocks();
+            }
+
+            @Override
+            public UnifiedHelpers.NetworkPayloads createNetworkPayloads() {
+                return new NetworkPayloads();
             }
         });
     }
@@ -293,6 +309,105 @@ public class NeoForgeUnifiedHelpers {
             event.enqueueWork(() -> {
                 AxeItem.STRIPPABLES = STRIPPABLES;
             });
+        }
+    }
+
+    public static class NetworkPayloads implements UnifiedHelpers.NetworkPayloads {
+
+        @Override
+        public void send(CustomPacketPayload payload, ServerPlayer player) {
+            player.connection.send(new ClientboundCustomPayloadPacket(payload));
+        }
+
+        public static List<Pair<CustomPacketPayload.Type, StreamCodec>> C2S_LIST = new ArrayList<>();
+        public static List<Pair<CustomPacketPayload.Type, StreamCodec>> S2C_LIST = new ArrayList<>();
+
+        @Override
+        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec) {
+            C2S_LIST.add(Pair.of(type, codec));
+        }
+
+        @Override
+        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec) {
+            S2C_LIST.add(Pair.of(type, codec));
+        }
+
+        @SubscribeEvent
+        public static void register(RegisterPayloadHandlersEvent event) {
+            final PayloadRegistrar registrar = event.registrar("1");
+            for (Pair<CustomPacketPayload.Type, StreamCodec> pair : C2S_LIST) {
+                registrar.playToServer(
+                        pair.getFirst(),
+                        pair.getSecond(),
+                        ServerPayloadHandler::handle
+                );
+            }
+            for (Pair<CustomPacketPayload.Type, StreamCodec> pair : S2C_LIST) {
+                registrar.playToClient(
+                        pair.getFirst(),
+                        pair.getSecond(),
+                        ServerPayloadHandler::handle
+                );
+            }
+        }
+
+        private static final List<C2SRegistration<?>> C2S_REGS = new ArrayList<>();
+        private static final List<S2CRegistration<?>> S2C_REGS = new ArrayList<>();
+
+        private record C2SRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, PacketContext> handler) {}
+
+        private record S2CRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, Consumer<T> handler) {}
+
+        @Override
+        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+
+            C2S_REGS.add(new C2SRegistration<>(type, codec, handler));
+        }
+
+        @Override
+        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+
+            S2C_REGS.add(new S2CRegistration<>(type, codec, handler));
+        }
+
+        @SubscribeEvent
+        public static void registerWithHandler(RegisterPayloadHandlersEvent event) {
+            final PayloadRegistrar registrar = event.registrar("1");
+
+            for (C2SRegistration<?> reg : C2S_REGS) {
+                @SuppressWarnings("unchecked")
+                C2SRegistration r = reg;
+
+                registrar.playToServer(
+                        r.type,
+                        r.codec,
+                        (payload, context) -> {
+                            PacketContext unifiedCtx = new PacketContext() {
+                                @Override
+                                public ServerPlayer player() {
+                                    return (ServerPlayer) context.player();
+                                }
+
+                                @Override
+                                public void respond(CustomPacketPayload p) {
+                                    context.connection().send(new ClientboundCustomPayloadPacket(p));
+                                }
+                            };
+                            r.handler.accept(payload, unifiedCtx);
+                        }
+                );
+            }
+
+            for (S2CRegistration<?> reg : S2C_REGS) {
+                @SuppressWarnings("unchecked")
+                S2CRegistration r = reg;
+
+                registrar.playToClient(
+                        r.type,
+                        r.codec,
+                        (payload, context) -> r.handler.accept(payload)
+                );
+            }
         }
     }
 }

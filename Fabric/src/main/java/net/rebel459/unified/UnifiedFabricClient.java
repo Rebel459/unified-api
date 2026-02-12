@@ -13,6 +13,6 @@ public class UnifiedFabricClient implements ClientModInitializer {
         FabricUnifiedClientEvents.init();
         FabricUnifiedClientRegistries.init();
         FabricUnifiedClientHelpers.init();
-        UnifiedTest.clientInit();
+        UnifiedClient.initClient();
     }
 }

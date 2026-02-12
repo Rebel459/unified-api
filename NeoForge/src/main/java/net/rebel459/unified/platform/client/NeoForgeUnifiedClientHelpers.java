@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
@@ -49,6 +51,11 @@ public class NeoForgeUnifiedClientHelpers {
             public UnifiedClientHelpers.BlockLayers createBlockLayers() {
                 return new BlockLayers();
             }
+
+            @Override
+            public UnifiedClientHelpers.NetworkPayloads createNetworkPayloads() {
+                return new NetworkPayloads();
+            }
         });
     }
 
@@ -61,7 +68,7 @@ public class NeoForgeUnifiedClientHelpers {
             PARTICLE_PROVIDERS.add(Pair.of(type, provider));
         }
 
-        @SubscribeEvent // on the mod event bus only on the physical client
+        @SubscribeEvent
         public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
             for (Pair<ParticleType, ParticleResources.SpriteParticleRegistration> provider : PARTICLE_PROVIDERS) {
                 event.registerSpriteSet(provider.getFirst(), provider.getSecond());
@@ -118,6 +125,14 @@ public class NeoForgeUnifiedClientHelpers {
         @Override
         public void add(Fluid fluid, ChunkSectionLayer layer) {
             ItemBlockRenderTypes.setRenderLayer(fluid, layer);
+        }
+    }
+
+    public static class NetworkPayloads implements UnifiedClientHelpers.NetworkPayloads {
+
+        @Override
+        public void send(CustomPacketPayload payload) {
+            Minecraft.getInstance().getConnection().send(new ServerboundCustomPayloadPacket(payload));
         }
     }
 }

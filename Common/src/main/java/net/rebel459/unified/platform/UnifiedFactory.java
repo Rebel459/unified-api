@@ -81,6 +81,7 @@ public final class UnifiedFactory {
         UnifiedHelpers.Packs createPacks();
         UnifiedHelpers.FurnaceFuels createFurnaceFuels();
         UnifiedHelpers.StrippableBlocks createStrippableBlocks();
+        UnifiedHelpers.NetworkPayloads createNetworkPayloads();
     }
 
     // CLIENT EVENTS
@@ -105,5 +106,6 @@ public final class UnifiedFactory {
         UnifiedClientHelpers.ParticleProviders createParticleProviders();
         UnifiedClientHelpers.EntityRenderers createEntityRenderers();
         UnifiedClientHelpers.BlockLayers createBlockLayers();
+        UnifiedClientHelpers.NetworkPayloads createNetworkPayloads();
     }
 }

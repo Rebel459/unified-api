@@ -15,7 +15,7 @@ public class UnifiedNeoForgeClient {
         NeoForgeUnifiedClientEvents.init();
         NeoForgeUnifiedClientRegistries.init();
         NeoForgeUnifiedClientHelpers.init();
-        UnifiedTest.clientInit();
+        UnifiedClient.initClient();
         modEventBus.addListener(NeoForgeUnifiedClientHelpers.ParticleProviders::registerParticleProviders);
         modEventBus.addListener(NeoForgeUnifiedClientHelpers.EntityRenderers::registerLayerDefinitions);
         modEventBus.addListener(NeoForgeUnifiedClientHelpers.EntityRenderers::registerRenderers);

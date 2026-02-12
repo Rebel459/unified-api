@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform.client;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.platform.UnifiedFactory;
+import net.rebel459.unified.util.MutableSpriteSet;
 
 import java.util.function.Supplier;
 
@@ -45,6 +48,11 @@ public class FabricUnifiedClientHelpers {
             public UnifiedClientHelpers.BlockLayers createBlockLayers() {
                 return new BlockLayers();
             }
+
+            @Override
+            public UnifiedClientHelpers.NetworkPayloads createNetworkPayloads() {
+                return new NetworkPayloads();
+            }
         });
     }
 
@@ -52,7 +60,7 @@ public class FabricUnifiedClientHelpers {
 
         @Override
         public <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> provider) {
-            ParticleFactoryRegistry.getInstance().register(type, (ParticleFactoryRegistry.PendingParticleFactory) provider);
+            ParticleFactoryRegistry.getInstance().register(type, provider.create(new MutableSpriteSet()));
         }
     }
 
@@ -84,6 +92,14 @@ public class FabricUnifiedClientHelpers {
         @Override
         public void add(Fluid fluid, ChunkSectionLayer layer) {
             BlockRenderLayerMap.putFluid(fluid, layer);
+        }
+    }
+
+    public static class NetworkPayloads implements UnifiedClientHelpers.NetworkPayloads {
+
+        @Override
+        public void send(CustomPacketPayload payload) {
+            ClientPlayNetworking.send(payload);
         }
     }
 }

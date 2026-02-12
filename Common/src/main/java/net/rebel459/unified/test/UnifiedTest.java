@@ -1,12 +1,19 @@
 package net.rebel459.unified.test;
 
-import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.FallingLeavesParticle;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.*;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -15,12 +22,13 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedEvents;
-import net.rebel459.unified.platform.client.UnifiedClientEvents;
-import net.rebel459.unified.platform.client.UnifiedClientHelpers;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.platform.UnifiedRegistries;
+import net.rebel459.unified.platform.client.UnifiedClientEvents;
+import net.rebel459.unified.platform.client.UnifiedClientHelpers;
 import net.rebel459.unified.registry.UnifiedItemComponents;
 import net.rebel459.unified.util.PackInfo;
+import net.rebel459.unified.util.PacketContext;
 
 import java.util.function.Supplier;
 
@@ -35,7 +43,6 @@ public class UnifiedTest {
     public static UnifiedHelpers.Packs PACK_EVENT = UnifiedHelpers.Packs.create();
     public static UnifiedHelpers.LootTables LOOT_EVENT = UnifiedHelpers.LootTables.create();
     public static UnifiedHelpers.StrippableBlocks STRIPPABLE_EVENT = UnifiedHelpers.StrippableBlocks.create();
-    public static UnifiedClientHelpers.ParticleProviders CLIENT_PARTICLE_PROVIDERS = UnifiedClientHelpers.ParticleProviders.create();
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",
@@ -61,11 +68,6 @@ public class UnifiedTest {
 
     public static final ResourceKey<CreativeModeTab> TEST_TAB = CREATIVE_TABS.registerTab("test_tab", UnifiedTest.TEST_ITEM);
 
-    public static final ModelLayerLocation TEST_LAYER = new ModelLayerLocation(
-            Identifier.fromNamespaceAndPath("examplemod", "example_entity"),
-            "main"
-    );
-
     public static void init() {}
 
     public static void afterInit() {
@@ -80,10 +82,39 @@ public class UnifiedTest {
         FireBlock fireBlock = (FireBlock) net.minecraft.world.level.block.Blocks.FIRE;
         fireBlock.setFlammable(TEST_BLOCK.get(), 5, 20);
         STRIPPABLE_EVENT.add(TEST_BLOCK.get(), net.minecraft.world.level.block.Blocks.OAK_LOG);
+
+        var network = UnifiedHelpers.NetworkPayloads.create();
+
+        network.registerC2S(PingPayload.TYPE, PingPayload.CODEC, (payloadObject, contextObject) -> {
+            PingPayload payload = (PingPayload) payloadObject;
+            PacketContext context = (PacketContext) contextObject;
+
+            context.player().sendSystemMessage(Component.literal("Server received ping: " + payload.message()));
+
+            context.respond(new PongPayload("Pong! Echo: " + payload.message()));
+        });
+
+        network.registerS2C(PongPayload.TYPE, PongPayload.CODEC, payloadObject -> {
+            PongPayload payload = (PongPayload) payloadObject;
+            Minecraft.getInstance().execute(() -> {
+                if (Minecraft.getInstance().player != null) {
+                    Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("Client received: " + payload.message()), true
+                    );
+                }
+            });
+        });
+
+        UnifiedEvents.PlayerJoin.insert(player -> {
+            if (player instanceof ServerPlayer serverPlayer) {
+                var serverNet = UnifiedHelpers.NetworkPayloads.create();
+                serverNet.send(new PongPayload("Auto pong on join! Welcome, " + serverPlayer.getName().getString()), serverPlayer);
+            }
+        });
     }
 
     public static void clientInit() {
-        CLIENT_PARTICLE_PROVIDERS.add(TEST_PARTICLE.get(), FallingLeavesParticle.CherryProvider::new);
-        UnifiedClientEvents.EndTick.insert(client -> {});
+        var particleProviders = UnifiedClientHelpers.ParticleProviders.create();
+        particleProviders.add(TEST_PARTICLE.get(), FallingLeavesParticle.CherryProvider::new);
     }
 }

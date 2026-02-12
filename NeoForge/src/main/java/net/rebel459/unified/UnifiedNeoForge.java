@@ -21,6 +21,8 @@ public class UnifiedNeoForge {
         modEventBus.addListener(NeoForgeUnifiedHelpers.CreativeEntries::buildContents);
         modEventBus.addListener(NeoForgeUnifiedHelpers.Packs::addFeaturePacks);
         modEventBus.addListener(NeoForgeUnifiedRegistries.Blocks::modifyBlockEntities);
+        modEventBus.addListener(NeoForgeUnifiedHelpers.NetworkPayloads::register);
+        modEventBus.addListener(NeoForgeUnifiedHelpers.NetworkPayloads::registerWithHandler);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {

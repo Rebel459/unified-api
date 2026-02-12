@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
@@ -50,6 +51,15 @@ public class UnifiedClientHelpers {
 
         static BlockLayers create() {
             return UnifiedFactory.getClientHelpers().createBlockLayers();
+        }
+    }
+
+    public interface NetworkPayloads {
+
+        void send(CustomPacketPayload payload);
+
+        static NetworkPayloads create() {
+            return UnifiedFactory.getClientHelpers().createNetworkPayloads();
         }
     }
 }

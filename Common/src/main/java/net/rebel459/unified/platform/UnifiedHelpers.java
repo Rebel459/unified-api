@@ -1,8 +1,13 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -10,9 +15,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.util.PackInfo;
+import net.rebel459.unified.util.PacketContext;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class UnifiedHelpers {
@@ -67,6 +74,21 @@ public class UnifiedHelpers {
 
         static StrippableBlocks create() {
             return UnifiedFactory.getHelpers().createStrippableBlocks();
+        }
+    }
+
+    public interface NetworkPayloads<B extends FriendlyByteBuf> {
+
+        <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
+        <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
+
+        <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, PacketContext> handler);
+        <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, Consumer<T> handler);
+
+        void send(CustomPacketPayload payload, ServerPlayer player);
+
+        static NetworkPayloads create() {
+            return UnifiedFactory.getHelpers().createNetworkPayloads();
         }
     }
 }
