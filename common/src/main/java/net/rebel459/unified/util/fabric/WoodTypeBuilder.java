@@ -1,4 +1,4 @@
-package net.rebel459.unified.util;
+package net.rebel459.unified.util.fabric;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;

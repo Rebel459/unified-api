@@ -1,4 +1,4 @@
-package net.rebel459.unified.util;
+package net.rebel459.unified.util.fabric;
 
 import java.util.function.Supplier;
 
@@ -14,10 +14,10 @@ public final class RenderStateDataKey<T> {
     }
 
     public static <T> RenderStateDataKey<T> create() {
-        return new RenderStateDataKey<T>(() -> "unnamed");
+        return new RenderStateDataKey<>(() -> "unnamed");
     }
 
     public String toString() {
-        return "RenderStateDataKey(" + (String)this.name.get() + ")";
+        return "RenderStateDataKey(" + this.name.get() + ")";
     }
 }

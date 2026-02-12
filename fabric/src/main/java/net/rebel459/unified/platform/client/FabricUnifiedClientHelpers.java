@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.rebel459.unified.platform.Factory;
-import net.rebel459.unified.util.MutableSpriteSet;
 
 import java.util.function.Supplier;
 
@@ -58,7 +57,7 @@ public class FabricUnifiedClientHelpers {
 
         @Override
         public <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
-            ParticleFactoryRegistry.getInstance().register((ParticleType) type.get(), sprite.create(new MutableSpriteSet()));
+            ParticleFactoryRegistry.getInstance().register((ParticleType) type.get(), sprite.create(new ParticleResources.MutableSpriteSet()));
         }
     }
 
