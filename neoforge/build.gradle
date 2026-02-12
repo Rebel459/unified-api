@@ -1,0 +1,59 @@
+// Adjust the output jar name here
+base {
+    archivesName = "${mod_id}-api-neoforge"
+}
+
+dependencies {
+    // Add your dependencies here
+
+    // Do not edit or remove
+    implementation project(":common")
+}
+
+// Maven Publishing. Remove if not needed
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        // Add your maven repository here
+        maven {
+            url "file://" + System.getenv("local_maven")
+        }
+    }
+}
+
+/**
+ * ===============================================================================
+ * =       DO NOT EDIT BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING        =
+ * ===============================================================================
+ */
+
+unimined.minecraft {
+    combineWith(project(":common").sourceSets.withoutFMJ)
+
+    neoForged {
+        loader neoforge_version
+        mixinConfig("unified.mixins.json", "unified-neoforge.mixins.json")
+        accessTransformer aw2at(file("../common/src/main/resources/unified.accesswidener"))
+        accessTransformer file('src/main/resources/META-INF/accesstransformer-neoforge.cfg')
+    }
+}
+
+processResources {
+    from project(":common").sourceSets.main.resources
+    def buildProps = project.properties.clone()
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand buildProps
+    }
+}
+
+compileTestJava.enabled = false
+
+tasks.withType(JavaCompile).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}

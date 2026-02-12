@@ -1,0 +1,62 @@
+// Adjust the output jar name here
+base {
+    archivesName = "${mod_id}-api-common"
+}
+
+dependencies {
+    // Add your dependencies here
+}
+
+// Maven Publishing. Remove if not needed
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        // Add your maven repository here
+        maven {
+            url "file://" + System.getenv("local_maven")
+        }
+    }
+}
+
+/**
+ * ===============================================================================
+ * =       DO NOT EDIT BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING        =
+ * ===============================================================================
+ */
+
+unimined.minecraft {
+    fabric {
+        loader fabric_loader
+        accessWidener file("src/main/resources/unified.accesswidener")
+    }
+
+    defaultRemapJar = false
+}
+
+processResources {
+    def buildProps = project.properties.clone()
+
+    filesMatching(['pack.mcmeta']) {
+        expand buildProps
+    }
+}
+
+sourceSets {
+    withoutFMJ {
+        java {
+        }
+        resources {
+            exclude 'fabric.mod.json'
+        }
+    }
+}
+
+sourcesJar {
+    from sourceSets.withoutFMJ.allSource
+    exclude 'fabric.mod.json'
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "A general-purpose multiloader API built on Unimined",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "sources": "https://github.com/Rebel459/unified-api"
+  },
+  "license": "LGPL 3.0-Only",
+  "icon": "assets/examplemod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.rebel459.unified.UnifiedFabric"
+    ],
+    "client": [
+      "net.rebel459.unified.UnifiedFabricClient"
+    ]
+  },
+  "mixins": [
+    "unified.mixins.json",
+    "unified-fabric.mixins.json"
+  ],
+  "accessWidener": "unified.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.18",
+    "fabric": "*",
+    "minecraft": ">=1.21.11",
+    "java": ">=21"
+  }
+}

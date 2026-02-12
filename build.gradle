@@ -110,7 +110,7 @@ subprojects {
         delete "$rootDir/artifacts"
     }
 
-    if (project.name !== 'Common') {
+    if (project.name !== 'common') {
         tasks.register('delDevJar') {
             doLast {
                 def tree = fileTree('build/libs')

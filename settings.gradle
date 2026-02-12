@@ -12,5 +12,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'fdd-xplat'
-include('Common', 'Fabric', 'NeoForge')
+rootProject.name = 'unified-api'
+include('common', 'fabric', 'neoforge')

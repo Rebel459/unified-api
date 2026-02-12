@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="LGPL 3.0-Only"
+issueTrackerURL="https://github.com/neoforged/"
+
+[[mods]]
+modId="${mod_id}"
+version="${version}"
+displayName="${mod_name}"
+#updateJSONURL="https://change.me.example.invalid/updates.json"
+displayURL="https://neoforged.net"
+logoFile="assets/examplemod/icon.png"
+credits="Rebel459, Unimined"
+authors="${mod_author}"
+description='''
+A general-purpose multiloader API built on Unimined
+'''
+
+[[dependencies.${mod_id}]]
+modId="neoforge"
+type="required"
+versionRange="[21.11.0-beta,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.11,26.1)"
+ordering="NONE"
+side="BOTH"

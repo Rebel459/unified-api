@@ -1,0 +1,66 @@
+// Adjust the output jar name here
+base {
+    archivesName = "${mod_id}-api-fabric"
+}
+
+dependencies {
+    // Add your own dependencies here
+
+    // Fabric API. Can be removed if not needed
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api}"
+
+    // Do not remove or edit!
+    implementation(project(":common"))
+}
+
+// Maven Publishing. Remove if not needed
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        // Add your maven repository here
+        maven {
+            url "file://" + System.getenv("local_maven")
+        }
+    }
+}
+
+/**
+ * ===============================================================================
+ * =       DO NOT EDIT BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING        =
+ * ===============================================================================
+ */
+
+unimined.minecraft {
+    combineWith(project(":common").sourceSets.withoutFMJ)
+
+    fabric {
+        loader fabric_loader
+        accessWidener file("../common/src/main/resources/unified.accesswidener")
+    }
+}
+
+processResources {
+    from project(":common").sourceSets.main.resources
+    def buildProps = project.properties.clone()
+
+    filesMatching(['fabric.mod.json']) {
+        expand buildProps
+    }
+}
+
+compileTestJava.enabled = false
+
+tasks.withType(JavaCompile).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
