@@ -8,7 +8,7 @@ import net.rebel459.unified.platform.UnifiedRegistries;
 
 import java.util.function.Supplier;
 
-public class UnifiedComponents {
+public class UnifiedItemComponents {
 
     public static void init() {}
 

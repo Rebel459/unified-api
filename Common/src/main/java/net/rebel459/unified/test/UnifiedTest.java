@@ -14,10 +14,12 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.platform.client.UnifiedClientEvents;
 import net.rebel459.unified.platform.UnifiedEvents;
+import net.rebel459.unified.platform.client.UnifiedClientEvents;
+import net.rebel459.unified.platform.client.UnifiedClientHelpers;
+import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.platform.UnifiedRegistries;
-import net.rebel459.unified.registry.UnifiedComponents;
+import net.rebel459.unified.registry.UnifiedItemComponents;
 import net.rebel459.unified.util.PackInfo;
 
 import java.util.function.Supplier;
@@ -29,18 +31,18 @@ public class UnifiedTest {
     public static UnifiedRegistries.CreativeTabs CREATIVE_TABS = UnifiedRegistries.CreativeTabs.create(Unified.MOD_ID);
     public static UnifiedRegistries.Particles PARTICLES = UnifiedRegistries.Particles.create(Unified.MOD_ID);
 
-    public static UnifiedEvents.CreativeEntries CREATIVE_EVENT = UnifiedEvents.CreativeEntries.create();
-    public static UnifiedEvents.Packs PACK_EVENT = UnifiedEvents.Packs.create();
-    public static UnifiedEvents.LootTables LOOT_EVENT = UnifiedEvents.LootTables.create();
-    public static UnifiedEvents.StrippableBlocks STRIPPABLE_EVENT = UnifiedEvents.StrippableBlocks.create();
-    public static UnifiedClientEvents.ParticleProviders CLIENT_PARTICLE_PROVIDERS = UnifiedClientEvents.ParticleProviders.create();
+    public static UnifiedHelpers.CreativeEntries CREATIVE_EVENT = UnifiedHelpers.CreativeEntries.create();
+    public static UnifiedHelpers.Packs PACK_EVENT = UnifiedHelpers.Packs.create();
+    public static UnifiedHelpers.LootTables LOOT_EVENT = UnifiedHelpers.LootTables.create();
+    public static UnifiedHelpers.StrippableBlocks STRIPPABLE_EVENT = UnifiedHelpers.StrippableBlocks.create();
+    public static UnifiedClientHelpers.ParticleProviders CLIENT_PARTICLE_PROVIDERS = UnifiedClientHelpers.ParticleProviders.create();
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",
             Item::new,
             () -> new Item.Properties()
                     .rarity(Rarity.UNCOMMON)
-                    .component(UnifiedComponents.FURNACE_FUEL.get(), 100)
+                    .component(UnifiedItemComponents.FURNACE_FUEL.get(), 100)
     );
 
     public static final Supplier<RotatedPillarBlock> TEST_BLOCK = BLOCKS.register("test_block",
@@ -82,8 +84,6 @@ public class UnifiedTest {
 
     public static void clientInit() {
         CLIENT_PARTICLE_PROVIDERS.add(TEST_PARTICLE.get(), FallingLeavesParticle.CherryProvider::new);
-        UnifiedEvents.ClientTickEvent.insert(client -> {
-
-        });
+        UnifiedClientEvents.EndTick.insert(client -> {});
     }
 }

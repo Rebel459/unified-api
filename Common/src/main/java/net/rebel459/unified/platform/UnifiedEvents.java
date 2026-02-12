@@ -1,88 +1,89 @@
 package net.rebel459.unified.platform;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.rebel459.unified.util.PackInfo;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class UnifiedEvents {
 
-    public interface FurnaceFuels {
+    public static class ModifyItemComponents {
 
-        void add(ItemLike item, int ticks);
+        private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
 
-        static FurnaceFuels create() {
-            return UnifiedFactory.getEvents().createFurnaceFuels();
+        private ModifyItemComponents() {}
+
+        public static void insert(Predicate<Item> filter, BiConsumer<Builder, Item> modifier) {
+            ENTRIES.add(new Entry(filter, modifier));
+        }
+
+        public static void pass(Item item, Builder builder) {
+            for (Entry entry : ENTRIES) {
+                if (entry.filter.test(item)) {
+                    entry.modifier.accept(builder, item);
+                }
+            }
+        }
+
+        private record Entry(Predicate<Item> filter, BiConsumer<Builder, Item> modifier) {}
+
+        public interface Builder {
+            <T> void set(DataComponentType<? super T> type, T value);
         }
     }
 
-    public interface CreativeEntries {
+    public static class PlayerJoin {
 
-        void add(ResourceKey<CreativeModeTab> tab, ItemLike... items);
-        void add(ResourceKey<CreativeModeTab> tab, ItemStack... items);
-        void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems);
-        void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems);
+        private static final List<Consumer<Player>> LISTENERS = new CopyOnWriteArrayList<>();
 
-        static CreativeEntries create() {
-            return UnifiedFactory.getEvents().createCreativeEntries();
+        private PlayerJoin() {}
+
+        public static void insert(Consumer<Player> listener) {
+            LISTENERS.add(listener);
+        }
+
+        public static void pass(Player player) {
+            for (Consumer<Player> listener : LISTENERS) {
+                listener.accept(player);
+            }
         }
     }
 
-    public interface Packs {
+    public static class PlayerLeave {
 
-        void add(Identifier id, PackInfo info);
+        private static final List<Consumer<Player>> LISTENERS = new CopyOnWriteArrayList<>();
 
-        static Packs create() {
-            return UnifiedFactory.getEvents().createPacks();
+        private PlayerLeave() {}
+
+        public static void insert(Consumer<Player> listener) {
+            LISTENERS.add(listener);
+        }
+
+        public static void pass(Player player) {
+            for (Consumer<Player> listener : LISTENERS) {
+                listener.accept(player);
+            }
         }
     }
 
-    public interface LootTables {
+    public static class PlayerRespawn {
 
-        void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools);
-        void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools);
-        void addItem(ResourceKey<LootTable> table, ItemLike item, int chance);
-        void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance);
+        private static final List<Consumer<Player>> LISTENERS = new CopyOnWriteArrayList<>();
 
-        static LootTables create() {
-            return UnifiedFactory.getEvents().createLootTables();
-        }
-    }
+        private PlayerRespawn() {}
 
-    public interface StrippableBlocks {
-
-        void add(Block original, Block stripped);
-
-        static StrippableBlocks create() {
-            return UnifiedFactory.getEvents().createStrippableBlocks();
-        }
-    }
-
-    public static class ClientTickEvent {
-
-        private static final List<Consumer<Minecraft>> END_TICK_LISTENERS = new CopyOnWriteArrayList<>();
-
-        private ClientTickEvent() {}
-
-        public static void insert(Consumer<Minecraft> listener) {
-            END_TICK_LISTENERS.add(listener);
+        public static void insert(Consumer<Player> listener) {
+            LISTENERS.add(listener);
         }
 
-        public static void pass(Minecraft client) {
-            for (Consumer<Minecraft> listener : END_TICK_LISTENERS) {
-                listener.accept(client);
+        public static void pass(Player player) {
+            for (Consumer<Player> listener : LISTENERS) {
+                listener.accept(player);
             }
         }
     }

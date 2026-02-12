@@ -1,55 +1,44 @@
 package net.rebel459.unified.platform.client;
 
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.particle.ParticleResources;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.material.Fluid;
-import net.rebel459.unified.platform.UnifiedFactory;
+import net.minecraft.client.Minecraft;
 
-import java.util.function.Supplier;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 public class UnifiedClientEvents {
 
-    public interface ParticleProviders {
+    public static class EndTick {
 
-        <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> sprite);
+        private static final List<Consumer<Minecraft>> LISTENERS = new CopyOnWriteArrayList<>();
 
-        static ParticleProviders create() {
-            return UnifiedFactory.getClientEvents().createParticleProviders();
+        private EndTick() {}
+
+        public static void insert(Consumer<Minecraft> listener) {
+            LISTENERS.add(listener);
+        }
+
+        public static void pass(Minecraft client) {
+            for (Consumer<Minecraft> listener : LISTENERS) {
+                listener.accept(client);
+            }
         }
     }
 
-    public interface EntityRenderers {
+    public static class StartTick {
 
-        void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition);
+        private static final List<Consumer<Minecraft>> LISTENERS = new CopyOnWriteArrayList<>();
 
-        <T extends Entity> void addEntityRenderer(EntityType<? extends T> entityType, EntityRendererProvider<T> entityRendererProvider);
+        private StartTick() {}
 
-        <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
-
-        static EntityRenderers create() {
-            return UnifiedFactory.getClientEvents().createEntityRenderers();
+        public static void insert(Consumer<Minecraft> listener) {
+            LISTENERS.add(listener);
         }
-    }
 
-    public interface BlockLayers {
-
-        void add(Block block, ChunkSectionLayer layer);
-        void add(Fluid fluid, ChunkSectionLayer layer);
-
-        static BlockLayers create() {
-            return UnifiedFactory.getClientEvents().createBlockLayers();
+        public static void pass(Minecraft client) {
+            for (Consumer<Minecraft> listener : LISTENERS) {
+                listener.accept(client);
+            }
         }
     }
 }

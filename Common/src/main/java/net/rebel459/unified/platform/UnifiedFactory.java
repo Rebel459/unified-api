@@ -1,6 +1,6 @@
 package net.rebel459.unified.platform;
 
-import net.rebel459.unified.platform.client.UnifiedClientEvents;
+import net.rebel459.unified.platform.client.UnifiedClientHelpers;
 import net.rebel459.unified.platform.client.UnifiedClientRegistries;
 
 public final class UnifiedFactory {
@@ -59,51 +59,51 @@ public final class UnifiedFactory {
 
     // EVENTS
 
-    private static Events events;
+    private static Helpers helpers;
 
-    public static void setEvents(Events factory) {
-        if (events != null) {
-            throw new IllegalStateException("UnifiedFactory Events already set");
+    public static void setHelpers(Helpers factory) {
+        if (helpers != null) {
+            throw new IllegalStateException("UnifiedFactory Helpers already set");
         }
-        events = factory;
+        helpers = factory;
     }
 
-    public static Events getEvents() {
-        if (events == null) {
-            throw new IllegalStateException("UnifiedFactory Events not initialized");
+    public static Helpers getHelpers() {
+        if (helpers == null) {
+            throw new IllegalStateException("UnifiedFactory Helpers not initialized");
         }
-        return events;
+        return helpers;
     }
 
-    public interface Events {
-        UnifiedEvents.CreativeEntries createCreativeEntries();
-        UnifiedEvents.LootTables createLootTables();
-        UnifiedEvents.Packs createPacks();
-        UnifiedEvents.FurnaceFuels createFurnaceFuels();
-        UnifiedEvents.StrippableBlocks createStrippableBlocks();
+    public interface Helpers {
+        UnifiedHelpers.CreativeEntries createCreativeEntries();
+        UnifiedHelpers.LootTables createLootTables();
+        UnifiedHelpers.Packs createPacks();
+        UnifiedHelpers.FurnaceFuels createFurnaceFuels();
+        UnifiedHelpers.StrippableBlocks createStrippableBlocks();
     }
 
     // CLIENT EVENTS
 
-    private static ClientEvents clientEvents;
+    private static ClientHelpers clientHelpers;
 
-    public static void setClientEvents(ClientEvents factory) {
-        if (clientEvents != null) {
-            throw new IllegalStateException("UnifiedFactory ClientEvents already set");
+    public static void setClientHelpers(ClientHelpers factory) {
+        if (clientHelpers != null) {
+            throw new IllegalStateException("UnifiedFactory ClientHelpers already set");
         }
-        clientEvents = factory;
+        clientHelpers = factory;
     }
 
-    public static ClientEvents getClientEvents() {
-        if (clientEvents == null) {
-            throw new IllegalStateException("UnifiedFactory ClientEvents not initialized");
+    public static ClientHelpers getClientHelpers() {
+        if (clientHelpers == null) {
+            throw new IllegalStateException("UnifiedFactory ClientHelpers not initialized");
         }
-        return clientEvents;
+        return clientHelpers;
     }
 
-    public interface ClientEvents {
-        UnifiedClientEvents.ParticleProviders createParticleProviders();
-        UnifiedClientEvents.EntityRenderers createEntityRenderers();
-        UnifiedClientEvents.BlockLayers createBlockLayers();
+    public interface ClientHelpers {
+        UnifiedClientHelpers.ParticleProviders createParticleProviders();
+        UnifiedClientHelpers.EntityRenderers createEntityRenderers();
+        UnifiedClientHelpers.BlockLayers createBlockLayers();
     }
 }
