@@ -1,5 +1,9 @@
 package net.rebel459.unified.platform;
 
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -84,6 +88,27 @@ public class UnifiedEvents {
         public static void pass(Player player) {
             for (Consumer<Player> listener : LISTENERS) {
                 listener.accept(player);
+            }
+        }
+    }
+
+    public static class CommandRegistration {
+
+        public interface Entry {
+            void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext, Commands.CommandSelection environment);
+        }
+
+        private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
+
+        private CommandRegistration() {}
+
+        public static void insert(Entry handler) {
+            ENTRIES.add(handler);
+        }
+
+        public static void pass(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext, Commands.CommandSelection environment) {
+            for (Entry entry : ENTRIES) {
+                entry.register(dispatcher, buildContext, environment);
             }
         }
     }

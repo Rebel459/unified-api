@@ -1,5 +1,6 @@
 package net.rebel459.unified.platform;
 
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 
@@ -19,5 +20,6 @@ public class FabricUnifiedEvents {
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
             UnifiedEvents.PlayerRespawn.pass(player);
         });
+        CommandRegistrationCallback.EVENT.register(UnifiedEvents.CommandRegistration::pass);
     }
 }
