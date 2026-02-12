@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "net.rebel459.unified.UnifiedFabric"
+    ],
+    "client": [
+      "net.rebel459.unified.UnifiedFabricClient"
     ]
   },
   "mixins": [

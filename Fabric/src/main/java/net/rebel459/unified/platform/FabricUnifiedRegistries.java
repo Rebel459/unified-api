@@ -1,22 +1,28 @@
 package net.rebel459.unified.platform;
 
+import com.google.common.base.Suppliers;
+import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
-import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -27,80 +33,94 @@ public class FabricUnifiedRegistries {
     public static void init() {
         UnifiedFactory.setRegistries(new UnifiedFactory.Registries() {
             @Override
-            public UnifiedRegistries.ItemRegistry createItemRegistry(String modId) {
-                return new FabricUnifiedRegistries.ItemRegistry(modId);
+            public UnifiedRegistries.Items createItems(String modId) {
+                return new Items(modId);
             }
 
             @Override
-            public UnifiedRegistries.BlockRegistry createBlockRegistry(String modId) {
-                return new FabricUnifiedRegistries.BlockRegistry(modId);
+            public UnifiedRegistries.Blocks createBlocks(String modId) {
+                return new Blocks(modId);
             }
 
             @Override
-            public UnifiedRegistries.CreativeRegistry createCreativeRegistry(String modId) {
-                return new FabricUnifiedRegistries.CreativeRegistry(modId);
+            public UnifiedRegistries.CreativeTabs createCreativeTabs(String modId) {
+                return new CreativeTabs(modId);
             }
 
             @Override
-            public UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId) {
-                return new FabricUnifiedRegistries.ComponentRegistry(modId);
+            public UnifiedRegistries.ItemComponents createItemComponents(String modId) {
+                return new ItemComponents(modId);
             }
 
             @Override
-            public UnifiedRegistries.ParticleRegistry createParticleRegistry(String modId) {
-                return new FabricUnifiedRegistries.ParticleRegistry(modId);
+            public UnifiedRegistries.Particles createParticles(String modId) {
+                return new Particles(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.MobEffects createMobEffects(String modId) {
+                return new MobEffects(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
+                return new EntityTypes(modId);
             }
         });
     }
 
-    public record ItemRegistry(String modId) implements UnifiedRegistries.ItemRegistry {
+    public record Items(String modId) implements UnifiedRegistries.Items {
 
         @Override
         public Supplier<Item> register(String name, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             var resourceKey = ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, Identifier.fromNamespaceAndPath(modId, name));
-            return () -> Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
+            return Suppliers.memoize(() -> net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey)));
         }
 
         @Override
-        public Supplier<BlockItem> registerBlockItem(String name, Supplier<Block> blockSupplier, Supplier<Item.Properties> properties) {
-            Block block = blockSupplier.get();
-            return () -> (BlockItem) Items.registerBlock(block, properties.get());
+        public <T extends Block> Supplier<BlockItem> registerBlockItem(String name, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            return Suppliers.memoize(() -> (BlockItem) net.minecraft.world.item.Items.registerBlock(blockSupplier.get(), properties.get()));
         }
     }
 
-    public record BlockRegistry(String modId) implements UnifiedRegistries.BlockRegistry {
+    public record Blocks(String modId) implements UnifiedRegistries.Blocks {
 
         @Override
         public <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
-            UnifiedRegistries.ItemRegistry.create(modId).registerBlockItem(name, () -> function.apply(blockProperties.setId(ResourceKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, name)))), Item.Properties::new);
-            return registerWithoutItem(name, function, blockProperties);
+            Identifier blockId = Identifier.fromNamespaceAndPath(modId, name);
+            ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, blockId);
+
+            Supplier<T> blockSupplier = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.setId(blockKey))));
+
+            UnifiedRegistries.Items.create(modId).registerBlockItem(name, blockSupplier, Item.Properties::new);
+
+            return blockSupplier;
         }
 
         @Override
         public <T extends Block, Y extends BlockEntity> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
-            var block = register(name, function, blockProperties);
-            var fabricType = (FabricBlockEntityType) type;
-            fabricType.addSupportedBlock(block.get());
+            Supplier<T> block = register(name, function, blockProperties);
+            T blockInstance = block.get();
+            ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
             return block;
         }
 
         @Override
         public <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, name);
-            if (BuiltInRegistries.BLOCK.getOptional(id).isEmpty()) return () -> Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.setId(ResourceKey.create(net.minecraft.core.registries.Registries.BLOCK, id))));
-            else throw new IllegalArgumentException("Block with id " + id + " is already in the block registry.");
+            return Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)))));
         }
 
         @Override
         public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
-            var block = registerWithoutItem(name, function, properties);
-            var fabricType = (FabricBlockEntityType) type;
-            fabricType.addSupportedBlock(block.get());
+            Supplier<T> block = registerWithoutItem(name, function, properties);
+            T blockInstance = block.get();
+            ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
             return block;
         }
     }
 
-    public record CreativeRegistry(String modId) implements UnifiedRegistries.CreativeRegistry {
+    public record CreativeTabs(String modId) implements UnifiedRegistries.CreativeTabs {
 
         @Override
         public ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon) {
@@ -116,19 +136,36 @@ public class FabricUnifiedRegistries {
         }
     }
 
-    public record ComponentRegistry(String modId) implements UnifiedRegistries.ComponentRegistry {
+    public record ItemComponents(String modId) implements UnifiedRegistries.ItemComponents {
 
         @Override
         public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
-            return () -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, string), unaryOperator.apply(DataComponentType.builder()).build());
+            return Suppliers.memoize(() -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, string), unaryOperator.apply(DataComponentType.builder()).build()));
         }
     }
 
-    public record ParticleRegistry(String modId) implements UnifiedRegistries.ParticleRegistry {
+    public record Particles(String modId) implements UnifiedRegistries.Particles {
 
         @Override
         public <T extends ParticleType> Supplier<T> register(String path, ParticleType type) {
-            return () -> (T) Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(modId, path), type);
+            return Suppliers.memoize(() -> (T) Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(modId, path), type));
+        }
+    }
+
+    public record MobEffects(String modId) implements UnifiedRegistries.MobEffects {
+
+        @Override
+        public Holder<MobEffect> register(String path, MobEffect effect) {
+            return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath(modId, path), effect);
+        }
+    }
+
+    public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
+
+        @Override
+        public @NotNull <T extends Entity> Supplier<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
+            ResourceKey<EntityType<?>> resourceKey = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
+            return Suppliers.memoize(() -> Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey)));
         }
     }
 }

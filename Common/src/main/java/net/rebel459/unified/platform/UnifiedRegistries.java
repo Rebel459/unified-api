@@ -1,8 +1,12 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -11,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -18,19 +23,19 @@ import java.util.function.UnaryOperator;
 
 public class UnifiedRegistries {
 
-    public interface ItemRegistry {
+    public interface Items {
         String modId();
 
         Supplier<Item> register(String name, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties);
 
-        Supplier<BlockItem> registerBlockItem(String name, Supplier<Block> blockSupplier, Supplier<Item.Properties> properties);
+        <T extends Block> Supplier<BlockItem> registerBlockItem(String name, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
-        static ItemRegistry create(String modId) {
-            return UnifiedFactory.getRegistries().createItemRegistry(modId);
+        static Items create(String modId) {
+            return UnifiedFactory.getRegistries().createItems(modId);
         }
     }
 
-    public interface BlockRegistry {
+    public interface Blocks {
         String modId();
 
         <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties);
@@ -39,38 +44,58 @@ public class UnifiedRegistries {
         <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
         <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type);
 
-        static BlockRegistry create(String modId) {
-            return UnifiedFactory.getRegistries().createBlockRegistry(modId);
+        static Blocks create(String modId) {
+            return UnifiedFactory.getRegistries().createBlocks(modId);
         }
     }
 
-    public interface CreativeRegistry {
+    public interface CreativeTabs {
         String modId();
 
         ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon);
 
-        static CreativeRegistry create(String modId) {
-            return UnifiedFactory.getRegistries().createCreativeRegistry(modId);
+        static CreativeTabs create(String modId) {
+            return UnifiedFactory.getRegistries().createCreativeTabs(modId);
         }
     }
 
-    public interface ComponentRegistry {
+    public interface ItemComponents {
         String modId();
 
         <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
 
-        static ComponentRegistry create(String modId) {
-            return UnifiedFactory.getRegistries().createComponentRegistry(modId);
+        static ItemComponents create(String modId) {
+            return UnifiedFactory.getRegistries().createItemComponents(modId);
         }
     }
 
-    public interface ParticleRegistry {
+    public interface Particles {
         String modId();
 
         <T extends ParticleType> Supplier<T> register(String path, ParticleType type);
 
-        static ParticleRegistry create(String modId) {
-            return UnifiedFactory.getRegistries().createParticleRegistry(modId);
+        static Particles create(String modId) {
+            return UnifiedFactory.getRegistries().createParticles(modId);
+        }
+    }
+
+    public interface MobEffects {
+        String modId();
+
+        Holder<MobEffect> register(String path, MobEffect effect);
+
+        static MobEffects create(String modId) {
+            return UnifiedFactory.getRegistries().createMobEffects(modId);
+        }
+    }
+
+    public interface EntityTypes {
+        String modId();
+
+        <T extends Entity> @NotNull Supplier<EntityType<T>> register(String string, EntityType.@NotNull Builder<T> builder);
+
+        static EntityTypes create(String modId) {
+            return UnifiedFactory.getRegistries().createEntityTypes(modId);
         }
     }
 }

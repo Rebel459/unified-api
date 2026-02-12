@@ -3,25 +3,21 @@ package net.rebel459.unified.platform;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleResources;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
@@ -29,13 +25,12 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
-import net.rebel459.unified.test.UnifiedTest;
 import net.rebel459.unified.util.PackInfo;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -43,46 +38,49 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class NeoForgeUnifiedEvents {
 
     public static void init() {
         UnifiedFactory.setEvents(new UnifiedFactory.Events() {
             @Override
-            public UnifiedEvents.CreativeEvent createCreativeEvent() {
-                return new NeoForgeUnifiedEvents.CreativeEvent();
+            public UnifiedEvents.CreativeEntries createCreativeEntries() {
+                return new CreativeEntries();
             }
 
             @Override
-            public UnifiedEvents.LootEvent createLootEvent() {
-                return new NeoForgeUnifiedEvents.LootEvent();
+            public UnifiedEvents.LootTables createLootTables() {
+                return new LootTables();
             }
 
             @Override
-            public UnifiedEvents.PackEvent createPackEvent() {
-                return new NeoForgeUnifiedEvents.PackEvent();
+            public UnifiedEvents.Packs createPacks() {
+                return new Packs();
             }
 
             @Override
-            public UnifiedEvents.FuelEvent createFuelEvent() {
-                return new NeoForgeUnifiedEvents.FuelEvent();
+            public UnifiedEvents.FurnaceFuels createFurnaceFuels() {
+                return new FurnaceFuel();
             }
 
             @Override
-            public UnifiedEvents.StrippableEvent createStrippableEvent() {
-                return new NeoForgeUnifiedEvents.StrippableEvent();
+            public UnifiedEvents.StrippableBlocks createStrippableBlocks() {
+                return new StrippableBlocks();
+            }
+
+            @Override
+            public UnifiedEvents.ClientParticleProviders createClientParticleProviders() {
+                return new ClientParticleProviders();
             }
         });
     }
 
-    public static class FuelEvent implements UnifiedEvents.FuelEvent {
+    public static class FurnaceFuel implements UnifiedEvents.FurnaceFuels {
 
         private static final Object2IntMap<ItemLike> ITEMS = new Object2IntLinkedOpenHashMap<>();
 
         static {
-            NeoForge.EVENT_BUS.register(FuelEvent.class);
+            NeoForge.EVENT_BUS.register(FurnaceFuel.class);
         }
 
         @Override
@@ -91,7 +89,7 @@ public class NeoForgeUnifiedEvents {
         }
 
         static {
-            NeoForge.EVENT_BUS.register(FuelEvent.class);
+            NeoForge.EVENT_BUS.register(FurnaceFuel.class);
         }
 
         @SubscribeEvent
@@ -104,7 +102,7 @@ public class NeoForgeUnifiedEvents {
         }
     }
 
-    public static class CreativeEvent implements UnifiedEvents.CreativeEvent {
+    public static class CreativeEntries implements UnifiedEvents.CreativeEntries {
 
         private static List<Pair<ItemStack, ResourceKey<CreativeModeTab>>> ADD_ITEMS = new ArrayList<>();
         private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> ADD_AFTER_ITEMS = new ArrayList<>();
@@ -188,7 +186,7 @@ public class NeoForgeUnifiedEvents {
         }
     }
 
-    public static class PackEvent implements UnifiedEvents.PackEvent {
+    public static class Packs implements UnifiedEvents.Packs {
 
         public static List<Pair<Identifier, PackInfo>> PACK_LIST = new ArrayList<>();
 
@@ -197,41 +195,44 @@ public class NeoForgeUnifiedEvents {
             PACK_LIST.add(Pair.of(id, info));
         }
 
+        public static boolean getBoolean(PackInfo info) {
+            return switch (info) {
+                case REQUIRED_DATA, REQUIRED_RESOURCES -> true;
+                case OPTIONAL_DATA, OPTIONAL_RESOURCES -> false;
+            };
+        }
+
+        public static PackType getType(PackInfo info) {
+            return switch (info) {
+                case REQUIRED_DATA, OPTIONAL_DATA -> PackType.SERVER_DATA;
+                case REQUIRED_RESOURCES, OPTIONAL_RESOURCES -> PackType.CLIENT_RESOURCES;
+            };
+        }
+
         @SubscribeEvent
         public static void addFeaturePacks(AddPackFindersEvent event) {
             for (Pair<Identifier, PackInfo> pair : PACK_LIST) {
                 Identifier id = pair.getFirst();
                 PackInfo info = pair.getSecond();
 
-                boolean alwaysActive = false;
-                PackType type = PackType.CLIENT_RESOURCES;
-                if (info.equals(PackInfo.REQUIRED_RESOURCES)) {
-                    alwaysActive = true;
-                } else if (info.equals(PackInfo.OPTIONAL_DATA)) {
-                    type = PackType.SERVER_DATA;
-                } else if (info.equals(PackInfo.REQUIRED_DATA)) {
-                    alwaysActive = true;
-                    type = PackType.SERVER_DATA;
-                }
-
                 event.addPackFinders(
                         Identifier.fromNamespaceAndPath(id.getNamespace(), "resourcepacks/" + id.getPath()),
-                        type,
+                        getType(info),
                         Component.translatable("pack." + id.getNamespace() + "." + id.getPath()),
                         PackSource.BUILT_IN,
-                        alwaysActive,
+                        getBoolean(info),
                         Pack.Position.TOP
                 );
             }
         }
     }
 
-    public static class LootEvent implements UnifiedEvents.LootEvent {
+    public static class LootTables implements UnifiedEvents.LootTables {
 
         public static List<Pair<LootPool.Builder, ResourceKey<LootTable>>> LOOT_APPENDER_LIST = new ArrayList<>();
 
         static {
-            NeoForge.EVENT_BUS.register(LootEvent.class);
+            NeoForge.EVENT_BUS.register(LootTables.class);
         }
 
         @Override
@@ -288,7 +289,7 @@ public class NeoForgeUnifiedEvents {
         }
     }
 
-    public static class StrippableEvent implements UnifiedEvents.StrippableEvent {
+    public static class StrippableBlocks implements UnifiedEvents.StrippableBlocks {
 
         public static HashMap<Block, Block> STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
 
@@ -302,6 +303,23 @@ public class NeoForgeUnifiedEvents {
             event.enqueueWork(() -> {
                 AxeItem.STRIPPABLES = STRIPPABLES;
             });
+        }
+    }
+
+    public static class ClientParticleProviders implements UnifiedEvents.ClientParticleProviders {
+
+        public static List<Pair<ParticleType, ParticleResources.SpriteParticleRegistration>> PARTICLE_PROVIDERS = new ArrayList<>();
+
+        @Override
+        public <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> provider) {
+            PARTICLE_PROVIDERS.add(Pair.of(type, provider));
+        }
+
+        @SubscribeEvent // on the mod event bus only on the physical client
+        public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+            for (Pair<ParticleType, ParticleResources.SpriteParticleRegistration> provider : PARTICLE_PROVIDERS) {
+                event.registerSpriteSet(provider.getFirst(), provider.getSecond());
+            }
         }
     }
 }

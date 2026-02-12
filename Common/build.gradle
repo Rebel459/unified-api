@@ -1,6 +1,6 @@
 // Adjust the output jar name here
 base {
-    archivesName = "${mod_name}-Common-${minecraft_version}"
+    archivesName = "${mod_name}-Common"
 }
 
 dependencies {

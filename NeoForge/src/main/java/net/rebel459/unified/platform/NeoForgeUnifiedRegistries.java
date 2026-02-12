@@ -1,22 +1,17 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -26,29 +21,19 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.LootTableLoadEvent;
-import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.rebel459.unified.util.PackInfo;
-import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 public class NeoForgeUnifiedRegistries {
 
@@ -57,37 +42,51 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister<CreativeModeTab>> CREATIVE_TABS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister.DataComponents> DATA_COMPONENTS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<ParticleType<?>>> PARTICLES = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<MobEffect>> EFFECTS = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<EntityType<?>>> ENTITIES = new ConcurrentHashMap<>();
 
     public static void init() {
         UnifiedFactory.setRegistries(new UnifiedFactory.Registries() {
             @Override
-            public UnifiedRegistries.ItemRegistry createItemRegistry(String modId) {
+            public UnifiedRegistries.Items createItems(String modId) {
                 NeoForgeUnifiedRegistries.ITEMS.putIfAbsent(modId, DeferredRegister.createItems(modId));
-                return new NeoForgeUnifiedRegistries.ItemRegistry(modId);
+                return new Items(modId);
             }
 
             @Override
-            public UnifiedRegistries.BlockRegistry createBlockRegistry(String modId) {
+            public UnifiedRegistries.Blocks createBlocks(String modId) {
                 NeoForgeUnifiedRegistries.BLOCKS.putIfAbsent(modId, DeferredRegister.createBlocks(modId));
-                return new NeoForgeUnifiedRegistries.BlockRegistry(modId);
+                return new Blocks(modId);
             }
 
             @Override
-            public UnifiedRegistries.CreativeRegistry createCreativeRegistry(String modId) {
+            public UnifiedRegistries.CreativeTabs createCreativeTabs(String modId) {
                 NeoForgeUnifiedRegistries.CREATIVE_TABS.putIfAbsent(modId, DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId));
-                return new NeoForgeUnifiedRegistries.CreativeRegistry(modId);
+                return new CreativeTabs(modId);
             }
 
             @Override
-            public UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId) {
+            public UnifiedRegistries.ItemComponents createItemComponents(String modId) {
                 NeoForgeUnifiedRegistries.DATA_COMPONENTS.putIfAbsent(modId, DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
-                return new NeoForgeUnifiedRegistries.ComponentRegistry(modId);
+                return new ItemComponents(modId);
             }
 
             @Override
-            public UnifiedRegistries.ParticleRegistry createParticleRegistry(String modId) {
+            public UnifiedRegistries.Particles createParticles(String modId) {
                 NeoForgeUnifiedRegistries.PARTICLES.putIfAbsent(modId, DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
-                return new NeoForgeUnifiedRegistries.ParticleRegistry(modId);
+                return new Particles(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.MobEffects createMobEffects(String modId) {
+                NeoForgeUnifiedRegistries.EFFECTS.putIfAbsent(modId, DeferredRegister.create(Registries.MOB_EFFECT, modId));
+                return new MobEffects(modId);
+            }
+
+            @Override
+            public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
+                NeoForgeUnifiedRegistries.ENTITIES.putIfAbsent(modId, DeferredRegister.create(Registries.ENTITY_TYPE, modId));
+                return new EntityTypes(modId);
             }
         });
     }
@@ -98,15 +97,19 @@ public class NeoForgeUnifiedRegistries {
         DeferredRegister<CreativeModeTab> creativeTabs = CREATIVE_TABS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId));
         DeferredRegister.DataComponents components = DATA_COMPONENTS.computeIfAbsent(modId, string -> DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
         DeferredRegister<ParticleType<?>> particles = PARTICLES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
+        DeferredRegister<MobEffect> effects = EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.MOB_EFFECT, modId));
+        DeferredRegister<EntityType<?>> entities = ENTITIES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENTITY_TYPE, modId));
 
         items.register(modEventBus);
         blocks.register(modEventBus);
         creativeTabs.register(modEventBus);
         components.register(modEventBus);
         particles.register(modEventBus);
+        effects.register(modEventBus);
+        entities.register(modEventBus);
     }
 
-    public record ItemRegistry(String modId) implements UnifiedRegistries.ItemRegistry {
+    public record Items(String modId) implements UnifiedRegistries.Items {
 
         @Override
         public Supplier<Item> register(String name, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
@@ -114,12 +117,12 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public Supplier<BlockItem> registerBlockItem(String name, Supplier<Block> block, Supplier<Item.Properties> properties) {
-            return ITEMS.get(modId).registerSimpleBlockItem(name, block, properties);
+        public <T extends Block> Supplier<BlockItem> registerBlockItem(String name, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            return ITEMS.get(modId).registerSimpleBlockItem(name, blockSupplier, properties);
         }
     }
 
-    public record BlockRegistry(String modId) implements UnifiedRegistries.BlockRegistry {
+    public record Blocks(String modId) implements UnifiedRegistries.Blocks {
 
         public static List<Pair<BlockEntityType<?>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
 
@@ -159,7 +162,7 @@ public class NeoForgeUnifiedRegistries {
         }
     }
 
-    public record CreativeRegistry(String modId) implements UnifiedRegistries.CreativeRegistry {
+    public record CreativeTabs(String modId) implements UnifiedRegistries.CreativeTabs {
 
         @Override
         public ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon) {
@@ -174,7 +177,7 @@ public class NeoForgeUnifiedRegistries {
         }
     }
 
-    public record ComponentRegistry(String modId) implements UnifiedRegistries.ComponentRegistry {
+    public record ItemComponents(String modId) implements UnifiedRegistries.ItemComponents {
 
         @Override
         public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
@@ -182,11 +185,27 @@ public class NeoForgeUnifiedRegistries {
         }
     }
 
-    public record ParticleRegistry(String modId) implements UnifiedRegistries.ParticleRegistry {
+    public record Particles(String modId) implements UnifiedRegistries.Particles {
 
         @Override
         public <T extends ParticleType> Supplier<T> register(String path, ParticleType type) {
             return (Supplier<T>) PARTICLES.get(modId).register(path, () -> type);
+        }
+    }
+
+    public record MobEffects(String modId) implements UnifiedRegistries.MobEffects {
+
+        @Override
+        public Holder<MobEffect> register(String path, MobEffect effect) {
+            return EFFECTS.get(modId).register(path, () -> effect);
+        }
+    }
+
+    public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
+
+        @Override
+        public @NotNull <T extends Entity> Supplier<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
+            return ENTITIES.get(modId).register(path, () -> builder.build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path))));
         }
     }
 }

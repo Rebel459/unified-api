@@ -1,22 +1,23 @@
 package net.rebel459.unified.platform;
 
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
-import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleResources;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
@@ -26,42 +27,45 @@ import net.rebel459.unified.util.PackInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class FabricUnifiedEvents {
 
     public static void init() {
         UnifiedFactory.setEvents(new UnifiedFactory.Events() {
             @Override
-            public UnifiedEvents.CreativeEvent createCreativeEvent() {
-                return new FabricUnifiedEvents.CreativeEvent();
+            public UnifiedEvents.CreativeEntries createCreativeEntries() {
+                return new CreativeEntries();
             }
 
             @Override
-            public UnifiedEvents.LootEvent createLootEvent() {
-                return new FabricUnifiedEvents.LootEvent();
+            public UnifiedEvents.LootTables createLootTables() {
+                return new LootTables();
             }
 
             @Override
-            public UnifiedEvents.PackEvent createPackEvent() {
-                return new FabricUnifiedEvents.PackEvent();
+            public UnifiedEvents.Packs createPacks() {
+                return new Packs();
             }
 
             @Override
-            public UnifiedEvents.FuelEvent createFuelEvent() {
-                return new FabricUnifiedEvents.FuelEvent();
+            public UnifiedEvents.FurnaceFuels createFurnaceFuels() {
+                return new FurnaceFuels();
             }
 
             @Override
-            public UnifiedEvents.StrippableEvent createStrippableEvent() {
-                return new FabricUnifiedEvents.StrippableEvent();
+            public UnifiedEvents.StrippableBlocks createStrippableBlocks() {
+                return new StrippableBlocks();
+            }
+
+            @Override
+            public UnifiedEvents.ClientParticleProviders createClientParticleProviders() {
+                return new FabricUnifiedEvents.ClientParticleProviders();
             }
         });
     }
 
-    public static class FuelEvent implements UnifiedEvents.FuelEvent {
+    public static class FurnaceFuels implements UnifiedEvents.FurnaceFuels {
 
         private static final List<FuelRegistryEvents.BuildCallback> CALLBACKS = new ArrayList<>();
         private static final List<FuelRegistryEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
@@ -94,7 +98,7 @@ public class FabricUnifiedEvents {
         }
     }
 
-    public static class CreativeEvent implements UnifiedEvents.CreativeEvent {
+    public static class CreativeEntries implements UnifiedEvents.CreativeEntries {
 
         @Override
         public final void add(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
@@ -147,22 +151,27 @@ public class FabricUnifiedEvents {
         }
     }
 
-    public static class PackEvent implements UnifiedEvents.PackEvent {
+    public static class Packs implements UnifiedEvents.Packs {
 
         @Override
         public void add(Identifier id, PackInfo info) {
             if (FabricLoader.getInstance().getModContainer(id.getNamespace()).isEmpty()) return;
-            PackActivationType activationType = PackActivationType.DEFAULT_ENABLED;
-            if (info.equals(PackInfo.REQUIRED_DATA) || info.equals(PackInfo.REQUIRED_RESOURCES)) activationType = PackActivationType.ALWAYS_ENABLED;
             ResourceLoader.registerBuiltinPack(
                     id, FabricLoader.getInstance().getModContainer(id.getNamespace()).get(),
                     Component.translatable("pack." + id.getNamespace() + "." + id.getPath()),
-                    activationType
+                    getActivationType(info)
             );
+        }
+
+        public static PackActivationType getActivationType(PackInfo info) {
+            return switch (info) {
+                case REQUIRED_DATA, REQUIRED_RESOURCES -> PackActivationType.ALWAYS_ENABLED;
+                case OPTIONAL_DATA, OPTIONAL_RESOURCES -> PackActivationType.DEFAULT_ENABLED;
+            };
         }
     }
 
-    public static class LootEvent implements UnifiedEvents.LootEvent {
+    public static class LootTables implements UnifiedEvents.LootTables {
 
         @Override
         public void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools) {
@@ -212,11 +221,19 @@ public class FabricUnifiedEvents {
         }
     }
 
-    public static class StrippableEvent implements UnifiedEvents.StrippableEvent {
+    public static class StrippableBlocks implements UnifiedEvents.StrippableBlocks {
 
         @Override
         public void add(Block original, Block stripped) {
             StrippableBlockRegistry.register(original, stripped);
+        }
+    }
+
+    public static class ClientParticleProviders implements UnifiedEvents.ClientParticleProviders {
+
+        @Override
+        public <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> provider) {
+            ParticleFactoryRegistry.getInstance().register(type, (ParticleFactoryRegistry.PendingParticleFactory) provider);
         }
     }
 }

@@ -1,7 +1,5 @@
 package net.rebel459.unified.platform;
 
-import net.minecraft.world.level.block.Block;
-
 public final class UnifiedFactory {
 
     private static Registries registries;
@@ -23,11 +21,13 @@ public final class UnifiedFactory {
     }
 
     public interface Registries {
-        UnifiedRegistries.ItemRegistry createItemRegistry(String modId);
-        UnifiedRegistries.BlockRegistry createBlockRegistry(String modId);
-        UnifiedRegistries.CreativeRegistry createCreativeRegistry(String modId);
-        UnifiedRegistries.ComponentRegistry createComponentRegistry(String modId);
-        UnifiedRegistries.ParticleRegistry createParticleRegistry(String modId);
+        UnifiedRegistries.Items createItems(String modId);
+        UnifiedRegistries.Blocks createBlocks(String modId);
+        UnifiedRegistries.CreativeTabs createCreativeTabs(String modId);
+        UnifiedRegistries.ItemComponents createItemComponents(String modId);
+        UnifiedRegistries.Particles createParticles(String modId);
+        UnifiedRegistries.MobEffects createMobEffects(String modId);
+        UnifiedRegistries.EntityTypes createEntityTypes(String modId);
     }
 
     private static Events events;
@@ -47,10 +47,11 @@ public final class UnifiedFactory {
     }
 
     public interface Events {
-        UnifiedEvents.CreativeEvent createCreativeEvent();
-        UnifiedEvents.LootEvent createLootEvent();
-        UnifiedEvents.PackEvent createPackEvent();
-        UnifiedEvents.FuelEvent createFuelEvent();
-        UnifiedEvents.StrippableEvent createStrippableEvent();
+        UnifiedEvents.CreativeEntries createCreativeEntries();
+        UnifiedEvents.LootTables createLootTables();
+        UnifiedEvents.Packs createPacks();
+        UnifiedEvents.FurnaceFuels createFurnaceFuels();
+        UnifiedEvents.StrippableBlocks createStrippableBlocks();
+        UnifiedEvents.ClientParticleProviders createClientParticleProviders();
     }
 }

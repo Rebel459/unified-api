@@ -1,34 +1,34 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleResources;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.util.PackInfo;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public class UnifiedEvents {
 
-    public interface FuelEvent {
+    public interface FurnaceFuels {
 
         void add(ItemLike item, int ticks);
 
-        static FuelEvent create() {
-            return UnifiedFactory.getEvents().createFuelEvent();
+        static FurnaceFuels create() {
+            return UnifiedFactory.getEvents().createFurnaceFuels();
         }
     }
 
-    public interface CreativeEvent {
+    public interface CreativeEntries {
 
         void add(ResourceKey<CreativeModeTab> tab, ItemLike... items);
         void add(ResourceKey<CreativeModeTab> tab, ItemStack... items);
@@ -37,38 +37,47 @@ public class UnifiedEvents {
         void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
         void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems);
 
-        static CreativeEvent create() {
-            return UnifiedFactory.getEvents().createCreativeEvent();
+        static CreativeEntries create() {
+            return UnifiedFactory.getEvents().createCreativeEntries();
         }
     }
 
-    public interface PackEvent {
+    public interface Packs {
 
         void add(Identifier id, PackInfo info);
 
-        static PackEvent create() {
-            return UnifiedFactory.getEvents().createPackEvent();
+        static Packs create() {
+            return UnifiedFactory.getEvents().createPacks();
         }
     }
 
-    public interface LootEvent {
+    public interface LootTables {
 
         void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools);
         void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools);
         void addItem(ResourceKey<LootTable> table, ItemLike item, int chance);
         void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance);
 
-        static LootEvent create() {
-            return UnifiedFactory.getEvents().createLootEvent();
+        static LootTables create() {
+            return UnifiedFactory.getEvents().createLootTables();
         }
     }
 
-    public interface StrippableEvent {
+    public interface StrippableBlocks {
 
         void add(Block original, Block stripped);
 
-        static StrippableEvent create() {
-            return UnifiedFactory.getEvents().createStrippableEvent();
+        static StrippableBlocks create() {
+            return UnifiedFactory.getEvents().createStrippableBlocks();
+        }
+    }
+
+    public interface ClientParticleProviders {
+
+        <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> sprite);
+
+        static ClientParticleProviders create() {
+            return UnifiedFactory.getEvents().createClientParticleProviders();
         }
     }
 }
