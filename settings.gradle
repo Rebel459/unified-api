@@ -1,13 +1,21 @@
 pluginManagement {
     repositories {
-        mavenCentral()
+        gradlePluginPortal()
         maven {
-            url = "https://mcentral.firstdark.dev/releases"
+            name = 'Unimined releases'
+            url = 'https://maven.wagyourtail.xyz/releases'
         }
-        gradlePluginPortal() {
-            content {
-                excludeGroup("org.apache.logging.log4j")
-            }
+        maven {
+            name = 'Unimined snapshots'
+            url = 'https://maven.wagyourtail.xyz/snapshots'
+        }
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'NeoForge'
+            url = 'https://maven.neoforged.net/'
         }
     }
 }

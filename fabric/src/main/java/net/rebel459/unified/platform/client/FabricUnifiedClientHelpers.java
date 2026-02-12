@@ -57,8 +57,8 @@ public class FabricUnifiedClientHelpers {
     public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
 
         @Override
-        public void add(Supplier<ParticleType> type, ParticleResources.SpriteParticleRegistration sprite) {
-            ParticleFactoryRegistry.getInstance().register(type.get(), sprite.create(new MutableSpriteSet()));
+        public <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
+            ParticleFactoryRegistry.getInstance().register((ParticleType) type.get(), sprite.create(new MutableSpriteSet()));
         }
     }
 

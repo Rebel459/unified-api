@@ -10,22 +10,6 @@ dependencies {
     implementation project(":common")
 }
 
-// Maven Publishing. Remove if not needed
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-        }
-    }
-    repositories {
-        // Add your maven repository here
-        maven {
-            url "file://" + System.getenv("local_maven")
-        }
-    }
-}
-
 /**
  * ===============================================================================
  * =       DO NOT EDIT BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING        =

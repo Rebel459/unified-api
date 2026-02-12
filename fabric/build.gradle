@@ -4,29 +4,12 @@ base {
 }
 
 dependencies {
-    // Add your own dependencies here
-
-    // Fabric API. Can be removed if not needed
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api}"
+    // Fabric API. Split into two to fix runClient
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_api}"
+    modApi "net.fabricmc.fabric-api:fabric-api:${project.fabric_api}"
 
     // Do not remove or edit!
     implementation(project(":common"))
-}
-
-// Maven Publishing. Remove if not needed
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-        }
-    }
-    repositories {
-        // Add your maven repository here
-        maven {
-            url "file://" + System.getenv("local_maven")
-        }
-    }
 }
 
 /**
