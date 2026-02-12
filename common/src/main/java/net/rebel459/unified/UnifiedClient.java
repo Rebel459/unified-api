@@ -4,7 +4,5 @@ import net.rebel459.unified.test.UnifiedTest;
 
 public class UnifiedClient {
 
-    public static void initClient() {
-        UnifiedTest.clientInit();
-    }
+    public static void initClient() {}
 }
