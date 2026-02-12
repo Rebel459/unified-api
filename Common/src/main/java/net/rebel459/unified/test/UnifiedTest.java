@@ -1,5 +1,6 @@
 package net.rebel459.unified.test;
 
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.particle.FallingLeavesParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.Identifier;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.rebel459.unified.Unified;
+import net.rebel459.unified.platform.client.UnifiedClientEvents;
 import net.rebel459.unified.platform.UnifiedEvents;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.registry.UnifiedComponents;
@@ -31,7 +33,7 @@ public class UnifiedTest {
     public static UnifiedEvents.Packs PACK_EVENT = UnifiedEvents.Packs.create();
     public static UnifiedEvents.LootTables LOOT_EVENT = UnifiedEvents.LootTables.create();
     public static UnifiedEvents.StrippableBlocks STRIPPABLE_EVENT = UnifiedEvents.StrippableBlocks.create();
-    public static UnifiedEvents.ClientParticleProviders CLIENT_PARTICLE_PROVIDERS = UnifiedEvents.ClientParticleProviders.create();
+    public static UnifiedClientEvents.ParticleProviders CLIENT_PARTICLE_PROVIDERS = UnifiedClientEvents.ParticleProviders.create();
 
     public static final Supplier<Item> TEST_ITEM = ITEMS.register(
             "test_item",
@@ -57,6 +59,11 @@ public class UnifiedTest {
 
     public static final ResourceKey<CreativeModeTab> TEST_TAB = CREATIVE_TABS.registerTab("test_tab", UnifiedTest.TEST_ITEM);
 
+    public static final ModelLayerLocation TEST_LAYER = new ModelLayerLocation(
+            Identifier.fromNamespaceAndPath("examplemod", "example_entity"),
+            "main"
+    );
+
     public static void init() {}
 
     public static void afterInit() {
@@ -75,5 +82,8 @@ public class UnifiedTest {
 
     public static void clientInit() {
         CLIENT_PARTICLE_PROVIDERS.add(TEST_PARTICLE.get(), FallingLeavesParticle.CherryProvider::new);
+        UnifiedEvents.ClientTickEvent.insert(client -> {
+
+        });
     }
 }

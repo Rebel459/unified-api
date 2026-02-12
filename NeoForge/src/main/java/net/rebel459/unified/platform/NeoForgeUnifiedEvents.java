@@ -3,8 +3,15 @@ package net.rebel459.unified.platform;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.particle.ParticleResources;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.Component;
@@ -13,11 +20,16 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
@@ -25,12 +37,14 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.rebel459.unified.test.UnifiedTest;
 import net.rebel459.unified.util.PackInfo;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -38,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class NeoForgeUnifiedEvents {
 
@@ -66,11 +81,6 @@ public class NeoForgeUnifiedEvents {
             @Override
             public UnifiedEvents.StrippableBlocks createStrippableBlocks() {
                 return new StrippableBlocks();
-            }
-
-            @Override
-            public UnifiedEvents.ClientParticleProviders createClientParticleProviders() {
-                return new ClientParticleProviders();
             }
         });
     }
@@ -303,23 +313,6 @@ public class NeoForgeUnifiedEvents {
             event.enqueueWork(() -> {
                 AxeItem.STRIPPABLES = STRIPPABLES;
             });
-        }
-    }
-
-    public static class ClientParticleProviders implements UnifiedEvents.ClientParticleProviders {
-
-        public static List<Pair<ParticleType, ParticleResources.SpriteParticleRegistration>> PARTICLE_PROVIDERS = new ArrayList<>();
-
-        @Override
-        public <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> provider) {
-            PARTICLE_PROVIDERS.add(Pair.of(type, provider));
-        }
-
-        @SubscribeEvent // on the mod event bus only on the physical client
-        public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-            for (Pair<ParticleType, ParticleResources.SpriteParticleRegistration> provider : PARTICLE_PROVIDERS) {
-                event.registerSpriteSet(provider.getFirst(), provider.getSecond());
-            }
         }
     }
 }

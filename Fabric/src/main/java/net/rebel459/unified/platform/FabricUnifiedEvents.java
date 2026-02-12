@@ -1,6 +1,5 @@
 package net.rebel459.unified.platform;
 
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
@@ -8,14 +7,11 @@ import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleResources;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -56,11 +52,6 @@ public class FabricUnifiedEvents {
             @Override
             public UnifiedEvents.StrippableBlocks createStrippableBlocks() {
                 return new StrippableBlocks();
-            }
-
-            @Override
-            public UnifiedEvents.ClientParticleProviders createClientParticleProviders() {
-                return new FabricUnifiedEvents.ClientParticleProviders();
             }
         });
     }
@@ -226,14 +217,6 @@ public class FabricUnifiedEvents {
         @Override
         public void add(Block original, Block stripped) {
             StrippableBlockRegistry.register(original, stripped);
-        }
-    }
-
-    public static class ClientParticleProviders implements UnifiedEvents.ClientParticleProviders {
-
-        @Override
-        public <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> provider) {
-            ParticleFactoryRegistry.getInstance().register(type, (ParticleFactoryRegistry.PendingParticleFactory) provider);
         }
     }
 }

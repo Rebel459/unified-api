@@ -1,10 +1,6 @@
 package net.rebel459.unified.platform;
 
-import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleResources;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
@@ -16,6 +12,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.util.PackInfo;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 public class UnifiedEvents {
 
@@ -72,12 +70,20 @@ public class UnifiedEvents {
         }
     }
 
-    public interface ClientParticleProviders {
+    public static class ClientTickEvent {
 
-        <T extends ParticleOptions> void add(ParticleType<T> type, ParticleResources.SpriteParticleRegistration<T> sprite);
+        private static final List<Consumer<Minecraft>> END_TICK_LISTENERS = new CopyOnWriteArrayList<>();
 
-        static ClientParticleProviders create() {
-            return UnifiedFactory.getEvents().createClientParticleProviders();
+        private ClientTickEvent() {}
+
+        public static void insert(Consumer<Minecraft> listener) {
+            END_TICK_LISTENERS.add(listener);
+        }
+
+        public static void pass(Minecraft client) {
+            for (Consumer<Minecraft> listener : END_TICK_LISTENERS) {
+                listener.accept(client);
+            }
         }
     }
 }
