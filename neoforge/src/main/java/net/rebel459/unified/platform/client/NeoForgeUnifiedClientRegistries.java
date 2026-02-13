@@ -21,7 +21,7 @@ public class NeoForgeUnifiedClientRegistries {
         @Override
         public Supplier<KeyMapping> registerKeybind(String path, InputConstants.Type type, Integer key, KeyMapping.Category category) {
             Supplier<KeyMapping> keyMapping = Suppliers.memoize(() -> new KeyMapping(
-                    "key." + modId + "." + name,
+                    "key." + modId + "." + path,
                     type,
                     key,
                     category
