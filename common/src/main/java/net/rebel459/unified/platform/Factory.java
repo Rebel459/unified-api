@@ -42,14 +42,14 @@ public final class Factory {
 
     public static void setClientRegistries(ClientRegistries factory) {
         if (clientRegistries != null) {
-            throw new IllegalStateException("UnifiedFactory ClientRegistries already set");
+            throw new IllegalStateException("(Unified API) Factory ClientRegistries already set");
         }
         clientRegistries = factory;
     }
 
     public static ClientRegistries getClientRegistries() {
         if (clientRegistries == null) {
-            throw new IllegalStateException("UnifiedFactory ClientRegistries not initialized");
+            throw new IllegalStateException("(Unified API) Factory ClientRegistries not initialized");
         }
         return clientRegistries;
     }
@@ -64,14 +64,14 @@ public final class Factory {
 
     public static void setHelpers(Helpers factory) {
         if (helpers != null) {
-            throw new IllegalStateException("UnifiedFactory Helpers already set");
+            throw new IllegalStateException("(Unified API) Factory Helpers already set");
         }
         helpers = factory;
     }
 
     public static Helpers getHelpers() {
         if (helpers == null) {
-            throw new IllegalStateException("UnifiedFactory Helpers not initialized");
+            throw new IllegalStateException("(Unified API) Factory Helpers not initialized");
         }
         return helpers;
     }
@@ -92,14 +92,14 @@ public final class Factory {
 
     public static void setClientHelpers(ClientHelpers factory) {
         if (clientHelpers != null) {
-            throw new IllegalStateException("UnifiedFactory ClientHelpers already set");
+            throw new IllegalStateException("(Unified API) Factory ClientHelpers already set");
         }
         clientHelpers = factory;
     }
 
     public static ClientHelpers getClientHelpers() {
         if (clientHelpers == null) {
-            throw new IllegalStateException("UnifiedFactory ClientHelpers not initialized");
+            throw new IllegalStateException("(Unified API) Factory ClientHelpers not initialized");
         }
         return clientHelpers;
     }
