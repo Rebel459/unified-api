@@ -5,20 +5,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
-import net.rebel459.unified.platform.Factory;
 
 import java.util.function.Supplier;
 
 public class FabricUnifiedClientRegistries {
-
-    public static void init() {
-        Factory.setClientRegistries(new Factory.ClientRegistries() {
-            @Override
-            public UnifiedClientRegistries.KeyMappings createKeyMappings(String modId) {
-                return new KeyMappings(modId);
-            }
-        });
-    }
 
     public record KeyMappings(String modId) implements UnifiedClientRegistries.KeyMappings {
 

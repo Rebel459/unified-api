@@ -27,7 +27,6 @@ import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.rebel459.unified.util.PackInfo;
-import net.rebel459.unified.util.Platform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,48 +34,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class FabricHelpersImpl {
+public class FabricUnifiedHelpers {
 
-    public static void init() {
-        Factory.setHelpers(new Factory.Helpers() {
-            @Override
-            public HelpersImpl.CreativeEntries createCreativeEntries() {
-                return new CreativeEntries();
-            }
-
-            @Override
-            public HelpersImpl.LootTables createLootTables() {
-                return new LootTables();
-            }
-
-            @Override
-            public HelpersImpl.Packs createPacks() {
-                return new Packs();
-            }
-
-            @Override
-            public HelpersImpl.FurnaceFuels createFurnaceFuels() {
-                return new FurnaceFuels();
-            }
-
-            @Override
-            public HelpersImpl.StrippableBlocks createStrippableBlocks() {
-                return new StrippableBlocks();
-            }
-
-            @Override
-            public HelpersImpl.NetworkPayloads createNetworkPayloads() {
-                return new NetworkPayloads();
-            }
-
-            @Override
-            public HelpersImpl.Platform createPlatform() {
-                return new Platform();
-            }
-        });
-    }
-
-    public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
+    public static class FurnaceFuels implements UnifiedHelpers.FurnaceFuels {
 
         private static final List<FuelRegistryEvents.BuildCallback> CALLBACKS = new ArrayList<>();
         private static final List<FuelRegistryEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
@@ -109,7 +69,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class CreativeEntries implements HelpersImpl.CreativeEntries {
+    public static class CreativeEntries implements UnifiedHelpers.CreativeEntries {
 
         @Override
         public final void add(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
@@ -162,7 +122,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class Packs implements HelpersImpl.Packs {
+    public static class Packs implements UnifiedHelpers.Packs {
 
         @Override
         public void add(Identifier id, PackInfo info) {
@@ -182,7 +142,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class LootTables implements HelpersImpl.LootTables {
+    public static class LootTables implements UnifiedHelpers.LootTables {
 
         @Override
         public void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools) {
@@ -232,7 +192,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class StrippableBlocks implements HelpersImpl.StrippableBlocks {
+    public static class StrippableBlocks implements UnifiedHelpers.StrippableBlocks {
 
         @Override
         public void add(Block original, Block stripped) {
@@ -240,7 +200,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class NetworkPayloads implements HelpersImpl.NetworkPayloads {
+    public static class NetworkPayloads implements UnifiedHelpers.NetworkPayloads {
 
         @Override
         public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec) {
@@ -280,7 +240,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class Platform implements HelpersImpl.Platform {
+    public static class Platform implements UnifiedHelpers.Platform {
 
         @Override
         public net.rebel459.unified.util.Platform getPlatform() {

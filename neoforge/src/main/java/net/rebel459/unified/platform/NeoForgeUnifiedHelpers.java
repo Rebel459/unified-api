@@ -45,48 +45,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class NeoForgeHelpersImpl {
+public class NeoForgeUnifiedHelpers {
 
-    public static void init() {
-        Factory.setHelpers(new Factory.Helpers() {
-            @Override
-            public HelpersImpl.CreativeEntries createCreativeEntries() {
-                return new CreativeEntries();
-            }
-
-            @Override
-            public HelpersImpl.LootTables createLootTables() {
-                return new LootTables();
-            }
-
-            @Override
-            public HelpersImpl.Packs createPacks() {
-                return new Packs();
-            }
-
-            @Override
-            public HelpersImpl.FurnaceFuels createFurnaceFuels() {
-                return new FurnaceFuels();
-            }
-
-            @Override
-            public HelpersImpl.StrippableBlocks createStrippableBlocks() {
-                return new StrippableBlocks();
-            }
-
-            @Override
-            public HelpersImpl.NetworkPayloads createNetworkPayloads() {
-                return new NetworkPayloads();
-            }
-
-            @Override
-            public HelpersImpl.Platform createPlatform() {
-                return new Platform();
-            }
-        });
-    }
-
-    public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
+    public static class FurnaceFuels implements UnifiedHelpers.FurnaceFuels {
 
         private static final Object2IntMap<ItemLike> ITEMS = new Object2IntLinkedOpenHashMap<>();
 
@@ -113,7 +74,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class CreativeEntries implements HelpersImpl.CreativeEntries {
+    public static class CreativeEntries implements UnifiedHelpers.CreativeEntries {
 
         private static List<Pair<ItemStack, ResourceKey<CreativeModeTab>>> ADD_ITEMS = new ArrayList<>();
         private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> ADD_AFTER_ITEMS = new ArrayList<>();
@@ -197,7 +158,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class Packs implements HelpersImpl.Packs {
+    public static class Packs implements UnifiedHelpers.Packs {
 
         public static List<Pair<Identifier, PackInfo>> PACK_LIST = new ArrayList<>();
 
@@ -238,7 +199,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class LootTables implements HelpersImpl.LootTables {
+    public static class LootTables implements UnifiedHelpers.LootTables {
 
         public static List<Pair<LootPool.Builder, ResourceKey<LootTable>>> LOOT_APPENDER_LIST = new ArrayList<>();
 
@@ -300,7 +261,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class StrippableBlocks implements HelpersImpl.StrippableBlocks {
+    public static class StrippableBlocks implements UnifiedHelpers.StrippableBlocks {
 
         public static HashMap<Block, Block> STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
 
@@ -317,7 +278,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class NetworkPayloads implements HelpersImpl.NetworkPayloads {
+    public static class NetworkPayloads implements UnifiedHelpers.NetworkPayloads {
 
         @Override
         public void send(CustomPacketPayload payload, ServerPlayer player) {
@@ -405,7 +366,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class Platform implements HelpersImpl.Platform {
+    public static class Platform implements UnifiedHelpers.Platform {
 
         @Override
         public net.rebel459.unified.util.Platform getPlatform() {

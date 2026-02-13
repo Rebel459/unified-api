@@ -2,7 +2,6 @@ package net.rebel459.unified.platform.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import net.rebel459.unified.platform.Factory;
 
 import java.util.function.Supplier;
 
@@ -14,8 +13,8 @@ public class UnifiedClientRegistries {
         Supplier<KeyMapping> registerKeybind(String name, InputConstants.Type type, Integer key, KeyMapping.Category category);
         KeyMapping.Category registerCategory(String name);
 
-        static KeyMappings create(String modId) {
-            return Factory.getClientRegistries().createKeyMappings(modId);
+        static UnifiedClientRegistries.KeyMappings create(String modId) {
+            return ClientPlatformHelperImpl.INSTANCE.createKeyMappings(modId);
         }
     }
 }

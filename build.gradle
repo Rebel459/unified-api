@@ -48,7 +48,7 @@ subprojects {
 
     dependencies {
         // Add global dependencies here
-        // Dependencies added here will be applied to every module (Common/Fabric/Forge/NeoForge etc)
+        // Dependencies added here will be applied to every module (Common/NeoForge/Forge/NeoForge etc)
     }
 
     jar {

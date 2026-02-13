@@ -26,46 +26,16 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.rebel459.unified.platform.Factory;
+import net.rebel459.unified.platform.UnifiedHelpers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class NeoForgeClientHelpersImpl {
+public class NeoForgeUnifiedClientHelpers {
 
-    public static void init() {
-        Factory.setClientHelpers(new Factory.ClientHelpers() {
-
-            @Override
-            public ClientHelpersImpl.ParticleProviders createParticleProviders() {
-                return new ParticleProviders();
-            }
-
-            @Override
-            public ClientHelpersImpl.EntityRenderers createEntityRenderers() {
-                return new EntityRenderers();
-            }
-
-            @Override
-            public ClientHelpersImpl.BlockLayers createBlockLayers() {
-                return new BlockLayers();
-            }
-
-            @Override
-            public ClientHelpersImpl.NetworkPayloads createNetworkPayloads() {
-                return new NetworkPayloads();
-            }
-
-            @Override
-            public ClientHelpersImpl.Tooltips createTooltips() {
-                return new Tooltips();
-            }
-        });
-    }
-
-    public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
+    public static class ParticleProviders implements UnifiedClientHelpers.ParticleProviders {
 
         public static List<Pair<Supplier, ParticleResources.SpriteParticleRegistration>> PARTICLE_PROVIDERS = new ArrayList<>();
 
@@ -82,7 +52,7 @@ public class NeoForgeClientHelpersImpl {
         }
     }
 
-    public static class EntityRenderers implements ClientHelpersImpl.EntityRenderers {
+    public static class EntityRenderers implements UnifiedClientHelpers.EntityRenderers {
 
         public static List<Pair<ModelLayerLocation, Supplier<LayerDefinition>>> LAYER_DEFINITIONS = new ArrayList<>();
         public static List<Pair<EntityType, EntityRendererProvider>> ENTITY_RENDERERS = new ArrayList<>();
@@ -121,7 +91,7 @@ public class NeoForgeClientHelpersImpl {
         }
     }
 
-    public static class BlockLayers implements ClientHelpersImpl.BlockLayers {
+    public static class BlockLayers implements UnifiedClientHelpers.BlockLayers {
 
         @Override
         public void add(Block block, ChunkSectionLayer layer) {
@@ -134,7 +104,7 @@ public class NeoForgeClientHelpersImpl {
         }
     }
 
-    public static class NetworkPayloads implements ClientHelpersImpl.NetworkPayloads {
+    public static class NetworkPayloads implements UnifiedClientHelpers.NetworkPayloads {
 
         @Override
         public void send(CustomPacketPayload payload) {
@@ -143,7 +113,7 @@ public class NeoForgeClientHelpersImpl {
     }
 
 
-    public static class Tooltips implements ClientHelpersImpl.Tooltips {
+    public static class Tooltips implements UnifiedClientHelpers.Tooltips {
 
         private record Bindings<T extends TooltipComponent>(Class<T> type, Function<T, ClientTooltipComponent> factory) {}
 

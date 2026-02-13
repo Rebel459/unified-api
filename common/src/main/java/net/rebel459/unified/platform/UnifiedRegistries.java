@@ -31,7 +31,7 @@ public class UnifiedRegistries {
         <T extends Block> Supplier<BlockItem> registerBlockItem(String name, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         static Items create(String modId) {
-            return Factory.getRegistries().createItems(modId);
+            return PlatformHelperImpl.INSTANCE.createItems(modId);
         }
     }
 
@@ -45,7 +45,7 @@ public class UnifiedRegistries {
         <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type);
 
         static Blocks create(String modId) {
-            return Factory.getRegistries().createBlocks(modId);
+            return PlatformHelperImpl.INSTANCE.createBlocks(modId);
         }
     }
 
@@ -55,7 +55,7 @@ public class UnifiedRegistries {
         ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon);
 
         static CreativeTabs create(String modId) {
-            return Factory.getRegistries().createCreativeTabs(modId);
+            return PlatformHelperImpl.INSTANCE.createCreativeTabs(modId);
         }
     }
 
@@ -65,7 +65,7 @@ public class UnifiedRegistries {
         <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
 
         static ItemComponents create(String modId) {
-            return Factory.getRegistries().createItemComponents(modId);
+            return PlatformHelperImpl.INSTANCE.createItemComponents(modId);
         }
     }
 
@@ -75,7 +75,7 @@ public class UnifiedRegistries {
         <T extends ParticleType> Supplier<T> register(String path, ParticleType type);
 
         static Particles create(String modId) {
-            return Factory.getRegistries().createParticles(modId);
+            return PlatformHelperImpl.INSTANCE.createParticles(modId);
         }
     }
 
@@ -85,7 +85,7 @@ public class UnifiedRegistries {
         Holder<MobEffect> register(String path, MobEffect effect);
 
         static MobEffects create(String modId) {
-            return Factory.getRegistries().createMobEffects(modId);
+            return PlatformHelperImpl.INSTANCE.createMobEffects(modId);
         }
     }
 
@@ -95,7 +95,7 @@ public class UnifiedRegistries {
         <T extends Entity> @NotNull Supplier<EntityType<T>> register(String string, EntityType.@NotNull Builder<T> builder);
 
         static EntityTypes create(String modId) {
-            return Factory.getRegistries().createEntityTypes(modId);
+            return PlatformHelperImpl.INSTANCE.createEntityTypes(modId);
         }
     }
 }

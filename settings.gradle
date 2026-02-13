@@ -10,7 +10,7 @@ pluginManagement {
             url = 'https://maven.wagyourtail.xyz/snapshots'
         }
         maven {
-            name = 'Fabric'
+            name = 'NeoForge'
             url = 'https://maven.fabricmc.net/'
         }
         maven {

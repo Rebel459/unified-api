@@ -2,7 +2,7 @@ package net.rebel459.unified;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.rebel459.unified.platform.client.FabricUnifiedClientEvents;
-import net.rebel459.unified.platform.client.FabricClientHelpersImpl;
+import net.rebel459.unified.platform.client.FabricUnifiedClientHelpers;
 import net.rebel459.unified.platform.client.FabricUnifiedClientRegistries;
 
 public class UnifiedFabricClient implements ClientModInitializer {
@@ -10,8 +10,6 @@ public class UnifiedFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         FabricUnifiedClientEvents.init();
-        FabricUnifiedClientRegistries.init();
-        FabricClientHelpersImpl.init();
         UnifiedClient.initClient();
     }
 }

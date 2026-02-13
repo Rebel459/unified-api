@@ -4,7 +4,7 @@ base {
 }
 
 dependencies {
-    // Fabric API. Split into two to fix runClient
+    // NeoForge API. Split into two to fix runClient
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_api}"
     modApi "net.fabricmc.fabric-api:fabric-api:${project.fabric_api}"
 

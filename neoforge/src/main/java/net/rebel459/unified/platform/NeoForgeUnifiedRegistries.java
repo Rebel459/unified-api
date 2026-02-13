@@ -45,52 +45,6 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister<MobEffect>> EFFECTS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<EntityType<?>>> ENTITIES = new ConcurrentHashMap<>();
 
-    public static void init() {
-        Factory.setRegistries(new Factory.Registries() {
-            @Override
-            public UnifiedRegistries.Items createItems(String modId) {
-                NeoForgeUnifiedRegistries.ITEMS.putIfAbsent(modId, DeferredRegister.createItems(modId));
-                return new Items(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.Blocks createBlocks(String modId) {
-                NeoForgeUnifiedRegistries.BLOCKS.putIfAbsent(modId, DeferredRegister.createBlocks(modId));
-                return new Blocks(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.CreativeTabs createCreativeTabs(String modId) {
-                NeoForgeUnifiedRegistries.CREATIVE_TABS.putIfAbsent(modId, DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId));
-                return new CreativeTabs(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.ItemComponents createItemComponents(String modId) {
-                NeoForgeUnifiedRegistries.DATA_COMPONENTS.putIfAbsent(modId, DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
-                return new ItemComponents(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.Particles createParticles(String modId) {
-                NeoForgeUnifiedRegistries.PARTICLES.putIfAbsent(modId, DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
-                return new Particles(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.MobEffects createMobEffects(String modId) {
-                NeoForgeUnifiedRegistries.EFFECTS.putIfAbsent(modId, DeferredRegister.create(Registries.MOB_EFFECT, modId));
-                return new MobEffects(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
-                NeoForgeUnifiedRegistries.ENTITIES.putIfAbsent(modId, DeferredRegister.create(Registries.ENTITY_TYPE, modId));
-                return new EntityTypes(modId);
-            }
-        });
-    }
-
     public static void registerBus(String modId, IEventBus modEventBus) {
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
         DeferredRegister.Blocks blocks = BLOCKS.computeIfAbsent(modId, string -> DeferredRegister.createBlocks(modId));

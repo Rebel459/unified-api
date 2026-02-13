@@ -6,22 +6,12 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.rebel459.unified.platform.Factory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class NeoForgeUnifiedClientRegistries {
-
-    public static void init() {
-        Factory.setClientRegistries(new Factory.ClientRegistries() {
-            @Override
-            public UnifiedClientRegistries.KeyMappings createKeyMappings(String modId) {
-                return new KeyMappings(modId);
-            }
-        });
-    }
 
     public record KeyMappings(String modId) implements UnifiedClientRegistries.KeyMappings {
 

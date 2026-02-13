@@ -21,44 +21,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
-import net.rebel459.unified.platform.Factory;
+import net.rebel459.unified.platform.UnifiedHelpers;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class FabricClientHelpersImpl {
+public class FabricUnifiedClientHelpers {
 
-    public static void init() {
-        Factory.setClientHelpers(new Factory.ClientHelpers() {
-
-            @Override
-            public ClientHelpersImpl.ParticleProviders createParticleProviders() {
-                return new ParticleProviders();
-            }
-
-            @Override
-            public ClientHelpersImpl.EntityRenderers createEntityRenderers() {
-                return new EntityRenderers();
-            }
-
-            @Override
-            public ClientHelpersImpl.BlockLayers createBlockLayers() {
-                return new BlockLayers();
-            }
-
-            @Override
-            public ClientHelpersImpl.NetworkPayloads createNetworkPayloads() {
-                return new NetworkPayloads();
-            }
-
-            @Override
-            public ClientHelpersImpl.Tooltips createTooltips() {
-                return new Tooltips();
-            }
-        });
-    }
-
-    public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
+    public static class ParticleProviders implements UnifiedClientHelpers.ParticleProviders {
 
         @Override
         public <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
@@ -66,7 +36,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class EntityRenderers implements ClientHelpersImpl.EntityRenderers {
+    public static class EntityRenderers implements UnifiedClientHelpers.EntityRenderers {
 
         @Override
         public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
@@ -84,7 +54,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class BlockLayers implements ClientHelpersImpl.BlockLayers {
+    public static class BlockLayers implements UnifiedClientHelpers.BlockLayers {
 
         @Override
         public void add(Block block, ChunkSectionLayer layer) {
@@ -97,7 +67,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class NetworkPayloads implements ClientHelpersImpl.NetworkPayloads {
+    public static class NetworkPayloads implements UnifiedClientHelpers.NetworkPayloads {
 
         @Override
         public void send(CustomPacketPayload payload) {
@@ -105,7 +75,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class Tooltips implements ClientHelpersImpl.Tooltips {
+    public static class Tooltips implements UnifiedClientHelpers.Tooltips {
 
         @Override
         public <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory) {

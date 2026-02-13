@@ -29,45 +29,6 @@ import java.util.function.UnaryOperator;
 
 public class FabricUnifiedRegistries {
 
-    public static void init() {
-        Factory.setRegistries(new Factory.Registries() {
-            @Override
-            public UnifiedRegistries.Items createItems(String modId) {
-                return new Items(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.Blocks createBlocks(String modId) {
-                return new Blocks(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.CreativeTabs createCreativeTabs(String modId) {
-                return new CreativeTabs(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.ItemComponents createItemComponents(String modId) {
-                return new ItemComponents(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.Particles createParticles(String modId) {
-                return new Particles(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.MobEffects createMobEffects(String modId) {
-                return new MobEffects(modId);
-            }
-
-            @Override
-            public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
-                return new EntityTypes(modId);
-            }
-        });
-    }
-
     public record Items(String modId) implements UnifiedRegistries.Items {
 
         @Override
