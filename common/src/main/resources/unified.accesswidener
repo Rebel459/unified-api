@@ -25,3 +25,5 @@ transitive-accessible field net/minecraft/world/item/CreativeModeTabs INVENTORY 
 
 transitive-accessible field net/minecraft/client/gui/screens/Screen minecraft Lnet/minecraft/client/Minecraft;
 transitive-accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen addItemSlotMouseAction (Lnet/minecraft/client/gui/ItemSlotMouseAction;)V
+
+transitive-accessible field net/minecraft/client/gui/Gui minecraft Lnet/minecraft/client/Minecraft;
