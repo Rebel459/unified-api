@@ -175,14 +175,13 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public Supplier<SoundEvent> register(String path) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            return SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id));
+            return SOUND_EVENTS.get(modId).register(path, SoundEvent::createVariableRangeEvent);
         }
 
         @Override
-        public Supplier<Holder<SoundEvent>> registerHolder(String path) {
+        public Holder<SoundEvent> registerHolder(String path) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            return Suppliers.memoize(() -> SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id)));
+            return SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id)).getDelegate();
         }
     }
 }

@@ -105,7 +105,7 @@ public class UnifiedRegistries {
 
         Supplier<SoundEvent> register(String path);
 
-        Supplier<Holder<SoundEvent>> registerHolder(String path);
+        Holder<SoundEvent> registerHolder(String path);
 
         static SoundEvents create(String modId) {
             return PlatformHelperImpl.INSTANCE.createSoundEvents(modId);

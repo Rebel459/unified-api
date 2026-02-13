@@ -156,11 +156,9 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public Supplier<Holder<SoundEvent>> registerHolder(String path) {
+        public Holder<SoundEvent> registerHolder(String path) {
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
-            Supplier<Holder<SoundEvent>> soundEvent = Suppliers.memoize(() -> Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, SoundEvent.createVariableRangeEvent(identifier)));
-            soundEvent.get();
-            return soundEvent;
+            return Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, SoundEvent.createVariableRangeEvent(identifier));
         }
     }
 }

@@ -17,5 +17,6 @@ public class UnifiedNeoForgeClient {
         modEventBus.addListener(NeoForgeUnifiedClientHelpers.EntityRenderers::registerLayerDefinitions);
         modEventBus.addListener(NeoForgeUnifiedClientHelpers.EntityRenderers::registerRenderers);
         modEventBus.addListener(NeoForgeUnifiedClientRegistries.KeyMappings::registerBindings);
+        modEventBus.addListener(NeoForgeUnifiedClientHelpers.Tooltips::registerTooltipFactories);
     }
 }
