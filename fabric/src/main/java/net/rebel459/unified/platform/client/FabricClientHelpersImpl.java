@@ -17,14 +17,11 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.rebel459.unified.platform.Factory;
-import net.rebel459.unified.test.ClientQuiverTooltip;
-import net.rebel459.unified.test.QuiverItem;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -52,6 +49,11 @@ public class FabricClientHelpersImpl {
             @Override
             public ClientHelpersImpl.NetworkPayloads createNetworkPayloads() {
                 return new NetworkPayloads();
+            }
+
+            @Override
+            public ClientHelpersImpl.Tooltips createTooltips() {
+                return new Tooltips();
             }
         });
     }

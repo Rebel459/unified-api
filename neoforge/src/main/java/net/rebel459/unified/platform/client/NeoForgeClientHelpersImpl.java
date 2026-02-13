@@ -2,6 +2,7 @@ package net.rebel459.unified.platform.client;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.particle.ParticleResources;
@@ -16,17 +17,20 @@ import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.rebel459.unified.platform.Factory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class NeoForgeClientHelpersImpl {
@@ -52,6 +56,11 @@ public class NeoForgeClientHelpersImpl {
             @Override
             public ClientHelpersImpl.NetworkPayloads createNetworkPayloads() {
                 return new NetworkPayloads();
+            }
+
+            @Override
+            public ClientHelpersImpl.Tooltips createTooltips() {
+                return new Tooltips();
             }
         });
     }
@@ -130,6 +139,29 @@ public class NeoForgeClientHelpersImpl {
         @Override
         public void send(CustomPacketPayload payload) {
             Minecraft.getInstance().getConnection().send(new ServerboundCustomPayloadPacket(payload));
+        }
+    }
+
+
+    public static class Tooltips implements ClientHelpersImpl.Tooltips {
+
+        private record Bindings<T extends TooltipComponent>(Class<T> type, Function<T, ClientTooltipComponent> factory) {}
+
+        private static final List<Bindings<?>> TOOLTIPS = new ArrayList<>();
+
+        @Override
+        public <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory) {
+            TOOLTIPS.add(new Bindings<>(type, factory));
+        }
+
+        @SubscribeEvent
+        public static void registerTooltipFactories(RegisterClientTooltipComponentFactoriesEvent event) {
+            for (Bindings<?> list : TOOLTIPS) {
+                @SuppressWarnings("unchecked")
+                Bindings<TooltipComponent> bindings = (Bindings<TooltipComponent>) list;
+                event.register(bindings.type, bindings.factory);
+            }
+            TOOLTIPS.clear();
         }
     }
 }
