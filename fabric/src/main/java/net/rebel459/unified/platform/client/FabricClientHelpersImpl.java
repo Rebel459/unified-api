@@ -2,10 +2,8 @@ package net.rebel459.unified.platform.client;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.particle.ParticleResources;
@@ -18,15 +16,20 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.rebel459.unified.platform.Factory;
+import net.rebel459.unified.test.ClientQuiverTooltip;
+import net.rebel459.unified.test.QuiverItem;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class FabricUnifiedClientHelpers {
+public class FabricClientHelpersImpl {
 
     public static void init() {
         Factory.setClientHelpers(new Factory.ClientHelpers() {
@@ -97,6 +100,19 @@ public class FabricUnifiedClientHelpers {
         @Override
         public void send(CustomPacketPayload payload) {
             ClientPlayNetworking.send(payload);
+        }
+    }
+
+    public static class Tooltips implements ClientHelpersImpl.Tooltips {
+
+        @Override
+        public <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory) {
+            TooltipComponentCallback.EVENT.register(component -> {
+                if (type.isInstance(component)) {
+                    return factory.apply(type.cast(component));
+                }
+                return null;
+            });
         }
     }
 }

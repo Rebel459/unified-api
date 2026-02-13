@@ -3,6 +3,7 @@ package net.rebel459.unified.platform;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -27,14 +29,19 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.rebel459.unified.platform.client.ClientHelpersImpl;
+import net.rebel459.unified.test.ClientQuiverTooltip;
+import net.rebel459.unified.test.QuiverItem;
 import net.rebel459.unified.util.PackInfo;
 import net.rebel459.unified.util.Platform;
 import org.apache.commons.lang3.tuple.Triple;
@@ -45,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class NeoForgeHelpersImpl {
 
@@ -418,5 +426,27 @@ public class NeoForgeHelpersImpl {
             return ModList.get().isLoaded(modId);
         }
 
+    }
+
+    public static class Tooltips implements ClientHelpersImpl.Tooltips {
+
+        private record Bindings<T extends TooltipComponent>(Class<T> type, Function<T, ClientTooltipComponent> factory) {}
+
+        private static final List<Bindings<?>> TOOLTIPS = new ArrayList<>();
+
+        @Override
+        public <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory) {
+            TOOLTIPS.add(new Bindings<>(type, factory));
+        }
+
+        @SubscribeEvent
+        public static void registerTooltipFactories(RegisterClientTooltipComponentFactoriesEvent event) {
+            for (Bindings<?> list : TOOLTIPS) {
+                @SuppressWarnings("unchecked")
+                Bindings<TooltipComponent> bindings = (Bindings<TooltipComponent>) list;
+                event.register(bindings.type, bindings.factory);
+            }
+            TOOLTIPS.clear();
+        }
     }
 }

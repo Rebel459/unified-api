@@ -1,6 +1,8 @@
 package net.rebel459.unified.platform.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -1,5 +1,6 @@
 package net.rebel459.unified.platform.client;
 
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.particle.ParticleResources;
@@ -12,11 +13,13 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ClientHelpersImpl {
@@ -44,5 +47,10 @@ public class ClientHelpersImpl {
     public interface NetworkPayloads {
 
         void send(CustomPacketPayload payload);
+    }
+
+    public interface Tooltips {
+
+        <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory);
     }
 }

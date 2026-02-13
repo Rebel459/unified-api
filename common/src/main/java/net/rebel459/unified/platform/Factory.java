@@ -109,5 +109,6 @@ public final class Factory {
         ClientHelpersImpl.EntityRenderers createEntityRenderers();
         ClientHelpersImpl.BlockLayers createBlockLayers();
         ClientHelpersImpl.NetworkPayloads createNetworkPayloads();
+        ClientHelpersImpl.Tooltips createTooltips();
     }
 }
