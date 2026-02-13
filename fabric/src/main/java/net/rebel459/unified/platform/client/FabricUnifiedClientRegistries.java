@@ -13,7 +13,7 @@ public class FabricUnifiedClientRegistries {
     public record KeyMappings(String modId) implements UnifiedClientRegistries.KeyMappings {
 
         @Override
-        public Supplier<KeyMapping> registerKeybind(String name, InputConstants.Type type, Integer key, KeyMapping.Category category) {
+        public Supplier<KeyMapping> registerKeybind(String path, InputConstants.Type type, Integer key, KeyMapping.Category category) {
             var keyBind = Suppliers.memoize(() -> KeyBindingHelper.registerKeyBinding(
                     new KeyMapping(
                             "key." + modId + "." + name,
@@ -27,8 +27,8 @@ public class FabricUnifiedClientRegistries {
         }
 
         @Override
-        public KeyMapping.Category registerCategory(String name) {
-            return KeyMapping.Category.register(Identifier.fromNamespaceAndPath(modId, name));
+        public KeyMapping.Category registerCategory(String path) {
+            return KeyMapping.Category.register(Identifier.fromNamespaceAndPath(modId, path));
         }
     }
 }

@@ -33,15 +33,15 @@ public class FabricUnifiedRegistries {
     public record Items(String modId) implements UnifiedRegistries.Items {
 
         @Override
-        public Supplier<Item> register(String name, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            var resourceKey = ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, Identifier.fromNamespaceAndPath(modId, name));
+        public Supplier<Item> register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            var resourceKey = ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
             var item = Suppliers.memoize(() -> net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey)));
             item.get();
             return item;
         }
 
         @Override
-        public <T extends Block> Supplier<BlockItem> registerBlockItem(String name, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+        public <T extends Block> Supplier<BlockItem> registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
             var item = Suppliers.memoize(() -> (BlockItem) net.minecraft.world.item.Items.registerBlock(blockSupplier.get(), properties.get()));
             item.get();
             return item;
@@ -51,21 +51,21 @@ public class FabricUnifiedRegistries {
     public record Blocks(String modId) implements UnifiedRegistries.Blocks {
 
         @Override
-        public <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
-            Identifier blockId = Identifier.fromNamespaceAndPath(modId, name);
+        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
+            Identifier blockId = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, blockId);
 
             Supplier<T> blockSupplier = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.setId(blockKey))));
 
-            UnifiedRegistries.Items.create(modId).registerBlockItem(name, blockSupplier, Item.Properties::new);
+            UnifiedRegistries.Items.create(modId).registerBlockItem(path, blockSupplier, Item.Properties::new);
 
             blockSupplier.get();
             return blockSupplier;
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
-            Supplier<T> block = register(name, function, blockProperties);
+        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
+            Supplier<T> block = register(path, function, blockProperties);
             T blockInstance = block.get();
             ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
             block.get();
@@ -73,16 +73,16 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, name);
+        public <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             var block = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)))));
             block.get();
             return block;
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
-            Supplier<T> block = registerWithoutItem(name, function, properties);
+        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
+            Supplier<T> block = registerWithoutItem(path, function, properties);
             T blockInstance = block.get();
             ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
             block.get();
@@ -109,8 +109,8 @@ public class FabricUnifiedRegistries {
     public record DataComponentTypes(String modId) implements UnifiedRegistries.DataComponentTypes {
 
         @Override
-        public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
-            var component = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, string), unaryOperator.apply(DataComponentType.builder()).build()));
+        public <T> Supplier<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
+            var component = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, path), unaryOperator.apply(DataComponentType.builder()).build()));
             component.get();
             return component;
         }
@@ -148,16 +148,16 @@ public class FabricUnifiedRegistries {
     public record SoundEvents(String modId) implements UnifiedRegistries.SoundEvents {
 
         @Override
-        public Supplier<SoundEvent> register(String string) {
-            Identifier identifier = Identifier.fromNamespaceAndPath(modId, string);
+        public Supplier<SoundEvent> register(String path) {
+            Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
             var soundEvent = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.SOUND_EVENT, identifier, SoundEvent.createVariableRangeEvent(identifier)));
             soundEvent.get();
             return soundEvent;
         }
 
         @Override
-        public Supplier<Holder<SoundEvent>> registerForHolder(String string) {
-            Identifier identifier = Identifier.fromNamespaceAndPath(modId, string);
+        public Supplier<Holder<SoundEvent>> registerHolder(String path) {
+            Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
             Supplier<Holder<SoundEvent>> soundEvent = Suppliers.memoize(() -> Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, SoundEvent.createVariableRangeEvent(identifier)));
             soundEvent.get();
             return soundEvent;

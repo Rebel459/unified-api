@@ -59,6 +59,7 @@ public class NeoForgeUnifiedRegistries {
         DeferredRegister<ParticleType<?>> particles = PARTICLES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
         DeferredRegister<MobEffect> effects = EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.MOB_EFFECT, modId));
         DeferredRegister<EntityType<?>> entities = ENTITIES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENTITY_TYPE, modId));
+        DeferredRegister<SoundEvent> sounds = SOUND_EVENTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.SOUND_EVENT, modId));
 
         items.register(modEventBus);
         blocks.register(modEventBus);
@@ -67,18 +68,19 @@ public class NeoForgeUnifiedRegistries {
         particles.register(modEventBus);
         effects.register(modEventBus);
         entities.register(modEventBus);
+        sounds.register(modEventBus);
     }
 
     public record Items(String modId) implements UnifiedRegistries.Items {
 
         @Override
-        public Supplier<Item> register(String name, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            return ITEMS.get(modId).registerItem(name, function, properties);
+        public Supplier<Item> register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            return ITEMS.get(modId).registerItem(path, function, properties);
         }
 
         @Override
-        public <T extends Block> Supplier<BlockItem> registerBlockItem(String name, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
-            return ITEMS.get(modId).registerSimpleBlockItem(name, blockSupplier, properties);
+        public <T extends Block> Supplier<BlockItem> registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            return ITEMS.get(modId).registerSimpleBlockItem(path, blockSupplier, properties);
         }
     }
 
@@ -87,27 +89,27 @@ public class NeoForgeUnifiedRegistries {
         public static List<Pair<BlockEntityType<?>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
 
         @Override
-        public <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
-            Supplier<T> blockHolder = registerWithoutItem(name, function, blockProperties);
-            ITEMS.get(modId).registerSimpleBlockItem(name, blockHolder);
+        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
+            Supplier<T> blockHolder = registerWithoutItem(path, function, blockProperties);
+            ITEMS.get(modId).registerSimpleBlockItem(path, blockHolder);
             return blockHolder;
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
-            var block = register(name, function, blockProperties);
+        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
+            var block = register(path, function, blockProperties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
         }
 
         @Override
-        public <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
-            return BLOCKS.get(modId).registerBlock(name, function, () -> properties);
+        public <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
+            return BLOCKS.get(modId).registerBlock(path, function, () -> properties);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
-            var block = registerWithoutItem(name, function, properties);
+        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
+            var block = registerWithoutItem(path, function, properties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
         }
@@ -140,8 +142,8 @@ public class NeoForgeUnifiedRegistries {
     public record DataComponentTypes(String modId) implements UnifiedRegistries.DataComponentTypes {
 
         @Override
-        public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
-            return DATA_COMPONENTS.get(modId).registerComponentType(string, unaryOperator);
+        public <T> Supplier<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
+            return DATA_COMPONENTS.get(modId).registerComponentType(path, unaryOperator);
         }
     }
 
@@ -172,15 +174,15 @@ public class NeoForgeUnifiedRegistries {
     public record SoundEvents(String modId) implements UnifiedRegistries.SoundEvents {
 
         @Override
-        public Supplier<SoundEvent> register(String name) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, name);
-            return SOUND_EVENTS.get(modId).register(name, () -> SoundEvent.createVariableRangeEvent(id));
+        public Supplier<SoundEvent> register(String path) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            return SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id));
         }
 
         @Override
-        public Supplier<Holder<SoundEvent>> registerForHolder(String name) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, name);
-            return Suppliers.memoize(() -> SOUND_EVENTS.get(modId).register(name, () -> SoundEvent.createVariableRangeEvent(id)));
+        public Supplier<Holder<SoundEvent>> registerHolder(String path) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            return Suppliers.memoize(() -> SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id)));
         }
     }
 }

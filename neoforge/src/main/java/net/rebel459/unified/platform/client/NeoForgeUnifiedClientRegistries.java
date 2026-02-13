@@ -19,7 +19,7 @@ public class NeoForgeUnifiedClientRegistries {
         public static List<KeyMapping.Category> CATEGORIES = new ArrayList<>();
 
         @Override
-        public Supplier<KeyMapping> registerKeybind(String name, InputConstants.Type type, Integer key, KeyMapping.Category category) {
+        public Supplier<KeyMapping> registerKeybind(String path, InputConstants.Type type, Integer key, KeyMapping.Category category) {
             Supplier<KeyMapping> keyMapping = Suppliers.memoize(() -> new KeyMapping(
                     "key." + modId + "." + name,
                     type,
@@ -31,8 +31,8 @@ public class NeoForgeUnifiedClientRegistries {
         }
 
         @Override
-        public KeyMapping.Category registerCategory(String name) {
-            KeyMapping.Category category = new KeyMapping.Category(Identifier.fromNamespaceAndPath(modId, name));
+        public KeyMapping.Category registerCategory(String path) {
+            KeyMapping.Category category = new KeyMapping.Category(Identifier.fromNamespaceAndPath(modId, path));
             CATEGORIES.add(category);
             return category;
         }

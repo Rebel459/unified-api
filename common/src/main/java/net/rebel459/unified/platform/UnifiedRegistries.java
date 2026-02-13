@@ -27,9 +27,9 @@ public class UnifiedRegistries {
     public interface Items {
         String modId();
 
-        Supplier<Item> register(String name, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties);
+        Supplier<Item> register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties);
 
-        <T extends Block> Supplier<BlockItem> registerBlockItem(String name, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
+        <T extends Block> Supplier<BlockItem> registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         static Items create(String modId) {
             return PlatformHelperImpl.INSTANCE.createItems(modId);
@@ -39,11 +39,11 @@ public class UnifiedRegistries {
     public interface Blocks {
         String modId();
 
-        <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties);
-        <T extends Block, Y extends BlockEntity> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type);
+        <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties);
+        <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type);
 
-        <T extends Block> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
-        <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String name, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type);
+        <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
+        <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type);
 
         static Blocks create(String modId) {
             return PlatformHelperImpl.INSTANCE.createBlocks(modId);
@@ -63,7 +63,7 @@ public class UnifiedRegistries {
     public interface DataComponentTypes {
         String modId();
 
-        <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
+        <T> Supplier<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
 
         static DataComponentTypes create(String modId) {
             return PlatformHelperImpl.INSTANCE.createDataComponentTypes(modId);
@@ -93,7 +93,7 @@ public class UnifiedRegistries {
     public interface EntityTypes {
         String modId();
 
-        <T extends Entity> @NotNull Supplier<EntityType<T>> register(String string, EntityType.@NotNull Builder<T> builder);
+        <T extends Entity> @NotNull Supplier<EntityType<T>> register(String path, EntityType.@NotNull Builder<T> builder);
 
         static EntityTypes create(String modId) {
             return PlatformHelperImpl.INSTANCE.createEntityTypes(modId);
@@ -103,9 +103,9 @@ public class UnifiedRegistries {
     public interface SoundEvents {
         String modId();
 
-        Supplier<SoundEvent> register(String string);
+        Supplier<SoundEvent> register(String path);
 
-        Supplier<Holder<SoundEvent>> registerForHolder(String name);
+        Supplier<Holder<SoundEvent>> registerHolder(String path);
 
         static SoundEvents create(String modId) {
             return PlatformHelperImpl.INSTANCE.createSoundEvents(modId);

@@ -10,8 +10,8 @@ public class UnifiedClientRegistries {
     public interface KeyMappings {
         String modId();
 
-        Supplier<KeyMapping> registerKeybind(String name, InputConstants.Type type, Integer key, KeyMapping.Category category);
-        KeyMapping.Category registerCategory(String name);
+        Supplier<KeyMapping> registerKeybind(String path, InputConstants.Type type, Integer key, KeyMapping.Category category);
+        KeyMapping.Category registerCategory(String path);
 
         static UnifiedClientRegistries.KeyMappings create(String modId) {
             return ClientPlatformHelperImpl.INSTANCE.createKeyMappings(modId);
