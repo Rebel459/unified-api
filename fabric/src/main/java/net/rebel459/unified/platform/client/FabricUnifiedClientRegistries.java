@@ -14,7 +14,7 @@ public class FabricUnifiedClientRegistries {
 
         @Override
         public Supplier<KeyMapping> registerKeybind(String name, InputConstants.Type type, Integer key, KeyMapping.Category category) {
-            return Suppliers.memoize(() -> KeyBindingHelper.registerKeyBinding(
+            var keyBind = Suppliers.memoize(() -> KeyBindingHelper.registerKeyBinding(
                     new KeyMapping(
                             "key." + modId + "." + name,
                             type,
@@ -22,6 +22,8 @@ public class FabricUnifiedClientRegistries {
                             category
                     ))
             );
+            keyBind.get();
+            return keyBind;
         }
 
         @Override
