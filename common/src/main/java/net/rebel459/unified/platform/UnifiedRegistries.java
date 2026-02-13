@@ -4,6 +4,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -59,23 +60,23 @@ public class UnifiedRegistries {
         }
     }
 
-    public interface ItemComponents {
+    public interface DataComponentTypes {
         String modId();
 
         <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
 
-        static ItemComponents create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createItemComponents(modId);
+        static DataComponentTypes create(String modId) {
+            return PlatformHelperImpl.INSTANCE.createDataComponentTypes(modId);
         }
     }
 
-    public interface Particles {
+    public interface ParticleTypes {
         String modId();
 
         <T extends ParticleType> Supplier<T> register(String path, ParticleType type);
 
-        static Particles create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createParticles(modId);
+        static ParticleTypes create(String modId) {
+            return PlatformHelperImpl.INSTANCE.createParticleTypes(modId);
         }
     }
 
@@ -96,6 +97,18 @@ public class UnifiedRegistries {
 
         static EntityTypes create(String modId) {
             return PlatformHelperImpl.INSTANCE.createEntityTypes(modId);
+        }
+    }
+
+    public interface SoundEvents {
+        String modId();
+
+        Supplier<SoundEvent> register(String string);
+
+        Supplier<Holder<SoundEvent>> registerForHolder(String name);
+
+        static SoundEvents create(String modId) {
+            return PlatformHelperImpl.INSTANCE.createSoundEvents(modId);
         }
     }
 }

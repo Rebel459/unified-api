@@ -5,10 +5,11 @@ public interface PlatformHelper {
     UnifiedRegistries.Items createItems(String modId);
     UnifiedRegistries.Blocks createBlocks(String modId);
     UnifiedRegistries.CreativeTabs createCreativeTabs(String modId);
-    UnifiedRegistries.ItemComponents createItemComponents(String modId);
-    UnifiedRegistries.Particles createParticles(String modId);
+    UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId);
+    UnifiedRegistries.ParticleTypes createParticleTypes(String modId);
     UnifiedRegistries.MobEffects createMobEffects(String modId);
     UnifiedRegistries.EntityTypes createEntityTypes(String modId);
+    UnifiedRegistries.SoundEvents createSoundEvents(String modId);
 
     UnifiedHelpers.CreativeEntries getCreativeEntries();
     UnifiedHelpers.LootTables getLootTables();

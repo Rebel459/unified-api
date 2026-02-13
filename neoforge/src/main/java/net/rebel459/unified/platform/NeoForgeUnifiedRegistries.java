@@ -1,7 +1,10 @@
 package net.rebel459.unified.platform;
 
+import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistrationInfo;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -9,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -24,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,6 +49,7 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister<ParticleType<?>>> PARTICLES = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<MobEffect>> EFFECTS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<EntityType<?>>> ENTITIES = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<SoundEvent>> SOUND_EVENTS = new ConcurrentHashMap<>();
 
     public static void registerBus(String modId, IEventBus modEventBus) {
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
@@ -131,7 +137,7 @@ public class NeoForgeUnifiedRegistries {
         }
     }
 
-    public record ItemComponents(String modId) implements UnifiedRegistries.ItemComponents {
+    public record DataComponentTypes(String modId) implements UnifiedRegistries.DataComponentTypes {
 
         @Override
         public <T> Supplier<DataComponentType<T>> register(String string, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
@@ -139,7 +145,7 @@ public class NeoForgeUnifiedRegistries {
         }
     }
 
-    public record Particles(String modId) implements UnifiedRegistries.Particles {
+    public record ParticleTypes(String modId) implements UnifiedRegistries.ParticleTypes {
 
         @Override
         public <T extends ParticleType> Supplier<T> register(String path, ParticleType type) {
@@ -160,6 +166,21 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public @NotNull <T extends Entity> Supplier<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
             return ENTITIES.get(modId).register(path, () -> builder.build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path))));
+        }
+    }
+
+    public record SoundEvents(String modId) implements UnifiedRegistries.SoundEvents {
+
+        @Override
+        public Supplier<SoundEvent> register(String name) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, name);
+            return SOUND_EVENTS.get(modId).register(name, () -> SoundEvent.createVariableRangeEvent(id));
+        }
+
+        @Override
+        public Supplier<Holder<SoundEvent>> registerForHolder(String name) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, name);
+            return Suppliers.memoize(() -> SOUND_EVENTS.get(modId).register(name, () -> SoundEvent.createVariableRangeEvent(id)));
         }
     }
 }

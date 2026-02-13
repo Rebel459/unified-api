@@ -18,13 +18,13 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public UnifiedRegistries.ItemComponents createItemComponents(String modId) {
-        return new NeoForgeUnifiedRegistries.ItemComponents(modId);
+    public UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId) {
+        return new NeoForgeUnifiedRegistries.DataComponentTypes(modId);
     }
 
     @Override
-    public UnifiedRegistries.Particles createParticles(String modId) {
-        return new NeoForgeUnifiedRegistries.Particles(modId);
+    public UnifiedRegistries.ParticleTypes createParticleTypes(String modId) {
+        return new NeoForgeUnifiedRegistries.ParticleTypes(modId);
     }
 
     @Override
@@ -35,6 +35,11 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     @Override
     public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
         return new NeoForgeUnifiedRegistries.EntityTypes(modId);
+    }
+
+    @Override
+    public UnifiedRegistries.SoundEvents createSoundEvents(String modId) {
+        return new NeoForgeUnifiedRegistries.SoundEvents(modId);
     }
 
     @Override

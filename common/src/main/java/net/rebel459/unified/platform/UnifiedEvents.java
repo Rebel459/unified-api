@@ -22,7 +22,7 @@ public class UnifiedEvents {
 
         private ModifyItemComponents() {}
 
-        public static void insert(Predicate<Item> filter, BiConsumer<Builder, Item> modifier) {
+        public static void access(Predicate<Item> filter, BiConsumer<Builder, Item> modifier) {
             ENTRIES.add(new Entry(filter, modifier));
         }
 
@@ -47,7 +47,7 @@ public class UnifiedEvents {
 
         private PlayerJoin() {}
 
-        public static void insert(Consumer<Player> listener) {
+        public static void access(Consumer<Player> listener) {
             LISTENERS.add(listener);
         }
 
@@ -64,7 +64,7 @@ public class UnifiedEvents {
 
         private PlayerLeave() {}
 
-        public static void insert(Consumer<Player> listener) {
+        public static void access(Consumer<Player> listener) {
             LISTENERS.add(listener);
         }
 
@@ -81,7 +81,7 @@ public class UnifiedEvents {
 
         private PlayerRespawn() {}
 
-        public static void insert(Consumer<Player> listener) {
+        public static void access(Consumer<Player> listener) {
             LISTENERS.add(listener);
         }
 
@@ -102,7 +102,7 @@ public class UnifiedEvents {
 
         private CommandRegistration() {}
 
-        public static void insert(Entry handler) {
+        public static void access(Entry handler) {
             ENTRIES.add(handler);
         }
 

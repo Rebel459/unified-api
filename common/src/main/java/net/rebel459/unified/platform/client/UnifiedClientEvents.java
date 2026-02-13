@@ -1,8 +1,6 @@
 package net.rebel459.unified.platform.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,7 +14,7 @@ public class UnifiedClientEvents {
 
         private EndTick() {}
 
-        public static void insert(Consumer<Minecraft> listener) {
+        public static void access(Consumer<Minecraft> listener) {
             LISTENERS.add(listener);
         }
 
@@ -33,7 +31,7 @@ public class UnifiedClientEvents {
 
         private StartTick() {}
 
-        public static void insert(Consumer<Minecraft> listener) {
+        public static void access(Consumer<Minecraft> listener) {
             LISTENERS.add(listener);
         }
 

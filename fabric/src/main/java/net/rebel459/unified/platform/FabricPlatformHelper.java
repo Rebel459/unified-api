@@ -18,13 +18,13 @@ public class FabricPlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public UnifiedRegistries.ItemComponents createItemComponents(String modId) {
-        return new FabricUnifiedRegistries.ItemComponents(modId);
+    public UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId) {
+        return new FabricUnifiedRegistries.DataComponentTypes(modId);
     }
 
     @Override
-    public UnifiedRegistries.Particles createParticles(String modId) {
-        return new FabricUnifiedRegistries.Particles(modId);
+    public UnifiedRegistries.ParticleTypes createParticleTypes(String modId) {
+        return new FabricUnifiedRegistries.ParticleTypes(modId);
     }
 
     @Override
@@ -35,6 +35,11 @@ public class FabricPlatformHelper implements PlatformHelper {
     @Override
     public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
         return new FabricUnifiedRegistries.EntityTypes(modId);
+    }
+
+    @Override
+    public UnifiedRegistries.SoundEvents createSoundEvents(String modId) {
+        return new FabricUnifiedRegistries.SoundEvents(modId);
     }
 
     @Override
