@@ -1,15 +1,10 @@
 package net.rebel459.unified.platform.client;
 
-import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.rebel459.unified.platform.UnifiedEvents;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
