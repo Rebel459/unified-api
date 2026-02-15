@@ -38,6 +38,11 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     }
 
     @Override
+    public UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId) {
+        return new NeoForgeUnifiedRegistries.BlockEntityTypes(modId);
+    }
+
+    @Override
     public UnifiedRegistries.SoundEvents createSoundEvents(String modId) {
         return new NeoForgeUnifiedRegistries.SoundEvents(modId);
     }

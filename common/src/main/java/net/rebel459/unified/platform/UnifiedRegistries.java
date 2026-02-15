@@ -111,4 +111,14 @@ public class UnifiedRegistries {
             return PlatformHelperImpl.INSTANCE.createSoundEvents(modId);
         }
     }
+
+    public interface BlockEntityTypes {
+        String modId();
+
+        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks);
+
+        static BlockEntityTypes create(String modId) {
+            return PlatformHelperImpl.INSTANCE.createBlockEntityTypes(modId);
+        }
+    }
 }

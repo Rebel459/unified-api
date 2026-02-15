@@ -38,6 +38,11 @@ public class FabricPlatformHelper implements PlatformHelper {
     }
 
     @Override
+    public UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId) {
+        return new FabricUnifiedRegistries.BlockEntityTypes(modId);
+    }
+
+    @Override
     public UnifiedRegistries.SoundEvents createSoundEvents(String modId) {
         return new FabricUnifiedRegistries.SoundEvents(modId);
     }

@@ -1,10 +1,7 @@
 package net.rebel459.unified.platform;
 
-import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistrationInfo;
-import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,13 +25,13 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -49,6 +46,7 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister<ParticleType<?>>> PARTICLES = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<MobEffect>> EFFECTS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<EntityType<?>>> ENTITIES = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<BlockEntityType<?>>> BLOCK_ENTITIES = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<SoundEvent>> SOUND_EVENTS = new ConcurrentHashMap<>();
 
     public static void registerBus(String modId, IEventBus modEventBus) {
@@ -59,6 +57,7 @@ public class NeoForgeUnifiedRegistries {
         DeferredRegister<ParticleType<?>> particles = PARTICLES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
         DeferredRegister<MobEffect> effects = EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.MOB_EFFECT, modId));
         DeferredRegister<EntityType<?>> entities = ENTITIES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENTITY_TYPE, modId));
+        DeferredRegister<BlockEntityType<?>> blockEntities = BLOCK_ENTITIES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, modId));
         DeferredRegister<SoundEvent> sounds = SOUND_EVENTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.SOUND_EVENT, modId));
 
         items.register(modEventBus);
@@ -68,6 +67,7 @@ public class NeoForgeUnifiedRegistries {
         particles.register(modEventBus);
         effects.register(modEventBus);
         entities.register(modEventBus);
+        blockEntities.register(modEventBus);
         sounds.register(modEventBus);
     }
 
@@ -168,6 +168,14 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public @NotNull <T extends Entity> Supplier<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
             return ENTITIES.get(modId).register(path, () -> builder.build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path))));
+        }
+    }
+
+    public record BlockEntityTypes(String modId) implements UnifiedRegistries.BlockEntityTypes {
+
+        @Override
+        public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Block... blocks) {
+            return BLOCK_ENTITIES.get(modId).register(path, () -> new BlockEntityType<>(builder, Set.of(blocks)));
         }
     }
 

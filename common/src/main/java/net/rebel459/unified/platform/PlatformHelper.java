@@ -9,6 +9,7 @@ public interface PlatformHelper {
     UnifiedRegistries.ParticleTypes createParticleTypes(String modId);
     UnifiedRegistries.MobEffects createMobEffects(String modId);
     UnifiedRegistries.EntityTypes createEntityTypes(String modId);
+    UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId);
     UnifiedRegistries.SoundEvents createSoundEvents(String modId);
 
     UnifiedHelpers.CreativeEntries getCreativeEntries();

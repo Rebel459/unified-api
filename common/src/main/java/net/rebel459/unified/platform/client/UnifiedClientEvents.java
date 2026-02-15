@@ -58,14 +58,22 @@ public class UnifiedClientEvents {
 
         private Gui() {}
 
-        public interface HotbarEntry {
+        public interface Entry {
             void register(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker);
         }
 
-        static final List<HotbarEntry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
+        static final List<Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void accessHotbar(HotbarEntry entry) {
+        public static void accessHotbar(Entry entry) {
             HOTBAR_ENTRIES.add(entry);
+        }
+
+        // pass handled in impl
+
+        static final List<Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
+
+        public static void accessCrosshair(Entry entry) {
+            CROSSHAIR_ENTRIES.add(entry);
         }
 
         // pass handled in impl

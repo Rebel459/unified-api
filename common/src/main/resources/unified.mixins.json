@@ -6,7 +6,8 @@
     "block.FuelValuesMixin"
   ],
   "client": [
-    "client.AbstractContainerScreenMixin"
+    "client.AbstractContainerScreenMixin",
+    "client.GuiMixin"
   ],
   "injectors": {
     "defaultRequire": 1
