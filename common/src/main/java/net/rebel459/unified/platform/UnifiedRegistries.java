@@ -100,6 +100,17 @@ public class UnifiedRegistries {
         }
     }
 
+    public interface BlockEntityTypes {
+        String modId();
+
+        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder);
+        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks);
+
+        static BlockEntityTypes create(String modId) {
+            return PlatformHelperImpl.INSTANCE.createBlockEntityTypes(modId);
+        }
+    }
+
     public interface SoundEvents {
         String modId();
 
@@ -109,16 +120,6 @@ public class UnifiedRegistries {
 
         static SoundEvents create(String modId) {
             return PlatformHelperImpl.INSTANCE.createSoundEvents(modId);
-        }
-    }
-
-    public interface BlockEntityTypes {
-        String modId();
-
-        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks);
-
-        static BlockEntityTypes create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createBlockEntityTypes(modId);
         }
     }
 }

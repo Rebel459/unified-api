@@ -151,10 +151,19 @@ public class FabricUnifiedRegistries {
     public record BlockEntityTypes(String modId) implements UnifiedRegistries.BlockEntityTypes {
 
         @Override
+        public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder) {
+            return register(path, builder, Set.of());
+        }
+
+        @Override
         public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks) {
+            return register(path, builder, Set.of(blocks));
+        }
+
+        private @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Set<Block> set) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             Util.fetchChoiceType(References.BLOCK_ENTITY, id.toString());
-            var blockEntity = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, new BlockEntityType<>(builder, Set.of(blocks))));
+            var blockEntity = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, new BlockEntityType<>(builder, set)));
             blockEntity.get();
             return blockEntity;
         }

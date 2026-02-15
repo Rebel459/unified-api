@@ -174,8 +174,17 @@ public class NeoForgeUnifiedRegistries {
     public record BlockEntityTypes(String modId) implements UnifiedRegistries.BlockEntityTypes {
 
         @Override
+        public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder) {
+            return register(path, builder, Set.of());
+        }
+
+        @Override
         public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Block... blocks) {
-            return BLOCK_ENTITIES.get(modId).register(path, () -> new BlockEntityType<>(builder, Set.of(blocks)));
+            return register(path, builder, Set.of(blocks));
+        }
+
+        private @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Set<Block> set) {
+            return BLOCK_ENTITIES.get(modId).register(path, () -> new BlockEntityType<>(builder, set));
         }
     }
 

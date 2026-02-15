@@ -27,14 +27,14 @@ public class ClientEventsImpl {
 
         private Gui() {}
 
-        public static void passHotbar(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-            for (UnifiedClientEvents.Gui.Entry entry : UnifiedClientEvents.Gui.HOTBAR_ENTRIES) {
+        public static void passCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+            for (UnifiedClientEvents.Gui.Entry entry : UnifiedClientEvents.Gui.CROSSHAIR_ENTRIES) {
                 entry.register(gui, guiGraphics, deltaTracker);
             }
         }
 
-        public static void passCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-            for (UnifiedClientEvents.Gui.Entry entry : UnifiedClientEvents.Gui.CROSSHAIR_ENTRIES) {
+        public static void passHotbar(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+            for (UnifiedClientEvents.Gui.Entry entry : UnifiedClientEvents.Gui.HOTBAR_ENTRIES) {
                 entry.register(gui, guiGraphics, deltaTracker);
             }
         }
