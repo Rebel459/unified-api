@@ -53,7 +53,7 @@ public class UnifiedRegistries {
     public interface CreativeTabs {
         String modId();
 
-        ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon);
+        ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon);
 
         static CreativeTabs create(String modId) {
             return PlatformHelperImpl.INSTANCE.createCreativeTabs(modId);

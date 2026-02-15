@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
-import net.rebel459.unified.platform.PlatformHelperImpl;
-import net.rebel459.unified.platform.UnifiedHelpers;
 
 import java.util.function.Function;
 import java.util.function.Supplier;

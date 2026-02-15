@@ -1,6 +1,6 @@
 // Adjust the output jar name here
 base {
-    archivesName = "${mod_id}-api-fabric"
+    archivesName = "${mod_id}-api"
 }
 
 dependencies {

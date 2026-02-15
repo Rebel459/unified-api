@@ -93,7 +93,7 @@ public class FabricUnifiedRegistries {
     public record CreativeTabs(String modId) implements UnifiedRegistries.CreativeTabs {
 
         @Override
-        public ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon) {
+        public ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             CreativeModeTab tab = FabricItemGroup.builder()
                     .icon(() -> new ItemStack(icon.get()))

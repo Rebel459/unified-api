@@ -15,10 +15,10 @@ public class FabricUnifiedEvents {
             );
         });
 
-        ServerPlayerEvents.JOIN.register(UnifiedEvents.PlayerJoin::pass);
-        ServerPlayerEvents.LEAVE.register(UnifiedEvents.PlayerLeave::pass);
+        ServerPlayerEvents.JOIN.register(UnifiedEvents.Player::passJoin);
+        ServerPlayerEvents.LEAVE.register(UnifiedEvents.Player::passLeave);
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
-            UnifiedEvents.PlayerRespawn.pass(player);
+            UnifiedEvents.Player.passRespawn(player);
         });
         CommandRegistrationCallback.EVENT.register(UnifiedEvents.CommandRegistration::pass);
     }

@@ -12,75 +12,62 @@ import java.util.function.Consumer;
 
 public class UnifiedClientEvents {
 
-    public static class EndTick {
+    public static class Tick {
 
-        private static final List<Consumer<Minecraft>> LISTENERS = new CopyOnWriteArrayList<>();
+        private Tick() {}
 
-        private EndTick() {}
+        private static final List<Consumer<Minecraft>> START_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void access(Consumer<Minecraft> listener) {
-            LISTENERS.add(listener);
+        public static void accessStart(Consumer<Minecraft> listener) {
+            START_LISTENERS.add(listener);
         }
 
-        public static void pass(Minecraft client) {
-            for (Consumer<Minecraft> listener : LISTENERS) {
+        static void passStart(Minecraft client) {
+            for (Consumer<Minecraft> listener : START_LISTENERS) {
+                listener.accept(client);
+            }
+        }
+
+        private static final List<Consumer<Minecraft>> END_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void accessEnd(Consumer<Minecraft> listener) {
+            END_LISTENERS.add(listener);
+        }
+
+        static void passEnd(Minecraft client) {
+            for (Consumer<Minecraft> listener : END_LISTENERS) {
                 listener.accept(client);
             }
         }
     }
 
-    public static class StartTick {
+    public static class Screen {
 
-        private static final List<Consumer<Minecraft>> LISTENERS = new CopyOnWriteArrayList<>();
+        private Screen() {}
 
-        private StartTick() {}
+        static final List<Consumer<AbstractContainerScreen>> ABSTRACT_CONTAINER_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void access(Consumer<Minecraft> listener) {
-            LISTENERS.add(listener);
+        public static void accessAbstractContainer(Consumer<AbstractContainerScreen> listener) {
+            ABSTRACT_CONTAINER_LISTENERS.add(listener);
         }
 
-        public static void pass(Minecraft client) {
-            for (Consumer<Minecraft> listener : LISTENERS) {
-                listener.accept(client);
-            }
-        }
+        // pass handled in impl
     }
 
-    public static class AbstractScreen {
+    public static class Gui {
 
-        private static final List<Consumer<AbstractContainerScreen>> LISTENERS = new CopyOnWriteArrayList<>();
+        private Gui() {}
 
-        private AbstractScreen() {}
-
-        public static void access(Consumer<AbstractContainerScreen> listener) {
-            LISTENERS.add(listener);
+        public interface HotbarEntry {
+            void register(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker);
         }
 
-        public static void pass(AbstractContainerScreen screen) {
-            for (Consumer<AbstractContainerScreen> listener : LISTENERS) {
-                listener.accept(screen);
-            }
-        }
-    }
+        static final List<HotbarEntry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
-    public static class HotbarGui {
-
-        public interface Entry {
-            void register(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker);
+        public static void accessHotbar(HotbarEntry entry) {
+            HOTBAR_ENTRIES.add(entry);
         }
 
-        private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
-
-        private HotbarGui() {}
-
-        public static void access(Entry entry) {
-            ENTRIES.add(entry);
-        }
-
-        public static void pass(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-            for (Entry entry : ENTRIES) {
-                entry.register(gui, guiGraphics, deltaTracker);
-            }
-        }
+        // pass handled in impl
     }
 }

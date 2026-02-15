@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 public class FabricUnifiedClientEvents {
     public static void init() {
 
-        ClientTickEvents.START_CLIENT_TICK.register(UnifiedClientEvents.StartTick::pass);
-        ClientTickEvents.END_CLIENT_TICK.register(UnifiedClientEvents.EndTick::pass);
+        ClientTickEvents.START_CLIENT_TICK.register(UnifiedClientEvents.Tick::passStart);
+        ClientTickEvents.END_CLIENT_TICK.register(UnifiedClientEvents.Tick::passEnd);
     }
 }

@@ -20,15 +20,15 @@ public class NeoForgeUnifiedEvents {
         });
 
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
-            UnifiedEvents.PlayerJoin.pass(event.getEntity());
+            UnifiedEvents.Player.passJoin(event.getEntity());
         });
 
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) -> {
-            UnifiedEvents.PlayerLeave.pass(event.getEntity());
+            UnifiedEvents.Player.passLeave(event.getEntity());
         });
 
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent event) -> {
-            UnifiedEvents.PlayerRespawn.pass(event.getEntity());
+            UnifiedEvents.Player.passRespawn(event.getEntity());
         });
 
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {

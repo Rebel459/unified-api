@@ -127,7 +127,7 @@ public class NeoForgeUnifiedRegistries {
     public record CreativeTabs(String modId) implements UnifiedRegistries.CreativeTabs {
 
         @Override
-        public ResourceKey<CreativeModeTab> registerTab(String path, Supplier<? extends ItemLike> icon) {
+        public ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             CREATIVE_TABS.get(id.getNamespace()).register(id.getPath(), () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup." + id.getNamespace() + "." + id.getPath()))

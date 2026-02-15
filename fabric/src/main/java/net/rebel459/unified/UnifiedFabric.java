@@ -8,6 +8,7 @@ public class UnifiedFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         Unified.initRegistries();
+        FabricUnifiedEvents.init();
         Unified.init();
     }
 }

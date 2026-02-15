@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/neoforged/"
 
 [[mods]]
 modId="${mod_id}"
-version="${version}"
+version="${version}-neoforge"
 displayName="${mod_name}"
 #updateJSONURL="https://change.me.example.invalid/updates.json"
 displayURL="https://neoforged.net"
