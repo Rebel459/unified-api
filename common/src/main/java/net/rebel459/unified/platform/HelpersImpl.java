@@ -76,10 +76,10 @@ public class HelpersImpl {
         void add(Block original, Block stripped);
     }
 
-    public interface Networking<B extends FriendlyByteBuf> {
+    public interface Networking {
 
-        <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
-        <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
+        <T extends CustomPacketPayload, B extends FriendlyByteBuf> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
+        <T extends CustomPacketPayload, B extends FriendlyByteBuf> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
 
         <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler);
         <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, Consumer<T> handler);

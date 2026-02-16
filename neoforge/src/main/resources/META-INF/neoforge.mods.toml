@@ -1,15 +1,15 @@
 modLoader="javafml"
 loaderVersion="[1,)"
 license="LGPL 3.0-Only"
-issueTrackerURL="https://github.com/neoforged/"
+issueTrackerURL="https://github.com/Rebel459/unified-api/issues"
 
 [[mods]]
 modId="${mod_id}"
 version="${version}-neoforge"
 displayName="${mod_name}"
 #updateJSONURL="https://change.me.example.invalid/updates.json"
-displayURL="https://neoforged.net"
-logoFile="assets/examplemod/icon.png"
+displayURL="https://github.com/Rebel459/unified-api"
+logoFile="assets/icon.png"
 credits="Rebel459, Unimined"
 authors="${mod_author}"
 description='''
