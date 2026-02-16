@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Gui.class)
 public abstract class GuiMixin {
 
-    @Inject(method = "renderCrosshair", at = @At(value = "HEAD"))
-    private void passHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    @Inject(method = "renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "HEAD"))
+    private void passRenderCrosshair(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         ClientEventsImpl.Guis.passRenderCrosshair(Gui.class.cast(this), guiGraphics, deltaTracker);
     }
 }

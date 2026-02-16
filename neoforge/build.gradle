@@ -1,6 +1,7 @@
 // Adjust the output jar name here
 base {
     archivesName = "${mod_id}-api"
+    version = "${version}-neoforge"
 }
 
 dependencies {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
-  "version": "${version}-fabric",
+  "version": "${version}",
   "name": "${mod_name}",
   "description": "A general-purpose multiloader API built on Unimined",
   "authors": [

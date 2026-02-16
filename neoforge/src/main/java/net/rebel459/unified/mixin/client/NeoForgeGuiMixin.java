@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class NeoForgeGuiMixin {
 
     @Inject(method = "renderHotbar", at = @At(value = "HEAD"))
-    private void passHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    private void passRenderHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         ClientEventsImpl.Guis.passRenderHotbar(Gui.class.cast(this), guiGraphics, deltaTracker);
     }
 }

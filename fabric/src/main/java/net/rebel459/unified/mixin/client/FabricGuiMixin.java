@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
-    public abstract class FabricGuiMixin {
+public abstract class FabricGuiMixin {
 
-        @Inject(method = "renderHotbarAndDecorations", at = @At(value = "HEAD"))
-        private void passHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-            ClientEventsImpl.Guis.passRenderHotbar(Gui.class.cast(this), guiGraphics, deltaTracker);
-        }
+    @Inject(method = "renderHotbarAndDecorations", at = @At(value = "HEAD"))
+    private void passRenderHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        ClientEventsImpl.Guis.passRenderHotbar(Gui.class.cast(this), guiGraphics, deltaTracker);
     }
+}

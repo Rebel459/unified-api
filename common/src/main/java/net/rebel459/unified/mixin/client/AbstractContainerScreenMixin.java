@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class AbstractContainerScreenMixin {
 
     @Inject(method = "init", at = @At(value = "TAIL"))
-    private void passAbstractContainer(CallbackInfo ci) {
+    private void passInitAbstractContainerScreen(CallbackInfo ci) {
         ClientEventsImpl.Screens.passInitAbstractContainerScreen(AbstractContainerScreen.class.cast(this));
     }
 }
