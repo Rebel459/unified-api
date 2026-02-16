@@ -26,16 +26,15 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.rebel459.unified.platform.UnifiedHelpers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class NeoForgeUnifiedClientHelpers {
+public class NeoForgeClientHelpersImpl {
 
-    public static class ParticleProviders implements UnifiedClientHelpers.ParticleProviders {
+    public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
 
         public static List<Pair<Supplier, ParticleResources.SpriteParticleRegistration>> PARTICLE_PROVIDERS = new ArrayList<>();
 
@@ -52,7 +51,7 @@ public class NeoForgeUnifiedClientHelpers {
         }
     }
 
-    public static class EntityRenderers implements UnifiedClientHelpers.EntityRenderers {
+    public static class EntityRenderers implements ClientHelpersImpl.EntityRenderers {
 
         public static List<Pair<ModelLayerLocation, Supplier<LayerDefinition>>> LAYER_DEFINITIONS = new ArrayList<>();
         public static List<Pair<EntityType, EntityRendererProvider>> ENTITY_RENDERERS = new ArrayList<>();
@@ -91,7 +90,7 @@ public class NeoForgeUnifiedClientHelpers {
         }
     }
 
-    public static class BlockLayers implements UnifiedClientHelpers.BlockLayers {
+    public static class BlockLayers implements ClientHelpersImpl.BlockLayers {
 
         @Override
         public void add(Block block, ChunkSectionLayer layer) {
@@ -104,7 +103,7 @@ public class NeoForgeUnifiedClientHelpers {
         }
     }
 
-    public static class NetworkPayloads implements UnifiedClientHelpers.NetworkPayloads {
+    public static class Networking implements ClientHelpersImpl.Networking {
 
         @Override
         public void send(CustomPacketPayload payload) {
@@ -113,7 +112,7 @@ public class NeoForgeUnifiedClientHelpers {
     }
 
 
-    public static class Tooltips implements UnifiedClientHelpers.Tooltips {
+    public static class Tooltips implements ClientHelpersImpl.Tooltips {
 
         private record Bindings<T extends TooltipComponent>(Class<T> type, Function<T, ClientTooltipComponent> factory) {}
 

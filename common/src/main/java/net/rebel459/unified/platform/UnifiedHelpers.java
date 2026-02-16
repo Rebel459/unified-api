@@ -21,93 +21,11 @@ import java.util.function.Consumer;
 
 public class UnifiedHelpers {
 
-    public interface Platform {
-
-        /**
-         * Gets the name of the current platform
-         *
-         * @return The name of the current platform.
-         */
-        net.rebel459.unified.util.Platform getPlatform();
-
-        /**
-         * Checks if a mod with the given id is loaded.
-         *
-         * @param modId The mod to check if it is loaded.
-         * @return True if the mod is loaded, false otherwise.
-         */
-        boolean isModLoaded(String modId);
-
-        static Platform get() {
-            return PlatformHelperImpl.INSTANCE.getPlatform();
-        }
-    }
-
-    public interface FurnaceFuels {
-
-        void add(ItemLike item, int ticks);
-
-        static FurnaceFuels get() {
-            return PlatformHelperImpl.INSTANCE.getFurnaceFuels();
-        }
-    }
-
-    public interface CreativeEntries {
-
-        void add(ResourceKey<CreativeModeTab> tab, ItemLike... items);
-        void add(ResourceKey<CreativeModeTab> tab, ItemStack... items);
-        void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems);
-        void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems);
-
-        static CreativeEntries get() {
-            return PlatformHelperImpl.INSTANCE.getCreativeEntries();
-        }
-    }
-
-    public interface Packs {
-
-        void add(Identifier id, PackInfo info);
-
-        static Packs get() {
-            return PlatformHelperImpl.INSTANCE.getPacks();
-        }
-    }
-
-    public interface LootTables {
-
-        void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools);
-        void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools);
-        void addItem(ResourceKey<LootTable> table, ItemLike item, int chance);
-        void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance);
-
-        static LootTables get() {
-            return PlatformHelperImpl.INSTANCE.getLootTables();
-        }
-    }
-
-    public interface StrippableBlocks {
-
-        void add(Block original, Block stripped);
-
-        static StrippableBlocks get() {
-            return PlatformHelperImpl.INSTANCE.getStrippableBlocks();
-        }
-    }
-
-    public interface NetworkPayloads<B extends FriendlyByteBuf> {
-
-        <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
-        <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<? super B, T> codec);
-
-        <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler);
-        <T extends CustomPacketPayload> void registerS2C(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, Consumer<T> handler);
-
-        void send(CustomPacketPayload payload, ServerPlayer player);
-
-        static NetworkPayloads get() {
-            return PlatformHelperImpl.INSTANCE.getNetworkPayloads();
-        }
-    }
+    public static HelpersImpl.Platform PLATFORM = PlatformHelperImpl.INSTANCE.getPlatform();
+    public static HelpersImpl.FurnaceFuels FURNACE_FUELS = PlatformHelperImpl.INSTANCE.getFurnaceFuels();
+    public static HelpersImpl.CreativeEntries CREATIVE_ENTRIES = PlatformHelperImpl.INSTANCE.getCreativeEntries();
+    public static HelpersImpl.Packs PACKS = PlatformHelperImpl.INSTANCE.getPacks();
+    public static HelpersImpl.LootTables LOOT_TABLES = PlatformHelperImpl.INSTANCE.getLootTables();
+    public static HelpersImpl.StrippableBlocks STRIPPABLE_BLOCKS = PlatformHelperImpl.INSTANCE.getStrippableBlocks();
+    public static HelpersImpl.Networking NETWORKING = PlatformHelperImpl.INSTANCE.getNetworkPayloads();
 }

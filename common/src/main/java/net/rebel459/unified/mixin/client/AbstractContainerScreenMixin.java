@@ -12,6 +12,6 @@ public abstract class AbstractContainerScreenMixin {
 
     @Inject(method = "init", at = @At(value = "TAIL"))
     private void passAbstractContainer(CallbackInfo ci) {
-        ClientEventsImpl.Screen.passAbstractContainer(AbstractContainerScreen.class.cast(this));
+        ClientEventsImpl.Screens.passInitAbstractContainerScreen(AbstractContainerScreen.class.cast(this));
     }
 }

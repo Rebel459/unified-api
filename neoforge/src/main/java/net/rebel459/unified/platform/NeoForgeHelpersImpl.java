@@ -45,9 +45,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class NeoForgeUnifiedHelpers {
+public class NeoForgeHelpersImpl {
 
-    public static class FurnaceFuels implements UnifiedHelpers.FurnaceFuels {
+    public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
 
         private static final Object2IntMap<ItemLike> ITEMS = new Object2IntLinkedOpenHashMap<>();
 
@@ -74,7 +74,7 @@ public class NeoForgeUnifiedHelpers {
         }
     }
 
-    public static class CreativeEntries implements UnifiedHelpers.CreativeEntries {
+    public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 
         private static List<Pair<ItemStack, ResourceKey<CreativeModeTab>>> ADD_ITEMS = new ArrayList<>();
         private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> ADD_AFTER_ITEMS = new ArrayList<>();
@@ -158,7 +158,7 @@ public class NeoForgeUnifiedHelpers {
         }
     }
 
-    public static class Packs implements UnifiedHelpers.Packs {
+    public static class Packs implements HelpersImpl.Packs {
 
         public static List<Pair<Identifier, PackInfo>> PACK_LIST = new ArrayList<>();
 
@@ -199,7 +199,7 @@ public class NeoForgeUnifiedHelpers {
         }
     }
 
-    public static class LootTables implements UnifiedHelpers.LootTables {
+    public static class LootTables implements HelpersImpl.LootTables {
 
         public static List<Pair<LootPool.Builder, ResourceKey<LootTable>>> LOOT_APPENDER_LIST = new ArrayList<>();
 
@@ -261,7 +261,7 @@ public class NeoForgeUnifiedHelpers {
         }
     }
 
-    public static class StrippableBlocks implements UnifiedHelpers.StrippableBlocks {
+    public static class StrippableBlocks implements HelpersImpl.StrippableBlocks {
 
         public static HashMap<Block, Block> STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
 
@@ -278,7 +278,7 @@ public class NeoForgeUnifiedHelpers {
         }
     }
 
-    public static class NetworkPayloads implements UnifiedHelpers.NetworkPayloads {
+    public static class Networking implements HelpersImpl.Networking {
 
         @Override
         public void send(CustomPacketPayload payload, ServerPlayer player) {
@@ -366,7 +366,7 @@ public class NeoForgeUnifiedHelpers {
         }
     }
 
-    public static class Platform implements UnifiedHelpers.Platform {
+    public static class Platform implements HelpersImpl.Platform {
 
         @Override
         public net.rebel459.unified.util.Platform getPlatform() {

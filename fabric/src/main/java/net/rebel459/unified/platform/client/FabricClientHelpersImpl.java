@@ -21,14 +21,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
-import net.rebel459.unified.platform.UnifiedHelpers;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class FabricUnifiedClientHelpers {
+public class FabricClientHelpersImpl {
 
-    public static class ParticleProviders implements UnifiedClientHelpers.ParticleProviders {
+    public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
 
         @Override
         public <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
@@ -36,7 +35,7 @@ public class FabricUnifiedClientHelpers {
         }
     }
 
-    public static class EntityRenderers implements UnifiedClientHelpers.EntityRenderers {
+    public static class EntityRenderers implements ClientHelpersImpl.EntityRenderers {
 
         @Override
         public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
@@ -54,7 +53,7 @@ public class FabricUnifiedClientHelpers {
         }
     }
 
-    public static class BlockLayers implements UnifiedClientHelpers.BlockLayers {
+    public static class BlockLayers implements ClientHelpersImpl.BlockLayers {
 
         @Override
         public void add(Block block, ChunkSectionLayer layer) {
@@ -67,7 +66,7 @@ public class FabricUnifiedClientHelpers {
         }
     }
 
-    public static class NetworkPayloads implements UnifiedClientHelpers.NetworkPayloads {
+    public static class Networking implements ClientHelpersImpl.Networking {
 
         @Override
         public void send(CustomPacketPayload payload) {
@@ -75,7 +74,7 @@ public class FabricUnifiedClientHelpers {
         }
     }
 
-    public static class Tooltips implements UnifiedClientHelpers.Tooltips {
+    public static class Tooltips implements ClientHelpersImpl.Tooltips {
 
         @Override
         public <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory) {

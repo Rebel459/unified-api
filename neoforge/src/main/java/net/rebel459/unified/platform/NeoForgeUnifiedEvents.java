@@ -14,29 +14,29 @@ public class NeoForgeUnifiedEvents {
         modEventBus.addListener((ModifyDefaultComponentsEvent event) -> {
             BuiltInRegistries.ITEM.forEach(item -> {
                 event.modify(item, builder -> {
-                    UnifiedEvents.ModifyItemComponents.pass(item, wrapperBuilder(builder));
+                    UnifiedEvents.ItemComponents.passModify(item, wrapperBuilder(builder));
                 });
             });
         });
 
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
-            UnifiedEvents.Player.passJoin(event.getEntity());
+            UnifiedEvents.Players.passOnJoin(event.getEntity());
         });
 
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) -> {
-            UnifiedEvents.Player.passLeave(event.getEntity());
+            UnifiedEvents.Players.passOnLeave(event.getEntity());
         });
 
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent event) -> {
-            UnifiedEvents.Player.passRespawn(event.getEntity());
+            UnifiedEvents.Players.passOnRespawn(event.getEntity());
         });
 
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
-            UnifiedEvents.CommandRegistration.pass(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
+            UnifiedEvents.Commands.passRegister(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
         });
     }
 
-    private static UnifiedEvents.ModifyItemComponents.Builder wrapperBuilder(DataComponentPatch.Builder neoBuilder) {
+    private static UnifiedEvents.ItemComponents.Builder wrapperBuilder(DataComponentPatch.Builder neoBuilder) {
         return neoBuilder::set;
     }
 }

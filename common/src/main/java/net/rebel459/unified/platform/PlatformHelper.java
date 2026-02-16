@@ -12,11 +12,11 @@ public interface PlatformHelper {
     UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId);
     UnifiedRegistries.SoundEvents createSoundEvents(String modId);
 
-    UnifiedHelpers.CreativeEntries getCreativeEntries();
-    UnifiedHelpers.LootTables getLootTables();
-    UnifiedHelpers.Packs getPacks();
-    UnifiedHelpers.FurnaceFuels getFurnaceFuels();
-    UnifiedHelpers.StrippableBlocks getStrippableBlocks();
-    UnifiedHelpers.NetworkPayloads getNetworkPayloads();
-    UnifiedHelpers.Platform getPlatform();
+    HelpersImpl.CreativeEntries getCreativeEntries();
+    HelpersImpl.LootTables getLootTables();
+    HelpersImpl.Packs getPacks();
+    HelpersImpl.FurnaceFuels getFurnaceFuels();
+    HelpersImpl.StrippableBlocks getStrippableBlocks();
+    HelpersImpl.Networking getNetworkPayloads();
+    HelpersImpl.Platform getPlatform();
 }

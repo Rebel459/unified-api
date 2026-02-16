@@ -48,37 +48,37 @@ public class FabricPlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public UnifiedHelpers.CreativeEntries getCreativeEntries() {
-        return new FabricUnifiedHelpers.CreativeEntries();
+    public HelpersImpl.CreativeEntries getCreativeEntries() {
+        return new FabricHelpersImpl.CreativeEntries();
     }
 
     @Override
-    public UnifiedHelpers.LootTables getLootTables() {
-        return new FabricUnifiedHelpers.LootTables();
+    public HelpersImpl.LootTables getLootTables() {
+        return new FabricHelpersImpl.LootTables();
     }
 
     @Override
-    public UnifiedHelpers.Packs getPacks() {
-        return new FabricUnifiedHelpers.Packs();
+    public HelpersImpl.Packs getPacks() {
+        return new FabricHelpersImpl.Packs();
     }
 
     @Override
-    public UnifiedHelpers.FurnaceFuels getFurnaceFuels() {
-        return new FabricUnifiedHelpers.FurnaceFuels();
+    public HelpersImpl.FurnaceFuels getFurnaceFuels() {
+        return new FabricHelpersImpl.FurnaceFuels();
     }
 
     @Override
-    public UnifiedHelpers.StrippableBlocks getStrippableBlocks() {
-        return new FabricUnifiedHelpers.StrippableBlocks();
+    public HelpersImpl.StrippableBlocks getStrippableBlocks() {
+        return new FabricHelpersImpl.StrippableBlocks();
     }
 
     @Override
-    public UnifiedHelpers.NetworkPayloads getNetworkPayloads() {
-        return new FabricUnifiedHelpers.NetworkPayloads();
+    public HelpersImpl.Networking getNetworkPayloads() {
+        return new FabricHelpersImpl.Networking();
     }
 
     @Override
-    public UnifiedHelpers.Platform getPlatform() {
-        return new FabricUnifiedHelpers.Platform();
+    public HelpersImpl.Platform getPlatform() {
+        return new FabricHelpersImpl.Platform();
     }
 }

@@ -8,27 +8,27 @@ public class NeoForgeClientPlatformHelper implements ClientPlatformHelper {
     }
 
     @Override
-    public UnifiedClientHelpers.NetworkPayloads getNetworkPayloads() {
-        return new NeoForgeUnifiedClientHelpers.NetworkPayloads();
+    public ClientHelpersImpl.Networking getNetworkPayloads() {
+        return new NeoForgeClientHelpersImpl.Networking();
     }
 
     @Override
-    public UnifiedClientHelpers.BlockLayers getBlockLayers() {
-        return new NeoForgeUnifiedClientHelpers.BlockLayers();
+    public ClientHelpersImpl.BlockLayers getBlockLayers() {
+        return new NeoForgeClientHelpersImpl.BlockLayers();
     }
 
     @Override
-    public UnifiedClientHelpers.EntityRenderers getEntityRenderers() {
-        return new NeoForgeUnifiedClientHelpers.EntityRenderers();
+    public ClientHelpersImpl.EntityRenderers getEntityRenderers() {
+        return new NeoForgeClientHelpersImpl.EntityRenderers();
     }
 
     @Override
-    public UnifiedClientHelpers.Tooltips getTooltips() {
-        return new NeoForgeUnifiedClientHelpers.Tooltips();
+    public ClientHelpersImpl.Tooltips getTooltips() {
+        return new NeoForgeClientHelpersImpl.Tooltips();
     }
 
     @Override
-    public UnifiedClientHelpers.ParticleProviders getParticleProviders() {
-        return new NeoForgeUnifiedClientHelpers.ParticleProviders();
+    public ClientHelpersImpl.ParticleProviders getParticleProviders() {
+        return new NeoForgeClientHelpersImpl.ParticleProviders();
     }
 }

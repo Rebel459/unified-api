@@ -2,7 +2,6 @@ package net.rebel459.unified.platform.client;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
@@ -12,17 +11,17 @@ import java.util.function.Consumer;
 
 public class UnifiedClientEvents {
 
-    public static class Tick {
+    public static class Ticks {
 
-        private Tick() {}
+        private Ticks() {}
 
         private static final List<Consumer<Minecraft>> START_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void accessStart(Consumer<Minecraft> listener) {
+        public static void atStart(Consumer<Minecraft> listener) {
             START_LISTENERS.add(listener);
         }
 
-        static void passStart(Minecraft client) {
+        static void passAtStart(Minecraft client) {
             for (Consumer<Minecraft> listener : START_LISTENERS) {
                 listener.accept(client);
             }
@@ -30,33 +29,33 @@ public class UnifiedClientEvents {
 
         private static final List<Consumer<Minecraft>> END_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void accessEnd(Consumer<Minecraft> listener) {
+        public static void atEnd(Consumer<Minecraft> listener) {
             END_LISTENERS.add(listener);
         }
 
-        static void passEnd(Minecraft client) {
+        static void passAtEnd(Minecraft client) {
             for (Consumer<Minecraft> listener : END_LISTENERS) {
                 listener.accept(client);
             }
         }
     }
 
-    public static class Screen {
+    public static class Screens {
 
-        private Screen() {}
+        private Screens() {}
 
         static final List<Consumer<AbstractContainerScreen>> ABSTRACT_CONTAINER_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void accessAbstractContainer(Consumer<AbstractContainerScreen> listener) {
+        public static void initAbstractContainerScreen(Consumer<AbstractContainerScreen> listener) {
             ABSTRACT_CONTAINER_LISTENERS.add(listener);
         }
 
         // pass handled in impl
     }
 
-    public static class Gui {
+    public static class Guis {
 
-        private Gui() {}
+        private Guis() {}
 
         public interface Entry {
             void register(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker);
@@ -64,7 +63,7 @@ public class UnifiedClientEvents {
 
         static final List<Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void accessCrosshair(Entry entry) {
+        public static void renderCrosshair(Entry entry) {
             CROSSHAIR_ENTRIES.add(entry);
         }
 
@@ -72,7 +71,7 @@ public class UnifiedClientEvents {
 
         static final List<Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void accessHotbar(Entry entry) {
+        public static void renderHotbar(Entry entry) {
             HOTBAR_ENTRIES.add(entry);
         }
 

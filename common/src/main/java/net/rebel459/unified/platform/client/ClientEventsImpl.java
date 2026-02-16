@@ -1,40 +1,36 @@
 package net.rebel459.unified.platform.client;
 
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class ClientEventsImpl {
 
-    public static class Screen {
+    public static class Screens {
 
-        private Screen() {}
+        private Screens() {}
 
-        public static void passAbstractContainer(AbstractContainerScreen screen) {
-            for (Consumer<AbstractContainerScreen> listener : UnifiedClientEvents.Screen.ABSTRACT_CONTAINER_LISTENERS) {
+        public static void passInitAbstractContainerScreen(AbstractContainerScreen screen) {
+            for (Consumer<AbstractContainerScreen> listener : UnifiedClientEvents.Screens.ABSTRACT_CONTAINER_LISTENERS) {
                 listener.accept(screen);
             }
         }
     }
 
-    public static class Gui {
+    public static class Guis {
 
-        private Gui() {}
+        private Guis() {}
 
-        public static void passCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-            for (UnifiedClientEvents.Gui.Entry entry : UnifiedClientEvents.Gui.CROSSHAIR_ENTRIES) {
+        public static void passRenderCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+            for (UnifiedClientEvents.Guis.Entry entry : UnifiedClientEvents.Guis.CROSSHAIR_ENTRIES) {
                 entry.register(gui, guiGraphics, deltaTracker);
             }
         }
 
-        public static void passHotbar(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-            for (UnifiedClientEvents.Gui.Entry entry : UnifiedClientEvents.Gui.HOTBAR_ENTRIES) {
+        public static void passRenderHotbar(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+            for (UnifiedClientEvents.Guis.Entry entry : UnifiedClientEvents.Guis.HOTBAR_ENTRIES) {
                 entry.register(gui, guiGraphics, deltaTracker);
             }
         }

@@ -48,37 +48,37 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public UnifiedHelpers.CreativeEntries getCreativeEntries() {
-        return new NeoForgeUnifiedHelpers.CreativeEntries();
+    public HelpersImpl.CreativeEntries getCreativeEntries() {
+        return new NeoForgeHelpersImpl.CreativeEntries();
     }
 
     @Override
-    public UnifiedHelpers.LootTables getLootTables() {
-        return new NeoForgeUnifiedHelpers.LootTables();
+    public HelpersImpl.LootTables getLootTables() {
+        return new NeoForgeHelpersImpl.LootTables();
     }
 
     @Override
-    public UnifiedHelpers.Packs getPacks() {
-        return new NeoForgeUnifiedHelpers.Packs();
+    public HelpersImpl.Packs getPacks() {
+        return new NeoForgeHelpersImpl.Packs();
     }
 
     @Override
-    public UnifiedHelpers.FurnaceFuels getFurnaceFuels() {
-        return new NeoForgeUnifiedHelpers.FurnaceFuels();
+    public HelpersImpl.FurnaceFuels getFurnaceFuels() {
+        return new NeoForgeHelpersImpl.FurnaceFuels();
     }
 
     @Override
-    public UnifiedHelpers.StrippableBlocks getStrippableBlocks() {
-        return new NeoForgeUnifiedHelpers.StrippableBlocks();
+    public HelpersImpl.StrippableBlocks getStrippableBlocks() {
+        return new NeoForgeHelpersImpl.StrippableBlocks();
     }
 
     @Override
-    public UnifiedHelpers.NetworkPayloads getNetworkPayloads() {
-        return new NeoForgeUnifiedHelpers.NetworkPayloads();
+    public HelpersImpl.Networking getNetworkPayloads() {
+        return new NeoForgeHelpersImpl.Networking();
     }
 
     @Override
-    public UnifiedHelpers.Platform getPlatform() {
-        return new NeoForgeUnifiedHelpers.Platform();
+    public HelpersImpl.Platform getPlatform() {
+        return new NeoForgeHelpersImpl.Platform();
     }
 }

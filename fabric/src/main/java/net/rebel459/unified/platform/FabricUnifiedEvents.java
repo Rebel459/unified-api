@@ -10,16 +10,16 @@ public class FabricUnifiedEvents {
             context.modify(
                     item -> true,
                     (fabricBuilder, item) -> {
-                        UnifiedEvents.ModifyItemComponents.pass(item, fabricBuilder::set);
+                        UnifiedEvents.ItemComponents.passModify(item, fabricBuilder::set);
                     }
             );
         });
 
-        ServerPlayerEvents.JOIN.register(UnifiedEvents.Player::passJoin);
-        ServerPlayerEvents.LEAVE.register(UnifiedEvents.Player::passLeave);
+        ServerPlayerEvents.JOIN.register(UnifiedEvents.Players::passOnJoin);
+        ServerPlayerEvents.LEAVE.register(UnifiedEvents.Players::passOnLeave);
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
-            UnifiedEvents.Player.passRespawn(player);
+            UnifiedEvents.Players.passOnRespawn(player);
         });
-        CommandRegistrationCallback.EVENT.register(UnifiedEvents.CommandRegistration::pass);
+        CommandRegistrationCallback.EVENT.register(UnifiedEvents.Commands::passRegister);
     }
 }

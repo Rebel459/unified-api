@@ -14,6 +14,6 @@ public abstract class GuiMixin {
 
     @Inject(method = "renderCrosshair", at = @At(value = "HEAD"))
     private void passHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        ClientEventsImpl.Gui.passCrosshair(Gui.class.cast(this), guiGraphics, deltaTracker);
+        ClientEventsImpl.Guis.passRenderCrosshair(Gui.class.cast(this), guiGraphics, deltaTracker);
     }
 }

@@ -14,6 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
         @Inject(method = "renderHotbarAndDecorations", at = @At(value = "HEAD"))
         private void passHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-            ClientEventsImpl.Gui.passHotbar(Gui.class.cast(this), guiGraphics, deltaTracker);
+            ClientEventsImpl.Guis.passRenderHotbar(Gui.class.cast(this), guiGraphics, deltaTracker);
         }
     }

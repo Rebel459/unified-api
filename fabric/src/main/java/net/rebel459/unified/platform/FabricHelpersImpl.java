@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class FabricUnifiedHelpers {
+public class FabricHelpersImpl {
 
-    public static class FurnaceFuels implements UnifiedHelpers.FurnaceFuels {
+    public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
 
         private static final List<FuelRegistryEvents.BuildCallback> CALLBACKS = new ArrayList<>();
         private static final List<FuelRegistryEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
@@ -69,7 +69,7 @@ public class FabricUnifiedHelpers {
         }
     }
 
-    public static class CreativeEntries implements UnifiedHelpers.CreativeEntries {
+    public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 
         @Override
         public final void add(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
@@ -122,7 +122,7 @@ public class FabricUnifiedHelpers {
         }
     }
 
-    public static class Packs implements UnifiedHelpers.Packs {
+    public static class Packs implements HelpersImpl.Packs {
 
         @Override
         public void add(Identifier id, PackInfo info) {
@@ -142,7 +142,7 @@ public class FabricUnifiedHelpers {
         }
     }
 
-    public static class LootTables implements UnifiedHelpers.LootTables {
+    public static class LootTables implements HelpersImpl.LootTables {
 
         @Override
         public void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools) {
@@ -192,7 +192,7 @@ public class FabricUnifiedHelpers {
         }
     }
 
-    public static class StrippableBlocks implements UnifiedHelpers.StrippableBlocks {
+    public static class StrippableBlocks implements HelpersImpl.StrippableBlocks {
 
         @Override
         public void add(Block original, Block stripped) {
@@ -200,7 +200,7 @@ public class FabricUnifiedHelpers {
         }
     }
 
-    public static class NetworkPayloads implements UnifiedHelpers.NetworkPayloads {
+    public static class Networking implements HelpersImpl.Networking {
 
         @Override
         public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec) {
@@ -240,7 +240,7 @@ public class FabricUnifiedHelpers {
         }
     }
 
-    public static class Platform implements UnifiedHelpers.Platform {
+    public static class Platform implements HelpersImpl.Platform {
 
         @Override
         public net.rebel459.unified.util.Platform getPlatform() {

@@ -8,27 +8,27 @@ public class FabricClientPlatformHelper implements ClientPlatformHelper {
     }
 
     @Override
-    public UnifiedClientHelpers.NetworkPayloads getNetworkPayloads() {
-        return new FabricUnifiedClientHelpers.NetworkPayloads();
+    public ClientHelpersImpl.Networking getNetworkPayloads() {
+        return new FabricClientHelpersImpl.Networking();
     }
 
     @Override
-    public UnifiedClientHelpers.BlockLayers getBlockLayers() {
-        return new FabricUnifiedClientHelpers.BlockLayers();
+    public ClientHelpersImpl.BlockLayers getBlockLayers() {
+        return new FabricClientHelpersImpl.BlockLayers();
     }
 
     @Override
-    public UnifiedClientHelpers.EntityRenderers getEntityRenderers() {
-        return new FabricUnifiedClientHelpers.EntityRenderers();
+    public ClientHelpersImpl.EntityRenderers getEntityRenderers() {
+        return new FabricClientHelpersImpl.EntityRenderers();
     }
 
     @Override
-    public UnifiedClientHelpers.Tooltips getTooltips() {
-        return new FabricUnifiedClientHelpers.Tooltips();
+    public ClientHelpersImpl.Tooltips getTooltips() {
+        return new FabricClientHelpersImpl.Tooltips();
     }
 
     @Override
-    public UnifiedClientHelpers.ParticleProviders getParticleProviders() {
-        return new FabricUnifiedClientHelpers.ParticleProviders();
+    public ClientHelpersImpl.ParticleProviders getParticleProviders() {
+        return new FabricClientHelpersImpl.ParticleProviders();
     }
 }

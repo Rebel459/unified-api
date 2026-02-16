@@ -4,7 +4,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.rebel459.unified.platform.client.ClientEventsImpl;
-import net.rebel459.unified.platform.client.UnifiedClientEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,6 +14,6 @@ public abstract class NeoForgeGuiMixin {
 
     @Inject(method = "renderHotbar", at = @At(value = "HEAD"))
     private void passHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        ClientEventsImpl.Gui.passHotbar(Gui.class.cast(this), guiGraphics, deltaTracker);
+        ClientEventsImpl.Guis.passRenderHotbar(Gui.class.cast(this), guiGraphics, deltaTracker);
     }
 }
