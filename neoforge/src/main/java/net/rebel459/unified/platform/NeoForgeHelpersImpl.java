@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -374,7 +375,7 @@ public class NeoForgeHelpersImpl {
         private static final List<S2CRegistration<?>> S2C_REGS = new ArrayList<>();
 
         private record C2SRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler, boolean play) {}
-        private record S2CRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, Consumer<T> handler, boolean play) {}
+        private record S2CRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, Player> handler, boolean play) {}
 
         @Override
         public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
@@ -382,7 +383,7 @@ public class NeoForgeHelpersImpl {
         }
 
         @Override
-        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
             S2C_REGS.add(new S2CRegistration<>(type, codec, handler, true));
         }
 
@@ -392,7 +393,7 @@ public class NeoForgeHelpersImpl {
         }
 
         @Override
-        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
             S2C_REGS.add(new S2CRegistration<>(type, codec, handler, false));
         }
 
@@ -429,13 +430,13 @@ public class NeoForgeHelpersImpl {
                     registrar.playToClient(
                             r.type,
                             r.codec,
-                            (payload, context) -> r.handler.accept(payload)
+                            (payload, context) -> r.handler.accept(payload, context.player())
                     );
                 } else {
                     registrar.configurationToClient(
                             r.type,
                             r.codec,
-                            (payload, context) -> r.handler.accept(payload)
+                            (payload, context) -> r.handler.accept(payload, context.player())
                     );
                 }
             }

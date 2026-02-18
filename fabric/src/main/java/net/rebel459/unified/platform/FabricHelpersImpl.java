@@ -19,6 +19,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -248,13 +249,13 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
 
             PayloadTypeRegistry.playS2C().register(type, codec);
 
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
                 ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
-                    handler.accept(payload);
+                    handler.accept(payload, context.player());
                 });
             }
         }
@@ -280,13 +281,13 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
 
             PayloadTypeRegistry.configurationS2C().register(type, codec);
 
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
                 ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
-                    handler.accept(payload);
+                    handler.accept(payload, context.player());
                 });
             }
         }
