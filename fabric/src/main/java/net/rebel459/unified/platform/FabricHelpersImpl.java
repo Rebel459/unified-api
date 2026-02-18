@@ -26,7 +26,9 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.rebel459.unified.util.EnvInfo;
 import net.rebel459.unified.util.PackInfo;
+import net.rebel459.unified.util.PlatformInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +37,27 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class FabricHelpersImpl {
+
+    public static class Platform implements HelpersImpl.Platform {
+
+        @Override
+        public PlatformInfo getPlatform() {
+            return PlatformInfo.FABRIC;
+        }
+
+        @Override
+        public EnvInfo getEnvironment() {
+            return switch (FabricLoader.getInstance().getEnvironmentType()) {
+                case CLIENT -> EnvInfo.CLIENT;
+                case SERVER -> EnvInfo.SERVER;
+            };
+        }
+
+        @Override
+        public boolean isModLoaded(String modId) {
+            return FabricLoader.getInstance().isModLoaded(modId);
+        }
+    }
 
     public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
 
@@ -238,19 +261,5 @@ public class FabricHelpersImpl {
         public void send(CustomPacketPayload payload, ServerPlayer player) {
             ServerPlayNetworking.send(player, payload);
         }
-    }
-
-    public static class Platform implements HelpersImpl.Platform {
-
-        @Override
-        public net.rebel459.unified.util.Platform getPlatform() {
-            return net.rebel459.unified.util.Platform.FABRIC;
-        }
-
-        @Override
-        public boolean isModLoaded(String modId) {
-            return FabricLoader.getInstance().isModLoaded(modId);
-        }
-
     }
 }

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
-  "version": "${version}",
+  "version": "${mod_version}",
   "name": "${mod_name}",
-  "description": "A general-purpose multiloader API built on Unimined",
+  "description": "A multiloader API built to enable easy cross-loader mod development\n\n",
   "authors": [
     "${mod_author}"
   ],

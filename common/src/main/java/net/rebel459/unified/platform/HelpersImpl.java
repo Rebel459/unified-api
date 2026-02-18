@@ -13,7 +13,9 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.rebel459.unified.util.EnvInfo;
 import net.rebel459.unified.util.PackInfo;
+import net.rebel459.unified.util.PlatformInfo;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -23,19 +25,10 @@ public class HelpersImpl {
 
     public interface Platform {
 
-        /**
-         * Gets the name of the current platform
-         *
-         * @return The name of the current platform.
-         */
-        net.rebel459.unified.util.Platform getPlatform();
+        PlatformInfo getPlatform();
 
-        /**
-         * Checks if a mod with the given id is loaded.
-         *
-         * @param modId The mod to check if it is loaded.
-         * @return True if the mod is loaded, false otherwise.
-         */
+        EnvInfo getEnvironment();
+
         boolean isModLoaded(String modId);
     }
 

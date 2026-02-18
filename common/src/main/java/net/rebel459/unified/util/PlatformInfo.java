@@ -1,6 +1,6 @@
 package net.rebel459.unified.util;
 
-public enum Platform {
+public enum PlatformInfo {
     FABRIC,
     NEOFORGE
 }

@@ -10,7 +10,6 @@ version = "${mod_version}"
 subprojects {
     apply plugin: "xyz.wagyourtail.unimined"
     apply plugin: "java"
-    apply plugin: 'maven-publish'
 
     group = rootProject.group
     version = rootProject.version

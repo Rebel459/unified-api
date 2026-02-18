@@ -27,6 +27,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -35,7 +36,9 @@ import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.rebel459.unified.util.EnvInfo;
 import net.rebel459.unified.util.PackInfo;
+import net.rebel459.unified.util.PlatformInfo;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
@@ -46,6 +49,27 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class NeoForgeHelpersImpl {
+
+    public static class Platform implements HelpersImpl.Platform {
+
+        @Override
+        public PlatformInfo getPlatform() {
+            return PlatformInfo.NEOFORGE;
+        }
+
+        @Override
+        public EnvInfo getEnvironment() {
+            return switch (FMLEnvironment.getDist()) {
+                case CLIENT -> EnvInfo.CLIENT;
+                case DEDICATED_SERVER -> EnvInfo.SERVER;
+            };
+        }
+
+        @Override
+        public boolean isModLoaded(String modId) {
+            return ModList.get().isLoaded(modId);
+        }
+    }
 
     public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
 
@@ -341,7 +365,6 @@ public class NeoForgeHelpersImpl {
             final PayloadRegistrar registrar = event.registrar("1");
 
             for (C2SRegistration<?> reg : C2S_REGS) {
-                @SuppressWarnings("unchecked")
                 C2SRegistration r = reg;
 
                 registrar.playToServer(
@@ -354,7 +377,6 @@ public class NeoForgeHelpersImpl {
             }
 
             for (S2CRegistration<?> reg : S2C_REGS) {
-                @SuppressWarnings("unchecked")
                 S2CRegistration r = reg;
 
                 registrar.playToClient(
@@ -364,19 +386,5 @@ public class NeoForgeHelpersImpl {
                 );
             }
         }
-    }
-
-    public static class Platform implements HelpersImpl.Platform {
-
-        @Override
-        public net.rebel459.unified.util.Platform getPlatform() {
-            return net.rebel459.unified.util.Platform.NEOFORGE;
-        }
-
-        @Override
-        public boolean isModLoaded(String modId) {
-            return ModList.get().isLoaded(modId);
-        }
-
     }
 }
