@@ -11,6 +11,8 @@ import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -226,17 +228,17 @@ public class FabricHelpersImpl {
     public static class Networking implements HelpersImpl.Networking {
 
         @Override
-        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec) {
+        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec) {
             PayloadTypeRegistry.playC2S().register(type, codec);
         }
 
         @Override
-        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec) {
+        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec) {
             PayloadTypeRegistry.playS2C().register(type, codec);
         }
 
         @Override
-        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
 
             PayloadTypeRegistry.playC2S().register(type, codec);
 
@@ -246,9 +248,41 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
 
             PayloadTypeRegistry.playS2C().register(type, codec);
+
+            if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
+                    handler.accept(payload);
+                });
+            }
+        }
+
+        @Override
+        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.configurationC2S().register(type, codec);
+        }
+
+        @Override
+        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.configurationS2C().register(type, codec);
+        }
+
+        @Override
+        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+
+            PayloadTypeRegistry.configurationC2S().register(type, codec);
+
+            ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
+                handler.accept(payload, context.player());
+            });
+        }
+
+        @Override
+        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+
+            PayloadTypeRegistry.configurationS2C().register(type, codec);
 
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
                 ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {

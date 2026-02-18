@@ -309,55 +309,91 @@ public class NeoForgeHelpersImpl {
             player.connection.send(new ClientboundCustomPayloadPacket(payload));
         }
 
-        public static List<Pair<CustomPacketPayload.Type, StreamCodec>> C2S_LIST = new ArrayList<>();
-        public static List<Pair<CustomPacketPayload.Type, StreamCodec>> S2C_LIST = new ArrayList<>();
+        private static final List<C2SEntry> C2S_LIST = new ArrayList<>();
+        private static final List<S2CEntry> S2C_LIST = new ArrayList<>();
+
+        private record C2SEntry<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, boolean play) {}
+        private record S2CEntry<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, boolean play) {}
 
         @Override
-        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec) {
-            C2S_LIST.add(Pair.of(type, codec));
+        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec) {
+            C2S_LIST.add(new C2SEntry<CustomPacketPayload>(type, codec, true));
         }
 
         @Override
-        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec) {
-            S2C_LIST.add(Pair.of(type, codec));
+        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec) {
+            S2C_LIST.add(new S2CEntry<CustomPacketPayload>(type, codec, true));
+        }
+
+        @Override
+        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec) {
+            C2S_LIST.add(new C2SEntry<CustomPacketPayload>(type, codec, false));
+        }
+
+        @Override
+        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec) {
+            S2C_LIST.add(new S2CEntry<CustomPacketPayload>(type, codec, false));
         }
 
         @SubscribeEvent
         public static void register(RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
-            for (Pair<CustomPacketPayload.Type, StreamCodec> pair : C2S_LIST) {
-                registrar.playToServer(
-                        pair.getFirst(),
-                        pair.getSecond(),
-                        ServerPayloadHandler::handle
-                );
+            for (C2SEntry entry : C2S_LIST) {
+                if (entry.play) {
+                    registrar.playToServer(
+                            entry.type,
+                            entry.codec,
+                            ServerPayloadHandler::handle
+                    );
+                } else {
+                    registrar.configurationToServer(
+                            entry.type,
+                            entry.codec,
+                            ServerPayloadHandler::handle
+                    );
+                }
             }
-            for (Pair<CustomPacketPayload.Type, StreamCodec> pair : S2C_LIST) {
-                registrar.playToClient(
-                        pair.getFirst(),
-                        pair.getSecond(),
-                        ServerPayloadHandler::handle
-                );
+            for (S2CEntry entry : S2C_LIST) {
+                if (entry.play) {
+                    registrar.playToClient(
+                            entry.type,
+                            entry.codec,
+                            ServerPayloadHandler::handle
+                    );
+                } else {
+                    registrar.configurationToClient(
+                            entry.type,
+                            entry.codec,
+                            ServerPayloadHandler::handle
+                    );
+                }
             }
         }
 
         private static final List<C2SRegistration<?>> C2S_REGS = new ArrayList<>();
         private static final List<S2CRegistration<?>> S2C_REGS = new ArrayList<>();
 
-        private record C2SRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler) {}
-
-        private record S2CRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, Consumer<T> handler) {}
+        private record C2SRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler, boolean play) {}
+        private record S2CRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, Consumer<T> handler, boolean play) {}
 
         @Override
-        public void registerC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-
-            C2S_REGS.add(new C2SRegistration<>(type, codec, handler));
+        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+            C2S_REGS.add(new C2SRegistration<>(type, codec, handler, true));
         }
 
         @Override
-        public void registerS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+            S2C_REGS.add(new S2CRegistration<>(type, codec, handler, true));
+        }
 
-            S2C_REGS.add(new S2CRegistration<>(type, codec, handler));
+        @Override
+        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+            C2S_REGS.add(new C2SRegistration<>(type, codec, handler, false));
+        }
+
+        @Override
+        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+            S2C_REGS.add(new S2CRegistration<>(type, codec, handler, false));
         }
 
         @SubscribeEvent
@@ -367,23 +403,41 @@ public class NeoForgeHelpersImpl {
             for (C2SRegistration<?> reg : C2S_REGS) {
                 C2SRegistration r = reg;
 
-                registrar.playToServer(
-                        r.type,
-                        r.codec,
-                        (payload, context) -> {
-                            r.handler.accept(payload, context.player());
-                        }
-                );
+                if (reg.play) {
+                    registrar.playToServer(
+                            r.type,
+                            r.codec,
+                            (payload, context) -> {
+                                r.handler.accept(payload, context.player());
+                            }
+                    );
+                } else {
+                    registrar.configurationToServer(
+                            r.type,
+                            r.codec,
+                            (payload, context) -> {
+                                r.handler.accept(payload, context.player());
+                            }
+                    );
+                }
             }
 
             for (S2CRegistration<?> reg : S2C_REGS) {
                 S2CRegistration r = reg;
 
-                registrar.playToClient(
-                        r.type,
-                        r.codec,
-                        (payload, context) -> r.handler.accept(payload)
-                );
+                if (reg.play) {
+                    registrar.playToClient(
+                            r.type,
+                            r.codec,
+                            (payload, context) -> r.handler.accept(payload)
+                    );
+                } else {
+                    registrar.configurationToClient(
+                            r.type,
+                            r.codec,
+                            (payload, context) -> r.handler.accept(payload)
+                    );
+                }
             }
         }
     }
