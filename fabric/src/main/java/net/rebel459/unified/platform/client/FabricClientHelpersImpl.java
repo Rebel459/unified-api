@@ -1,7 +1,7 @@
 package net.rebel459.unified.platform.client;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -31,7 +31,7 @@ public class FabricClientHelpersImpl {
 
         @Override
         public <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
-            ParticleFactoryRegistry.getInstance().register((ParticleType) type.get(), sprite.create(new ParticleResources.MutableSpriteSet()));
+            ParticleProviderRegistry.getInstance().register((ParticleType) type.get(), sprite.create(new ParticleResources.MutableSpriteSet()));
         }
     }
 
@@ -39,7 +39,7 @@ public class FabricClientHelpersImpl {
 
         @Override
         public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
-            EntityModelLayerRegistry.registerModelLayer(location, (EntityModelLayerRegistry.TexturedModelDataProvider) definition);
+            ModelLayerRegistry.registerModelLayer(location, (ModelLayerRegistry.TexturedLayerDefinitionProvider) definition);
         }
 
         @Override
@@ -50,19 +50,6 @@ public class FabricClientHelpersImpl {
         @Override
         public <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider) {
             BlockEntityRendererRegistry.register(blockEntityType, blockEntityRendererProvider);
-        }
-    }
-
-    public static class BlockLayers implements ClientHelpersImpl.BlockLayers {
-
-        @Override
-        public void add(Block block, ChunkSectionLayer layer) {
-            BlockRenderLayerMap.putBlock(block, layer);
-        }
-
-        @Override
-        public void add(Fluid fluid, ChunkSectionLayer layer) {
-            BlockRenderLayerMap.putFluid(fluid, layer);
         }
     }
 
@@ -78,7 +65,7 @@ public class FabricClientHelpersImpl {
 
         @Override
         public <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory) {
-            TooltipComponentCallback.EVENT.register(component -> {
+            ClientTooltipComponentCallback.EVENT.register(component -> {
                 if (type.isInstance(component)) {
                     return factory.apply(type.cast(component));
                 }

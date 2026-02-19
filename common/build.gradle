@@ -16,7 +16,7 @@ dependencies {
 unimined.minecraft {
     fabric {
         loader fabric_loader
-        accessWidener file("src/main/resources/unified.accesswidener")
+        accessWidener file("src/main/resources/unified.classtweaker")
     }
 
     defaultRemapJar = false

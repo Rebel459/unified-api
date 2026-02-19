@@ -3,7 +3,7 @@ package net.rebel459.unified.platform;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
@@ -21,22 +21,29 @@ public class UnifiedEvents {
 
         private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modify(Predicate<Item> filter, BiConsumer<Builder, Item> modifier) {
-            ENTRIES.add(new Entry(filter, modifier));
+        public static void modify(BiConsumer<Item, DataComponentMap.Builder> modifier) {
+            ENTRIES.add(new Entry(modifier));
         }
 
-        static void passModify(Item item, Builder builder) {
+        private record Entry(BiConsumer<Item, DataComponentMap.Builder> modifier) {}
+
+        private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
+
+        public static void modifyWithFilter(Predicate<Item> filter, BiConsumer<Item, DataComponentMap.Builder> modifier) {
+            FILTERED_ENTRIES.add(new FilteredEntry(filter, modifier));
+        }
+
+        private record FilteredEntry(Predicate<Item> filter, BiConsumer<Item, DataComponentMap.Builder> modifier) {}
+
+        static void passModify(Item item, DataComponentMap.Builder builder) {
             for (Entry entry : ENTRIES) {
+                entry.modifier.accept(item, builder);
+            }
+            for (FilteredEntry entry : FILTERED_ENTRIES) {
                 if (entry.filter.test(item)) {
-                    entry.modifier.accept(builder, item);
+                    entry.modifier.accept(item, builder);
                 }
             }
-        }
-
-        private record Entry(Predicate<Item> filter, BiConsumer<Builder, Item> modifier) {}
-
-        public interface Builder {
-            <T> void set(DataComponentType<? super T> type, T value);
         }
     }
 

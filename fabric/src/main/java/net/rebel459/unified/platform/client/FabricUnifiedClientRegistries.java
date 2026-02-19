@@ -2,7 +2,7 @@ package net.rebel459.unified.platform.client;
 
 import com.google.common.base.Suppliers;
 import com.mojang.blaze3d.platform.InputConstants;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 
@@ -14,7 +14,7 @@ public class FabricUnifiedClientRegistries {
 
         @Override
         public Supplier<KeyMapping> registerKeybind(String path, InputConstants.Type type, Integer key, KeyMapping.Category category) {
-            var keyBind = Suppliers.memoize(() -> KeyBindingHelper.registerKeyBinding(
+            var keyBind = Suppliers.memoize(() -> KeyMappingHelper.registerKeyMapping(
                     new KeyMapping(
                             "key." + modId + "." + path,
                             type,

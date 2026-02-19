@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import com.google.common.base.Suppliers;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
 import net.minecraft.core.Holder;
@@ -70,7 +71,7 @@ public class FabricUnifiedRegistries {
         public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
             Supplier<T> block = register(path, function, blockProperties);
             T blockInstance = block.get();
-            ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
+            ((FabricBlockEntityType) type).addValidBlock(blockInstance);
             block.get();
             return block;
         }
@@ -87,7 +88,7 @@ public class FabricUnifiedRegistries {
         public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
             Supplier<T> block = registerWithoutItem(path, function, properties);
             T blockInstance = block.get();
-            ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
+            ((FabricBlockEntityType) type).addValidBlock(blockInstance);
             block.get();
             return block;
         }
@@ -98,7 +99,7 @@ public class FabricUnifiedRegistries {
         @Override
         public ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            CreativeModeTab tab = FabricItemGroup.builder()
+            CreativeModeTab tab = FabricCreativeModeTab.builder()
                     .icon(() -> new ItemStack(icon.get()))
                     .title(Component.translatable("itemGroup." + id.getNamespace() + "." + id.getPath()))
                     .displayItems((params, output) -> {})

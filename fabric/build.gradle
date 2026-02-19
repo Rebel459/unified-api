@@ -24,7 +24,7 @@ unimined.minecraft {
 
     fabric {
         loader fabric_loader
-        accessWidener file("../common/src/main/resources/unified.accesswidener")
+        accessWidener file("../common/src/main/resources/unified.classtweaker")
     }
 }
 

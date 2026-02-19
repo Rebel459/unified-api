@@ -90,19 +90,6 @@ public class NeoForgeClientHelpersImpl {
         }
     }
 
-    public static class BlockLayers implements ClientHelpersImpl.BlockLayers {
-
-        @Override
-        public void add(Block block, ChunkSectionLayer layer) {
-            ItemBlockRenderTypes.setRenderLayer(block, layer);
-        }
-
-        @Override
-        public void add(Fluid fluid, ChunkSectionLayer layer) {
-            ItemBlockRenderTypes.setRenderLayer(fluid, layer);
-        }
-    }
-
     public static class Networking implements ClientHelpersImpl.Networking {
 
         @Override

@@ -13,11 +13,6 @@ public class FabricClientPlatformHelper implements ClientPlatformHelper {
     }
 
     @Override
-    public ClientHelpersImpl.BlockLayers getBlockLayers() {
-        return new FabricClientHelpersImpl.BlockLayers();
-    }
-
-    @Override
     public ClientHelpersImpl.EntityRenderers getEntityRenderers() {
         return new FabricClientHelpersImpl.EntityRenderers();
     }

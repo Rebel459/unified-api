@@ -2,24 +2,22 @@ package net.rebel459.unified.platform;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
+import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
+import net.fabricmc.fabric.impl.networking.payload.PayloadHelper;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -37,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class FabricHelpersImpl {
 
@@ -64,8 +61,8 @@ public class FabricHelpersImpl {
 
     public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
 
-        private static final List<FuelRegistryEvents.BuildCallback> CALLBACKS = new ArrayList<>();
-        private static final List<FuelRegistryEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
+        private static final List<FuelValueEvents.BuildCallback> CALLBACKS = new ArrayList<>();
+        private static final List<FuelValueEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
 
         @Override
         public void add(ItemLike item, int ticks) {
@@ -82,12 +79,12 @@ public class FabricHelpersImpl {
         }
 
         static {
-            FuelRegistryEvents.BUILD.register((builder, context) -> {
+            FuelValueEvents.BUILD.register((builder, context) -> {
                 for (var callback : CALLBACKS) {
                     callback.build(builder, context);
                 }
             });
-            FuelRegistryEvents.EXCLUSIONS.register((builder, context) -> {
+            FuelValueEvents.EXCLUSIONS.register((builder, context) -> {
                 for (var callback : EXCLUSIONS_CALLBACKS) {
                     callback.buildExclusions(builder, context);
                 }
@@ -98,53 +95,95 @@ public class FabricHelpersImpl {
     public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 
         @Override
-        public final void add(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
+        public final void insert(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
             var itemList = Arrays.stream(items).toList();
             for (ItemLike itemLike : itemList) {
-                add(tab, itemLike.asItem().getDefaultInstance());
+                insert(tab, itemLike.asItem().getDefaultInstance());
             }
         }
 
         @SafeVarargs
         @Override
-        public final void add(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
+        public final void insert(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
             var itemList = Arrays.stream(items).toList();
             for (int x = itemList.size() - 1; x >= 0; x--) {
                 ItemStack item = itemList.get(x);
-                ItemGroupEvents.modifyEntriesEvent(tab).register(entries -> {
+                CreativeModeTabEvents.modifyOutputEvent(tab).register(entries -> {
                     entries.accept(item);
                 });
             }
         }
 
         @Override
-        public final void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
-            var itemList = Arrays.stream(addedItems).toList();
-            for (ItemLike itemLike : itemList) {
-                addAfter(tab, existingItem, itemLike.asItem().getDefaultInstance());
+        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemLike... items) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insert(tab, items);
             }
         }
 
         @Override
-        public void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
-            ItemGroupEvents.modifyEntriesEvent(tab).register(entries -> {
-                entries.addAfter(existingItem, addedItems);
-            });
-        }
-
-        @Override
-        public final void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
-            var itemList = Arrays.stream(addedItems).toList();
-            for (ItemLike itemLike : itemList) {
-                addBefore(tab, existingItem, itemLike.asItem().getDefaultInstance());
+        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemStack... items) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insert(tab, items);
             }
         }
 
         @Override
-        public void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
-            ItemGroupEvents.modifyEntriesEvent(tab).register(entries -> {
-                entries.addBefore(existingItem, addedItems);
+        public final void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
+            var itemList = Arrays.stream(addedItems).toList();
+            for (ItemLike itemLike : itemList) {
+                insertAfter(tab, existingItem, itemLike.asItem().getDefaultInstance());
+            }
+        }
+
+        @Override
+        public void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+            CreativeModeTabEvents.modifyOutputEvent(tab).register(entries -> {
+                entries.insertAfter(existingItem, addedItems);
             });
+        }
+
+        @Override
+        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemLike... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertAfter(tab, existingItem, addedItems);
+            }
+        }
+
+        @Override
+        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertAfter(tab, existingItem, addedItems);
+            }
+        }
+
+        @Override
+        public final void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
+            var itemList = Arrays.stream(addedItems).toList();
+            for (ItemLike itemLike : itemList) {
+                insertBefore(tab, existingItem, itemLike.asItem().getDefaultInstance());
+            }
+        }
+
+        @Override
+        public void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+            CreativeModeTabEvents.modifyOutputEvent(tab).register(entries -> {
+                entries.insertBefore(existingItem, addedItems);
+            });
+        }
+
+        @Override
+        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemLike... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertBefore(tab, existingItem, addedItems);
+            }
+        }
+
+        @Override
+        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertBefore(tab, existingItem, addedItems);
+            }
         }
     }
 
@@ -229,19 +268,19 @@ public class FabricHelpersImpl {
     public static class Networking implements HelpersImpl.Networking {
 
         @Override
-        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec) {
-            PayloadTypeRegistry.playC2S().register(type, codec);
+        public void registerPlayToServer(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.serverboundPlay().register(type, codec);
         }
 
         @Override
-        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec) {
-            PayloadTypeRegistry.playS2C().register(type, codec);
+        public void registerPlayToClient(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.clientboundPlay().register(type, codec);
         }
 
         @Override
-        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+        public void registerPlayToServer(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
 
-            PayloadTypeRegistry.playC2S().register(type, codec);
+            PayloadTypeRegistry.serverboundPlay().register(type, codec);
 
             ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
                 handler.accept(payload, context.player());
@@ -249,9 +288,9 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+        public void registerPlayToClient(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
 
-            PayloadTypeRegistry.playS2C().register(type, codec);
+            PayloadTypeRegistry.clientboundPlay().register(type, codec);
 
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
                 ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
@@ -261,19 +300,19 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec) {
-            PayloadTypeRegistry.configurationC2S().register(type, codec);
+        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.serverboundConfiguration().register(type, codec);
         }
 
         @Override
-        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec) {
-            PayloadTypeRegistry.configurationS2C().register(type, codec);
+        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec) {
+            PayloadTypeRegistry.clientboundConfiguration().register(type, codec);
         }
 
         @Override
-        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
 
-            PayloadTypeRegistry.configurationC2S().register(type, codec);
+            PayloadTypeRegistry.serverboundConfiguration().register(type, codec);
 
             ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
                 handler.accept(payload, context.player());
@@ -281,9 +320,9 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
 
-            PayloadTypeRegistry.configurationS2C().register(type, codec);
+            PayloadTypeRegistry.clientboundConfiguration().register(type, codec);
 
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
                 ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {

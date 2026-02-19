@@ -15,11 +15,12 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
@@ -27,13 +28,14 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -47,7 +49,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class NeoForgeHelpersImpl {
 
@@ -101,69 +102,111 @@ public class NeoForgeHelpersImpl {
 
     public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 
-        private static List<Pair<ItemStack, ResourceKey<CreativeModeTab>>> ADD_ITEMS = new ArrayList<>();
-        private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> ADD_AFTER_ITEMS = new ArrayList<>();
-        private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> ADD_BEFORE_ITEMS = new ArrayList<>();
+        private static List<Pair<ItemStack, ResourceKey<CreativeModeTab>>> INSERT_ITEMS = new ArrayList<>();
+        private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> INSERT_AFTER_ITEMS = new ArrayList<>();
+        private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> INSERT_BEFORE_ITEMS = new ArrayList<>();
 
         @Override
-        public final void add(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
+        public final void insert(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
             var itemList = Arrays.stream(items).toList();
             for (ItemLike itemLike : itemList) {
-                add(tab, itemLike.asItem().getDefaultInstance());
+                insert(tab, itemLike.asItem().getDefaultInstance());
             }
         }
 
         @Override
-        public void add(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
+        public void insert(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
             List<ItemStack> itemList = Arrays.stream(items).toList();
             for (ItemStack item : itemList) {
-                ADD_ITEMS.add(Pair.of(item, tab));
+                INSERT_ITEMS.add(Pair.of(item, tab));
             }
         }
 
         @Override
-        public final void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
+        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemLike... items) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insert(tab, items);
+            }
+        }
+
+        @Override
+        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemStack... items) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insert(tab, items);
+            }
+        }
+
+        @Override
+        public final void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
             var itemList = Arrays.stream(addedItems).toList();
             for (ItemLike itemLike : itemList) {
-                addAfter(tab, existingItem, itemLike.asItem().getDefaultInstance());
+                insertAfter(tab, existingItem, itemLike.asItem().getDefaultInstance());
             }
         }
 
         @Override
-        public void addAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
             List<ItemStack> itemList = Arrays.stream(addedItems).toList();
             for (ItemStack addedItem : itemList) {
-                ADD_AFTER_ITEMS.add(Triple.of(existingItem, addedItem, tab));
+                INSERT_AFTER_ITEMS.add(Triple.of(existingItem, addedItem, tab));
             }
         }
 
         @Override
-        public final void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
+        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemLike... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertAfter(tab, existingItem, addedItems);
+            }
+        }
+
+        @Override
+        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertAfter(tab, existingItem, addedItems);
+            }
+        }
+
+        @Override
+        public final void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
             var itemList = Arrays.stream(addedItems).toList();
             for (ItemLike itemLike : itemList) {
-                addBefore(tab, existingItem, itemLike.asItem().getDefaultInstance());
+                insertBefore(tab, existingItem, itemLike.asItem().getDefaultInstance());
             }
         }
 
         @Override
-        public void addBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
             List<ItemStack> itemList = Arrays.stream(addedItems).toList();
             for (ItemStack addedItem : itemList) {
-                ADD_BEFORE_ITEMS.add(Triple.of(existingItem, addedItem, tab));
+                INSERT_BEFORE_ITEMS.add(Triple.of(existingItem, addedItem, tab));
+            }
+        }
+
+        @Override
+        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemLike... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertBefore(tab, existingItem, addedItems);
+            }
+        }
+
+        @Override
+        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+            for (ResourceKey<CreativeModeTab> tab : tabs) {
+                insertBefore(tab, existingItem, addedItems);
             }
         }
 
         @SubscribeEvent
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
-            for (Pair<ItemStack, ResourceKey<CreativeModeTab>> pair : ADD_ITEMS) {
+            for (Pair<ItemStack, ResourceKey<CreativeModeTab>> pair : INSERT_ITEMS) {
                 ItemStack item = pair.getFirst();
                 ResourceKey<CreativeModeTab> tab = pair.getSecond();
                 if (event.getTabKey().equals(tab)) {
                     event.accept(item);
                 }
             }
-            for (int x = ADD_AFTER_ITEMS.size() - 1; x >= 0; x--) {
-                var triple = ADD_AFTER_ITEMS.get(x);
+            for (int x = INSERT_AFTER_ITEMS.size() - 1; x >= 0; x--) {
+                var triple = INSERT_AFTER_ITEMS.get(x);
                 ItemLike existingItem = triple.getLeft();
                 ItemStack addedItem = triple.getMiddle();
                 ResourceKey<CreativeModeTab> tab = triple.getRight();
@@ -171,8 +214,8 @@ public class NeoForgeHelpersImpl {
                     event.insertAfter(existingItem.asItem().getDefaultInstance(), addedItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 }
             }
-            for (int x = ADD_BEFORE_ITEMS.size() - 1; x >= 0; x--) {
-                var triple = ADD_BEFORE_ITEMS.get(x);
+            for (int x = INSERT_BEFORE_ITEMS.size() - 1; x >= 0; x--) {
+                var triple = INSERT_BEFORE_ITEMS.get(x);
                 ItemLike existingItem = triple.getLeft();
                 ItemStack addedItem = triple.getMiddle();
                 ResourceKey<CreativeModeTab> tab = triple.getRight();
@@ -288,7 +331,7 @@ public class NeoForgeHelpersImpl {
 
     public static class StrippableBlocks implements HelpersImpl.StrippableBlocks {
 
-        public static HashMap<Block, Block> STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
+        public static HashMap<Block, Block> STRIPPABLES = new HashMap<>();
 
         @Override
         public void add(Block original, Block stripped) {
@@ -296,10 +339,24 @@ public class NeoForgeHelpersImpl {
         }
 
         @SubscribeEvent
-        public static void strippables(FMLCommonSetupEvent event) {
-            event.enqueueWork(() -> {
-                AxeItem.STRIPPABLES = STRIPPABLES;
-            });
+        public static void strippables(BlockEvent.BlockToolModificationEvent event) {
+            if (event.getItemAbility() != ItemAbilities.AXE_STRIP) return;
+
+            BlockState originalState = event.getState();
+            Block originalBlock = originalState.getBlock();
+
+            Block strippedBlock = STRIPPABLES.get(originalBlock);
+            if (strippedBlock == null) return;
+
+            BlockState strippedState = strippedBlock.defaultBlockState();
+
+            for (Property property : originalState.getProperties()) {
+                if (strippedState.hasProperty(property)) {
+                    strippedState = strippedState.setValue(property, originalState.getValue(property));
+                }
+            }
+
+            event.setFinalState(strippedState);
         }
     }
 
@@ -310,36 +367,36 @@ public class NeoForgeHelpersImpl {
             player.connection.send(new ClientboundCustomPayloadPacket(payload));
         }
 
-        private static final List<C2SEntry> C2S_LIST = new ArrayList<>();
-        private static final List<S2CEntry> S2C_LIST = new ArrayList<>();
+        private static final List<ToServer> TO_SERVER_LIST = new ArrayList<>();
+        private static final List<ToClient> TO_CLIENT_LIST = new ArrayList<>();
 
-        private record C2SEntry<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, boolean play) {}
-        private record S2CEntry<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, boolean play) {}
+        private record ToServer<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, boolean play) {}
+        private record ToClient<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, boolean play) {}
 
         @Override
-        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec) {
-            C2S_LIST.add(new C2SEntry<CustomPacketPayload>(type, codec, true));
+        public void registerPlayToServer(CustomPacketPayload.Type type, StreamCodec codec) {
+            TO_SERVER_LIST.add(new ToServer<CustomPacketPayload>(type, codec, true));
         }
 
         @Override
-        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec) {
-            S2C_LIST.add(new S2CEntry<CustomPacketPayload>(type, codec, true));
+        public void registerPlayToClient(CustomPacketPayload.Type type, StreamCodec codec) {
+            TO_CLIENT_LIST.add(new ToClient<CustomPacketPayload>(type, codec, true));
         }
 
         @Override
-        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec) {
-            C2S_LIST.add(new C2SEntry<CustomPacketPayload>(type, codec, false));
+        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec) {
+            TO_SERVER_LIST.add(new ToServer<CustomPacketPayload>(type, codec, false));
         }
 
         @Override
-        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec) {
-            S2C_LIST.add(new S2CEntry<CustomPacketPayload>(type, codec, false));
+        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec) {
+            TO_CLIENT_LIST.add(new ToClient<CustomPacketPayload>(type, codec, false));
         }
 
         @SubscribeEvent
         public static void register(RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
-            for (C2SEntry entry : C2S_LIST) {
+            for (ToServer entry : TO_SERVER_LIST) {
                 if (entry.play) {
                     registrar.playToServer(
                             entry.type,
@@ -354,89 +411,85 @@ public class NeoForgeHelpersImpl {
                     );
                 }
             }
-            for (S2CEntry entry : S2C_LIST) {
+            for (ToClient entry : TO_CLIENT_LIST) {
                 if (entry.play) {
                     registrar.playToClient(
                             entry.type,
-                            entry.codec,
-                            ServerPayloadHandler::handle
+                            entry.codec
                     );
                 } else {
                     registrar.configurationToClient(
                             entry.type,
-                            entry.codec,
-                            ServerPayloadHandler::handle
+                            entry.codec
                     );
                 }
             }
         }
 
-        private static final List<C2SRegistration<?>> C2S_REGS = new ArrayList<>();
-        private static final List<S2CRegistration<?>> S2C_REGS = new ArrayList<>();
+        private static final List<HandledToServer<?>> HANDLED_TO_SERVER_LIST = new ArrayList<>();
+        private static final List<HandledToClient<?>> HANDLED_TO_CLIENT_LIST = new ArrayList<>();
 
-        private record C2SRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler, boolean play) {}
-        private record S2CRegistration<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, Player> handler, boolean play) {}
+        private record HandledToServer<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler, boolean play) {}
+        private record HandledToClient<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, Player> handler, boolean play) {}
 
         @Override
-        public void registerPlayC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            C2S_REGS.add(new C2SRegistration<>(type, codec, handler, true));
+        public void registerPlayToServer(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+            HANDLED_TO_SERVER_LIST.add(new HandledToServer<>(type, codec, handler, true));
         }
 
         @Override
-        public void registerPlayS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            S2C_REGS.add(new S2CRegistration<>(type, codec, handler, true));
+        public void registerPlayToClient(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+            HANDLED_TO_CLIENT_LIST.add(new HandledToClient<>(type, codec, handler, true));
         }
 
         @Override
-        public void registerConfigC2S(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            C2S_REGS.add(new C2SRegistration<>(type, codec, handler, false));
+        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+            HANDLED_TO_SERVER_LIST.add(new HandledToServer<>(type, codec, handler, false));
         }
 
         @Override
-        public void registerConfigS2C(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            S2C_REGS.add(new S2CRegistration<>(type, codec, handler, false));
+        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+            HANDLED_TO_CLIENT_LIST.add(new HandledToClient<>(type, codec, handler, false));
         }
 
         @SubscribeEvent
         public static void registerWithHandler(RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
 
-            for (C2SRegistration<?> reg : C2S_REGS) {
-                C2SRegistration r = reg;
+            for (HandledToServer handled : HANDLED_TO_SERVER_LIST) {
 
-                if (reg.play) {
+                if (handled.play) {
                     registrar.playToServer(
-                            r.type,
-                            r.codec,
+                            handled.type,
+                            handled.codec,
                             (payload, context) -> {
-                                r.handler.accept(payload, context.player());
+                                handled.handler.accept(payload, context.player());
                             }
                     );
                 } else {
                     registrar.configurationToServer(
-                            r.type,
-                            r.codec,
+                            handled.type,
+                            handled.codec,
                             (payload, context) -> {
-                                r.handler.accept(payload, context.player());
+                                handled.handler.accept(payload, context.player());
                             }
                     );
                 }
             }
 
-            for (S2CRegistration<?> reg : S2C_REGS) {
-                S2CRegistration r = reg;
+            for (HandledToClient handled : HANDLED_TO_CLIENT_LIST) {
 
-                if (reg.play) {
+                if (handled.play) {
                     registrar.playToClient(
-                            r.type,
-                            r.codec,
-                            (payload, context) -> r.handler.accept(payload, context.player())
+                            handled.type,
+                            handled.codec,
+                            (payload, context) -> handled.handler.accept(payload, context.player())
                     );
                 } else {
                     registrar.configurationToClient(
-                            r.type,
-                            r.codec,
-                            (payload, context) -> r.handler.accept(payload, context.player())
+                            handled.type,
+                            handled.codec,
+                            (payload, context) -> handled.handler.accept(payload, context.player())
                     );
                 }
             }

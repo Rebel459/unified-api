@@ -22,6 +22,7 @@ public class UnifiedNeoForge {
         modEventBus.addListener(NeoForgeUnifiedRegistries.Blocks::modifyBlockEntities);
         modEventBus.addListener(NeoForgeHelpersImpl.Networking::register);
         modEventBus.addListener(NeoForgeHelpersImpl.Networking::registerWithHandler);
+        modEventBus.addListener(NeoForgeHelpersImpl.StrippableBlocks::strippables);
 
     }
 

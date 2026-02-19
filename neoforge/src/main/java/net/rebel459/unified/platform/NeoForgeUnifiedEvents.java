@@ -14,7 +14,7 @@ public class NeoForgeUnifiedEvents {
         modEventBus.addListener((ModifyDefaultComponentsEvent event) -> {
             BuiltInRegistries.ITEM.forEach(item -> {
                 event.modify(item, builder -> {
-                    UnifiedEvents.ItemComponents.passModify(item, wrapperBuilder(builder));
+                    UnifiedEvents.ItemComponents.passModify(item, builder);
                 });
             });
         });
@@ -34,9 +34,5 @@ public class NeoForgeUnifiedEvents {
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
             UnifiedEvents.Commands.passRegister(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
         });
-    }
-
-    private static UnifiedEvents.ItemComponents.Builder wrapperBuilder(DataComponentPatch.Builder neoBuilder) {
-        return neoBuilder::set;
     }
 }

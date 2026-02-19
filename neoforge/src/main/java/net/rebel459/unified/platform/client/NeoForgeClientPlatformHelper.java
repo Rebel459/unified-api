@@ -13,11 +13,6 @@ public class NeoForgeClientPlatformHelper implements ClientPlatformHelper {
     }
 
     @Override
-    public ClientHelpersImpl.BlockLayers getBlockLayers() {
-        return new NeoForgeClientHelpersImpl.BlockLayers();
-    }
-
-    @Override
     public ClientHelpersImpl.EntityRenderers getEntityRenderers() {
         return new NeoForgeClientHelpersImpl.EntityRenderers();
     }

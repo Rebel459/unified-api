@@ -45,16 +45,6 @@ public class ClientHelpersImpl {
         }
     }
 
-    public interface BlockLayers {
-
-        void add(Block block, ChunkSectionLayer layer);
-        void add(Fluid fluid, ChunkSectionLayer layer);
-
-        static BlockLayers get() {
-            return ClientPlatformHelperImpl.INSTANCE.getBlockLayers();
-        }
-    }
-
     public interface Networking {
 
         void send(CustomPacketPayload payload);

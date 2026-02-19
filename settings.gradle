@@ -10,7 +10,16 @@ pluginManagement {
             url = 'https://maven.wagyourtail.xyz/snapshots'
         }
         maven {
-            name = 'NeoForge'
+            url = "https://mcentral.firstdark.dev/releases"
+        }
+        maven {
+            url = "https://maven.firstdark.dev/releases"
+        }
+        maven {
+            url = "https://maven.firstdark.dev/snapshots"
+        }
+        maven {
+            name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
         maven {
