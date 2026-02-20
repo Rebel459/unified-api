@@ -2,11 +2,20 @@ package net.rebel459.unified.platform;
 
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerLifecycleEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class NeoForgeUnifiedEvents {
 
@@ -33,6 +42,21 @@ public class NeoForgeUnifiedEvents {
 
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
             UnifiedEvents.Commands.passRegister(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
+        });
+
+        NeoForge.EVENT_BUS.addListener((TagsUpdatedEvent event) -> {
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD && server != null) {
+                UnifiedEvents.Servers.passOnDatapackLoad(server);
+            }
+        });
+
+        NeoForge.EVENT_BUS.addListener((ServerStartedEvent event) -> {
+            UnifiedEvents.Servers.passOnStart(event.getServer());
+        });
+
+        NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
+            UnifiedEvents.Servers.passOnStop(event.getServer());
         });
     }
 }

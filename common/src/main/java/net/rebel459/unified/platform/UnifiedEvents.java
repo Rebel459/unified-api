@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
@@ -105,6 +106,47 @@ public class UnifiedEvents {
         static void passRegister(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext, net.minecraft.commands.Commands.CommandSelection selection) {
             for (Entry entry : ENTRIES) {
                 entry.register(dispatcher, buildContext, selection);
+            }
+        }
+    }
+
+    public static class Servers {
+
+        private Servers() {}
+
+        private static final List<Consumer<MinecraftServer>> DATAPACK_RELOAD_ENTRIES = new CopyOnWriteArrayList<>();
+
+        public static void onDatapackLoad(Consumer<MinecraftServer> handler) {
+            DATAPACK_RELOAD_ENTRIES.add(handler);
+        }
+
+        static void passOnDatapackLoad(MinecraftServer server) {
+            for (Consumer<MinecraftServer> listener : DATAPACK_RELOAD_ENTRIES) {
+                listener.accept(server);
+            }
+        }
+
+        private static final List<Consumer<MinecraftServer>> SERVER_STARTED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onStart(Consumer<MinecraftServer> handler) {
+            SERVER_STARTED_LISTENERS.add(handler);
+        }
+
+        static void passOnStart(MinecraftServer server) {
+            for (Consumer<MinecraftServer> listener : SERVER_STARTED_LISTENERS) {
+                listener.accept(server);
+            }
+        }
+
+        private static final List<Consumer<MinecraftServer>> SERVER_STOPPED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onStop(Consumer<MinecraftServer> handler) {
+            SERVER_STOPPED_LISTENERS.add(handler);
+        }
+
+        static void passOnStop(MinecraftServer server) {
+            for (Consumer<MinecraftServer> listener : SERVER_STOPPED_LISTENERS) {
+                listener.accept(server);
             }
         }
     }
