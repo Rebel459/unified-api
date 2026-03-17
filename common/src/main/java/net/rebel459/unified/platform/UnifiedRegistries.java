@@ -3,6 +3,7 @@ package net.rebel459.unified.platform;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
@@ -29,6 +30,8 @@ public class UnifiedRegistries {
 
         Supplier<Item> register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties);
 
+        void addAlias(Identifier convertedFrom, Identifier convertedTo);
+
         <T extends Block> Supplier<BlockItem> registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         static Items create(String modId) {
@@ -44,6 +47,8 @@ public class UnifiedRegistries {
 
         <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
         <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type);
+
+        void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static Blocks create(String modId) {
             return PlatformHelperImpl.INSTANCE.createBlocks(modId);
@@ -65,6 +70,8 @@ public class UnifiedRegistries {
 
         <T> Supplier<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
 
+        void addAlias(Identifier convertedFrom, Identifier convertedTo);
+
         static DataComponentTypes create(String modId) {
             return PlatformHelperImpl.INSTANCE.createDataComponentTypes(modId);
         }
@@ -85,6 +92,8 @@ public class UnifiedRegistries {
 
         Holder<MobEffect> register(String path, MobEffect effect);
 
+        void addAlias(Identifier convertedFrom, Identifier convertedTo);
+
         static MobEffects create(String modId) {
             return PlatformHelperImpl.INSTANCE.createMobEffects(modId);
         }
@@ -94,6 +103,8 @@ public class UnifiedRegistries {
         String modId();
 
         <T extends Entity> @NotNull Supplier<EntityType<T>> register(String path, EntityType.@NotNull Builder<T> builder);
+
+        void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static EntityTypes create(String modId) {
             return PlatformHelperImpl.INSTANCE.createEntityTypes(modId);
@@ -105,6 +116,8 @@ public class UnifiedRegistries {
 
         @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder);
         @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks);
+
+        void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static BlockEntityTypes create(String modId) {
             return PlatformHelperImpl.INSTANCE.createBlockEntityTypes(modId);

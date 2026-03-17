@@ -2,7 +2,7 @@ package net.rebel459.unified.platform;
 
 import com.google.common.base.Suppliers;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.event.registry.FabricRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -50,6 +50,11 @@ public class FabricUnifiedRegistries {
             item.get();
             return item;
         }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BuiltInRegistries.ITEM.addAlias(convertedFrom, convertedTo);
+        }
     }
 
     public record Blocks(String modId) implements UnifiedRegistries.Blocks {
@@ -92,6 +97,11 @@ public class FabricUnifiedRegistries {
             block.get();
             return block;
         }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BuiltInRegistries.BLOCK.addAlias(convertedFrom, convertedTo);
+        }
     }
 
     public record CreativeTabs(String modId) implements UnifiedRegistries.CreativeTabs {
@@ -118,6 +128,11 @@ public class FabricUnifiedRegistries {
             component.get();
             return component;
         }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BuiltInRegistries.DATA_COMPONENT_TYPE.addAlias(convertedFrom, convertedTo);
+        }
     }
 
     public record ParticleTypes(String modId) implements UnifiedRegistries.ParticleTypes {
@@ -136,6 +151,11 @@ public class FabricUnifiedRegistries {
         public Holder<MobEffect> register(String path, MobEffect effect) {
             return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath(modId, path), effect);
         }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BuiltInRegistries.MOB_EFFECT.addAlias(convertedFrom, convertedTo);
+        }
     }
 
     public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
@@ -146,6 +166,11 @@ public class FabricUnifiedRegistries {
             var entity = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey)));
             entity.get();
             return entity;
+        }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BuiltInRegistries.ENTITY_TYPE.addAlias(convertedFrom, convertedTo);
         }
     }
 
@@ -167,6 +192,11 @@ public class FabricUnifiedRegistries {
             var blockEntity = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, new BlockEntityType<>(builder, set)));
             blockEntity.get();
             return blockEntity;
+        }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BuiltInRegistries.BLOCK_ENTITY_TYPE.addAlias(convertedFrom, convertedTo);
         }
     }
 

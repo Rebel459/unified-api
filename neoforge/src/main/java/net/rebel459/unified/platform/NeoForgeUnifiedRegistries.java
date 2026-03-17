@@ -79,6 +79,11 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            ITEMS.get(modId).addAlias(convertedFrom, convertedTo);
+        }
+
+        @Override
         public <T extends Block> Supplier<BlockItem> registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
             return ITEMS.get(modId).registerSimpleBlockItem(path, blockSupplier, properties);
         }
@@ -114,6 +119,11 @@ public class NeoForgeUnifiedRegistries {
             return block;
         }
 
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BLOCKS.get(modId).addAlias(convertedFrom, convertedTo);
+        }
+
         @SubscribeEvent
         public static void modifyBlockEntities(BlockEntityTypeAddBlocksEvent event) {
             for (Pair<BlockEntityType<?>, Supplier<? extends Block>> pair : BLOCK_ENTITIES) {
@@ -145,6 +155,11 @@ public class NeoForgeUnifiedRegistries {
         public <T> Supplier<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
             return DATA_COMPONENTS.get(modId).registerComponentType(path, unaryOperator);
         }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            DATA_COMPONENTS.get(modId).addAlias(convertedFrom, convertedTo);
+        }
     }
 
     public record ParticleTypes(String modId) implements UnifiedRegistries.ParticleTypes {
@@ -161,6 +176,11 @@ public class NeoForgeUnifiedRegistries {
         public Holder<MobEffect> register(String path, MobEffect effect) {
             return EFFECTS.get(modId).register(path, () -> effect);
         }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            EFFECTS.get(modId).addAlias(convertedFrom, convertedTo);
+        }
     }
 
     public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
@@ -168,6 +188,11 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public @NotNull <T extends Entity> Supplier<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
             return ENTITIES.get(modId).register(path, () -> builder.build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path))));
+        }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            ENTITIES.get(modId).addAlias(convertedFrom, convertedTo);
         }
     }
 
@@ -185,6 +210,11 @@ public class NeoForgeUnifiedRegistries {
 
         private @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Set<Block> set) {
             return BLOCK_ENTITIES.get(modId).register(path, () -> new BlockEntityType<>(builder, set));
+        }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            BLOCK_ENTITIES.get(modId).addAlias(convertedFrom, convertedTo);
         }
     }
 
