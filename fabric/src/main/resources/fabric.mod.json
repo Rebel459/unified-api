@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
-  "version": "${version}",
+  "version": "${mod_version}",
   "name": "${mod_name}",
-  "description": "A multiloader API built to enable easy cross-loader mod development\n\n",
+  "description": "A multiloader API built to enable easy cross-loader mod development",
   "authors": [
     "${mod_author}"
   ],
