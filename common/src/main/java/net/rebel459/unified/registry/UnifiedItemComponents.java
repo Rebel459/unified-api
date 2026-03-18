@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
 
@@ -23,5 +24,9 @@ public class UnifiedItemComponents {
 
     public static final Supplier<DataComponentType<Integer>> FURNACE_FUEL = COMPONENTS.register(
             "furnace_fuel", builder -> builder.persistent(ExtraCodecs.POSITIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT)
+    );
+
+    public static final Supplier<DataComponentType<Float>> COMPOST = COMPONENTS.register(
+            "compost", builder -> builder.persistent(ExtraCodecs.POSITIVE_FLOAT).networkSynchronized(ByteBufCodecs.FLOAT)
     );
 }
