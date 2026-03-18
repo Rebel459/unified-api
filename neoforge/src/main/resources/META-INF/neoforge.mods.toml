@@ -1,39 +1,34 @@
 modLoader="javafml"
 loaderVersion="[1,)"
-license="LGPL 3.0-Only"
+license="${license}"
 issueTrackerURL="https://github.com/Rebel459/unified-api/issues"
 
 [[mods]]
 modId="${mod_id}"
-version="${version}"
+version="${mod_version}"
 displayName="${mod_name}"
-#updateJSONURL="https://change.me.example.invalid/updates.json"
 displayURL="https://github.com/Rebel459/unified-api"
 logoFile="assets/icon.png"
-credits="Rebel459, Unimined"
 authors="${mod_author}"
 description='''
-A multiloader API built to enable easy cross-loader mod development
+${mod_description}
 '''
 
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
-versionRange="[21.11.0-beta,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="minecraft"
 type="required"
-versionRange="[1.21.11,26.1)"
+versionRange="${neoforge_minecraft_version}"
 ordering="NONE"
 side="BOTH"
 
 [[accessTransformers]]
 file="META-INF/accesstransformer.cfg"
-[[accessTransformers]]
-file="META-INF/accesstransformer-neoforge.cfg"
 
 [[mixins]]
 config = "unified.mixins.json"

@@ -3,14 +3,14 @@
   "id": "${mod_id}",
   "version": "${mod_version}",
   "name": "${mod_name}",
-  "description": "A multiloader API built to enable easy cross-loader mod development",
+  "description": "${mod_description}",
   "authors": [
     "${mod_author}"
   ],
   "contact": {
     "sources": "https://github.com/Rebel459/unified-api"
   },
-  "license": "LGPL 3.0-Only",
+  "license": "${license}",
   "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
@@ -29,7 +29,7 @@
   "depends": {
     "fabricloader": ">=0.18",
     "fabric-api": "*",
-    "minecraft": ">=1.21.11",
+    "minecraft": "${fabric_minecraft_version}",
     "java": ">=21"
   }
 }
