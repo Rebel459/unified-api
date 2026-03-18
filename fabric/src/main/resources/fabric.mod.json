@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
-  "version": "${mod_version}",
+  "version": "${mod_version}-fabric",
   "name": "${mod_name}",
   "description": "${mod_description}",
   "authors": [

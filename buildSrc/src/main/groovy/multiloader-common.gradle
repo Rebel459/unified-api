@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "${mod_id}-${project.name}-${mod_version}"
+    archivesName = "${mod_id}-api-${mod_version}-${project.name}"
 }
 
 java {
@@ -95,7 +95,7 @@ processResources {
             'mod_author'                   : mod_author,
             'mod_id'                       : mod_id,
             'license'                      : license,
-            'mod_description'                  : mod_description,
+            'mod_description'              : mod_description,
             'neoforge_version'             : neoforge_version,
             'java_version'                 : java_version
     ]
