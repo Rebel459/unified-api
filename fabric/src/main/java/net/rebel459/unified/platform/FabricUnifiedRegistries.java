@@ -104,6 +104,11 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
+        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction) {
+            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new);
+        }
+
+        @Override
         public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
             new Items(modId).register(path, itemFunction, itemProperties);
             return registerWithoutItem(path, blockFunction, blockProperties);
@@ -112,6 +117,11 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, Item::new, itemProperties, type);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
+            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
         }
 
         @Override
