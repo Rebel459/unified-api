@@ -15,6 +15,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -326,37 +327,6 @@ public class NeoForgeHelpersImpl {
                     event.getTable().addPool(pair.getFirst().build());
                 }
             }
-        }
-    }
-
-    public static class StrippableBlocks implements HelpersImpl.StrippableBlocks {
-
-        public static HashMap<Block, Block> STRIPPABLES = new HashMap<>();
-
-        @Override
-        public void add(Block original, Block stripped) {
-            STRIPPABLES.put(original, stripped);
-        }
-
-        @SubscribeEvent
-        public static void strippables(BlockEvent.BlockToolModificationEvent event) {
-            if (event.getItemAbility() != ItemAbilities.AXE_STRIP) return;
-
-            BlockState originalState = event.getState();
-            Block originalBlock = originalState.getBlock();
-
-            Block strippedBlock = STRIPPABLES.get(originalBlock);
-            if (strippedBlock == null) return;
-
-            BlockState strippedState = strippedBlock.defaultBlockState();
-
-            for (Property property : originalState.getProperties()) {
-                if (strippedState.hasProperty(property)) {
-                    strippedState = strippedState.setValue(property, originalState.getValue(property));
-                }
-            }
-
-            event.setFinalState(strippedState);
         }
     }
 

@@ -17,7 +17,6 @@ public class UnifiedNeoForge {
         NeoForgeUnifiedRegistries.registerBus(Unified.MOD_ID, modEventBus);
         Unified.initRegistries();
         modEventBus.addListener(UnifiedNeoForge::commonSetup);
-        NeoForge.EVENT_BUS.addListener(NeoForgeHelpersImpl.StrippableBlocks::strippables);
         modEventBus.addListener(NeoForgeHelpersImpl.CreativeEntries::buildContents);
         modEventBus.addListener(NeoForgeHelpersImpl.Packs::addFeaturePacks);
         modEventBus.addListener(NeoForgeUnifiedRegistries.Blocks::modifyBlockEntities);

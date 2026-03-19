@@ -68,11 +68,6 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public HelpersImpl.StrippableBlocks getStrippableBlocks() {
-        return new NeoForgeHelpersImpl.StrippableBlocks();
-    }
-
-    @Override
     public HelpersImpl.Networking getNetworkPayloads() {
         return new NeoForgeHelpersImpl.Networking();
     }

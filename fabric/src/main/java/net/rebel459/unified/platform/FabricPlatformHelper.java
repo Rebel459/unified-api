@@ -68,11 +68,6 @@ public class FabricPlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public HelpersImpl.StrippableBlocks getStrippableBlocks() {
-        return new FabricHelpersImpl.StrippableBlocks();
-    }
-
-    @Override
     public HelpersImpl.Networking getNetworkPayloads() {
         return new FabricHelpersImpl.Networking();
     }

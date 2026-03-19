@@ -257,14 +257,6 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class StrippableBlocks implements HelpersImpl.StrippableBlocks {
-
-        @Override
-        public void add(Block original, Block stripped) {
-            StrippableBlockRegistry.register(original, stripped);
-        }
-    }
-
     public static class Networking implements HelpersImpl.Networking {
 
         @Override

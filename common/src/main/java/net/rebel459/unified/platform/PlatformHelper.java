@@ -16,7 +16,6 @@ public interface PlatformHelper {
     HelpersImpl.LootTables getLootTables();
     HelpersImpl.Packs getPacks();
     HelpersImpl.FurnaceFuels getFurnaceFuels();
-    HelpersImpl.StrippableBlocks getStrippableBlocks();
     HelpersImpl.Networking getNetworkPayloads();
     HelpersImpl.Platform getPlatform();
 }

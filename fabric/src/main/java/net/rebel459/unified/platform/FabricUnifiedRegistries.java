@@ -76,7 +76,7 @@ public class FabricUnifiedRegistries {
         public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
             Supplier<T> block = register(path, function, blockProperties);
             T blockInstance = block.get();
-            ((FabricBlockEntityType) type).addValidBlock(blockInstance);
+            type.addValidBlock(blockInstance);
             block.get();
             return block;
         }
@@ -93,9 +93,31 @@ public class FabricUnifiedRegistries {
         public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
             Supplier<T> block = registerWithoutItem(path, function, properties);
             T blockInstance = block.get();
-            ((FabricBlockEntityType) type).addValidBlock(blockInstance);
+            type.addValidBlock(blockInstance);
             block.get();
             return block;
+        }
+
+        @Override
+        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties) {
+            return register(path, blockFunction, blockProperties, Item::new, itemProperties);
+        }
+
+        @Override
+        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
+            new Items(modId).register(path, itemFunction, itemProperties);
+            return registerWithoutItem(path, blockFunction, blockProperties);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+            return register(path, blockFunction, blockProperties, Item::new, itemProperties, type);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+            new Items(modId).register(path, itemFunction, itemProperties);
+            return registerWithoutItem(path, blockFunction, blockProperties, type);
         }
 
         @Override

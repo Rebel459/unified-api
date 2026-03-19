@@ -1,19 +1,11 @@
 package net.rebel459.unified.registry;
 
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.level.block.ComposterBlock;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class UnifiedItemComponents {

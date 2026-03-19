@@ -70,11 +70,6 @@ public class HelpersImpl {
         void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance);
     }
 
-    public interface StrippableBlocks {
-
-        void add(Block original, Block stripped);
-    }
-
     public interface Networking {
 
         <T extends CustomPacketPayload> void registerPlayToServer(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec);

@@ -48,6 +48,11 @@ public class UnifiedRegistries {
         <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
         <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type);
 
+        <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties);
+        <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties);
+        <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type);
+        <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type);
+
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static Blocks create(String modId) {
