@@ -8,11 +8,11 @@ import net.rebel459.unified.platform.UnifiedRegistries;
 
 import java.util.function.Supplier;
 
-public class UnifiedItemComponents {
+public class UnifiedDataComponents {
 
     public static void init() {}
 
-    public static UnifiedRegistries.DataComponentTypes COMPONENTS = UnifiedRegistries.DataComponentTypes.create(Unified.MOD_ID);
+    private static final UnifiedRegistries.DataComponentTypes COMPONENTS = UnifiedRegistries.DataComponentTypes.create(Unified.MOD_ID);
 
     public static final Supplier<DataComponentType<Integer>> FURNACE_FUEL = COMPONENTS.register(
             "furnace_fuel", builder -> builder.persistent(ExtraCodecs.POSITIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT)

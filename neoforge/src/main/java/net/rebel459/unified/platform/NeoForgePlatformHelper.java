@@ -63,11 +63,6 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public HelpersImpl.FurnaceFuels getFurnaceFuels() {
-        return new NeoForgeHelpersImpl.FurnaceFuels();
-    }
-
-    @Override
     public HelpersImpl.Networking getNetworkPayloads() {
         return new NeoForgeHelpersImpl.Networking();
     }

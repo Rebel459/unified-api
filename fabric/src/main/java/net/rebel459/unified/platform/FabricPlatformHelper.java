@@ -63,11 +63,6 @@ public class FabricPlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public HelpersImpl.FurnaceFuels getFurnaceFuels() {
-        return new FabricHelpersImpl.FurnaceFuels();
-    }
-
-    @Override
     public HelpersImpl.Networking getNetworkPayloads() {
         return new FabricHelpersImpl.Networking();
     }

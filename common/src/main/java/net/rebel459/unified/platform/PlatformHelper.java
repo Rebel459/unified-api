@@ -15,7 +15,6 @@ public interface PlatformHelper {
     HelpersImpl.CreativeEntries getCreativeEntries();
     HelpersImpl.LootTables getLootTables();
     HelpersImpl.Packs getPacks();
-    HelpersImpl.FurnaceFuels getFurnaceFuels();
     HelpersImpl.Networking getNetworkPayloads();
     HelpersImpl.Platform getPlatform();
 }

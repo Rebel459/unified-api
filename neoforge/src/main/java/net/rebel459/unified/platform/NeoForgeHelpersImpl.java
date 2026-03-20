@@ -74,33 +74,6 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
-
-        private static final Object2IntMap<ItemLike> ITEMS = new Object2IntLinkedOpenHashMap<>();
-
-        static {
-            NeoForge.EVENT_BUS.register(FurnaceFuels.class);
-        }
-
-        @Override
-        public void add(ItemLike item, int ticks) {
-            ITEMS.put(item, ticks);
-        }
-
-        static {
-            NeoForge.EVENT_BUS.register(FurnaceFuels.class);
-        }
-
-        @SubscribeEvent
-        public static void event(FurnaceFuelBurnTimeEvent event) {
-            if (event.getItemStack().isEmpty()) return;
-            int time = ITEMS.getOrDefault(event.getItemStack().getItem(), Integer.MIN_VALUE);
-            if (time != Integer.MIN_VALUE) {
-                event.setBurnTime(time);
-            }
-        }
-    }
-
     public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 
         private static List<Pair<ItemStack, ResourceKey<CreativeModeTab>>> INSERT_ITEMS = new ArrayList<>();

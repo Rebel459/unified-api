@@ -59,39 +59,6 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class FurnaceFuels implements HelpersImpl.FurnaceFuels {
-
-        private static final List<FuelValueEvents.BuildCallback> CALLBACKS = new ArrayList<>();
-        private static final List<FuelValueEvents.ExclusionsCallback> EXCLUSIONS_CALLBACKS = new ArrayList<>();
-
-        @Override
-        public void add(ItemLike item, int ticks) {
-            CALLBACKS.add((builder, context) -> {
-                if (ticks >= 0) {
-                    builder.add(item, ticks);
-                }
-            });
-            EXCLUSIONS_CALLBACKS.add((builder, context) -> {
-                if (ticks < 0) {
-                    builder.values.remove(item.asItem());
-                }
-            });
-        }
-
-        static {
-            FuelValueEvents.BUILD.register((builder, context) -> {
-                for (var callback : CALLBACKS) {
-                    callback.build(builder, context);
-                }
-            });
-            FuelValueEvents.EXCLUSIONS.register((builder, context) -> {
-                for (var callback : EXCLUSIONS_CALLBACKS) {
-                    callback.buildExclusions(builder, context);
-                }
-            });
-        }
-    }
-
     public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 
         @Override

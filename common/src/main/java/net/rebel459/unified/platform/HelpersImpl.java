@@ -32,15 +32,6 @@ public class HelpersImpl {
         boolean isModLoaded(String modId);
     }
 
-    public interface FurnaceFuels {
-
-        void add(ItemLike item, int ticks);
-
-        static FurnaceFuels get() {
-            return PlatformHelperImpl.INSTANCE.getFurnaceFuels();
-        }
-    }
-
     public interface CreativeEntries {
 
         void insert(ResourceKey<CreativeModeTab> tab, ItemLike... items);
