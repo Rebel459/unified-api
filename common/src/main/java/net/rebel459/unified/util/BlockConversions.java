@@ -1,5 +1,6 @@
 package net.rebel459.unified.util;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -11,28 +12,75 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface BlockConversions {
 
-    default void createStrippable(Block originalBlock, Block convertedBlock) {
-        create(stack -> stack.getItem() instanceof AxeItem, originalBlock, convertedBlock, SoundEvents.AXE_STRIP);
+    default void addStrippable(Block originalBlock, Block convertedBlock) {
+        add(stack -> stack.getItem() instanceof AxeItem, originalBlock, convertedBlock, SoundEvents.AXE_STRIP);
     }
 
-    default void create(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, SoundEvent sound) {
-        create(validItem, originalBlock, convertedBlock, sound, 1F, 1F);
+    default void addWaxed(Block block, Block waxedBlock, Block exposedBlock, Block waxedExposedBlock, Block weatheredBlock, Block waxedWeatheredBlock, Block oxidizedBlock, Block waxedOxidizedBlock) {
+        List<Pair<Block, Block>> waxPairs = List.of(Pair.of(block, waxedBlock), Pair.of(exposedBlock, waxedExposedBlock), Pair.of(weatheredBlock, waxedWeatheredBlock), Pair.of(oxidizedBlock, waxedOxidizedBlock));
+        List<Pair<Block, Block>> oxidizationPairs = List.of(Pair.of(oxidizedBlock, weatheredBlock), Pair.of(weatheredBlock, exposedBlock), Pair.of(exposedBlock, block));
+        for (Pair<Block, Block> pair : waxPairs) {
+            add(stack -> stack.getItem() instanceof HoneycombItem, pair.getFirst(), pair.getSecond(), (context -> {
+                Player player = context.getPlayer();
+                Level level = context.getLevel();
+                BlockPos pos = context.getClickedPos();
+                BlockState oldState = level.getBlockState(pos);
+                if (player == null) return;
+                context.getItemInHand().shrink(1);
+                level.levelEvent(player, 3003, pos, 0);
+                if (oldState.getBlock() instanceof ChestBlock && oldState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
+                    BlockPos neighborPos = ChestBlock.getConnectedBlockPos(pos, oldState);
+                    level.gameEvent(GameEvent.BLOCK_CHANGE, neighborPos, GameEvent.Context.of(player, level.getBlockState(neighborPos)));
+                    level.levelEvent(player, 3003, neighborPos, 0);
+                }
+            }));
+            add(stack -> stack.getItem() instanceof AxeItem, pair.getSecond(), pair.getFirst(), (context) -> {
+                Player player = context.getPlayer();
+                Level level = context.getLevel();
+                BlockPos pos = context.getClickedPos();
+                BlockState oldState = level.getBlockState(pos);
+                if (player == null) return;
+                AxeItem.spawnSoundAndParticle(level, pos, player, oldState, SoundEvents.AXE_WAX_OFF, 3004);
+                context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
+            });
+        }
+        for (Pair<Block, Block> pair : oxidizationPairs) {
+            add(stack -> stack.getItem() instanceof AxeItem, pair.getFirst(), pair.getSecond(), (context) -> {
+                Player player = context.getPlayer();
+                Level level = context.getLevel();
+                BlockPos pos = context.getClickedPos();
+                BlockState oldState = level.getBlockState(pos);
+                if (player == null) return;
+                AxeItem.spawnSoundAndParticle(level, pos, player, oldState, SoundEvents.AXE_SCRAPE, 3005);
+                context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
+            });
+        }
     }
-    default void create(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
+
+    default void add(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, SoundEvent sound) {
+        add(validItem, originalBlock, convertedBlock, sound, 1F, 1F);
+    }
+    default void add(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
         BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(validItem, convertedBlock, (context) -> {
             Player player = context.getPlayer();
             if (player == null) return;
@@ -40,7 +88,7 @@ public interface BlockConversions {
             context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
         }));
     }
-    default void create(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
+    default void add(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
         BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(validItem, convertedBlock, context));
     }
 
