@@ -66,4 +66,9 @@ public class FabricPlatformHelper implements PlatformHelper {
     public HelpersImpl.Platform getPlatform() {
         return new FabricHelpersImpl.Platform();
     }
+
+    @Override
+    public HelpersImpl.BiomeModifications getBiomeModifications() {
+        return new FabricHelpersImpl.BiomeModifications();
+    }
 }

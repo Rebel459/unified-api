@@ -11,4 +11,5 @@ public class UnifiedHelpers {
     public static HelpersImpl.Networking NETWORKING = PlatformHelperImpl.INSTANCE.getNetworkPayloads();
     public static BlockConversions BLOCK_CONVERSIONS = new BlockConversions() {};
     public static DataComponents DATA_COMPONENTS = new DataComponents() {};
+    public static HelpersImpl.BiomeModifications BIOME_MODIFICATIONS = PlatformHelperImpl.INSTANCE.getBiomeModifications();
 }

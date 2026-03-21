@@ -4,6 +4,8 @@
   "package": "net.rebel459.unified.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "BiomeAccessor",
+    "ServerLifecycleHooksMixin",
     "block.NeoForgeComposterBlockMixin"
   ],
   "client": [

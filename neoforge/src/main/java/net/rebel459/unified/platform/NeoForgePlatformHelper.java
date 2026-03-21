@@ -66,4 +66,9 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     public HelpersImpl.Platform getPlatform() {
         return new NeoForgeHelpersImpl.Platform();
     }
+
+    @Override
+    public HelpersImpl.BiomeModifications getBiomeModifications() {
+        return new NeoForgeHelpersImpl.BiomeModifications();
+    }
 }

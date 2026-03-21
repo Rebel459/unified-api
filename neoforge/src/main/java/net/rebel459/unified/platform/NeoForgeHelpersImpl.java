@@ -1,8 +1,11 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,42 +17,39 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.ItemAbilities;
-import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.LootTableLoadEvent;
-import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.rebel459.unified.Unified;
 import net.rebel459.unified.util.EnvInfo;
 import net.rebel459.unified.util.PackInfo;
 import net.rebel459.unified.util.PlatformInfo;
+import net.rebel459.unified.util.UnifiedBiomeModifiers;
 import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class NeoForgeHelpersImpl {
 
@@ -374,6 +374,263 @@ public class NeoForgeHelpersImpl {
                     );
                 }
             }
+        }
+    }
+
+    public static class BiomeModifications implements HelpersImpl.BiomeModifications {
+
+        public static final List<BiomeModifier> MODIFIERS = new ArrayList<>();
+
+        private static class WorldgenBuilder implements Worldgen {
+
+            private record AddFeatureAction(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {}
+            private record RemoveFeatureAction(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {}
+
+            private final HolderSet<Biome> targetBiomes;
+            private final List<AddFeatureAction> toAddFeature = new ArrayList<>();
+            private final List<RemoveFeatureAction> toRemoveFeature = new ArrayList<>();
+            private final List<ResourceKey<ConfiguredWorldCarver<?>>> toAddCarver = new ArrayList<>();
+            private final List<ResourceKey<ConfiguredWorldCarver<?>>> toRemoveCarver = new ArrayList<>();
+
+            WorldgenBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public void addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+                toAddFeature.add(new AddFeatureAction(feature, step));
+            }
+
+            @Override
+            public void removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+                toRemoveFeature.add(new RemoveFeatureAction(feature, step));
+            }
+
+            @Override
+            public void addCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey) {
+                toAddCarver.add(carverKey);
+            }
+
+            @Override
+            public void removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey) {
+                toRemoveCarver.add(carverKey);
+            }
+
+            void build() {
+                var lookup = VanillaRegistries.createLookup();
+                for (var entry : toAddFeature) {
+                    MODIFIERS.add(new BiomeModifiers.AddFeaturesBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.PLACED_FEATURE).get().get(entry.feature).get().getDelegate()), entry.step));
+                }
+                for (var entry : toRemoveFeature) {
+                    MODIFIERS.add(new BiomeModifiers.RemoveFeaturesBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.PLACED_FEATURE).get().get(entry.feature).get().getDelegate()), Set.of(entry.step)));
+                }
+                for (var entry : toAddCarver) {
+                    MODIFIERS.add(new BiomeModifiers.AddCarversBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.CONFIGURED_CARVER).get().get(entry).get().getDelegate())));
+                }
+                for (var entry : toRemoveCarver) {
+                    MODIFIERS.add(new BiomeModifiers.RemoveCarversBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.CONFIGURED_CARVER).get().get(entry).get().getDelegate())));
+                }
+            }
+        }
+
+        private static class EffectsBuilder implements BiomeModifications.Effects {
+            private final HolderSet<Biome> targetBiomes;
+            private Integer waterColor = null;
+            private Integer foliageColor = null;
+            private Integer dryFoliageColor = null;
+            private Integer grassColor = null;
+
+            EffectsBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public void setWaterColor(int color) {
+                this.waterColor = color;
+            }
+
+            @Override
+            public void setFoliageColor(int color) {
+                this.foliageColor = color;
+            }
+
+            @Override
+            public void setDryFoliageColor(int color) {
+                this.dryFoliageColor = color;
+            }
+
+            @Override
+            public void setGrassColor(int color) {
+                this.grassColor = color;
+            }
+
+            void build() {
+                if (waterColor != null) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.WATER, waterColor));
+                }
+                if (foliageColor != null) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.FOLIAGE, foliageColor));
+                }
+                if (dryFoliageColor != null) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.DRY_FOLIAGE, dryFoliageColor));
+                }
+                if (grassColor != null) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.GRASS, grassColor));
+                }
+            }
+        }
+
+        private static class ClimateBuilder implements HelpersImpl.BiomeModifications.Climate {
+            private final HolderSet<Biome> targetBiomes;
+            private float temperature;
+            private boolean changedTemperature = false;
+            private float downfall;
+            private boolean changedDownfall = false;
+            private boolean hasPrecipitation;
+            private boolean changedHasPrecipitation = false;
+
+            ClimateBuilder(HolderSet<Biome> target) {this.targetBiomes = target;}
+
+            @Override
+            public void setTemperature(float temperature) {
+                this.temperature = temperature;
+                this.changedTemperature = true;
+            }
+
+            @Override
+            public void setDownfall(float downfall) {
+                this.downfall = downfall;
+                this.changedDownfall = true;
+            }
+
+            @Override
+            public void setPrecipitation(boolean hasPrecipitation) {
+                this.hasPrecipitation = hasPrecipitation;
+                this.changedHasPrecipitation = true;
+            }
+
+            void build() {
+                if (changedTemperature) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetClimateModifier(this.targetBiomes, UnifiedBiomeModifiers.ClimateType.TEMPERATURE, temperature));
+                }
+                if (changedDownfall) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetClimateModifier(this.targetBiomes, UnifiedBiomeModifiers.ClimateType.DOWNFALL, downfall));
+                }
+                if (changedHasPrecipitation) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetPrecipitationModifier(this.targetBiomes, hasPrecipitation));
+                }
+            }
+        }
+
+        private static class EnvironmentAttributesBuilder implements BiomeModifications.EnvironmentAttributes {
+            private record SetAction(EnvironmentAttribute attribute, Object value) {}
+
+            private final HolderSet<Biome> targetBiomes;
+            private final List<EnvironmentAttributesBuilder.SetAction> toSet = new ArrayList<>();
+
+            EnvironmentAttributesBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public <Value> void set(EnvironmentAttribute<Value> attribute, Value value) {
+                toSet.add(new SetAction(attribute, value));
+            }
+
+            void build() {
+                for (var entry : toSet) {
+                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEnvironmentAttributeModifier(targetBiomes, entry.attribute, entry.value));
+                }
+            }
+        }
+
+        private static class MobSpawnsBuilder implements HelpersImpl.BiomeModifications.MobSpawns {
+
+            private record AddSpawn(MobSpawnSettings.SpawnerData data, int weight) {}
+            private record RemoveSpawn(EntityType<?> entityType) {}
+            private record AddCharge(EntityType<?> entityType, double charge, double energyBudget) {}
+            private record RemoveCharge(EntityType<?> entityType) {}
+
+            private final HolderSet<Biome> targetBiomes;
+            private final List<MobSpawnsBuilder.AddSpawn> toAddSpawn = new ArrayList<>();
+            private final List<MobSpawnsBuilder.RemoveSpawn> toRemoveSpawn = new ArrayList<>();
+            private final List<MobSpawnsBuilder.AddCharge> toAddCharge = new ArrayList<>();
+            private final List<MobSpawnsBuilder.RemoveCharge> toRemoveCharge = new ArrayList<>();
+
+            MobSpawnsBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public void addSpawn(MobSpawnSettings.SpawnerData data, int weight) {
+                toAddSpawn.add(new AddSpawn(data, weight));
+            }
+
+            @Override
+            public void removeSpawn(EntityType<?> entityType) {
+                toRemoveSpawn.add(new RemoveSpawn(entityType));
+            }
+
+            @Override
+            public void addCharge(EntityType<?> entityType, double charge, double energyBudget) {
+                toAddCharge.add(new AddCharge(entityType, charge, energyBudget));
+            }
+
+            @Override
+            public void removeCharge(EntityType<?> entityType) {
+                toRemoveCharge.add(new RemoveCharge(entityType));
+            }
+
+            void build() {
+                var lookup = VanillaRegistries.createLookup();
+                for (var entry : toAddSpawn) {
+                    MODIFIERS.add(new BiomeModifiers.AddSpawnsBiomeModifier(targetBiomes, WeightedList.<MobSpawnSettings.SpawnerData>builder().add(entry.data, entry.weight).build()));
+                }
+                for (var entry : toRemoveSpawn) {
+                    MODIFIERS.add(new BiomeModifiers.RemoveSpawnsBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate())));
+                }
+                for (var entry : toAddCharge) {
+                    MODIFIERS.add(new BiomeModifiers.AddSpawnCostsBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate()), new MobSpawnSettings.MobSpawnCost(entry.energyBudget, entry.charge)));
+                }
+                for (var entry : toRemoveCharge) {
+                    MODIFIERS.add(new BiomeModifiers.RemoveSpawnCostsBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate())));
+                }
+            }
+        }
+
+        private static HolderGetter<Biome> getBiomeLookup() {
+            return VanillaRegistries.createLookup().lookup(Registries.BIOME).get();
+        }
+
+        public void doRegister(HolderSet<Biome> set, Consumer<Context> consumer) {
+            var features = new WorldgenBuilder(set);
+            var effects  = new EffectsBuilder(set);
+            var climate  = new ClimateBuilder(set);
+            var environmentAttributes = new EnvironmentAttributesBuilder(set);
+            var spawns = new MobSpawnsBuilder(set);
+
+            Context context = new Context(features, effects, climate, environmentAttributes, spawns);
+            consumer.accept(context);
+
+            features.build();
+            effects.build();
+            climate.build();
+            environmentAttributes.build();
+            spawns.build();
+        }
+
+        @Override
+        public void register(ResourceKey<Biome> biome, Consumer<Context> consumer) {
+            Holder<Biome> holder = getBiomeLookup().getOrThrow(biome);
+            HolderSet<Biome> set = HolderSet.direct(holder);
+            doRegister(set, consumer);
+        }
+
+        @Override
+        public void register(List<ResourceKey<Biome>> biomes, Consumer<Context> consumer) {
+            List<Holder<Biome>> holders = biomes.stream()
+                    .map(key -> getBiomeLookup().getOrThrow(key).getDelegate())
+                    .toList();
+            HolderSet<Biome> set = HolderSet.direct(holders);
+            doRegister(set, consumer);
+        }
+
+        @Override
+        public void register(TagKey<Biome> tag, Consumer<Context> consumer) {
+            HolderSet<Biome> set = getBiomeLookup().getOrThrow(tag);
+            doRegister(set, consumer);
         }
     }
 }

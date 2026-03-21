@@ -1,17 +1,17 @@
 package net.rebel459.unified.platform;
 
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
-import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.registry.FuelValueEvents;
-import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
-import net.fabricmc.fabric.impl.networking.payload.PayloadHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
@@ -20,15 +20,18 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.rebel459.unified.Unified;
 import net.rebel459.unified.util.EnvInfo;
 import net.rebel459.unified.util.PackInfo;
 import net.rebel459.unified.util.PlatformInfo;
@@ -37,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class FabricHelpersImpl {
 
@@ -245,6 +249,380 @@ public class FabricHelpersImpl {
         @Override
         public void send(CustomPacketPayload payload, ServerPlayer player) {
             ServerPlayNetworking.send(player, payload);
+        }
+    }
+
+    public static class BiomeModifications implements HelpersImpl.BiomeModifications {
+
+        private static int ID = 1;
+
+        private static class WorldgenBuilder implements Worldgen {
+            private record AddFeatureAction(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {}
+            private record RemoveFeatureAction(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {}
+
+            private final HolderSet<Biome> targetBiomes;
+            private final List<AddFeatureAction> toAddFeature = new ArrayList<>();
+            private final List<RemoveFeatureAction> toRemoveFeature = new ArrayList<>();
+            private final List<ResourceKey<ConfiguredWorldCarver<?>>> toAddCarver = new ArrayList<>();
+            private final List<ResourceKey<ConfiguredWorldCarver<?>>> toRemoveCarver = new ArrayList<>();
+
+            WorldgenBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public void addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+                toAddFeature.add(new AddFeatureAction(feature, step));
+            }
+
+            @Override
+            public void removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+                toRemoveFeature.add(new RemoveFeatureAction(feature, step));
+            }
+
+            @Override
+            public void addCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey) {
+                toAddCarver.add(carverKey);
+            }
+
+            @Override
+            public void removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey) {
+                toRemoveCarver.add(carverKey);
+            }
+
+            void build() {
+                for (var entry : toAddFeature) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.ADDITIONS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getGenerationSettings().addFeature(entry.step, entry.feature);
+                                ID += 1;
+                            }
+                    );
+                }
+                for (var entry : toRemoveFeature) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REMOVALS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getGenerationSettings().removeFeature(entry.step, entry.feature);
+                                ID += 1;
+                            }
+                    );
+                }
+                for (var entry : toAddCarver) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.ADDITIONS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getGenerationSettings().addCarver(entry);
+                                ID += 1;
+                            }
+                    );
+                }
+                for (var entry : toRemoveCarver) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REMOVALS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getGenerationSettings().removeCarver(entry);
+                                ID += 1;
+                            }
+                    );
+                }
+            }
+        }
+
+        private static class EffectsBuilder implements BiomeModifications.Effects {
+            private final HolderSet<Biome> targetBiomes;
+            private Integer waterColor = null;
+            private Integer foliageColor = null;
+            private Integer dryFoliageColor = null;
+            private Integer grassColor = null;
+
+            EffectsBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public void setWaterColor(int color) {
+                this.waterColor = color;
+            }
+
+            @Override
+            public void setFoliageColor(int color) {
+                this.foliageColor = color;
+            }
+
+            @Override
+            public void setDryFoliageColor(int color) {
+                this.dryFoliageColor = color;
+            }
+
+            @Override
+            public void setGrassColor(int color) {
+                this.grassColor = color;
+            }
+
+            void build() {
+                if (waterColor != null) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getEffects().setWaterColor(waterColor);
+                                ID += 1;
+                            }
+                    );
+                }
+                if (foliageColor != null) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getEffects().setFoliageColorOverride(foliageColor);
+                                ID += 1;
+                            }
+                    );
+                }
+                if (dryFoliageColor != null) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getEffects().setDryFoliageColorOverride(dryFoliageColor);
+                                ID += 1;
+                            }
+                    );
+                }
+                if (grassColor != null) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getEffects().setGrassColorOverride(grassColor);
+                                ID += 1;
+                            }
+                    );
+                }
+            }
+        }
+
+        private static class ClimateBuilder implements HelpersImpl.BiomeModifications.Climate {
+            private final HolderSet<Biome> targetBiomes;
+            private float temperature;
+            private boolean changedTemperature = false;
+            private float downfall;
+            private boolean changedDownfall = false;
+            private boolean hasPrecipitation;
+            private boolean changedHasPrecipitation = false;
+
+            ClimateBuilder(HolderSet<Biome> target) {this.targetBiomes = target;}
+
+            @Override
+            public void setTemperature(float temperature) {
+                this.temperature = temperature;
+                this.changedTemperature = true;
+            }
+
+            @Override
+            public void setDownfall(float downfall) {
+                this.downfall = downfall;
+                this.changedDownfall = true;
+            }
+
+            @Override
+            public void setPrecipitation(boolean hasPrecipitation) {
+                this.hasPrecipitation = hasPrecipitation;
+                this.changedHasPrecipitation = true;
+            }
+
+            void build() {
+                if (changedTemperature) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getWeather().setTemperature(temperature);
+                                ID += 1;
+                            }
+                    );
+                }
+                if (changedDownfall) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getWeather().setDownfall(downfall);
+                                ID += 1;
+                            }
+                    );
+                }
+                if (changedHasPrecipitation) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getWeather().setPrecipitation(hasPrecipitation);
+                                ID += 1;
+                            }
+                    );
+                }
+            }
+        }
+
+        private static class EnvironmentAttributesBuilder implements BiomeModifications.EnvironmentAttributes {
+            private record SetAction(EnvironmentAttribute attribute, Object value) {}
+
+            private final HolderSet<Biome> targetBiomes;
+            private final List<EnvironmentAttributesBuilder.SetAction> toSet = new ArrayList<>();
+
+            EnvironmentAttributesBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public <Value> void set(EnvironmentAttribute<Value> attribute, Value value) {
+                toSet.add(new SetAction(attribute, value));
+            }
+
+            void build() {
+                for (var entry : toSet) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REPLACEMENTS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getAttributes().set(entry.attribute, entry.value);
+                                ID += 1;
+                            }
+                    );
+                }
+            }
+        }
+
+        private static class MobSpawnsBuilder implements HelpersImpl.BiomeModifications.MobSpawns {
+            private record AddSpawn(MobSpawnSettings.SpawnerData data, int weight) {}
+            private record AddCharge(EntityType<?> entityType, double charge, double energyBudget) {}
+
+            private final HolderSet<Biome> targetBiomes;
+            private final List<MobSpawnsBuilder.AddSpawn> toAddSpawn = new ArrayList<>();
+            private final List<EntityType<?>> toRemoveSpawn = new ArrayList<>();
+            private final List<MobSpawnsBuilder.AddCharge> toAddCharge = new ArrayList<>();
+            private final List<EntityType<?>> toRemoveCharge = new ArrayList<>();
+
+            MobSpawnsBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+
+            @Override
+            public void addSpawn(MobSpawnSettings.SpawnerData data, int weight) {
+                toAddSpawn.add(new AddSpawn(data, weight));
+            }
+
+            @Override
+            public void removeSpawn(EntityType<?> entityType) {
+                toRemoveSpawn.add(entityType);
+            }
+
+            @Override
+            public void addCharge(EntityType<?> entityType, double charge, double energyBudget) {
+                toAddCharge.add(new AddCharge(entityType, charge, energyBudget));
+            }
+
+            @Override
+            public void removeCharge(EntityType<?> entityType) {
+                toRemoveCharge.add(entityType);
+            }
+
+            void build() {
+                for (var entry : toAddSpawn) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.ADDITIONS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getMobSpawnSettings().addSpawn(
+                                        entry.data.type().getCategory(),
+                                        entry.data,
+                                        entry.weight
+                                );
+                                ID += 1;
+                            }
+                    );
+                }
+                for (var entry : toRemoveSpawn) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REMOVALS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getMobSpawnSettings().removeSpawnsOfEntityType(
+                                        entry
+                                );
+                                ID += 1;
+                            }
+                    );
+                }
+                for (var entry : toAddCharge) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.ADDITIONS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getMobSpawnSettings().addMobCharge(
+                                        entry.entityType,
+                                        entry.charge,
+                                        entry.energyBudget
+                                );
+                                ID += 1;
+                            }
+                    );                }
+                for (var entry : toRemoveCharge) {
+                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
+                            ModificationPhase.REMOVALS,
+                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (selectionContext, modificationContext) -> {
+                                modificationContext.getMobSpawnSettings().clearMobCharge(
+                                        entry
+                                );
+                                ID += 1;
+                            }
+                    );
+                }
+            }
+        }
+
+        private static HolderGetter<Biome> getBiomeLookup() {
+            return VanillaRegistries.createLookup().lookup(Registries.BIOME).get();
+        }
+
+        public void doRegister(HolderSet<Biome> set, Consumer<Context> consumer) {
+            var features = new WorldgenBuilder(set);
+            var effects  = new EffectsBuilder(set);
+            var climate  = new ClimateBuilder(set);
+            var environmentAttributes = new EnvironmentAttributesBuilder(set);
+            var spawns = new MobSpawnsBuilder(set);
+
+            Context context = new Context(features, effects, climate, environmentAttributes, spawns);
+            consumer.accept(context);
+
+            features.build();
+            effects.build();
+            climate.build();
+            environmentAttributes.build();
+            spawns.build();
+        }
+
+        @Override
+        public void register(ResourceKey<Biome> biome, Consumer<Context> consumer) {
+            Holder<Biome> holder = getBiomeLookup().getOrThrow(biome);
+            HolderSet<Biome> set = HolderSet.direct(holder);
+            doRegister(set, consumer);
+        }
+
+        @Override
+        public void register(List<ResourceKey<Biome>> biomes, Consumer<Context> consumer) {
+            List<Holder.Reference<Biome>> holders = biomes.stream()
+                    .map(key -> getBiomeLookup().getOrThrow(key))
+                    .toList();
+            HolderSet<Biome> set = HolderSet.direct(holders);
+            doRegister(set, consumer);
+        }
+
+        @Override
+        public void register(TagKey<Biome> tag, Consumer<Context> consumer) {
+            HolderSet<Biome> set = getBiomeLookup().getOrThrow(tag);
+            doRegister(set, consumer);
         }
     }
 }

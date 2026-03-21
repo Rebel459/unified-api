@@ -16,4 +16,5 @@ public interface PlatformHelper {
     HelpersImpl.Packs getPacks();
     HelpersImpl.Networking getNetworkPayloads();
     HelpersImpl.Platform getPlatform();
+    HelpersImpl.BiomeModifications getBiomeModifications();
 }
