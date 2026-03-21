@@ -3,10 +3,14 @@ package net.rebel459.unified.platform;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -147,6 +151,67 @@ public class UnifiedEvents {
         static void passOnStop(MinecraftServer server) {
             for (Consumer<MinecraftServer> listener : SERVER_STOPPED_LISTENERS) {
                 listener.accept(server);
+            }
+        }
+    }
+
+    public static class LootTables {
+
+        private LootTables() {}
+
+        public interface LootTable {
+            ResourceKey<net.minecraft.world.level.storage.loot.LootTable> getKey();
+
+            HolderLookup.Provider getProvider();
+
+            void addPool(LootPool.Builder pool);
+        }
+
+        public interface Entry {
+            void modify(LootTable context);
+        }
+
+        private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
+
+        public static void register(Entry handler) {
+            ENTRIES.add(handler);
+        }
+
+        private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
+
+        public static void registerWithFilter(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {
+            FILTERED_ENTRIES.add(new FilteredEntry(filter, handler));
+        }
+
+        private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {}
+
+        static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, Consumer<LootPool.Builder> poolAdder, HolderLookup.Provider provider) {
+            var context = new LootTableImpl(key, poolAdder, provider);
+
+            for (Entry entry : ENTRIES) {
+                entry.modify(context);
+            }
+            for (FilteredEntry entry : FILTERED_ENTRIES) {
+                if (entry.filter.test(key)) {
+                    entry.handler.modify(context);
+                }
+            }
+        }
+
+        private record LootTableImpl(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, Consumer<LootPool.Builder> poolAdder, HolderLookup.Provider provider) implements LootTable {
+            @Override
+            public ResourceKey<net.minecraft.world.level.storage.loot.LootTable> getKey() {
+                return key;
+            }
+
+            @Override
+            public HolderLookup.Provider getProvider() {
+                return provider;
+            }
+
+            @Override
+            public void addPool(LootPool.Builder pool) {
+                poolAdder.accept(pool);
             }
         }
     }

@@ -12,6 +12,8 @@ import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.fabric.impl.networking.payload.PayloadHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -171,56 +173,6 @@ public class FabricHelpersImpl {
                 case REQUIRED_DATA, REQUIRED_RESOURCES -> PackActivationType.ALWAYS_ENABLED;
                 case OPTIONAL_DATA, OPTIONAL_RESOURCES -> PackActivationType.DEFAULT_ENABLED;
             };
-        }
-    }
-
-    public static class LootTables implements HelpersImpl.LootTables {
-
-        @Override
-        public void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools) {
-            var poolList = Arrays.stream(pools).toList();
-            for (LootPool.Builder pool : poolList) {
-                addPool(List.of(table), pool);
-            }
-        }
-
-        @Override
-        public final void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools) {
-            LootTableEvents.MODIFY.register((targetTable, tableBuilder, source, registries) -> {
-                var poolList = Arrays.stream(pools).toList();
-                for (LootPool.Builder pool : poolList) {
-                    for (ResourceKey<LootTable> table : tables) {
-                        if (targetTable.equals(table)) {
-                            tableBuilder.withPool(pool);
-                        }
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void addItem(ResourceKey<LootTable> table, ItemLike item, int chance) {
-            addItem(List.of(table), item, chance);
-        }
-
-        @Override
-        public final void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance) {
-            chance = Math.max(Math.min(chance, 100), 0);
-            int emptyChance = 100 - chance;
-            if (chance > 0 && chance < 100) {
-                addPool(
-                        tables,
-                        LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                                .add(EmptyLootItem.emptyItem().setWeight(emptyChance))
-                                .add(LootItem.lootTableItem(item).setWeight(chance))
-                );
-            } else if (chance == 100) {
-                addPool(
-                        tables,
-                        LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                                .add(LootItem.lootTableItem(item))
-                );
-            }
         }
     }
 

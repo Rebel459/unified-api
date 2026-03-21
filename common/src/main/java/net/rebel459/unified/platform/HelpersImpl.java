@@ -53,14 +53,6 @@ public class HelpersImpl {
         void add(Identifier id, PackInfo info);
     }
 
-    public interface LootTables {
-
-        void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools);
-        void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools);
-        void addItem(ResourceKey<LootTable> table, ItemLike item, int chance);
-        void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance);
-    }
-
     public interface Networking {
 
         <T extends CustomPacketPayload> void registerPlayToServer(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec);

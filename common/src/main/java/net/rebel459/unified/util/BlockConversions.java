@@ -3,18 +3,15 @@ package net.rebel459.unified.util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -23,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -97,7 +93,7 @@ public interface BlockConversions {
             Level level = context.getLevel();
             BlockPos pos = context.getClickedPos();
             Player player = context.getPlayer();
-            if (playerHasBlockingItemUseIntent(context)) {
+            if (AxeItem.playerHasBlockingItemUseIntent(context)) {
                 return InteractionResult.PASS;
             } else {
                 ItemStack itemInHand = context.getItemInHand();
@@ -115,11 +111,6 @@ public interface BlockConversions {
                     return InteractionResult.SUCCESS;
                 }
             }
-        }
-
-        private static boolean playerHasBlockingItemUseIntent(UseOnContext context) {
-            Player player = context.getPlayer();
-            return context.getHand().equals(InteractionHand.MAIN_HAND) && player.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS) && !player.isSecondaryUseActive();
         }
 
         private static Optional<BlockState> evaluateNewBlockState(UseOnContext context, BlockState oldState) {

@@ -36,3 +36,4 @@ transitive-accessible field net/minecraft/client/gui/Gui minecraft Lnet/minecraf
 accessible class net/minecraft/world/level/block/ComposterBlock$InputContainer
 
 accessible method net/minecraft/world/item/AxeItem spawnSoundAndParticle (Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/sounds/SoundEvent;I)V
+accessible method net/minecraft/world/item/AxeItem playerHasBlockingItemUseIntent (Lnet/minecraft/world/item/context/UseOnContext;)Z

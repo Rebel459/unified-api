@@ -241,68 +241,6 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class LootTables implements HelpersImpl.LootTables {
-
-        public static List<Pair<LootPool.Builder, ResourceKey<LootTable>>> LOOT_APPENDER_LIST = new ArrayList<>();
-
-        static {
-            NeoForge.EVENT_BUS.register(LootTables.class);
-        }
-
-        @Override
-        public void addPool(ResourceKey<LootTable> table, LootPool.Builder... pools) {
-            var poolList = Arrays.stream(pools).toList();
-            for (LootPool.Builder pool : poolList) {
-                addPool(List.of(table), pool);
-            }
-        }
-
-        @Override
-        public final void addPool(List<ResourceKey<LootTable>> tables, LootPool.Builder... pools) {
-            var poolList = Arrays.stream(pools).toList();
-            for (LootPool.Builder pool : poolList) {
-                for (ResourceKey<LootTable> table : tables) {
-                    LOOT_APPENDER_LIST.add(Pair.of(pool, table));
-                }
-            }
-        }
-
-        @Override
-        public void addItem(ResourceKey<LootTable> table, ItemLike item, int chance) {
-            addItem(List.of(table), item, chance);
-        }
-
-        @Override
-        public final void addItem(List<ResourceKey<LootTable>> tables, ItemLike item, int chance) {
-            chance = Math.max(Math.min(chance, 100), 0);
-            int emptyChance = 100 - chance;
-            if (chance > 0 && chance < 100) {
-                addPool(
-                        tables,
-                        LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                                .add(EmptyLootItem.emptyItem().setWeight(emptyChance))
-                                .add(LootItem.lootTableItem(item).setWeight(chance))
-                );
-            }
-            else if (chance == 100) {
-                addPool(
-                        tables,
-                        LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                                .add(LootItem.lootTableItem(item))
-                );
-            }
-        }
-
-        @SubscribeEvent
-        public static void onLootTableModify(LootTableLoadEvent event) {
-            for (Pair<LootPool.Builder, ResourceKey<LootTable>> pair : LOOT_APPENDER_LIST) {
-                if (event.getKey().equals(pair.getSecond())) {
-                    event.getTable().addPool(pair.getFirst().build());
-                }
-            }
-        }
-    }
-
     public static class Networking implements HelpersImpl.Networking {
 
         @Override

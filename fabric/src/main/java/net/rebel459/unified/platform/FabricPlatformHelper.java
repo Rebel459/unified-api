@@ -53,11 +53,6 @@ public class FabricPlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public HelpersImpl.LootTables getLootTables() {
-        return new FabricHelpersImpl.LootTables();
-    }
-
-    @Override
     public HelpersImpl.Packs getPacks() {
         return new FabricHelpersImpl.Packs();
     }

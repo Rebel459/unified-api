@@ -53,11 +53,6 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     }
 
     @Override
-    public HelpersImpl.LootTables getLootTables() {
-        return new NeoForgeHelpersImpl.LootTables();
-    }
-
-    @Override
     public HelpersImpl.Packs getPacks() {
         return new NeoForgeHelpersImpl.Packs();
     }

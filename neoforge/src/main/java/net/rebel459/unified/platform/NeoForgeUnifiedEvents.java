@@ -5,10 +5,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.TagsUpdatedEvent;
+import net.neoforged.neoforge.event.*;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.server.ServerLifecycleEvent;
@@ -57,6 +54,10 @@ public class NeoForgeUnifiedEvents {
 
         NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
             UnifiedEvents.Servers.passOnStop(event.getServer());
+        });
+
+        NeoForge.EVENT_BUS.addListener((LootTableLoadEvent event) -> {
+            UnifiedEvents.LootTables.passModify(event.getKey(), builder -> event.getTable().addPool(builder.build()), event.getRegistries());
         });
     }
 }

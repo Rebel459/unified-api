@@ -13,7 +13,6 @@ public interface PlatformHelper {
     UnifiedRegistries.SoundEvents createSoundEvents(String modId);
 
     HelpersImpl.CreativeEntries getCreativeEntries();
-    HelpersImpl.LootTables getLootTables();
     HelpersImpl.Packs getPacks();
     HelpersImpl.Networking getNetworkPayloads();
     HelpersImpl.Platform getPlatform();
