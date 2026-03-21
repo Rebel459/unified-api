@@ -173,13 +173,13 @@ public class UnifiedEvents {
 
         private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void register(Entry handler) {
+        public static void modify(Entry handler) {
             ENTRIES.add(handler);
         }
 
         private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void registerWithFilter(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {
+        public static void modifyWithFilter(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, handler));
         }
 
