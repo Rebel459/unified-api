@@ -14,7 +14,7 @@ public class ItemStackMixin {
 
     @Inject(at = @At("HEAD"), method = "useOn", cancellable = true)
     private void useOn(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
-        var result = BlockConversions.Impl.useOn(context);
+        InteractionResult result = BlockConversions.Impl.useOn(context);
         if (result != InteractionResult.PASS) cir.setReturnValue(result);
     }
 }
