@@ -168,7 +168,7 @@ public class UnifiedEvents {
         }
 
         public interface Entry {
-            void modify(LootTable context);
+            void modify(LootTable lootTable);
         }
 
         private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
@@ -186,14 +186,14 @@ public class UnifiedEvents {
         private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {}
 
         static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, Consumer<LootPool.Builder> poolAdder, HolderLookup.Provider provider) {
-            var context = new LootTableImpl(key, poolAdder, provider);
+            var lootTable = new LootTableImpl(key, poolAdder, provider);
 
             for (Entry entry : ENTRIES) {
-                entry.modify(context);
+                entry.modify(lootTable);
             }
             for (FilteredEntry entry : FILTERED_ENTRIES) {
                 if (entry.filter.test(key)) {
-                    entry.handler.modify(context);
+                    entry.handler.modify(lootTable);
                 }
             }
         }

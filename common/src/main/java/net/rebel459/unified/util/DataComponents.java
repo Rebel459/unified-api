@@ -23,7 +23,7 @@ public interface DataComponents {
         add(itemLike, UnifiedDataComponents.FURNACE_FUEL.get(), ticks);
     }
 
-    default void addComposting(ItemLike itemLike, float chance) {
+    default void addCompost(ItemLike itemLike, float chance) {
         add(itemLike, UnifiedDataComponents.COMPOST.get(), chance);
     }
 }

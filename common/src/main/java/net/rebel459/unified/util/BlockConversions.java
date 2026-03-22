@@ -73,19 +73,19 @@ public interface BlockConversions {
         }
     }
 
-    default void add(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, SoundEvent sound) {
-        add(validItem, originalBlock, convertedBlock, sound, 1F, 1F);
+    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound) {
+        add(item, originalBlock, convertedBlock, sound, 1F, 1F);
     }
-    default void add(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
-        BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(validItem, convertedBlock, (context) -> {
+    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
+        BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(item, convertedBlock, (context) -> {
             Player player = context.getPlayer();
             if (player == null) return;
             context.getLevel().playSound(player, context.getClickedPos(), sound, SoundSource.BLOCKS, volume, pitch);
             context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
         }));
     }
-    default void add(Predicate<ItemStack> validItem, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
-        BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(validItem, convertedBlock, context));
+    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
+        BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(item, convertedBlock, context));
     }
 
     class Impl {

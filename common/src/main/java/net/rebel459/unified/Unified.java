@@ -10,7 +10,8 @@ public class Unified {
         UnifiedDataComponents.init();
     }
 
-    public static void init() {}
+    public static void init() {
+    }
 
     public static final String MOD_ID = "unified";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
