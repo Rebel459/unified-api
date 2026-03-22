@@ -156,7 +156,7 @@ public class UnifiedBiomeModifiers {
             return CODEC.get();
         }
 
-        public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<SetEffectModifier>> CODEC = BIOME_MODIFIER_SERIALIZERS.register("set_climate", () -> RecordCodecBuilder.mapCodec(
+        public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<SetEffectModifier>> CODEC = BIOME_MODIFIER_SERIALIZERS.register("set_effect", () -> RecordCodecBuilder.mapCodec(
                 builder -> builder
                         .group(
                                 Biome.LIST_CODEC.fieldOf("biomes").forGetter(SetEffectModifier::biomes),
