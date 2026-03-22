@@ -1,4 +1,4 @@
-package net.rebel459.unified.mixin;
+package net.rebel459.unified.mixin.worldgen;
 
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.level.biome.Biome;
