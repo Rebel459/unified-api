@@ -2,7 +2,7 @@ package net.rebel459.unified.platform.client;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class UnifiedClientEvents {
         private Guis() {}
 
         public interface Entry {
-            void register(net.minecraft.client.gui.Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker);
+            void register(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
         }
 
         static final List<Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
