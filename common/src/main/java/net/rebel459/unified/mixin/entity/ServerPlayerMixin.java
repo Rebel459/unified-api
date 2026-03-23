@@ -19,7 +19,7 @@ import java.util.List;
 public class ServerPlayerMixin {
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-    private void add(ValueOutput output, CallbackInfo ci) {
+    private void addCooldowns(ValueOutput output, CallbackInfo ci) {
         ServerPlayer player = ServerPlayer.class.cast(this);
 
         List<PersistentCooldowns.Record> list = player.getCooldowns().cooldowns.keySet().stream()
@@ -40,7 +40,7 @@ public class ServerPlayerMixin {
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-    private void read(ValueInput input, CallbackInfo ci) {
+    private void readCooldowns(ValueInput input, CallbackInfo ci) {
         ServerPlayer player = ServerPlayer.class.cast(this);
 
         input.read(
