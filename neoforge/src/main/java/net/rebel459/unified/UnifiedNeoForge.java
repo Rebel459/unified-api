@@ -22,5 +22,7 @@ public class UnifiedNeoForge {
         modEventBus.addListener(NeoForgeHelpersImpl.Networking::registerWithHandler);
     }
 
-    private static void commonSetup(final FMLCommonSetupEvent event) {}
+    private static void commonSetup(final FMLCommonSetupEvent event) {
+        Unified.init();
+    }
 }
