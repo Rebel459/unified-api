@@ -25,7 +25,12 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.rebel459.unified.util.SuppliedBlock;
+import net.rebel459.unified.util.SuppliedBlockImpl;
+import net.rebel459.unified.util.SuppliedItem;
+import net.rebel459.unified.util.SuppliedItemImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -74,8 +79,8 @@ public class NeoForgeUnifiedRegistries {
     public record Items(String modId) implements UnifiedRegistries.Items {
 
         @Override
-        public Supplier<Item> register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            return ITEMS.get(modId).registerItem(path, function, properties);
+        public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            return new SuppliedItemImpl(ITEMS.get(modId).registerItem(path, function, properties).getDelegate());
         }
 
         @Override
@@ -84,8 +89,8 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block> Supplier<BlockItem> registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
-            return ITEMS.get(modId).registerSimpleBlockItem(path, blockSupplier, properties);
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            return new SuppliedItemImpl(ITEMS.get(modId).registerSimpleBlockItem(path, blockSupplier, properties));
         }
     }
 
@@ -94,59 +99,59 @@ public class NeoForgeUnifiedRegistries {
         public static List<Pair<BlockEntityType<?>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
 
         @Override
-        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
-            Supplier<T> blockHolder = registerWithoutItem(path, function, blockProperties);
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
+            SuppliedBlock blockHolder = registerWithoutItem(path, function, blockProperties);
             ITEMS.get(modId).registerSimpleBlockItem(path, blockHolder);
             return blockHolder;
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
             var block = register(path, function, blockProperties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
         }
 
         @Override
-        public <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
-            return BLOCKS.get(modId).registerBlock(path, function, () -> properties);
+        public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
+            return new SuppliedBlockImpl(BLOCKS.get(modId).registerBlock(path, function, () -> properties));
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
             var block = registerWithoutItem(path, function, properties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
         }
 
         @Override
-        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties) {
             return register(path, blockFunction, blockProperties, Item::new, itemProperties);
         }
 
         @Override
-        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction) {
             return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new);
         }
 
         @Override
-        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
             new Items(modId).register(path, itemFunction, itemProperties);
             return registerWithoutItem(path, blockFunction, blockProperties);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, Item::new, itemProperties, type);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             new Items(modId).register(path, itemFunction, itemProperties);
             return registerWithoutItem(path, blockFunction, blockProperties, type);
         }

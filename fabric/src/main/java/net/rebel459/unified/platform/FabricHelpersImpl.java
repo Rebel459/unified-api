@@ -25,6 +25,7 @@ import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -38,7 +39,9 @@ import net.rebel459.unified.util.PlatformInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -71,18 +74,18 @@ public class FabricHelpersImpl {
         public final void insert(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
             var itemList = Arrays.stream(items).toList();
             for (ItemLike itemLike : itemList) {
-                insert(tab, itemLike.asItem().getDefaultInstance());
+                insert(tab, new ItemStackTemplate(itemLike.asItem()));
             }
         }
 
         @SafeVarargs
         @Override
-        public final void insert(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
+        public final void insert(ResourceKey<CreativeModeTab> tab, ItemStackTemplate... items) {
             var itemList = Arrays.stream(items).toList();
             for (int x = itemList.size() - 1; x >= 0; x--) {
-                ItemStack item = itemList.get(x);
+                ItemStackTemplate template = itemList.get(x);
                 CreativeModeTabEvents.modifyOutputEvent(tab).register(entries -> {
-                    entries.accept(item);
+                    entries.accept(template.create());
                 });
             }
         }
@@ -95,7 +98,7 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemStack... items) {
+        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemStackTemplate... items) {
             for (ResourceKey<CreativeModeTab> tab : tabs) {
                 insert(tab, items);
             }
@@ -104,15 +107,18 @@ public class FabricHelpersImpl {
         @Override
         public final void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
             var itemList = Arrays.stream(addedItems).toList();
-            for (ItemLike itemLike : itemList) {
-                insertAfter(tab, existingItem, itemLike.asItem().getDefaultInstance());
+            for (int x = itemList.size() - 1; x >= 0; x--) {
+                insertAfter(tab, existingItem, new ItemStackTemplate(itemList.get(x).asItem()));
             }
         }
 
         @Override
-        public void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStackTemplate... addedItems) {
             CreativeModeTabEvents.modifyOutputEvent(tab).register(entries -> {
-                entries.insertAfter(existingItem, addedItems);
+                List<ItemStackTemplate> itemList = Arrays.stream(addedItems).toList();
+                for (int x = itemList.size() - 1; x >= 0; x--) {
+                    entries.insertAfter(existingItem, itemList.get(x).create());
+                }
             });
         }
 
@@ -124,7 +130,7 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStackTemplate... addedItems) {
             for (ResourceKey<CreativeModeTab> tab : tabs) {
                 insertAfter(tab, existingItem, addedItems);
             }
@@ -134,14 +140,24 @@ public class FabricHelpersImpl {
         public final void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
             var itemList = Arrays.stream(addedItems).toList();
             for (ItemLike itemLike : itemList) {
-                insertBefore(tab, existingItem, itemLike.asItem().getDefaultInstance());
+                insertBefore(tab, existingItem, new ItemStackTemplate(itemLike.asItem()));
             }
         }
 
         @Override
-        public void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStackTemplate... addedItems) {
             CreativeModeTabEvents.modifyOutputEvent(tab).register(entries -> {
-                entries.insertBefore(existingItem, addedItems);
+                List<ItemStackTemplate> itemList = Arrays.stream(addedItems).toList();
+                ItemStackTemplate previousTemplate = null;
+                for (ItemStackTemplate template : itemList) {
+                    if (previousTemplate == null) {
+                        entries.insertBefore(existingItem, template.create());
+                    }
+                    else {
+                        entries.insertBefore(previousTemplate.create(), template.create());
+                    }
+                    previousTemplate = template;
+                }
             });
         }
 
@@ -153,7 +169,7 @@ public class FabricHelpersImpl {
         }
 
         @Override
-        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStackTemplate... addedItems) {
             for (ResourceKey<CreativeModeTab> tab : tabs) {
                 insertBefore(tab, existingItem, addedItems);
             }

@@ -24,6 +24,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -76,22 +77,22 @@ public class NeoForgeHelpersImpl {
 
     public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 
-        private static List<Pair<ItemStack, ResourceKey<CreativeModeTab>>> INSERT_ITEMS = new ArrayList<>();
-        private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> INSERT_AFTER_ITEMS = new ArrayList<>();
-        private static List<Triple<ItemLike, ItemStack, ResourceKey<CreativeModeTab>>> INSERT_BEFORE_ITEMS = new ArrayList<>();
+        private static List<Pair<ItemStackTemplate, ResourceKey<CreativeModeTab>>> INSERT_ITEMS = new ArrayList<>();
+        private static List<Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>>> INSERT_AFTER_ITEMS = new ArrayList<>();
+        private static List<Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>>> INSERT_BEFORE_ITEMS = new ArrayList<>();
 
         @Override
         public final void insert(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
             var itemList = Arrays.stream(items).toList();
             for (ItemLike itemLike : itemList) {
-                insert(tab, itemLike.asItem().getDefaultInstance());
+                insert(tab, new ItemStackTemplate(itemLike.asItem()));
             }
         }
 
         @Override
-        public void insert(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
-            List<ItemStack> itemList = Arrays.stream(items).toList();
-            for (ItemStack item : itemList) {
+        public void insert(ResourceKey<CreativeModeTab> tab, ItemStackTemplate... items) {
+            List<ItemStackTemplate> itemList = Arrays.stream(items).toList();
+            for (ItemStackTemplate item : itemList) {
                 INSERT_ITEMS.add(Pair.of(item, tab));
             }
         }
@@ -104,7 +105,7 @@ public class NeoForgeHelpersImpl {
         }
 
         @Override
-        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemStack... items) {
+        public void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemStackTemplate... items) {
             for (ResourceKey<CreativeModeTab> tab : tabs) {
                 insert(tab, items);
             }
@@ -114,14 +115,14 @@ public class NeoForgeHelpersImpl {
         public final void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
             var itemList = Arrays.stream(addedItems).toList();
             for (ItemLike itemLike : itemList) {
-                insertAfter(tab, existingItem, itemLike.asItem().getDefaultInstance());
+                insertAfter(tab, existingItem, new ItemStackTemplate(itemLike.asItem()));
             }
         }
 
         @Override
-        public void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
-            List<ItemStack> itemList = Arrays.stream(addedItems).toList();
-            for (ItemStack addedItem : itemList) {
+        public void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStackTemplate... addedItems) {
+            List<ItemStackTemplate> itemList = Arrays.stream(addedItems).toList();
+            for (ItemStackTemplate addedItem : itemList) {
                 INSERT_AFTER_ITEMS.add(Triple.of(existingItem, addedItem, tab));
             }
         }
@@ -134,7 +135,7 @@ public class NeoForgeHelpersImpl {
         }
 
         @Override
-        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStackTemplate... addedItems) {
             for (ResourceKey<CreativeModeTab> tab : tabs) {
                 insertAfter(tab, existingItem, addedItems);
             }
@@ -144,14 +145,14 @@ public class NeoForgeHelpersImpl {
         public final void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems) {
             var itemList = Arrays.stream(addedItems).toList();
             for (ItemLike itemLike : itemList) {
-                insertBefore(tab, existingItem, itemLike.asItem().getDefaultInstance());
+                insertBefore(tab, existingItem, new ItemStackTemplate(itemLike.asItem()));
             }
         }
 
         @Override
-        public void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStack... addedItems) {
-            List<ItemStack> itemList = Arrays.stream(addedItems).toList();
-            for (ItemStack addedItem : itemList) {
+        public void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStackTemplate... addedItems) {
+            List<ItemStackTemplate> itemList = Arrays.stream(addedItems).toList();
+            for (ItemStackTemplate addedItem : itemList) {
                 INSERT_BEFORE_ITEMS.add(Triple.of(existingItem, addedItem, tab));
             }
         }
@@ -164,7 +165,7 @@ public class NeoForgeHelpersImpl {
         }
 
         @Override
-        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStack... addedItems) {
+        public void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStackTemplate... addedItems) {
             for (ResourceKey<CreativeModeTab> tab : tabs) {
                 insertBefore(tab, existingItem, addedItems);
             }
@@ -172,8 +173,8 @@ public class NeoForgeHelpersImpl {
 
         @SubscribeEvent
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
-            for (Pair<ItemStack, ResourceKey<CreativeModeTab>> pair : INSERT_ITEMS) {
-                ItemStack item = pair.getFirst();
+            for (Pair<ItemStackTemplate, ResourceKey<CreativeModeTab>> pair : INSERT_ITEMS) {
+                ItemStack item = pair.getFirst().create();
                 ResourceKey<CreativeModeTab> tab = pair.getSecond();
                 if (event.getTabKey().equals(tab)) {
                     event.accept(item);
@@ -182,7 +183,7 @@ public class NeoForgeHelpersImpl {
             for (int x = INSERT_AFTER_ITEMS.size() - 1; x >= 0; x--) {
                 var triple = INSERT_AFTER_ITEMS.get(x);
                 ItemLike existingItem = triple.getLeft();
-                ItemStack addedItem = triple.getMiddle();
+                ItemStack addedItem = triple.getMiddle().create();
                 ResourceKey<CreativeModeTab> tab = triple.getRight();
                 if (event.getTabKey().equals(tab)) {
                     event.insertAfter(existingItem.asItem().getDefaultInstance(), addedItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
@@ -191,7 +192,7 @@ public class NeoForgeHelpersImpl {
             for (int x = INSERT_BEFORE_ITEMS.size() - 1; x >= 0; x--) {
                 var triple = INSERT_BEFORE_ITEMS.get(x);
                 ItemLike existingItem = triple.getLeft();
-                ItemStack addedItem = triple.getMiddle();
+                ItemStack addedItem = triple.getMiddle().create();
                 ResourceKey<CreativeModeTab> tab = triple.getRight();
                 if (event.getTabKey().equals(tab)) {
                     event.insertBefore(existingItem.asItem().getDefaultInstance(), addedItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
