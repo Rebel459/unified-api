@@ -30,7 +30,7 @@ public class PlayerListMixin {
             method = "respawn",
             at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/event/EventHooks;firePlayerRespawnEvent(Lnet/minecraft/server/level/ServerPlayer;Z)V")
     )
-    private void lithostitched$injectBiomeModifers(ServerPlayer newPlayer, boolean fromEndFight, Operation<Void> original) {
+    private void passOnRespawn(ServerPlayer newPlayer, boolean fromEndFight, Operation<Void> original) {
         EventsImpl.Players.passOnRespawn(this.oldPlayer, newPlayer);
         original.call(newPlayer, fromEndFight);
     }
