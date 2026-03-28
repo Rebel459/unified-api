@@ -69,7 +69,7 @@ public class NeoForgePlatformHelper implements PlatformHelper {
 
     @Override
     public HelpersImpl.Platform getPlatform() {
-        return new NeoForgeHelpersImpl.Platform();
+        return new NeoForgePlatformHelperImpl();
     }
 
     @Override

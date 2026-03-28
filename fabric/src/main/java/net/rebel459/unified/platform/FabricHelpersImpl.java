@@ -24,7 +24,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
@@ -39,34 +38,11 @@ import net.rebel459.unified.util.PlatformInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class FabricHelpersImpl {
-
-    public static class Platform implements HelpersImpl.Platform {
-
-        @Override
-        public PlatformInfo getPlatform() {
-            return PlatformInfo.FABRIC;
-        }
-
-        @Override
-        public EnvInfo getEnvironment() {
-            return switch (FabricLoader.getInstance().getEnvironmentType()) {
-                case CLIENT -> EnvInfo.CLIENT;
-                case SERVER -> EnvInfo.SERVER;
-            };
-        }
-
-        @Override
-        public boolean isModLoaded(String modId) {
-            return FabricLoader.getInstance().isModLoaded(modId);
-        }
-    }
 
     public static class CreativeEntries implements HelpersImpl.CreativeEntries {
 

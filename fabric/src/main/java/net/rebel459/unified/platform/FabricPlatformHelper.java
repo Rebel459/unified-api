@@ -69,7 +69,7 @@ public class FabricPlatformHelper implements PlatformHelper {
 
     @Override
     public HelpersImpl.Platform getPlatform() {
-        return new FabricHelpersImpl.Platform();
+        return new FabricPlatformHelperImpl();
     }
 
     @Override

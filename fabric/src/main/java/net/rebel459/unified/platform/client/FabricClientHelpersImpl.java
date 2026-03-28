@@ -8,9 +8,11 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.particle.ParticleResources;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -39,17 +41,17 @@ public class FabricClientHelpersImpl {
 
         @Override
         public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
-            ModelLayerRegistry.registerModelLayer(location, (ModelLayerRegistry.TexturedLayerDefinitionProvider) definition);
+            ModelLayerRegistry.registerModelLayer(location, definition::get);
         }
 
         @Override
         public <T extends Entity> void addEntityRenderer(EntityType<? extends T> entityType, EntityRendererProvider<T> entityRendererProvider) {
-            EntityRendererRegistry.register(entityType, entityRendererProvider);
+            net.minecraft.client.renderer.entity.EntityRenderers.register(entityType, entityRendererProvider);
         }
 
         @Override
         public <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider) {
-            BlockEntityRendererRegistry.register(blockEntityType, blockEntityRendererProvider);
+            BlockEntityRenderers.register(blockEntityType, blockEntityRendererProvider);
         }
     }
 
