@@ -1,5 +1,6 @@
 package net.rebel459.unified.platform;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
@@ -9,9 +10,13 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentLocationBasedEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
+import net.minecraft.world.item.enchantment.providers.EnchantmentProvider;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -142,6 +147,20 @@ public class UnifiedRegistries {
 
         static SoundEvents create(String modId) {
             return PlatformHelperImpl.INSTANCE.createSoundEvents(modId);
+        }
+    }
+
+    public interface EnchantmentCodecs {
+        String modId();
+
+        void registerProvider(String path, final MapCodec<? extends EnchantmentProvider> codec);
+        void registerLevelBasedValue(String path, MapCodec<? extends LevelBasedValue> codec);
+        void registerEntityEffect(String path, final MapCodec<? extends EnchantmentEntityEffect> codec);
+        void registerValueEffect(String path, final MapCodec<? extends EnchantmentValueEffect> codec);
+        void registerLocationBasedEffect(String path, final MapCodec<? extends EnchantmentLocationBasedEffect> codec);
+
+        static EnchantmentCodecs create(String modId) {
+            return PlatformHelperImpl.INSTANCE.createEnchantmentEffects(modId);
         }
     }
 }

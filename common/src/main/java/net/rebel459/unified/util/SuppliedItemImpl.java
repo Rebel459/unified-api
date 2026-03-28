@@ -10,9 +10,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.level.block.Block;
-import net.rebel459.unified.platform.UnifiedRegistries;
-import org.apache.commons.compress.compressors.lz77support.LZ77Compressor;
 
 import java.util.Optional;
 import java.util.function.Predicate;

@@ -48,6 +48,11 @@ public class FabricPlatformHelper implements PlatformHelper {
     }
 
     @Override
+    public UnifiedRegistries.EnchantmentCodecs createEnchantmentEffects(String modId) {
+        return new FabricUnifiedRegistries.EnchantmentCodecs(modId);
+    }
+
+    @Override
     public HelpersImpl.CreativeEntries getCreativeEntries() {
         return new FabricHelpersImpl.CreativeEntries();
     }

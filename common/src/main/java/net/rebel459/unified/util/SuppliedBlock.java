@@ -1,7 +1,6 @@
 package net.rebel459.unified.util;
 
 import net.minecraft.core.Holder;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 

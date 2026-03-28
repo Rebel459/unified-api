@@ -33,10 +33,6 @@ public class NeoForgeUnifiedEvents {
             UnifiedEvents.Players.passOnLeave(event.getEntity());
         });
 
-        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent event) -> {
-            UnifiedEvents.Players.passOnRespawn(event.getEntity());
-        });
-
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
             UnifiedEvents.Commands.passRegister(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
         });

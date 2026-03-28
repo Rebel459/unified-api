@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import com.google.common.base.Suppliers;
+import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -18,6 +19,11 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentLocationBasedEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
+import net.minecraft.world.item.enchantment.providers.EnchantmentProvider;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -241,6 +247,34 @@ public class FabricUnifiedRegistries {
         public Holder<SoundEvent> registerHolder(String path) {
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
             return Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, SoundEvent.createVariableRangeEvent(identifier));
+        }
+    }
+
+    public record EnchantmentCodecs(String modId) implements UnifiedRegistries.EnchantmentCodecs {
+
+        @Override
+        public void registerProvider(String path, MapCodec<? extends EnchantmentProvider> codec) {
+            Registry.register(BuiltInRegistries.ENCHANTMENT_PROVIDER_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
+        }
+
+        @Override
+        public void registerLevelBasedValue(String path, MapCodec<? extends LevelBasedValue> codec) {
+            Registry.register(BuiltInRegistries.ENCHANTMENT_LEVEL_BASED_VALUE_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
+        }
+
+        @Override
+        public void registerEntityEffect(String path, MapCodec<? extends EnchantmentEntityEffect> codec) {
+            Registry.register(BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
+        }
+
+        @Override
+        public void registerValueEffect(String path, MapCodec<? extends EnchantmentValueEffect> codec) {
+            Registry.register(BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
+        }
+
+        @Override
+        public void registerLocationBasedEffect(String path, MapCodec<? extends EnchantmentLocationBasedEffect> codec) {
+            Registry.register(BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
         }
     }
 }

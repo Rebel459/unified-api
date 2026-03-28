@@ -80,17 +80,13 @@ public class UnifiedEvents {
             }
         }
 
-        private static final List<Consumer<Player>> RESPAWN_LISTENERS = new CopyOnWriteArrayList<>();
+        static final List<BiConsumer<Player, Player>> RESPAWN_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void onRespawn(Consumer<Player> listener) {
+        public static void onRespawn(BiConsumer<Player, Player> listener) {
             RESPAWN_LISTENERS.add(listener);
         }
 
-        static void passOnRespawn(Player player) {
-            for (Consumer<Player> listener : RESPAWN_LISTENERS) {
-                listener.accept(player);
-            }
-        }
+        // pass handled in impl
     }
 
     public static class Commands {

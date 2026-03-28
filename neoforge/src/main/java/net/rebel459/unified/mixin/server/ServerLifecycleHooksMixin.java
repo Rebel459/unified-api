@@ -18,7 +18,7 @@ public class ServerLifecycleHooksMixin {
             at = @At("STORE"),
             ordinal = 0
     )
-    private static List<BiomeModifier> lithostitched$injectBiomeModifers(List<BiomeModifier> biomeModifiers, MinecraftServer server) {
+    private static List<BiomeModifier> addBiomeModifiers(List<BiomeModifier> biomeModifiers, MinecraftServer server) {
         List<BiomeModifier> modifiers = new ArrayList<>(biomeModifiers);
         modifiers.addAll(NeoForgeHelpersImpl.BiomeModifications.MODIFIERS);
         return modifiers;

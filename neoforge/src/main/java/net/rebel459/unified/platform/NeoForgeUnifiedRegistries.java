@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
@@ -13,10 +14,14 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentLocationBasedEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
+import net.minecraft.world.item.enchantment.providers.EnchantmentProvider;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,7 +30,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
-import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.rebel459.unified.util.SuppliedBlock;
 import net.rebel459.unified.util.SuppliedBlockImpl;
@@ -53,27 +57,42 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister<EntityType<?>>> ENTITIES = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<BlockEntityType<?>>> BLOCK_ENTITIES = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<SoundEvent>> SOUND_EVENTS = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<MapCodec<? extends EnchantmentProvider>>> ENCHANTMENT_PROVIDERS = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<MapCodec<? extends LevelBasedValue>>> ENCHANTMENT_LEVEL_BASED_VALUES = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<MapCodec<? extends EnchantmentEntityEffect>>> ENCHANTMENT_ENTITY_EFFECTS = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<MapCodec<? extends EnchantmentValueEffect>>> ENCHANTMENT_VALUE_EFFECTS = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<MapCodec<? extends EnchantmentLocationBasedEffect>>> ENCHANTMENT_LOCATION_BASED_EFFECTS = new ConcurrentHashMap<>();
 
     public static void registerBus(String modId, IEventBus modEventBus) {
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
         DeferredRegister.Blocks blocks = BLOCKS.computeIfAbsent(modId, string -> DeferredRegister.createBlocks(modId));
         DeferredRegister<CreativeModeTab> creativeTabs = CREATIVE_TABS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId));
-        DeferredRegister.DataComponents components = DATA_COMPONENTS.computeIfAbsent(modId, string -> DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
+        DeferredRegister.DataComponents dataComponents = DATA_COMPONENTS.computeIfAbsent(modId, string -> DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
         DeferredRegister<ParticleType<?>> particles = PARTICLES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.PARTICLE_TYPE, modId));
         DeferredRegister<MobEffect> effects = EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.MOB_EFFECT, modId));
         DeferredRegister<EntityType<?>> entities = ENTITIES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENTITY_TYPE, modId));
         DeferredRegister<BlockEntityType<?>> blockEntities = BLOCK_ENTITIES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, modId));
-        DeferredRegister<SoundEvent> sounds = SOUND_EVENTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.SOUND_EVENT, modId));
+        DeferredRegister<SoundEvent> soundEvents = SOUND_EVENTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.SOUND_EVENT, modId));
+        DeferredRegister<MapCodec<? extends EnchantmentProvider>> enchantmentProviders = ENCHANTMENT_PROVIDERS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_PROVIDER_TYPE, modId));
+        DeferredRegister<MapCodec<? extends LevelBasedValue>> enchantmentLevelBasedValues = ENCHANTMENT_LEVEL_BASED_VALUES.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_LEVEL_BASED_VALUE_TYPE, modId));
+        DeferredRegister<MapCodec<? extends EnchantmentEntityEffect>> enchantmentEntityEffects = ENCHANTMENT_ENTITY_EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_ENTITY_EFFECT_TYPE, modId));
+        DeferredRegister<MapCodec<? extends EnchantmentValueEffect>> enchantmentValueEffects = ENCHANTMENT_VALUE_EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_VALUE_EFFECT_TYPE, modId));
+        DeferredRegister<MapCodec<? extends EnchantmentLocationBasedEffect>> enchantmentLocationBasedEffects = ENCHANTMENT_LOCATION_BASED_EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE, modId));
 
         items.register(modEventBus);
         blocks.register(modEventBus);
         creativeTabs.register(modEventBus);
-        components.register(modEventBus);
+        dataComponents.register(modEventBus);
         particles.register(modEventBus);
         effects.register(modEventBus);
         entities.register(modEventBus);
         blockEntities.register(modEventBus);
-        sounds.register(modEventBus);
+        soundEvents.register(modEventBus);
+        enchantmentProviders.register(modEventBus);
+        enchantmentLevelBasedValues.register(modEventBus);
+        enchantmentEntityEffects.register(modEventBus);
+        enchantmentValueEffects.register(modEventBus);
+        enchantmentLocationBasedEffects.register(modEventBus);
     }
 
     public record Items(String modId) implements UnifiedRegistries.Items {
@@ -266,6 +285,34 @@ public class NeoForgeUnifiedRegistries {
         public Holder<SoundEvent> registerHolder(String path) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             return SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id)).getDelegate();
+        }
+    }
+
+    public record EnchantmentCodecs(String modId) implements UnifiedRegistries.EnchantmentCodecs {
+
+        @Override
+        public void registerProvider(String path, MapCodec<? extends EnchantmentProvider> codec) {
+            ENCHANTMENT_PROVIDERS.get(modId).register(path, () -> codec);
+        }
+
+        @Override
+        public void registerLevelBasedValue(String path, MapCodec<? extends LevelBasedValue> codec) {
+            ENCHANTMENT_LEVEL_BASED_VALUES.get(modId).register(path, () -> codec);
+        }
+
+        @Override
+        public void registerEntityEffect(String path, MapCodec<? extends EnchantmentEntityEffect> codec) {
+            ENCHANTMENT_ENTITY_EFFECTS.get(modId).register(path, () -> codec);
+        }
+
+        @Override
+        public void registerValueEffect(String path, MapCodec<? extends EnchantmentValueEffect> codec) {
+            ENCHANTMENT_VALUE_EFFECTS.get(modId).register(path, () -> codec);
+        }
+
+        @Override
+        public void registerLocationBasedEffect(String path, MapCodec<? extends EnchantmentLocationBasedEffect> codec) {
+            ENCHANTMENT_LOCATION_BASED_EFFECTS.get(modId).register(path, () -> codec);
         }
     }
 }

@@ -11,6 +11,7 @@ public interface PlatformHelper {
     UnifiedRegistries.EntityTypes createEntityTypes(String modId);
     UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId);
     UnifiedRegistries.SoundEvents createSoundEvents(String modId);
+    UnifiedRegistries.EnchantmentCodecs createEnchantmentEffects(String modId);
 
     HelpersImpl.CreativeEntries getCreativeEntries();
     HelpersImpl.Packs getPacks();

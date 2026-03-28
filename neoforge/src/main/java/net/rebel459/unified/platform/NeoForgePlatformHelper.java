@@ -48,6 +48,11 @@ public class NeoForgePlatformHelper implements PlatformHelper {
     }
 
     @Override
+    public UnifiedRegistries.EnchantmentCodecs createEnchantmentEffects(String modId) {
+        return new NeoForgeUnifiedRegistries.EnchantmentCodecs(modId);
+    }
+
+    @Override
     public HelpersImpl.CreativeEntries getCreativeEntries() {
         return new NeoForgeHelpersImpl.CreativeEntries();
     }
