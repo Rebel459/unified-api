@@ -39,7 +39,7 @@ public class FabricClientHelpersImpl {
 
         @Override
         public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
-            EntityModelLayerRegistry.registerModelLayer(location, (EntityModelLayerRegistry.TexturedModelDataProvider) definition);
+            EntityModelLayerRegistry.registerModelLayer(location, definition::get);
         }
 
         @Override
