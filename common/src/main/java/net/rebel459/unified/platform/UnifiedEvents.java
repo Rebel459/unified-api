@@ -10,7 +10,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -20,9 +19,9 @@ import java.util.function.Predicate;
 
 public class UnifiedEvents {
 
-    public static class ItemComponents {
+    public static class DefaultItemComponents {
 
-        private ItemComponents() {}
+        private DefaultItemComponents() {}
 
         private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
 
@@ -34,7 +33,7 @@ public class UnifiedEvents {
 
         private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modifyWithFilter(Predicate<Item> filter, BiConsumer<Item, DataComponentMap.Builder> modifier) {
+        public static void modifyFiltered(Predicate<Item> filter, BiConsumer<Item, DataComponentMap.Builder> modifier) {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, modifier));
         }
 

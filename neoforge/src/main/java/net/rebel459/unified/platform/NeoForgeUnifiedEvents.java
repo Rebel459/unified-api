@@ -19,7 +19,7 @@ public class NeoForgeUnifiedEvents {
         modEventBus.addListener((ModifyDefaultComponentsEvent event) -> {
             BuiltInRegistries.ITEM.forEach(item -> {
                 event.modify(item, builder -> {
-                    UnifiedEvents.ItemComponents.passModify(item, builder);
+                    UnifiedEvents.DefaultItemComponents.passModify(item, builder);
                 });
             });
         });

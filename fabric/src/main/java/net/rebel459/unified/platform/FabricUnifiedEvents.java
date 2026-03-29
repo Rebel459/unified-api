@@ -11,7 +11,7 @@ public class FabricUnifiedEvents {
         DefaultItemComponentEvents.MODIFY.register(context -> {
             context.modify(
                     item -> true,
-                    (builder, item) -> UnifiedEvents.ItemComponents.passModify(item, builder)
+                    (builder, item) -> UnifiedEvents.DefaultItemComponents.passModify(item, builder)
             );
         });
 
