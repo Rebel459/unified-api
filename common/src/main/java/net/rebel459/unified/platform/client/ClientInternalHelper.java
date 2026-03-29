@@ -1,6 +1,6 @@
 package net.rebel459.unified.platform.client;
 
-public interface ClientPlatformHelper {
+public interface ClientInternalHelper {
 
     UnifiedClientRegistries.KeyMappings createKeyMappings(String modId);
 

@@ -6,7 +6,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.rebel459.unified.util.EnvInfo;
 import net.rebel459.unified.util.PlatformInfo;
 
-public class NeoForgePlatformHelperImpl implements HelpersImpl.Platform {
+public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
 
     @Override
     public PlatformInfo getPlatform() {

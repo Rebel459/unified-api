@@ -14,7 +14,7 @@ public class UnifiedClientRegistries {
         KeyMapping.Category registerCategory(String path);
 
         static UnifiedClientRegistries.KeyMappings create(String modId) {
-            return ClientPlatformHelperImpl.INSTANCE.createKeyMappings(modId);
+            return ClientInternalHelperImpl.INSTANCE.createKeyMappings(modId);
         }
     }
 }

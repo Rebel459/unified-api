@@ -4,7 +4,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.rebel459.unified.util.EnvInfo;
 import net.rebel459.unified.util.PlatformInfo;
 
-public class FabricPlatformHelperImpl implements HelpersImpl.Platform {
+public class FabricUnifiedPlatform implements HelpersImpl.Platform {
 
     @Override
     public PlatformInfo getPlatform() {

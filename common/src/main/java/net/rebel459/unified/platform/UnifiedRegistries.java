@@ -42,7 +42,7 @@ public class UnifiedRegistries {
         <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         static Items create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createItems(modId);
+            return InternalHelperImpl.INSTANCE.createItems(modId);
         }
     }
 
@@ -65,7 +65,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static Blocks create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createBlocks(modId);
+            return InternalHelperImpl.INSTANCE.createBlocks(modId);
         }
     }
 
@@ -75,7 +75,7 @@ public class UnifiedRegistries {
         ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon);
 
         static CreativeTabs create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createCreativeTabs(modId);
+            return InternalHelperImpl.INSTANCE.createCreativeTabs(modId);
         }
     }
 
@@ -87,7 +87,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static DataComponentTypes create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createDataComponentTypes(modId);
+            return InternalHelperImpl.INSTANCE.createDataComponentTypes(modId);
         }
     }
 
@@ -97,7 +97,7 @@ public class UnifiedRegistries {
         <T extends ParticleType> Supplier<T> register(String path, ParticleType type);
 
         static ParticleTypes create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createParticleTypes(modId);
+            return InternalHelperImpl.INSTANCE.createParticleTypes(modId);
         }
     }
 
@@ -109,7 +109,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static MobEffects create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createMobEffects(modId);
+            return InternalHelperImpl.INSTANCE.createMobEffects(modId);
         }
     }
 
@@ -121,7 +121,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static EntityTypes create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createEntityTypes(modId);
+            return InternalHelperImpl.INSTANCE.createEntityTypes(modId);
         }
     }
 
@@ -134,7 +134,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static BlockEntityTypes create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createBlockEntityTypes(modId);
+            return InternalHelperImpl.INSTANCE.createBlockEntityTypes(modId);
         }
     }
 
@@ -146,7 +146,7 @@ public class UnifiedRegistries {
         Holder<SoundEvent> registerHolder(String path);
 
         static SoundEvents create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createSoundEvents(modId);
+            return InternalHelperImpl.INSTANCE.createSoundEvents(modId);
         }
     }
 
@@ -160,7 +160,7 @@ public class UnifiedRegistries {
         void registerLocationBasedEffect(String path, final MapCodec<? extends EnchantmentLocationBasedEffect> codec);
 
         static EnchantmentCodecs create(String modId) {
-            return PlatformHelperImpl.INSTANCE.createEnchantmentEffects(modId);
+            return InternalHelperImpl.INSTANCE.createEnchantmentEffects(modId);
         }
     }
 }

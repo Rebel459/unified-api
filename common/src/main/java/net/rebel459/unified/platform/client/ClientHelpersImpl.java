@@ -25,7 +25,7 @@ public class ClientHelpersImpl {
         <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite);
 
         static ParticleProviders get() {
-            return ClientPlatformHelperImpl.INSTANCE.getParticleProviders();
+            return ClientInternalHelperImpl.INSTANCE.getParticleProviders();
         }
     }
 
@@ -38,7 +38,7 @@ public class ClientHelpersImpl {
         <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
 
         static EntityRenderers get() {
-            return ClientPlatformHelperImpl.INSTANCE.getEntityRenderers();
+            return ClientInternalHelperImpl.INSTANCE.getEntityRenderers();
         }
     }
 
@@ -47,7 +47,7 @@ public class ClientHelpersImpl {
         void send(CustomPacketPayload payload);
 
         static Networking get() {
-            return ClientPlatformHelperImpl.INSTANCE.getNetworkPayloads();
+            return ClientInternalHelperImpl.INSTANCE.getNetworkPayloads();
         }
     }
 
@@ -56,7 +56,7 @@ public class ClientHelpersImpl {
         <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory);
 
         static Tooltips get() {
-            return ClientPlatformHelperImpl.INSTANCE.getTooltips();
+            return ClientInternalHelperImpl.INSTANCE.getTooltips();
         }
     }
 }

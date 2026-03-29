@@ -1,6 +1,6 @@
 package net.rebel459.unified.platform;
 
-public class NeoForgePlatformHelper implements PlatformHelper {
+public class NeoForgeInternalHelper implements InternalHelper {
 
     @Override
     public UnifiedRegistries.Items createItems(String modId) {
@@ -69,7 +69,7 @@ public class NeoForgePlatformHelper implements PlatformHelper {
 
     @Override
     public HelpersImpl.Platform getPlatform() {
-        return new NeoForgePlatformHelperImpl();
+        return new NeoForgeUnifiedPlatform();
     }
 
     @Override

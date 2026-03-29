@@ -1,6 +1,6 @@
 package net.rebel459.unified.platform;
 
-public interface PlatformHelper {
+public interface InternalHelper {
 
     UnifiedRegistries.Items createItems(String modId);
     UnifiedRegistries.Blocks createBlocks(String modId);

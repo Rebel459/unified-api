@@ -1,6 +1,6 @@
 package net.rebel459.unified.platform;
 
-public class FabricPlatformHelper implements PlatformHelper {
+public class FabricInternalHelper implements InternalHelper {
 
     @Override
     public UnifiedRegistries.Items createItems(String modId) {
@@ -69,7 +69,7 @@ public class FabricPlatformHelper implements PlatformHelper {
 
     @Override
     public HelpersImpl.Platform getPlatform() {
-        return new FabricPlatformHelperImpl();
+        return new FabricUnifiedPlatform();
     }
 
     @Override
