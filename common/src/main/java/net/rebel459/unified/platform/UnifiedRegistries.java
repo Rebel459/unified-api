@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.rebel459.unified.util.SuppliedBlock;
 import net.rebel459.unified.util.SuppliedItem;
 import org.jetbrains.annotations.NotNull;
@@ -49,18 +50,18 @@ public class UnifiedRegistries {
     public interface Blocks {
         String modId();
 
-        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties);
-        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type);
+        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties);
+        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type);
 
-        <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties);
-        <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type);
+        <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties);
+        <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type);
 
-        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties);
-        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction);
-        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties);
-        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type);
-        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type);
-        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type);
+        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties);
+        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction);
+        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties);
+        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type);
+        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type);
+        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
@@ -160,7 +161,17 @@ public class UnifiedRegistries {
         void registerLocationBasedEffect(String path, final MapCodec<? extends EnchantmentLocationBasedEffect> codec);
 
         static EnchantmentCodecs create(String modId) {
-            return InternalHelperImpl.INSTANCE.createEnchantmentEffects(modId);
+            return InternalHelperImpl.INSTANCE.createEnchantmentCodecs(modId);
+        }
+    }
+
+    public interface MapDecorationTypes {
+        String modId();
+
+        Holder<MapDecorationType> register(String path, boolean showOnItemFrame, int mapColor, boolean explorationMapElement, boolean trackCount);
+
+        static MapDecorationTypes create(String modId) {
+            return InternalHelperImpl.INSTANCE.createMapDecorationTypes(modId);
         }
     }
 }

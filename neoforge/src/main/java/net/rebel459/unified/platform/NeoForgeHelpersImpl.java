@@ -3,6 +3,7 @@ package net.rebel459.unified.platform;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
@@ -42,10 +43,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.util.EnvInfo;
-import net.rebel459.unified.util.PackInfo;
-import net.rebel459.unified.util.PlatformInfo;
-import net.rebel459.unified.util.UnifiedBiomeModifiers;
+import net.rebel459.unified.util.*;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
@@ -168,8 +166,7 @@ public class NeoForgeHelpersImpl {
                     event.insertAfter(existingItem.asItem().getDefaultInstance(), addedItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 }
             }
-            for (int x = INSERT_BEFORE_ITEMS.size() - 1; x >= 0; x--) {
-                var triple = INSERT_BEFORE_ITEMS.get(x);
+            for (Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>> triple : INSERT_BEFORE_ITEMS) {
                 ItemLike existingItem = triple.getLeft();
                 ItemStack addedItem = triple.getMiddle().create();
                 ResourceKey<CreativeModeTab> tab = triple.getRight();
@@ -394,8 +391,7 @@ public class NeoForgeHelpersImpl {
                 toRemoveCarver.add(carverKey);
             }
 
-            void build() {
-                var lookup = VanillaRegistries.createLookup();
+            void build(HolderLookup.Provider lookup) {
                 for (var entry : toAddFeature) {
                     MODIFIERS.add(new BiomeModifiers.AddFeaturesBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.PLACED_FEATURE).get().get(entry.feature).get().getDelegate()), entry.step));
                 }
@@ -553,8 +549,7 @@ public class NeoForgeHelpersImpl {
                 toRemoveCharge.add(new RemoveCharge(entityType));
             }
 
-            void build() {
-                var lookup = VanillaRegistries.createLookup();
+            void build(HolderLookup.Provider lookup) {
                 for (var entry : toAddSpawn) {
                     MODIFIERS.add(new BiomeModifiers.AddSpawnsBiomeModifier(targetBiomes, WeightedList.<MobSpawnSettings.SpawnerData>builder().add(entry.data, entry.weight).build()));
                 }
@@ -570,47 +565,49 @@ public class NeoForgeHelpersImpl {
             }
         }
 
-        private static HolderGetter<Biome> getBiomeLookup() {
-            return VanillaRegistries.createLookup().lookup(Registries.BIOME).get();
-        }
-
-        public void doRegister(HolderSet<Biome> set, Consumer<Context> consumer) {
-            var features = new WorldgenBuilder(set);
+        public void doRegister(HolderSet<Biome> set, Consumer<Context> consumer, HolderLookup.Provider lookup) {
+            var worldgen = new WorldgenBuilder(set);
             var effects  = new EffectsBuilder(set);
             var climate  = new ClimateBuilder(set);
             var environmentAttributes = new EnvironmentAttributesBuilder(set);
             var spawns = new MobSpawnsBuilder(set);
 
-            Context context = new Context(features, effects, climate, environmentAttributes, spawns);
+            Context context = new Context(worldgen, effects, climate, environmentAttributes, spawns);
             consumer.accept(context);
 
-            features.build();
+            worldgen.build(lookup);
             effects.build();
             climate.build();
             environmentAttributes.build();
-            spawns.build();
+            spawns.build(lookup);
         }
 
         @Override
         public void register(ResourceKey<Biome> biome, Consumer<Context> consumer) {
-            Holder<Biome> holder = getBiomeLookup().getOrThrow(biome);
+            BiomeBuilderEvent.onRunModifiers(lookup -> {
+            Holder<Biome> holder = lookup.lookup(Registries.BIOME).get().getOrThrow(biome);
             HolderSet<Biome> set = HolderSet.direct(holder);
-            doRegister(set, consumer);
+                doRegister(set, consumer, lookup);
+            });
         }
 
         @Override
         public void register(List<ResourceKey<Biome>> biomes, Consumer<Context> consumer) {
-            List<Holder<Biome>> holders = biomes.stream()
-                    .map(key -> getBiomeLookup().getOrThrow(key).getDelegate())
-                    .toList();
-            HolderSet<Biome> set = HolderSet.direct(holders);
-            doRegister(set, consumer);
+            BiomeBuilderEvent.onRunModifiers(lookup -> {
+                List<Holder<Biome>> holders = biomes.stream()
+                        .map(key -> lookup.lookup(Registries.BIOME).get().getOrThrow(key).getDelegate())
+                        .toList();
+                HolderSet<Biome> set = HolderSet.direct(holders);
+                doRegister(set, consumer, lookup);
+            });
         }
 
         @Override
         public void register(TagKey<Biome> tag, Consumer<Context> consumer) {
-            HolderSet<Biome> set = getBiomeLookup().getOrThrow(tag);
-            doRegister(set, consumer);
+            BiomeBuilderEvent.onRunModifiers(lookup -> {
+                HolderSet<Biome> set = lookup.lookup(Registries.BIOME).get().getOrThrow(tag);
+                doRegister(set, consumer, lookup);
+            });
         }
     }
 }

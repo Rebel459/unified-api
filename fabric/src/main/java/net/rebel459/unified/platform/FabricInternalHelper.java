@@ -48,8 +48,13 @@ public class FabricInternalHelper implements InternalHelper {
     }
 
     @Override
-    public UnifiedRegistries.EnchantmentCodecs createEnchantmentEffects(String modId) {
+    public UnifiedRegistries.EnchantmentCodecs createEnchantmentCodecs(String modId) {
         return new FabricUnifiedRegistries.EnchantmentCodecs(modId);
+    }
+
+    @Override
+    public UnifiedRegistries.MapDecorationTypes createMapDecorationTypes(String modId) {
+        return new FabricUnifiedRegistries.MapDecorationTypes(modId);
     }
 
     @Override

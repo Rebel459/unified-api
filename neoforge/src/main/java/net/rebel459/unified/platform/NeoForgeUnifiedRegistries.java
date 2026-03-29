@@ -3,6 +3,7 @@ package net.rebel459.unified.platform;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
@@ -62,6 +64,7 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister<MapCodec<? extends EnchantmentEntityEffect>>> ENCHANTMENT_ENTITY_EFFECTS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<MapCodec<? extends EnchantmentValueEffect>>> ENCHANTMENT_VALUE_EFFECTS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister<MapCodec<? extends EnchantmentLocationBasedEffect>>> ENCHANTMENT_LOCATION_BASED_EFFECTS = new ConcurrentHashMap<>();
+    public static final Map<String, DeferredRegister<MapDecorationType>> MAP_DECORATIONS = new ConcurrentHashMap<>();
 
     public static void registerBus(String modId, IEventBus modEventBus) {
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
@@ -78,6 +81,7 @@ public class NeoForgeUnifiedRegistries {
         DeferredRegister<MapCodec<? extends EnchantmentEntityEffect>> enchantmentEntityEffects = ENCHANTMENT_ENTITY_EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_ENTITY_EFFECT_TYPE, modId));
         DeferredRegister<MapCodec<? extends EnchantmentValueEffect>> enchantmentValueEffects = ENCHANTMENT_VALUE_EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_VALUE_EFFECT_TYPE, modId));
         DeferredRegister<MapCodec<? extends EnchantmentLocationBasedEffect>> enchantmentLocationBasedEffects = ENCHANTMENT_LOCATION_BASED_EFFECTS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE, modId));
+        DeferredRegister<MapDecorationType> mapDecorations = MAP_DECORATIONS.computeIfAbsent(modId, string -> DeferredRegister.create(Registries.MAP_DECORATION_TYPE, modId));
 
         items.register(modEventBus);
         blocks.register(modEventBus);
@@ -93,6 +97,7 @@ public class NeoForgeUnifiedRegistries {
         enchantmentEntityEffects.register(modEventBus);
         enchantmentValueEffects.register(modEventBus);
         enchantmentLocationBasedEffects.register(modEventBus);
+        mapDecorations.register(modEventBus);
     }
 
     public record Items(String modId) implements UnifiedRegistries.Items {
@@ -118,59 +123,59 @@ public class NeoForgeUnifiedRegistries {
         public static List<Pair<BlockEntityType<?>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
             SuppliedBlock blockHolder = registerWithoutItem(path, function, blockProperties);
             ITEMS.get(modId).registerSimpleBlockItem(path, blockHolder);
             return blockHolder;
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type) {
             var block = register(path, function, blockProperties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
         }
 
         @Override
-        public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
-            return new SuppliedBlockImpl(BLOCKS.get(modId).registerBlock(path, function, () -> properties));
+        public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
+            return new SuppliedBlockImpl(BLOCKS.get(modId).registerBlock(path, function, properties));
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type) {
             var block = registerWithoutItem(path, function, properties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties) {
             return register(path, blockFunction, blockProperties, Item::new, itemProperties);
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction) {
             return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new);
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
             new Items(modId).register(path, itemFunction, itemProperties);
             return registerWithoutItem(path, blockFunction, blockProperties);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, Item::new, itemProperties, type);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             new Items(modId).register(path, itemFunction, itemProperties);
             return registerWithoutItem(path, blockFunction, blockProperties, type);
         }
@@ -284,7 +289,7 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public Holder<SoundEvent> registerHolder(String path) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            return SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id)).getDelegate();
+            return SOUND_EVENTS.get(modId).register(path, () -> SoundEvent.createVariableRangeEvent(id));
         }
     }
 
@@ -313,6 +318,15 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public void registerLocationBasedEffect(String path, MapCodec<? extends EnchantmentLocationBasedEffect> codec) {
             ENCHANTMENT_LOCATION_BASED_EFFECTS.get(modId).register(path, () -> codec);
+        }
+    }
+
+    public record MapDecorationTypes(String modId) implements UnifiedRegistries.MapDecorationTypes {
+
+        @Override
+        public Holder<MapDecorationType> register(String path, boolean showOnItemFrame, int mapColor, boolean explorationMapElement, boolean trackCount) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            return MAP_DECORATIONS.get(modId).register(path, () -> new MapDecorationType(id, showOnItemFrame, mapColor, explorationMapElement, trackCount));
         }
     }
 }

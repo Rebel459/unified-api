@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.rebel459.unified.util.SuppliedBlock;
 import net.rebel459.unified.util.SuppliedBlockImpl;
 import net.rebel459.unified.util.SuppliedItem;
@@ -66,11 +67,11 @@ public class FabricUnifiedRegistries {
     public record Blocks(String modId) implements UnifiedRegistries.Blocks {
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
             Identifier blockId = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, blockId);
 
-            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.setId(blockKey))));
+            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.get().setId(blockKey))));
             var suppliedBlock = new SuppliedBlockImpl(block);
 
             UnifiedRegistries.Items.create(modId).registerBlockItem(path, suppliedBlock, Item.Properties::new);
@@ -79,54 +80,54 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type) {
             SuppliedBlock block = register(path, function, blockProperties);
             type.addValidBlock(block.get());
             return block;
         }
 
         @Override
-        public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
+        public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)))));
+            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.get().setId(ResourceKey.create(Registries.BLOCK, id)))));
             return new SuppliedBlockImpl(block);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type) {
             SuppliedBlock block = registerWithoutItem(path, function, properties);
             type.addValidBlock(block.get());
             return block;
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties) {
             return register(path, blockFunction, blockProperties, Item::new, itemProperties);
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction) {
             return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new);
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
             new Items(modId).register(path, itemFunction, itemProperties);
             return registerWithoutItem(path, blockFunction, blockProperties);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, Item::new, itemProperties, type);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             new Items(modId).register(path, itemFunction, itemProperties);
             return registerWithoutItem(path, blockFunction, blockProperties, type);
         }
@@ -275,6 +276,15 @@ public class FabricUnifiedRegistries {
         @Override
         public void registerLocationBasedEffect(String path, MapCodec<? extends EnchantmentLocationBasedEffect> codec) {
             Registry.register(BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
+        }
+    }
+
+    public record MapDecorationTypes(String modId) implements UnifiedRegistries.MapDecorationTypes {
+
+        @Override
+        public Holder<MapDecorationType> register(String path, boolean showOnItemFrame, int mapColor, boolean explorationMapElement, boolean trackCount) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            return Registry.registerForHolder(BuiltInRegistries.MAP_DECORATION_TYPE, ResourceKey.create(Registries.MAP_DECORATION_TYPE, id), new MapDecorationType(id, showOnItemFrame, mapColor, explorationMapElement, trackCount));
         }
     }
 }
