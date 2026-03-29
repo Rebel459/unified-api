@@ -54,11 +54,11 @@ public class FabricUnifiedRegistries {
     public record Blocks(String modId) implements UnifiedRegistries.Blocks {
 
         @Override
-        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties) {
+        public <T extends Block> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
             Identifier blockId = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, blockId);
 
-            Supplier<T> blockSupplier = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.setId(blockKey))));
+            Supplier<T> blockSupplier = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.get().setId(blockKey))));
 
             UnifiedRegistries.Items.create(modId).registerBlockItem(path, blockSupplier, Item.Properties::new);
 
@@ -67,7 +67,7 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties blockProperties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> Supplier<T> register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type) {
             Supplier<T> block = register(path, function, blockProperties);
             T blockInstance = block.get();
             ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
@@ -76,15 +76,15 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties) {
+        public <T extends Block> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            var block = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)))));
+            var block = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.get().setId(ResourceKey.create(Registries.BLOCK, id)))));
             block.get();
             return block;
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, BlockBehaviour.Properties properties, BlockEntityType<Y> type) {
+        public <T extends Block, Y extends BlockEntity> Supplier<T> registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type) {
             Supplier<T> block = registerWithoutItem(path, function, properties);
             T blockInstance = block.get();
             ((FabricBlockEntityType) type).addSupportedBlock(blockInstance);
