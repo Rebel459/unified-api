@@ -8,10 +8,10 @@ public class NeoForgeUnifiedClientEvents {
     public static void init() {
 
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Pre event) -> {
-            UnifiedClientEvents.Ticks.passAtStart(Minecraft.getInstance());
+            UnifiedClientEvents.Ticks.passOnStart(Minecraft.getInstance());
         });
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> {
-            UnifiedClientEvents.Ticks.passAtEnd(Minecraft.getInstance());
+            UnifiedClientEvents.Ticks.passOnEnd(Minecraft.getInstance());
         });
     }
 }

@@ -17,11 +17,11 @@ public class UnifiedClientEvents {
 
         private static final List<Consumer<Minecraft>> START_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void atStart(Consumer<Minecraft> listener) {
+        public static void onStart(Consumer<Minecraft> listener) {
             START_LISTENERS.add(listener);
         }
 
-        static void passAtStart(Minecraft client) {
+        static void passOnStart(Minecraft client) {
             for (Consumer<Minecraft> listener : START_LISTENERS) {
                 listener.accept(client);
             }
@@ -29,11 +29,11 @@ public class UnifiedClientEvents {
 
         private static final List<Consumer<Minecraft>> END_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void atEnd(Consumer<Minecraft> listener) {
+        public static void onEnd(Consumer<Minecraft> listener) {
             END_LISTENERS.add(listener);
         }
 
-        static void passAtEnd(Minecraft client) {
+        static void passOnEnd(Minecraft client) {
             for (Consumer<Minecraft> listener : END_LISTENERS) {
                 listener.accept(client);
             }

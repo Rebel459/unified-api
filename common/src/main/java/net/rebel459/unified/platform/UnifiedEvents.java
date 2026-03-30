@@ -12,8 +12,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
-import net.rebel459.unified.util.loot.LootTableProvider;
+import net.rebel459.unified.util.event.LootTableProvider;
+import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,27 +32,27 @@ public class UnifiedEvents {
 
         private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modify(BiConsumer<Item, DataComponentMap.Builder> modifier) {
+        public static void modify(TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {
             ENTRIES.add(new Entry(modifier));
         }
 
-        private record Entry(BiConsumer<Item, DataComponentMap.Builder> modifier) {}
+        private record Entry(TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {}
 
         private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modifyFiltered(Predicate<Item> filter, BiConsumer<Item, DataComponentMap.Builder> modifier) {
+        public static void modifyFiltered(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, modifier));
         }
 
-        private record FilteredEntry(Predicate<Item> filter, BiConsumer<Item, DataComponentMap.Builder> modifier) {}
+        private record FilteredEntry(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {}
 
-        static void passModify(Item item, DataComponentMap.Builder builder) {
+        static void passModify(Item item, DataComponentMap.Builder builder, HolderLookup.Provider provider) {
             for (Entry entry : ENTRIES) {
-                entry.modifier.accept(item, builder);
+                entry.modifier.accept(item, builder, provider);
             }
             for (FilteredEntry entry : FILTERED_ENTRIES) {
                 if (entry.filter.test(item)) {
-                    entry.modifier.accept(item, builder);
+                    entry.modifier.accept(item, builder, provider);
                 }
             }
         }
@@ -283,7 +285,7 @@ public class UnifiedEvents {
 
                     if (!replace) {
                         entries.add(builtEntry);
-                        LootTableProvider.setEntries(pool, entries);
+                        pool.entries = LootTableProvider.immutableBuilder(entries);
                         continue;
                     }
 
@@ -296,15 +298,14 @@ public class UnifiedEvents {
                     }
 
                     if (changed) {
-                        LootTableProvider.setEntries(pool, entries);
+                        pool.entries = LootTableProvider.immutableBuilder(entries);
                     }
                 }
             }
 
             private static boolean matches(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate) {
-                Object directItem = LootTableProvider.getItem(entry);
-                if (directItem instanceof Holder<?> holder && holder.value() instanceof Item) {
-                    return itemPredicate.test((Holder<Item>) holder);
+                if (entry instanceof LootItem lootItem && lootItem.item instanceof Holder<?> holder && holder.value() instanceof Item) {
+                    return itemPredicate.test(lootItem.item);
                 }
                 return false;
             }

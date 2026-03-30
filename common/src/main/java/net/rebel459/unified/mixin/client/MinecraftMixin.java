@@ -42,7 +42,10 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "getSituationalMusic", at = @At(value = "HEAD"), cancellable = true)
     private void passRenderCrosshair(CallbackInfoReturnable<Music> cir) {
-        if (StructureMusicImpl.STRUCTURE_MUSIC.isEmpty() || cir.getReturnValue() == Musics.MENU || (this.player.getAbilities().instabuild && this.player.getAbilities().mayfly)) return;
+        if (StructureMusicImpl.STRUCTURE_MUSIC.isEmpty() || cir.getReturnValue() == Musics.MENU) return;
+        LocalPlayer player = this.player;
+        if (player == null) return;
+        if (player.getAbilities().instabuild && player.getAbilities().mayfly) return;
         if (this.pendingUpdate && this.player instanceof PlayerStructureMusic music && this.musicManager.nextSongDelay - 1 <= 0) {
             if (music.getBoxStructure() == EMPTY && music.getPieceStructure() == EMPTY) {
                 this.pendingTicks++;

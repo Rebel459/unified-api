@@ -12,13 +12,13 @@ public class BiomeBuilderEvent {
 
         private static final List<Consumer<HolderLookup.Provider>> ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void onRunModifiers(Consumer<HolderLookup.Provider> lookup) {
-            ENTRIES.add(lookup);
+        public static void onRunModifiers(Consumer<HolderLookup.Provider> provider) {
+            ENTRIES.add(provider);
         }
 
-        public static void passOnRunModifiers(HolderLookup.Provider lookup) {
+        public static void passOnRunModifiers(HolderLookup.Provider provider) {
             for (Consumer<HolderLookup.Provider> listener : ENTRIES) {
-                listener.accept(lookup);
+                listener.accept(provider);
             }
         }
     }

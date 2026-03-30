@@ -387,18 +387,18 @@ public class NeoForgeHelpersImpl {
                 toRemoveCarver.add(carverKey);
             }
 
-            void build(HolderLookup.Provider lookup) {
+            void build(HolderLookup.Provider provider) {
                 for (var entry : toAddFeature) {
-                    MODIFIERS.add(new BiomeModifiers.AddFeaturesBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.PLACED_FEATURE).get().get(entry.feature).get().getDelegate()), entry.step));
+                    MODIFIERS.add(new BiomeModifiers.AddFeaturesBiomeModifier(targetBiomes, HolderSet.direct(provider.lookup(Registries.PLACED_FEATURE).get().get(entry.feature).get().getDelegate()), entry.step));
                 }
                 for (var entry : toRemoveFeature) {
-                    MODIFIERS.add(new BiomeModifiers.RemoveFeaturesBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.PLACED_FEATURE).get().get(entry.feature).get().getDelegate()), Set.of(entry.step)));
+                    MODIFIERS.add(new BiomeModifiers.RemoveFeaturesBiomeModifier(targetBiomes, HolderSet.direct(provider.lookup(Registries.PLACED_FEATURE).get().get(entry.feature).get().getDelegate()), Set.of(entry.step)));
                 }
                 for (var entry : toAddCarver) {
-                    MODIFIERS.add(new BiomeModifiers.AddCarversBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.CONFIGURED_CARVER).get().get(entry).get().getDelegate())));
+                    MODIFIERS.add(new BiomeModifiers.AddCarversBiomeModifier(targetBiomes, HolderSet.direct(provider.lookup(Registries.CONFIGURED_CARVER).get().get(entry).get().getDelegate())));
                 }
                 for (var entry : toRemoveCarver) {
-                    MODIFIERS.add(new BiomeModifiers.RemoveCarversBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.CONFIGURED_CARVER).get().get(entry).get().getDelegate())));
+                    MODIFIERS.add(new BiomeModifiers.RemoveCarversBiomeModifier(targetBiomes, HolderSet.direct(provider.lookup(Registries.CONFIGURED_CARVER).get().get(entry).get().getDelegate())));
                 }
             }
         }
@@ -545,23 +545,23 @@ public class NeoForgeHelpersImpl {
                 toRemoveCharge.add(new RemoveCharge(entityType));
             }
 
-            void build(HolderLookup.Provider lookup) {
+            void build(HolderLookup.Provider provider) {
                 for (var entry : toAddSpawn) {
                     MODIFIERS.add(new BiomeModifiers.AddSpawnsBiomeModifier(targetBiomes, WeightedList.<MobSpawnSettings.SpawnerData>builder().add(entry.data, entry.weight).build()));
                 }
                 for (var entry : toRemoveSpawn) {
-                    MODIFIERS.add(new BiomeModifiers.RemoveSpawnsBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate())));
+                    MODIFIERS.add(new BiomeModifiers.RemoveSpawnsBiomeModifier(targetBiomes, HolderSet.direct(provider.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate())));
                 }
                 for (var entry : toAddCharge) {
-                    MODIFIERS.add(new BiomeModifiers.AddSpawnCostsBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate()), new MobSpawnSettings.MobSpawnCost(entry.energyBudget, entry.charge)));
+                    MODIFIERS.add(new BiomeModifiers.AddSpawnCostsBiomeModifier(targetBiomes, HolderSet.direct(provider.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate()), new MobSpawnSettings.MobSpawnCost(entry.energyBudget, entry.charge)));
                 }
                 for (var entry : toRemoveCharge) {
-                    MODIFIERS.add(new BiomeModifiers.RemoveSpawnCostsBiomeModifier(targetBiomes, HolderSet.direct(lookup.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate())));
+                    MODIFIERS.add(new BiomeModifiers.RemoveSpawnCostsBiomeModifier(targetBiomes, HolderSet.direct(provider.lookup(Registries.ENTITY_TYPE).get().get(entry.entityType.builtInRegistryHolder().key()).get().getDelegate())));
                 }
             }
         }
 
-        public void doRegister(HolderSet<Biome> set, Consumer<Context> consumer, HolderLookup.Provider lookup) {
+        public void doRegister(HolderSet<Biome> set, Consumer<Context> consumer, HolderLookup.Provider provider) {
             var worldgen = new WorldgenBuilder(set);
             var effects  = new EffectsBuilder(set);
             var climate  = new ClimateBuilder(set);
@@ -571,38 +571,38 @@ public class NeoForgeHelpersImpl {
             Context context = new Context(worldgen, effects, climate, environmentAttributes, spawns);
             consumer.accept(context);
 
-            worldgen.build(lookup);
+            worldgen.build(provider);
             effects.build();
             climate.build();
             environmentAttributes.build();
-            spawns.build(lookup);
+            spawns.build(provider);
         }
 
         @Override
         public void register(ResourceKey<Biome> biome, Consumer<Context> consumer) {
-            BiomeBuilderEvent.onRunModifiers(lookup -> {
-            Holder<Biome> holder = lookup.lookup(Registries.BIOME).get().getOrThrow(biome);
+            BiomeBuilderEvent.onRunModifiers(provider -> {
+            Holder<Biome> holder = provider.lookup(Registries.BIOME).get().getOrThrow(biome);
             HolderSet<Biome> set = HolderSet.direct(holder);
-                doRegister(set, consumer, lookup);
+                doRegister(set, consumer, provider);
             });
         }
 
         @Override
         public void register(List<ResourceKey<Biome>> biomes, Consumer<Context> consumer) {
-            BiomeBuilderEvent.onRunModifiers(lookup -> {
+            BiomeBuilderEvent.onRunModifiers(provider -> {
                 List<Holder<Biome>> holders = biomes.stream()
-                        .map(key -> lookup.lookup(Registries.BIOME).get().getOrThrow(key).getDelegate())
+                        .map(key -> provider.lookup(Registries.BIOME).get().getOrThrow(key).getDelegate())
                         .toList();
                 HolderSet<Biome> set = HolderSet.direct(holders);
-                doRegister(set, consumer, lookup);
+                doRegister(set, consumer, provider);
             });
         }
 
         @Override
         public void register(TagKey<Biome> tag, Consumer<Context> consumer) {
-            BiomeBuilderEvent.onRunModifiers(lookup -> {
-                HolderSet<Biome> set = lookup.lookup(Registries.BIOME).get().getOrThrow(tag);
-                doRegister(set, consumer, lookup);
+            BiomeBuilderEvent.onRunModifiers(provider -> {
+                HolderSet<Biome> set = provider.lookup(Registries.BIOME).get().getOrThrow(tag);
+                doRegister(set, consumer, provider);
             });
         }
     }
