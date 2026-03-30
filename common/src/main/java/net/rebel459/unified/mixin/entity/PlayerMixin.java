@@ -1,22 +1,13 @@
 package net.rebel459.unified.mixin.entity;
 
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.rebel459.unified.Unified;
-import net.rebel459.unified.tag.UnifiedItemTags;
+import net.rebel459.unified.util.helper.StructureMusicImpl;
 import net.rebel459.unified.util.mixin.PlayerStructureMusic;
-import net.rebel459.unified.util.tag.PersistentCooldowns;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
+import java.util.Map;
 
 @Mixin(Player.class)
 public class PlayerMixin implements PlayerStructureMusic {
@@ -26,6 +17,15 @@ public class PlayerMixin implements PlayerStructureMusic {
 
     @Unique
     private Identifier boxStructure = Identifier.withDefaultNamespace("empty");
+
+    @Unique
+    private boolean replaceCurrentMusic = false;
+
+    @Unique
+    private Map<Identifier, StructureMusicImpl.Record> structureMusic = StructureMusicImpl.STRUCTURE_MUSIC;
+
+    @Unique
+    private int playerGroup = 1;
 
     @Override
     public Identifier getPieceStructure() {
@@ -38,6 +38,21 @@ public class PlayerMixin implements PlayerStructureMusic {
     }
 
     @Override
+    public boolean getReplaceCurrentMusic() {
+        return this.replaceCurrentMusic;
+    }
+
+    @Override
+    public Map<Identifier, StructureMusicImpl.Record> getStructureMusic() {
+        return this.structureMusic;
+    }
+
+    @Override
+    public int getPlayerGroup() {
+        return this.playerGroup;
+    }
+
+    @Override
     public void setPieceStructure(Identifier id) {
         this.pieceStructure = id;
     }
@@ -45,5 +60,20 @@ public class PlayerMixin implements PlayerStructureMusic {
     @Override
     public void setBoxStructure(Identifier id) {
         this.boxStructure = id;
+    }
+
+    @Override
+    public void setReplaceCurrentMusic(boolean replaceCurrentMusic) {
+        this.replaceCurrentMusic = replaceCurrentMusic;
+    }
+
+    @Override
+    public void setStructureMusic(Map<Identifier, StructureMusicImpl.Record> structureMusic) {
+        this.structureMusic = structureMusic;
+    }
+
+    @Override
+    public void setPlayerGroup(int playerGroup) {
+        this.playerGroup = playerGroup;
     }
 }

@@ -16,6 +16,8 @@ public interface StructureMusic {
 
     default void add(Identifier structure, Music music, boolean fullBox) {
         StructureMusicImpl.STRUCTURE_MUSIC.put(structure, new StructureMusicImpl.Record(music, fullBox));
+        StructureMusicImpl.updateStructures();
+        if (music.replaceCurrentMusic()) StructureMusicImpl.hasReplaceMusic = true;
     }
     default void add(ResourceKey<Structure> structure, Music music, boolean fullBox) {
         add(structure.identifier(), music, fullBox);

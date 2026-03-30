@@ -45,6 +45,8 @@ accessible class net/minecraft/world/item/ItemCooldowns$CooldownInstance
 
 accessible field net/minecraft/client/sounds/MusicManager currentMusic Lnet/minecraft/client/resources/sounds/SoundInstance;
 accessible field net/minecraft/client/sounds/MusicManager nextSongDelay I
+accessible method net/minecraft/client/sounds/MusicManager canReplace (Lnet/minecraft/sounds/Music;Lnet/minecraft/client/resources/sounds/SoundInstance;)Z
+accessible field net/minecraft/client/sounds/MusicManager random Lnet/minecraft/util/RandomSource;
 
 accessible field net/minecraft/world/level/storage/loot/LootPool$Builder entries Lcom/google/common/collect/ImmutableList$Builder;
 mutable field net/minecraft/world/level/storage/loot/LootPool$Builder entries Lcom/google/common/collect/ImmutableList$Builder;
