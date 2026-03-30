@@ -90,7 +90,8 @@ public class NeoForgeClientHelpersImpl {
 
         @Override
         public void send(CustomPacketPayload payload) {
-            Minecraft.getInstance().getConnection().send(new ServerboundCustomPayloadPacket(payload));
+            var connection = Minecraft.getInstance().getConnection();
+            if (connection != null) connection.send(new ServerboundCustomPayloadPacket(payload));
         }
     }
 

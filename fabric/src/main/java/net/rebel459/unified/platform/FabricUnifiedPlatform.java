@@ -1,22 +1,24 @@
 package net.rebel459.unified.platform;
 
+import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.rebel459.unified.util.EnvInfo;
-import net.rebel459.unified.util.PlatformInfo;
+import net.rebel459.unified.util.LoaderType;
 
 public class FabricUnifiedPlatform implements HelpersImpl.Platform {
 
     @Override
-    public PlatformInfo getPlatform() {
-        return PlatformInfo.FABRIC;
+    public LoaderType getLoader() {
+        return LoaderType.FABRIC;
     }
 
     @Override
-    public EnvInfo getEnvironment() {
-        return switch (FabricLoader.getInstance().getEnvironmentType()) {
-            case CLIENT -> EnvInfo.CLIENT;
-            case SERVER -> EnvInfo.SERVER;
-        };
+    public boolean isClientSide() {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+    }
+
+    @Override
+    public boolean isServerSide() {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
     }
 
     @Override
@@ -25,7 +27,7 @@ public class FabricUnifiedPlatform implements HelpersImpl.Platform {
     }
 
     @Override
-    public boolean isDevelopmentInstance() {
+    public boolean isDevelopmentEnvironment() {
         return FabricLoader.getInstance().isDevelopmentEnvironment();
     }
 }

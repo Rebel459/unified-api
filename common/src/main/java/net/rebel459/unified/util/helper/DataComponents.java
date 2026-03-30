@@ -1,4 +1,4 @@
-package net.rebel459.unified.util;
+package net.rebel459.unified.util.helper;
 
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;

@@ -4,12 +4,14 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "block.FuelValuesMixin",
+    "entity.PlayerMixin",
     "entity.ServerPlayerMixin",
     "item.ItemStackMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin",
-    "client.GuiMixin"
+    "client.GuiMixin",
+    "client.MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

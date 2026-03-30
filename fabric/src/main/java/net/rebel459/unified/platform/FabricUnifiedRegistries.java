@@ -31,9 +31,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.rebel459.unified.util.SuppliedBlock;
-import net.rebel459.unified.util.SuppliedBlockImpl;
+import net.rebel459.unified.util.registry.SuppliedBlockImpl;
 import net.rebel459.unified.util.SuppliedItem;
-import net.rebel459.unified.util.SuppliedItemImpl;
+import net.rebel459.unified.util.registry.SuppliedItemImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;

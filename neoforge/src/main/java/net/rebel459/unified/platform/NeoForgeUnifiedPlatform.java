@@ -3,23 +3,23 @@ package net.rebel459.unified.platform;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.fml.loading.LoadingModList;
-import net.rebel459.unified.util.EnvInfo;
-import net.rebel459.unified.util.PlatformInfo;
+import net.rebel459.unified.util.LoaderType;
 
 public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
 
     @Override
-    public PlatformInfo getPlatform() {
-        return PlatformInfo.NEOFORGE;
+    public LoaderType getLoader() {
+        return LoaderType.NEOFORGE;
     }
 
     @Override
-    public EnvInfo getEnvironment() {
-        return switch (FMLEnvironment.getDist()) {
-            case CLIENT -> EnvInfo.CLIENT;
-            case DEDICATED_SERVER -> EnvInfo.SERVER;
-        };
+    public boolean isClientSide() {
+        return FMLEnvironment.getDist().isClient();
+    }
+
+    @Override
+    public boolean isServerSide() {
+        return FMLEnvironment.getDist().isDedicatedServer();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
     }
 
     @Override
-    public boolean isDevelopmentInstance() {
+    public boolean isDevelopmentEnvironment() {
         return !FMLLoader.getCurrent().isProduction();
     }
 }

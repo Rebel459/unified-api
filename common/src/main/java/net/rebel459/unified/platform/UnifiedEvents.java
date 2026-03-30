@@ -3,14 +3,19 @@ package net.rebel459.unified.platform;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.rebel459.unified.util.loot.LootTableProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
@@ -148,6 +153,54 @@ public class UnifiedEvents {
                 listener.accept(server);
             }
         }
+
+        private static final List<Consumer<MinecraftServer>> SERVER_TICKED_START_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onTickStart(Consumer<MinecraftServer> handler) {
+            SERVER_TICKED_START_LISTENERS.add(handler);
+        }
+
+        static void passOnTickStart(MinecraftServer server) {
+            for (Consumer<MinecraftServer> listener : SERVER_TICKED_START_LISTENERS) {
+                listener.accept(server);
+            }
+        }
+
+        private static final List<Consumer<ServerLevel>> SERVER_LEVEL_TICKED_START_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLevelTickStart(Consumer<ServerLevel> handler) {
+            SERVER_LEVEL_TICKED_START_LISTENERS.add(handler);
+        }
+
+        static void passOnLevelTickStart(ServerLevel level) {
+            for (Consumer<ServerLevel> listener : SERVER_LEVEL_TICKED_START_LISTENERS) {
+                listener.accept(level);
+            }
+        }
+
+        private static final List<Consumer<MinecraftServer>> SERVER_TICKED_END_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onTickEnd(Consumer<MinecraftServer> handler) {
+            SERVER_TICKED_END_LISTENERS.add(handler);
+        }
+
+        static void passOnTickEnd(MinecraftServer server) {
+            for (Consumer<MinecraftServer> listener : SERVER_TICKED_END_LISTENERS) {
+                listener.accept(server);
+            }
+        }
+
+        private static final List<Consumer<ServerLevel>> SERVER_LEVEL_TICKED_END_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLevelTickEnd(Consumer<ServerLevel> handler) {
+            SERVER_LEVEL_TICKED_END_LISTENERS.add(handler);
+        }
+
+        static void passOnLevelTickEnd(ServerLevel level) {
+            for (Consumer<ServerLevel> listener : SERVER_LEVEL_TICKED_END_LISTENERS) {
+                listener.accept(level);
+            }
+        }
     }
 
     public static class LootTables {
@@ -160,6 +213,8 @@ public class UnifiedEvents {
             HolderLookup.Provider getProvider();
 
             void addPool(LootPool.Builder pool);
+
+            void editPool(Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
         }
 
         public interface Entry {
@@ -174,14 +229,14 @@ public class UnifiedEvents {
 
         private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modifyWithFilter(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {
+        public static void modifyFiltered(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, handler));
         }
 
         private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {}
 
-        static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, Consumer<LootPool.Builder> poolAdder, HolderLookup.Provider provider) {
-            var lootTable = new LootTableImpl(key, poolAdder, provider);
+        static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) {
+            var lootTable = new LootTableImpl(key, pools, provider);
 
             for (Entry entry : ENTRIES) {
                 entry.modify(lootTable);
@@ -193,7 +248,13 @@ public class UnifiedEvents {
             }
         }
 
-        private record LootTableImpl(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, Consumer<LootPool.Builder> poolAdder, HolderLookup.Provider provider) implements LootTable {
+        interface PoolAccess {
+            List<LootPool.Builder> pools();
+
+            void addPool(LootPool.Builder pool);
+        }
+
+        private record LootTableImpl(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) implements LootTable {
             @Override
             public ResourceKey<net.minecraft.world.level.storage.loot.LootTable> getKey() {
                 return key;
@@ -206,7 +267,46 @@ public class UnifiedEvents {
 
             @Override
             public void addPool(LootPool.Builder pool) {
-                poolAdder.accept(pool);
+                pools.addPool(pool);
+            }
+
+            @Override
+            public void editPool(Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
+                LootPoolEntryContainer builtEntry = entry.build();
+
+                for (LootPool.Builder pool : pools.pools()) {
+                    List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
+                    boolean matchesPool = entries.stream().anyMatch(existing -> matches(existing, itemPredicate));
+                    if (!matchesPool) {
+                        continue;
+                    }
+
+                    if (!replace) {
+                        entries.add(builtEntry);
+                        LootTableProvider.setEntries(pool, entries);
+                        continue;
+                    }
+
+                    boolean changed = false;
+                    for (int i = 0; i < entries.size(); i++) {
+                        if (matches(entries.get(i), itemPredicate)) {
+                            entries.set(i, builtEntry);
+                            changed = true;
+                        }
+                    }
+
+                    if (changed) {
+                        LootTableProvider.setEntries(pool, entries);
+                    }
+                }
+            }
+
+            private static boolean matches(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate) {
+                Object directItem = LootTableProvider.getItem(entry);
+                if (directItem instanceof Holder<?> holder && holder.value() instanceof Item) {
+                    return itemPredicate.test((Holder<Item>) holder);
+                }
+                return false;
             }
         }
     }

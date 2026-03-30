@@ -2,11 +2,9 @@ package net.rebel459.unified.platform;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,7 +13,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.tags.TagKey;
@@ -33,8 +30,6 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
@@ -42,8 +37,9 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.rebel459.unified.Unified;
 import net.rebel459.unified.util.*;
+import net.rebel459.unified.util.neoforge.BiomeBuilderEvent;
+import net.rebel459.unified.util.neoforge.UnifiedBiomeModifiers;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
@@ -179,32 +175,32 @@ public class NeoForgeHelpersImpl {
 
     public static class Packs implements HelpersImpl.Packs {
 
-        public static List<Pair<Identifier, PackInfo>> PACK_LIST = new ArrayList<>();
+        public static List<Pair<Identifier, PackType>> PACK_LIST = new ArrayList<>();
 
         @Override
-        public void add(Identifier id, PackInfo info) {
+        public void add(Identifier id, PackType info) {
             PACK_LIST.add(Pair.of(id, info));
         }
 
-        public static boolean getBoolean(PackInfo info) {
+        public static boolean getBoolean(PackType info) {
             return switch (info) {
                 case REQUIRED_DATA, REQUIRED_RESOURCES -> true;
                 case OPTIONAL_DATA, OPTIONAL_RESOURCES -> false;
             };
         }
 
-        public static PackType getType(PackInfo info) {
+        public static net.minecraft.server.packs.PackType getType(PackType info) {
             return switch (info) {
-                case REQUIRED_DATA, OPTIONAL_DATA -> PackType.SERVER_DATA;
-                case REQUIRED_RESOURCES, OPTIONAL_RESOURCES -> PackType.CLIENT_RESOURCES;
+                case REQUIRED_DATA, OPTIONAL_DATA -> net.minecraft.server.packs.PackType.SERVER_DATA;
+                case REQUIRED_RESOURCES, OPTIONAL_RESOURCES -> net.minecraft.server.packs.PackType.CLIENT_RESOURCES;
             };
         }
 
         @SubscribeEvent
         public static void addFeaturePacks(AddPackFindersEvent event) {
-            for (Pair<Identifier, PackInfo> pair : PACK_LIST) {
+            for (Pair<Identifier, PackType> pair : PACK_LIST) {
                 Identifier id = pair.getFirst();
-                PackInfo info = pair.getSecond();
+                PackType info = pair.getSecond();
 
                 event.addPackFinders(
                         Identifier.fromNamespaceAndPath(id.getNamespace(), "resourcepacks/" + id.getPath()),

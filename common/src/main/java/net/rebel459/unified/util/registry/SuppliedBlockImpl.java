@@ -1,4 +1,4 @@
-package net.rebel459.unified.util;
+package net.rebel459.unified.util.registry;
 
 import com.mojang.datafixers.util.Either;
 import net.minecraft.core.Holder;
@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.rebel459.unified.util.SuppliedBlock;
 
 import java.util.Optional;
 import java.util.function.Predicate;

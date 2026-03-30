@@ -19,9 +19,8 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.rebel459.unified.util.EnvInfo;
-import net.rebel459.unified.util.PackInfo;
-import net.rebel459.unified.util.PlatformInfo;
+import net.rebel459.unified.util.PackType;
+import net.rebel459.unified.util.LoaderType;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -31,13 +30,14 @@ public class HelpersImpl {
 
     public interface Platform {
 
-        PlatformInfo getPlatform();
+        LoaderType getLoader();
 
-        EnvInfo getEnvironment();
+        boolean isClientSide();
+        boolean isServerSide();
 
         boolean isModLoaded(String modId);
 
-        boolean isDevelopmentInstance();
+        boolean isDevelopmentEnvironment();
     }
 
     public interface CreativeEntries {
@@ -58,7 +58,7 @@ public class HelpersImpl {
 
     public interface Packs {
 
-        void add(Identifier id, PackInfo info);
+        void add(Identifier id, PackType type);
     }
 
     public interface Networking {

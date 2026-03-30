@@ -1,4 +1,4 @@
-package net.rebel459.unified.util;
+package net.rebel459.unified.util.neoforge;
 
 import net.minecraft.core.HolderLookup;
 

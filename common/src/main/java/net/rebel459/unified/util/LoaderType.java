@@ -1,6 +1,6 @@
 package net.rebel459.unified.util;
 
-public enum PlatformInfo {
+public enum LoaderType {
     FABRIC,
     NEOFORGE
 }

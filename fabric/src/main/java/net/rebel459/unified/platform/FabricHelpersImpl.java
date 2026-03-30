@@ -32,9 +32,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.util.EnvInfo;
-import net.rebel459.unified.util.PackInfo;
-import net.rebel459.unified.util.PlatformInfo;
+import net.rebel459.unified.util.PackType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,7 +153,7 @@ public class FabricHelpersImpl {
     public static class Packs implements HelpersImpl.Packs {
 
         @Override
-        public void add(Identifier id, PackInfo info) {
+        public void add(Identifier id, PackType info) {
             if (FabricLoader.getInstance().getModContainer(id.getNamespace()).isEmpty()) return;
             ResourceLoader.registerBuiltinPack(
                     id, FabricLoader.getInstance().getModContainer(id.getNamespace()).get(),
@@ -164,7 +162,7 @@ public class FabricHelpersImpl {
             );
         }
 
-        public static PackActivationType getActivationType(PackInfo info) {
+        public static PackActivationType getActivationType(PackType info) {
             return switch (info) {
                 case REQUIRED_DATA, REQUIRED_RESOURCES -> PackActivationType.ALWAYS_ENABLED;
                 case OPTIONAL_DATA, OPTIONAL_RESOURCES -> PackActivationType.DEFAULT_ENABLED;

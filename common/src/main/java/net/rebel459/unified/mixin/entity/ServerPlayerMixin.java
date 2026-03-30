@@ -7,7 +7,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.tag.UnifiedItemTags;
-import net.rebel459.unified.util.PersistentCooldowns;
+import net.rebel459.unified.util.tag.PersistentCooldowns;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
