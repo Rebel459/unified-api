@@ -59,7 +59,9 @@ public abstract class MinecraftMixin {
         if (player == null || cir.getReturnValue() == Musics.MENU) return;
         if ((player.getAbilities().instabuild && player.getAbilities().mayfly) || !(player instanceof PlayerStructureMusic music) || music.getStructureMusic().isEmpty()) return;
         MusicManager musicManager = this.musicManager;
+        boolean replaceCurrentMusic = false;
         if (music.getReplaceCurrentMusic()) {
+            replaceCurrentMusic = true;
             Identifier identifier = music.getPieceStructure();
             if (identifier == EMPTY && music.getStructureMusic().get(music.getBoxStructure()).fullBox()) identifier = music.getBoxStructure();
             var structureMusic = music.getStructureMusic().get(identifier);
@@ -81,7 +83,7 @@ public abstract class MinecraftMixin {
                 return;
             }
         }
-        if ((this.pendingUpdate || music.getReplaceCurrentMusic()) && musicManager.nextSongDelay - 1 <= 0) {
+        if ((this.pendingUpdate || replaceCurrentMusic) && musicManager.nextSongDelay - 1 <= 0) {
             if (music.getBoxStructure() == EMPTY && music.getPieceStructure() == EMPTY) {
                 this.pendingTicks++;
             } else {
