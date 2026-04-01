@@ -1,7 +1,9 @@
 package net.rebel459.unified.platform;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
@@ -19,7 +21,6 @@ public class FabricUnifiedEvents {
                     (builder, provider, item) -> UnifiedEvents.DefaultItemComponents.passModify(item, builder, provider)
             );
         });
-
         ServerPlayerEvents.JOIN.register(UnifiedEvents.Players::passOnJoin);
         ServerPlayerEvents.LEAVE.register(UnifiedEvents.Players::passOnLeave);
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> EventsImpl.Players.passOnRespawn(oldPlayer, newPlayer));
@@ -43,10 +44,11 @@ public class FabricUnifiedEvents {
                 }
             }, registries);
         });
-
         ServerTickEvents.START_SERVER_TICK.register(UnifiedEvents.Servers::passOnTickStart);
         ServerTickEvents.END_SERVER_TICK.register(UnifiedEvents.Servers::passOnTickStart);
         ServerTickEvents.START_LEVEL_TICK.register(UnifiedEvents.Servers::passOnLevelTickStart);
         ServerTickEvents.END_LEVEL_TICK.register(UnifiedEvents.Servers::passOnLevelTickEnd);
+        ServerLivingEntityEvents.AFTER_DEATH.register(UnifiedEvents.Entities::passOnDeath);
+        ServerEntityEvents.EQUIPMENT_CHANGE.register(UnifiedEvents.Entities::passOnEquipmentChange);
     }
 }

@@ -5,7 +5,10 @@
   "mixins": [
     "block.FuelValuesMixin",
     "entity.PlayerMixin",
+    "entity.ServerLevelEntityCallbacksMixin",
     "entity.ServerPlayerMixin",
+    "item.BlockItemMixin",
+    "item.ItemMixin",
     "item.ItemStackMixin"
   ],
   "client": [

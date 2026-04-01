@@ -9,8 +9,18 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
@@ -62,33 +72,33 @@ public class UnifiedEvents {
 
         private Players() {}
 
-        private static final List<Consumer<Player>> JOIN_LISTENERS = new CopyOnWriteArrayList<>();
+        private static final List<Consumer<ServerPlayer>> JOIN_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void onJoin(Consumer<Player> listener) {
+        public static void onJoin(Consumer<ServerPlayer> listener) {
             JOIN_LISTENERS.add(listener);
         }
 
-        static void passOnJoin(Player player) {
-            for (Consumer<Player> listener : JOIN_LISTENERS) {
+        static void passOnJoin(ServerPlayer player) {
+            for (Consumer<ServerPlayer> listener : JOIN_LISTENERS) {
                 listener.accept(player);
             }
         }
 
-        private static final List<Consumer<Player>> LEAVE_LISTENERS = new CopyOnWriteArrayList<>();
+        private static final List<Consumer<ServerPlayer>> LEAVE_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void onLeave(Consumer<Player> listener) {
+        public static void onLeave(Consumer<ServerPlayer> listener) {
             LEAVE_LISTENERS.add(listener);
         }
 
-        static void passOnLeave(Player player) {
-            for (Consumer<Player> listener : LEAVE_LISTENERS) {
+        static void passOnLeave(ServerPlayer player) {
+            for (Consumer<ServerPlayer> listener : LEAVE_LISTENERS) {
                 listener.accept(player);
             }
         }
 
-        static final List<BiConsumer<Player, Player>> RESPAWN_LISTENERS = new CopyOnWriteArrayList<>();
+        static final List<BiConsumer<ServerPlayer, ServerPlayer>> RESPAWN_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void onRespawn(BiConsumer<Player, Player> listener) {
+        public static void onRespawn(BiConsumer<ServerPlayer, ServerPlayer> listener) {
             RESPAWN_LISTENERS.add(listener);
         }
 
@@ -310,5 +320,110 @@ public class UnifiedEvents {
                 return false;
             }
         }
+    }
+
+    public static class Items {
+
+        private Items() {}
+
+        static final List<TriConsumer<Level, Player, InteractionHand>> BEFORE_USE_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void beforeUse(TriConsumer<Level, Player, InteractionHand> listener) {
+            BEFORE_USE_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final List<TriConsumer<Level, Player, InteractionHand>> AFTER_USE_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void afterUse(TriConsumer<Level, Player, InteractionHand> listener) {
+            AFTER_USE_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<UseOnContext>> USE_ON_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onUseOn(Consumer<UseOnContext> listener) {
+            USE_ON_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+    }
+
+    public static class Blocks {
+
+        private Blocks() {}
+
+        static final List<Consumer<BlockPlaceContext>> BEFORE_PLACE_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void beforePlace(Consumer<BlockPlaceContext> listener) {
+            BEFORE_PLACE_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<BlockPlaceContext>> AFTER_PLACE_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void afterPlace(Consumer<BlockPlaceContext> listener) {
+            AFTER_PLACE_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<UseOnContext>> USE_ON_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onUseOn(Consumer<UseOnContext> listener) {
+            USE_ON_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+    }
+
+    public static class Entities {
+
+        private Entities() {}
+
+        private static final List<BiConsumer<LivingEntity, DamageSource>> DEATH_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onDeath(BiConsumer<LivingEntity, DamageSource> listener) {
+            DEATH_LISTENERS.add(listener);
+        }
+
+        static void passOnDeath(LivingEntity entity, DamageSource source) {
+            for (BiConsumer<LivingEntity, DamageSource> listener : DEATH_LISTENERS) {
+                listener.accept(entity, source);
+            }
+        }
+
+        private static final List<Consumer<EquipmentContext>> EQUIPMENT_CHANGE_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onEquipmentChange(Consumer<EquipmentContext> listener) {
+            EQUIPMENT_CHANGE_LISTENERS.add(listener);
+        }
+
+        static void passOnEquipmentChange(LivingEntity entity, EquipmentSlot slot, ItemStack oldStack, ItemStack newStack) {
+            for (Consumer<EquipmentContext> listener : EQUIPMENT_CHANGE_LISTENERS) {
+                listener.accept(new EquipmentContext(entity, slot, oldStack, newStack));
+            }
+        }
+
+        public record EquipmentContext(LivingEntity entity, EquipmentSlot slot, ItemStack oldStack, ItemStack newStack) {}
+
+        static final List<BiConsumer<Entity, ServerLevel>> LOAD_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLoad(BiConsumer<Entity, ServerLevel> listener) {
+            LOAD_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final List<BiConsumer<Entity, ServerLevel>> UNLOAD_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onUnload(BiConsumer<Entity, ServerLevel> listener) {
+            UNLOAD_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
     }
 }
