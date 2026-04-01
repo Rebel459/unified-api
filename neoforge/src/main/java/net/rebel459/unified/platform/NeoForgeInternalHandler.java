@@ -1,84 +1,84 @@
 package net.rebel459.unified.platform;
 
-public class FabricInternalHelper implements InternalHelper {
+public class NeoForgeInternalHandler implements InternalHandler {
 
     @Override
     public UnifiedRegistries.Items createItems(String modId) {
-        return new FabricUnifiedRegistries.Items(modId);
+        return new NeoForgeUnifiedRegistries.Items(modId);
     }
 
     @Override
     public UnifiedRegistries.Blocks createBlocks(String modId) {
-        return new FabricUnifiedRegistries.Blocks(modId);
+        return new NeoForgeUnifiedRegistries.Blocks(modId);
     }
 
     @Override
     public UnifiedRegistries.CreativeTabs createCreativeTabs(String modId) {
-        return new FabricUnifiedRegistries.CreativeTabs(modId);
+        return new NeoForgeUnifiedRegistries.CreativeTabs(modId);
     }
 
     @Override
     public UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId) {
-        return new FabricUnifiedRegistries.DataComponentTypes(modId);
+        return new NeoForgeUnifiedRegistries.DataComponentTypes(modId);
     }
 
     @Override
     public UnifiedRegistries.ParticleTypes createParticleTypes(String modId) {
-        return new FabricUnifiedRegistries.ParticleTypes(modId);
+        return new NeoForgeUnifiedRegistries.ParticleTypes(modId);
     }
 
     @Override
     public UnifiedRegistries.MobEffects createMobEffects(String modId) {
-        return new FabricUnifiedRegistries.MobEffects(modId);
+        return new NeoForgeUnifiedRegistries.MobEffects(modId);
     }
 
     @Override
     public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
-        return new FabricUnifiedRegistries.EntityTypes(modId);
+        return new NeoForgeUnifiedRegistries.EntityTypes(modId);
     }
 
     @Override
     public UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId) {
-        return new FabricUnifiedRegistries.BlockEntityTypes(modId);
+        return new NeoForgeUnifiedRegistries.BlockEntityTypes(modId);
     }
 
     @Override
     public UnifiedRegistries.SoundEvents createSoundEvents(String modId) {
-        return new FabricUnifiedRegistries.SoundEvents(modId);
+        return new NeoForgeUnifiedRegistries.SoundEvents(modId);
     }
 
     @Override
     public UnifiedRegistries.EnchantmentCodecs createEnchantmentCodecs(String modId) {
-        return new FabricUnifiedRegistries.EnchantmentCodecs(modId);
+        return new NeoForgeUnifiedRegistries.EnchantmentCodecs(modId);
     }
 
     @Override
     public UnifiedRegistries.MapDecorationTypes createMapDecorationTypes(String modId) {
-        return new FabricUnifiedRegistries.MapDecorationTypes(modId);
+        return new NeoForgeUnifiedRegistries.MapDecorationTypes(modId);
     }
 
     @Override
     public HelpersImpl.CreativeEntries getCreativeEntries() {
-        return new FabricHelpersImpl.CreativeEntries();
+        return new NeoForgeHelpersImpl.CreativeEntries();
     }
 
     @Override
     public HelpersImpl.Packs getPacks() {
-        return new FabricHelpersImpl.Packs();
+        return new NeoForgeHelpersImpl.Packs();
     }
 
     @Override
     public HelpersImpl.Networking getNetworkPayloads() {
-        return new FabricHelpersImpl.Networking();
+        return new NeoForgeHelpersImpl.Networking();
     }
 
     @Override
     public HelpersImpl.Platform getPlatform() {
-        return new FabricUnifiedPlatform();
+        return new NeoForgeUnifiedPlatform();
     }
 
     @Override
     public HelpersImpl.BiomeModifications getBiomeModifications() {
-        return new FabricHelpersImpl.BiomeModifications();
+        return new NeoForgeHelpersImpl.BiomeModifications();
     }
 }
