@@ -113,7 +113,7 @@ public class NeoForgeUnifiedEvents {
     public static void modifyDefaultItemComponentsEvent(HolderLookup.Provider provider) {
         for (Item item : BuiltInRegistries.ITEM) {
             DataComponentMap.Builder builder = DataComponentMap.builder().addAll(item.components());
-            UnifiedEvents.DefaultItemComponents.passModify(item, builder, provider);
+            UnifiedEvents.DefaultDataComponents.passModify(item, builder, provider);
             item.builtInRegistryHolder().bindComponents(builder.build());
         }
     }

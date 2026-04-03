@@ -19,7 +19,7 @@ public class FabricUnifiedEvents {
         DefaultItemComponentEvents.MODIFY.register(context -> {
             context.modify(
                     item -> true,
-                    (builder, provider, item) -> UnifiedEvents.DefaultItemComponents.passModify(item, builder, provider)
+                    (builder, provider, item) -> UnifiedEvents.DefaultDataComponents.passModify(item, builder, provider)
             );
         });
         ServerPlayerEvents.JOIN.register(UnifiedEvents.Players::passOnJoin);

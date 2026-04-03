@@ -40,9 +40,9 @@ import java.util.function.Predicate;
 
 public class UnifiedEvents {
 
-    public static class DefaultItemComponents {
+    public static class DefaultDataComponents {
 
-        private DefaultItemComponents() {}
+        private DefaultDataComponents() {}
 
         private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
 

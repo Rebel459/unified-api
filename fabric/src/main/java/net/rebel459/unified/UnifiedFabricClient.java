@@ -8,6 +8,6 @@ public class UnifiedFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         FabricUnifiedClientEvents.init();
-        UnifiedClient.initClient();
+        UnifiedClient.init();
     }
 }

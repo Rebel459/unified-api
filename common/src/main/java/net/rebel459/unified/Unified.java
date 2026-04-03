@@ -1,7 +1,5 @@
 package net.rebel459.unified;
 
-import net.minecraft.core.Registry;
-import net.minecraft.world.item.Items;
 import net.rebel459.unified.registry.UnifiedDataComponents;
 import net.rebel459.unified.util.helper.StructureMusicImpl;
 

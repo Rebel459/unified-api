@@ -13,9 +13,10 @@
   "client": [
     "client.AbstractContainerScreenMixin",
     "client.GuiMixin",
+    "client.HumanoidArmorLayerMixin",
+    "client.ItemStackMixin",
     "client.LocalPlayerMixin",
-    "client.MinecraftMixin",
-    "client.ItemStackMixin"
+    "client.MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

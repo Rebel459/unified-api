@@ -12,7 +12,7 @@ public interface DataComponents {
         builder.addAll(DataComponentMap.builder().set(type, value).build());
     }
     default <T> void add(ItemLike itemLike, DataComponentType<T> type, T value) {
-        UnifiedEvents.DefaultItemComponents.modify((testedItem, builder, provider) -> {
+        UnifiedEvents.DefaultDataComponents.modify((testedItem, builder, provider) -> {
             if (testedItem == itemLike.asItem()) {
                 add(builder, type, value);
             }

@@ -62,3 +62,5 @@ accessible field net/minecraft/world/level/storage/loot/LootTable functions Ljav
 accessible field net/minecraft/world/level/storage/loot/LootTable randomSequence Ljava/util/Optional;
 accessible field net/minecraft/world/level/storage/loot/LootTable$Builder functions Lcom/google/common/collect/ImmutableList$Builder;
 mutable field net/minecraft/world/level/storage/loot/LootTable$Builder functions Lcom/google/common/collect/ImmutableList$Builder;
+
+accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
