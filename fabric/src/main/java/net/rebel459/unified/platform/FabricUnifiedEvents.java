@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.rebel459.unified.util.EventType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +26,9 @@ public class FabricUnifiedEvents {
         ServerPlayerEvents.LEAVE.register(UnifiedEvents.Players::passOnLeave);
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> EventsImpl.Players.passOnRespawn(oldPlayer, newPlayer));
         CommandRegistrationCallback.EVENT.register(UnifiedEvents.Commands::passRegister);
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager, b) -> UnifiedEvents.Servers.passOnDatapackLoad(minecraftServer));
-        ServerLifecycleEvents.SERVER_STARTED.register(UnifiedEvents.Servers::passOnStart);
-        ServerLifecycleEvents.SERVER_STOPPED.register(UnifiedEvents.Servers::passOnStop);
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager, b) -> UnifiedEvents.Server.passOnDatapackLoad(minecraftServer));
+        ServerLifecycleEvents.SERVER_STARTED.register(UnifiedEvents.Server::passOnStart);
+        ServerLifecycleEvents.SERVER_STOPPED.register(UnifiedEvents.Server::passOnStop);
         LootTableEvents.MODIFY.register((targetTable, tableBuilder, source, registries) -> {
             List<LootPool.Builder> pools = new ArrayList<>();
             tableBuilder.modifyPools(pools::add);
@@ -44,10 +45,10 @@ public class FabricUnifiedEvents {
                 }
             }, registries);
         });
-        ServerTickEvents.START_SERVER_TICK.register(UnifiedEvents.Servers::passOnTickStart);
-        ServerTickEvents.END_SERVER_TICK.register(UnifiedEvents.Servers::passOnTickStart);
-        ServerTickEvents.START_LEVEL_TICK.register(UnifiedEvents.Servers::passOnLevelTickStart);
-        ServerTickEvents.END_LEVEL_TICK.register(UnifiedEvents.Servers::passOnLevelTickEnd);
+        ServerTickEvents.START_SERVER_TICK.register((server) -> UnifiedEvents.Server.passOnTick(EventType.PRE, server));
+        ServerTickEvents.END_SERVER_TICK.register((server) -> UnifiedEvents.Server.passOnTick(EventType.POST, server));
+        ServerTickEvents.START_LEVEL_TICK.register((level) -> UnifiedEvents.Server.passOnLevelTick(EventType.PRE, level));
+        ServerTickEvents.END_LEVEL_TICK.register((level) -> UnifiedEvents.Server.passOnLevelTick(EventType.POST, level));
         ServerLivingEntityEvents.AFTER_DEATH.register(UnifiedEvents.Entities::passOnDeath);
         ServerEntityEvents.EQUIPMENT_CHANGE.register(UnifiedEvents.Entities::passOnEquipmentChange);
     }

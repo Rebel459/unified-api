@@ -1,43 +1,46 @@
 package net.rebel459.unified.platform.client;
 
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.rebel459.unified.util.EventType;
+import net.rebel459.unified.util.event.QuadConsumer;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class UnifiedClientEvents {
 
-    public static class Ticks {
+    public static class Instance {
 
-        private Ticks() {}
+        private Instance() {}
 
-        private static final List<Consumer<Minecraft>> START_LISTENERS = new CopyOnWriteArrayList<>();
+        private static final EnumMap<EventType, List<Consumer<Minecraft>>> TICK_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
 
-        public static void onStart(Consumer<Minecraft> listener) {
-            START_LISTENERS.add(listener);
+        public static void onTick(EventType type, Consumer<Minecraft> listener) {
+            TICK_LISTENERS.get(type).add(listener);
         }
 
-        static void passOnStart(Minecraft client) {
-            for (Consumer<Minecraft> listener : START_LISTENERS) {
+        static void passOnTick(EventType type, Minecraft client) {
+            for (Consumer<Minecraft> listener : TICK_LISTENERS.get(type)) {
                 listener.accept(client);
             }
         }
 
-        private static final List<Consumer<Minecraft>> END_LISTENERS = new CopyOnWriteArrayList<>();
+        static final List<Consumer<LocalPlayer>> RESPAWN_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void onEnd(Consumer<Minecraft> listener) {
-            END_LISTENERS.add(listener);
+        public static void onRespawn(Consumer<LocalPlayer> listener) {
+            RESPAWN_LISTENERS.add(listener);
         }
 
-        static void passOnEnd(Minecraft client) {
-            for (Consumer<Minecraft> listener : END_LISTENERS) {
-                listener.accept(client);
-            }
-        }
+        // pass handled in impl
     }
 
     public static class Screens {
@@ -57,22 +60,53 @@ public class UnifiedClientEvents {
 
         private Guis() {}
 
-        public interface Entry {
-            void register(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
-        }
+        static final List<ClientEventsImpl.Guis.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        static final List<Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
-
-        public static void renderCrosshair(Entry entry) {
+        public static void renderCrosshair(ClientEventsImpl.Guis.Entry entry) {
             CROSSHAIR_ENTRIES.add(entry);
         }
 
         // pass handled in impl
 
-        static final List<Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
+        static final List<ClientEventsImpl.Guis.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void renderHotbar(Entry entry) {
+        public static void renderHotbar(ClientEventsImpl.Guis.Entry entry) {
             HOTBAR_ENTRIES.add(entry);
+        }
+
+        // pass handled in impl
+    }
+
+    public static class ItemTooltips {
+
+        private ItemTooltips() {}
+
+        static final EnumMap<EventType, List<Consumer<ClientEventsImpl.ItemTooltips.TooltipContext>>> TOOLTIP_DETAILS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
+
+        public static void addDetails(EventType type, Consumer<ClientEventsImpl.ItemTooltips.TooltipContext> listener) {
+            TOOLTIP_DETAILS.get(type).add(listener);
+        }
+
+        // pass handled in impl
+
+        static final EnumMap<EventType, List<QuadConsumer<ItemStack, Consumer<Component>, TooltipDisplay, LocalPlayer>>> TOOLTIP_ATTRIBUTES = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
+
+        public static void addAttributes(EventType type, QuadConsumer<ItemStack, Consumer<Component>, TooltipDisplay, LocalPlayer> listener) {
+            TOOLTIP_ATTRIBUTES.get(type).add(listener);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<ClientEventsImpl.ItemTooltips.LineContext>> TOOLTIP_LINES = new CopyOnWriteArrayList<>();
+
+        public static void insertLines(Consumer<ClientEventsImpl.ItemTooltips.LineContext> listener) {
+            TOOLTIP_LINES.add(listener);
         }
 
         // pass handled in impl

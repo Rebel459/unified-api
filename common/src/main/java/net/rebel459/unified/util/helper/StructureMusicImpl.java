@@ -11,6 +11,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.rebel459.unified.network.StructurePackets;
 import net.rebel459.unified.platform.UnifiedEvents;
 import net.rebel459.unified.platform.UnifiedHelpers;
+import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.mixin.PlayerStructureMusic;
 
 import java.util.HashMap;
@@ -57,7 +58,7 @@ public class StructureMusicImpl {
                 music.setStructureMusic(packet.structureMusic());
             }
         });
-        UnifiedEvents.Servers.onTickStart(server -> {
+        UnifiedEvents.Server.onTick(EventType.PRE, server -> {
             if (!hasReplaceMusic) return;
             if (++serverTicks <= 20) return;
             serverTicks = 0;

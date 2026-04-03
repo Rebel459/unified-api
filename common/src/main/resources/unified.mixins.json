@@ -8,13 +8,14 @@
     "entity.ServerLevelEntityCallbacksMixin",
     "entity.ServerPlayerMixin",
     "item.BlockItemMixin",
-    "item.ItemMixin",
-    "item.ItemStackMixin"
+    "item.ItemMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin",
     "client.GuiMixin",
-    "client.MinecraftMixin"
+    "client.LocalPlayerMixin",
+    "client.MinecraftMixin",
+    "client.ItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

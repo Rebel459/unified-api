@@ -3,7 +3,6 @@ package net.rebel459.unified.platform;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
@@ -14,18 +13,14 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
-import net.neoforged.neoforge.event.entity.EntityEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.event.LootTableProvider;
 
 import java.util.ArrayList;
@@ -48,15 +43,15 @@ public class NeoForgeUnifiedEvents {
         NeoForge.EVENT_BUS.addListener((TagsUpdatedEvent event) -> {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD && server != null) {
-                UnifiedEvents.Servers.passOnDatapackLoad(server);
+                UnifiedEvents.Server.passOnDatapackLoad(server);
             }
         });
 
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent event) -> {
-            UnifiedEvents.Servers.passOnStart(event.getServer());
+            UnifiedEvents.Server.passOnStart(event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
-            UnifiedEvents.Servers.passOnStop(event.getServer());
+            UnifiedEvents.Server.passOnStop(event.getServer());
         });
 
         NeoForge.EVENT_BUS.addListener((LootTableLoadEvent event) -> {
@@ -94,16 +89,16 @@ public class NeoForgeUnifiedEvents {
         });
 
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> {
-            UnifiedEvents.Servers.passOnTickStart(event.getServer());
+            UnifiedEvents.Server.passOnTick(EventType.PRE, event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> {
-            UnifiedEvents.Servers.passOnTickEnd(event.getServer());
+            UnifiedEvents.Server.passOnTick(EventType.POST, event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> {
-            event.getServer().getAllLevels().forEach(UnifiedEvents.Servers::passOnLevelTickStart);
+            event.getServer().getAllLevels().forEach(level -> UnifiedEvents.Server.passOnLevelTick(EventType.PRE, level));
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> {
-            event.getServer().getAllLevels().forEach(UnifiedEvents.Servers::passOnLevelTickEnd);
+            event.getServer().getAllLevels().forEach(level -> UnifiedEvents.Server.passOnLevelTick(EventType.POST, level));
         });
         NeoForge.EVENT_BUS.addListener((LivingDeathEvent event) -> {
             UnifiedEvents.Entities.passOnDeath(event.getEntity(), event.getSource());

@@ -1,18 +1,25 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.rebel459.unified.util.EventType;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class EventsImpl {
 
@@ -27,18 +34,26 @@ public class EventsImpl {
         }
     }
 
+    public static class LootTables {
+
+        private LootTables() {}
+
+        public interface LootTable {
+            void addPool(LootPool.Builder pool);
+            void editPool(Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
+        }
+
+        public interface Entry {
+            void modify(LootTable table, ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, HolderLookup.Provider provider);
+        }
+    }
+
     public static class Items {
 
         private Items() {}
 
-        public static void passBeforeUse(Level level, Player player, InteractionHand hand) {
-            for (TriConsumer<Level, Player, InteractionHand> listener : UnifiedEvents.Items.BEFORE_USE_LISTENERS) {
-                listener.accept(level, player, hand);
-            }
-        }
-
-        public static void passAfterUse(Level level, Player player, InteractionHand hand) {
-            for (TriConsumer<Level, Player, InteractionHand> listener : UnifiedEvents.Items.AFTER_USE_LISTENERS) {
+        public static void passOnUse(EventType type, Level level, Player player, InteractionHand hand) {
+            for (TriConsumer<Level, Player, InteractionHand> listener : UnifiedEvents.Items.USE_LISTENERS.get(type)) {
                 listener.accept(level, player, hand);
             }
         }
@@ -54,14 +69,8 @@ public class EventsImpl {
 
         private Blocks() {}
 
-        public static void passBeforePlace(BlockPlaceContext context) {
-            for (Consumer<BlockPlaceContext> listener : UnifiedEvents.Blocks.BEFORE_PLACE_LISTENERS) {
-                listener.accept(context);
-            }
-        }
-
-        public static void passAfterPlace(BlockPlaceContext context) {
-            for (Consumer<BlockPlaceContext> listener : UnifiedEvents.Blocks.AFTER_PLACE_LISTENERS) {
+        public static void passOnPlace(EventType type, BlockPlaceContext context) {
+            for (Consumer<BlockPlaceContext> listener : UnifiedEvents.Blocks.PLACE_LISTENERS.get(type)) {
                 listener.accept(context);
             }
         }

@@ -5,6 +5,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.rebel459.unified.platform.EventsImpl;
+import net.rebel459.unified.util.EventType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,12 +16,12 @@ public class BlockItemMixin {
 
     @Inject(at = @At("HEAD"), method = "place")
     private void passBeforePlace(BlockPlaceContext placeContext, CallbackInfoReturnable<InteractionResult> cir) {
-        EventsImpl.Blocks.passBeforePlace(placeContext);
+        EventsImpl.Blocks.passOnPlace(EventType.PRE, placeContext);
     }
 
     @Inject(at = @At("TAIL"), method = "place")
     private void passAfterPlace(BlockPlaceContext placeContext, CallbackInfoReturnable<InteractionResult> cir) {
-        EventsImpl.Blocks.passAfterPlace(placeContext);
+        EventsImpl.Blocks.passOnPlace(EventType.POST, placeContext);
     }
 
     @Inject(at = @At("HEAD"), method = "useOn")

@@ -24,11 +24,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.event.LootTableProvider;
+import net.rebel459.unified.util.event.QuadConsumer;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -109,26 +113,22 @@ public class UnifiedEvents {
 
         private Commands() {}
 
-        public interface Entry {
-            void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext, net.minecraft.commands.Commands.CommandSelection selection);
-        }
+        private static final List<TriConsumer<CommandDispatcher<CommandSourceStack>, CommandBuildContext, net.minecraft.commands.Commands.CommandSelection>> ENTRIES = new CopyOnWriteArrayList<>();
 
-        private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
-
-        public static void register(Entry handler) {
-            ENTRIES.add(handler);
+        public static void register(TriConsumer<CommandDispatcher<CommandSourceStack>, CommandBuildContext, net.minecraft.commands.Commands.CommandSelection> listener) {
+            ENTRIES.add(listener);
         }
 
         static void passRegister(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext, net.minecraft.commands.Commands.CommandSelection selection) {
-            for (Entry entry : ENTRIES) {
-                entry.register(dispatcher, buildContext, selection);
+            for (TriConsumer<CommandDispatcher<CommandSourceStack>, CommandBuildContext, net.minecraft.commands.Commands.CommandSelection> listener : ENTRIES) {
+                listener.accept(dispatcher, buildContext, selection);
             }
         }
     }
 
-    public static class Servers {
+    public static class Server {
 
-        private Servers() {}
+        private Server() {}
 
         private static final List<Consumer<MinecraftServer>> DATAPACK_RELOAD_ENTRIES = new CopyOnWriteArrayList<>();
 
@@ -166,50 +166,32 @@ public class UnifiedEvents {
             }
         }
 
-        private static final List<Consumer<MinecraftServer>> SERVER_TICKED_START_LISTENERS = new CopyOnWriteArrayList<>();
+        private static final EnumMap<EventType, List<Consumer<MinecraftServer>>> TICK_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
 
-        public static void onTickStart(Consumer<MinecraftServer> handler) {
-            SERVER_TICKED_START_LISTENERS.add(handler);
+        public static void onTick(EventType type, Consumer<MinecraftServer> listener) {
+            TICK_LISTENERS.get(type).add(listener);
         }
 
-        static void passOnTickStart(MinecraftServer server) {
-            for (Consumer<MinecraftServer> listener : SERVER_TICKED_START_LISTENERS) {
+        static void passOnTick(EventType type, MinecraftServer server) {
+            for (Consumer<MinecraftServer> listener : TICK_LISTENERS.get(type)) {
                 listener.accept(server);
             }
         }
 
-        private static final List<Consumer<ServerLevel>> SERVER_LEVEL_TICKED_START_LISTENERS = new CopyOnWriteArrayList<>();
+        private static final EnumMap<EventType, List<Consumer<ServerLevel>>> LEVEL_TICK_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
 
-        public static void onLevelTickStart(Consumer<ServerLevel> handler) {
-            SERVER_LEVEL_TICKED_START_LISTENERS.add(handler);
+        public static void onLevelTick(EventType type, Consumer<ServerLevel> listener) {
+            LEVEL_TICK_LISTENERS.get(type).add(listener);
         }
 
-        static void passOnLevelTickStart(ServerLevel level) {
-            for (Consumer<ServerLevel> listener : SERVER_LEVEL_TICKED_START_LISTENERS) {
-                listener.accept(level);
-            }
-        }
-
-        private static final List<Consumer<MinecraftServer>> SERVER_TICKED_END_LISTENERS = new CopyOnWriteArrayList<>();
-
-        public static void onTickEnd(Consumer<MinecraftServer> handler) {
-            SERVER_TICKED_END_LISTENERS.add(handler);
-        }
-
-        static void passOnTickEnd(MinecraftServer server) {
-            for (Consumer<MinecraftServer> listener : SERVER_TICKED_END_LISTENERS) {
-                listener.accept(server);
-            }
-        }
-
-        private static final List<Consumer<ServerLevel>> SERVER_LEVEL_TICKED_END_LISTENERS = new CopyOnWriteArrayList<>();
-
-        public static void onLevelTickEnd(Consumer<ServerLevel> handler) {
-            SERVER_LEVEL_TICKED_END_LISTENERS.add(handler);
-        }
-
-        static void passOnLevelTickEnd(ServerLevel level) {
-            for (Consumer<ServerLevel> listener : SERVER_LEVEL_TICKED_END_LISTENERS) {
+        static void passOnLevelTick(EventType type, ServerLevel level) {
+            for (Consumer<ServerLevel> listener : LEVEL_TICK_LISTENERS.get(type)) {
                 listener.accept(level);
             }
         }
@@ -219,43 +201,29 @@ public class UnifiedEvents {
 
         private LootTables() {}
 
-        public interface LootTable {
-            ResourceKey<net.minecraft.world.level.storage.loot.LootTable> getKey();
+        private static final List<EventsImpl.LootTables.Entry> ENTRIES = new CopyOnWriteArrayList<>();
 
-            HolderLookup.Provider getProvider();
-
-            void addPool(LootPool.Builder pool);
-
-            void editPool(Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
-        }
-
-        public interface Entry {
-            void modify(LootTable lootTable);
-        }
-
-        private static final List<Entry> ENTRIES = new CopyOnWriteArrayList<>();
-
-        public static void modify(Entry handler) {
+        public static void modify(EventsImpl.LootTables.Entry handler) {
             ENTRIES.add(handler);
         }
 
         private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modifyFiltered(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {
+        public static void modifyFiltered(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, handler));
         }
 
-        private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, Entry handler) {}
+        private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {}
 
         static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) {
-            var lootTable = new LootTableImpl(key, pools, provider);
+            var table = new LootTableImpl(key, pools, provider);
 
-            for (Entry entry : ENTRIES) {
-                entry.modify(lootTable);
+            for (EventsImpl.LootTables.Entry entry : ENTRIES) {
+                entry.modify(table, key, provider);
             }
             for (FilteredEntry entry : FILTERED_ENTRIES) {
                 if (entry.filter.test(key)) {
-                    entry.handler.modify(lootTable);
+                    entry.handler.modify(table, key, provider);
                 }
             }
         }
@@ -266,16 +234,7 @@ public class UnifiedEvents {
             void addPool(LootPool.Builder pool);
         }
 
-        private record LootTableImpl(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) implements LootTable {
-            @Override
-            public ResourceKey<net.minecraft.world.level.storage.loot.LootTable> getKey() {
-                return key;
-            }
-
-            @Override
-            public HolderLookup.Provider getProvider() {
-                return provider;
-            }
+        private record LootTableImpl(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) implements EventsImpl.LootTables.LootTable {
 
             @Override
             public void addPool(LootPool.Builder pool) {
@@ -326,18 +285,13 @@ public class UnifiedEvents {
 
         private Items() {}
 
-        static final List<TriConsumer<Level, Player, InteractionHand>> BEFORE_USE_LISTENERS = new CopyOnWriteArrayList<>();
+        static final EnumMap<EventType, List<TriConsumer<Level, Player, InteractionHand>>> USE_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
 
-        public static void beforeUse(TriConsumer<Level, Player, InteractionHand> listener) {
-            BEFORE_USE_LISTENERS.add(listener);
-        }
-
-        // pass handled in impl
-
-        static final List<TriConsumer<Level, Player, InteractionHand>> AFTER_USE_LISTENERS = new CopyOnWriteArrayList<>();
-
-        public static void afterUse(TriConsumer<Level, Player, InteractionHand> listener) {
-            AFTER_USE_LISTENERS.add(listener);
+        public static void onUse(EventType type, TriConsumer<Level, Player, InteractionHand> listener) {
+            USE_LISTENERS.get(type).add(listener);
         }
 
         // pass handled in impl
@@ -355,18 +309,13 @@ public class UnifiedEvents {
 
         private Blocks() {}
 
-        static final List<Consumer<BlockPlaceContext>> BEFORE_PLACE_LISTENERS = new CopyOnWriteArrayList<>();
+        static final EnumMap<EventType, List<Consumer<BlockPlaceContext>>> PLACE_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
 
-        public static void beforePlace(Consumer<BlockPlaceContext> listener) {
-            BEFORE_PLACE_LISTENERS.add(listener);
-        }
-
-        // pass handled in impl
-
-        static final List<Consumer<BlockPlaceContext>> AFTER_PLACE_LISTENERS = new CopyOnWriteArrayList<>();
-
-        public static void afterPlace(Consumer<BlockPlaceContext> listener) {
-            AFTER_PLACE_LISTENERS.add(listener);
+        public static void onPlace(EventType type, Consumer<BlockPlaceContext> listener) {
+            PLACE_LISTENERS.get(type).add(listener);
         }
 
         // pass handled in impl
@@ -396,19 +345,17 @@ public class UnifiedEvents {
             }
         }
 
-        private static final List<Consumer<EquipmentContext>> EQUIPMENT_CHANGE_LISTENERS = new CopyOnWriteArrayList<>();
+        private static final List<QuadConsumer<LivingEntity, EquipmentSlot, ItemStack, ItemStack>> EQUIPMENT_CHANGE_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void onEquipmentChange(Consumer<EquipmentContext> listener) {
+        public static void onEquipmentChange(QuadConsumer<LivingEntity, EquipmentSlot, ItemStack, ItemStack> listener) {
             EQUIPMENT_CHANGE_LISTENERS.add(listener);
         }
 
         static void passOnEquipmentChange(LivingEntity entity, EquipmentSlot slot, ItemStack oldStack, ItemStack newStack) {
-            for (Consumer<EquipmentContext> listener : EQUIPMENT_CHANGE_LISTENERS) {
-                listener.accept(new EquipmentContext(entity, slot, oldStack, newStack));
+            for (QuadConsumer<LivingEntity, EquipmentSlot, ItemStack, ItemStack> listener : EQUIPMENT_CHANGE_LISTENERS) {
+                listener.accept(entity, slot, oldStack, newStack);
             }
         }
-
-        public record EquipmentContext(LivingEntity entity, EquipmentSlot slot, ItemStack oldStack, ItemStack newStack) {}
 
         static final List<BiConsumer<Entity, ServerLevel>> LOAD_LISTENERS = new CopyOnWriteArrayList<>();
 

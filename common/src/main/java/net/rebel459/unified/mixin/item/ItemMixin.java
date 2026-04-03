@@ -7,6 +7,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.rebel459.unified.platform.EventsImpl;
+import net.rebel459.unified.util.EventType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,12 +18,12 @@ public class ItemMixin {
 
     @Inject(at = @At("HEAD"), method = "use")
     private void passBeforeUse(Level level, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-        EventsImpl.Items.passBeforeUse(level, player, hand);
+        EventsImpl.Items.passOnUse(EventType.PRE, level, player, hand);
     }
 
     @Inject(at = @At("TAIL"), method = "use")
     private void passAfterUse(Level level, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-        EventsImpl.Items.passAfterUse(level, player, hand);
+        EventsImpl.Items.passOnUse(EventType.POST, level, player, hand);
     }
 
     @Inject(at = @At("HEAD"), method = "useOn")
