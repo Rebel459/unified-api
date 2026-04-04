@@ -64,3 +64,6 @@ accessible field net/minecraft/world/level/storage/loot/LootTable$Builder functi
 mutable field net/minecraft/world/level/storage/loot/LootTable$Builder functions Lcom/google/common/collect/ImmutableList$Builder;
 
 accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
+accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer trimSpriteLookup Ljava/util/function/Function;
+accessible class net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimSpriteKey
+accessible method net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimSpriteKey <init> (Lnet/minecraft/world/item/equipment/trim/ArmorTrim;Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;)V
