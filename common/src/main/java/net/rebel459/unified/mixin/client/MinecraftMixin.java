@@ -35,6 +35,7 @@ public abstract class MinecraftMixin {
     @Shadow
     @Final
     private SoundManager soundManager;
+
     @Unique
     private boolean pendingUpdate = false;
 

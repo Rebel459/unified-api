@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.rebel459.unified.util.helper.StructureMusicImpl;
 
 import java.util.HashMap;
@@ -73,7 +74,10 @@ public class StructurePackets {
                                 FriendlyByteBuf::readIdentifier,
                                 recordBuf -> {
                                     Identifier soundId = recordBuf.readIdentifier();
-                                    SoundEvent soundEvent = Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(soundId));
+                                    SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(soundId);
+                                    if (soundEvent == null) {
+                                        soundEvent = SoundEvents.EMPTY;
+                                    }
 
                                     Music music = new Music(
                                             Holder.direct(soundEvent),

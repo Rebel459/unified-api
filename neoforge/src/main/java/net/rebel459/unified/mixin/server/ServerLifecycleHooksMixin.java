@@ -20,6 +20,7 @@ public class ServerLifecycleHooksMixin {
             ordinal = 0
     )
     private static List<BiomeModifier> addBiomeModifiers(List<BiomeModifier> biomeModifiers, MinecraftServer server) {
+        NeoForgeHelpersImpl.BiomeModifications.MODIFIERS.clear();
         BiomeBuilderEvent.passOnRunModifiers(server.reloadableRegistries().lookup());
         List<BiomeModifier> modifiers = new ArrayList<>(biomeModifiers);
         modifiers.addAll(NeoForgeHelpersImpl.BiomeModifications.MODIFIERS);

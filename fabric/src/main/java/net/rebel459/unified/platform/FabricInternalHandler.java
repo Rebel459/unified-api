@@ -1,6 +1,13 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.core.Registry;
+
 public class FabricInternalHandler implements InternalHandler {
+
+    @Override
+    public UnifiedRegistries.DeferredRegistry createDeferredRegistry(String modId, Registry<?> registry) {
+        return new FabricUnifiedRegistries.DeferredRegistry(modId, registry);
+    }
 
     @Override
     public UnifiedRegistries.Items createItems(String modId) {
@@ -23,16 +30,6 @@ public class FabricInternalHandler implements InternalHandler {
     }
 
     @Override
-    public UnifiedRegistries.ParticleTypes createParticleTypes(String modId) {
-        return new FabricUnifiedRegistries.ParticleTypes(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.MobEffects createMobEffects(String modId) {
-        return new FabricUnifiedRegistries.MobEffects(modId);
-    }
-
-    @Override
     public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
         return new FabricUnifiedRegistries.EntityTypes(modId);
     }
@@ -45,16 +42,6 @@ public class FabricInternalHandler implements InternalHandler {
     @Override
     public UnifiedRegistries.SoundEvents createSoundEvents(String modId) {
         return new FabricUnifiedRegistries.SoundEvents(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.EnchantmentCodecs createEnchantmentCodecs(String modId) {
-        return new FabricUnifiedRegistries.EnchantmentCodecs(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.MapDecorationTypes createMapDecorationTypes(String modId) {
-        return new FabricUnifiedRegistries.MapDecorationTypes(modId);
     }
 
     @Override

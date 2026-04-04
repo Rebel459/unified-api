@@ -1,6 +1,13 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.core.Registry;
+
 public class NeoForgeInternalHandler implements InternalHandler {
+
+    @Override
+    public UnifiedRegistries.DeferredRegistry createDeferredRegistry(String modId, Registry<?> registry) {
+        return new NeoForgeUnifiedRegistries.DeferredRegistry(modId, registry);
+    }
 
     @Override
     public UnifiedRegistries.Items createItems(String modId) {
@@ -23,16 +30,6 @@ public class NeoForgeInternalHandler implements InternalHandler {
     }
 
     @Override
-    public UnifiedRegistries.ParticleTypes createParticleTypes(String modId) {
-        return new NeoForgeUnifiedRegistries.ParticleTypes(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.MobEffects createMobEffects(String modId) {
-        return new NeoForgeUnifiedRegistries.MobEffects(modId);
-    }
-
-    @Override
     public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
         return new NeoForgeUnifiedRegistries.EntityTypes(modId);
     }
@@ -45,16 +42,6 @@ public class NeoForgeInternalHandler implements InternalHandler {
     @Override
     public UnifiedRegistries.SoundEvents createSoundEvents(String modId) {
         return new NeoForgeUnifiedRegistries.SoundEvents(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.EnchantmentCodecs createEnchantmentCodecs(String modId) {
-        return new NeoForgeUnifiedRegistries.EnchantmentCodecs(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.MapDecorationTypes createMapDecorationTypes(String modId) {
-        return new NeoForgeUnifiedRegistries.MapDecorationTypes(modId);
     }
 
     @Override

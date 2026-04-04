@@ -1,29 +1,29 @@
 package net.rebel459.unified.platform.client;
 
-public class FabricClientInternalHelper implements ClientInternalHelper {
+public class NeoForgeClientInternalHandler implements ClientInternalHandler {
 
     @Override
     public UnifiedClientRegistries.KeyMappings createKeyMappings(String modId) {
-        return new FabricUnifiedClientRegistries.KeyMappings(modId);
+        return new NeoForgeUnifiedClientRegistries.KeyMappings(modId);
     }
 
     @Override
     public ClientHelpersImpl.Networking getNetworkPayloads() {
-        return new FabricClientHelpersImpl.Networking();
+        return new NeoForgeClientHelpersImpl.Networking();
     }
 
     @Override
     public ClientHelpersImpl.EntityRenderers getEntityRenderers() {
-        return new FabricClientHelpersImpl.EntityRenderers();
+        return new NeoForgeClientHelpersImpl.EntityRenderers();
     }
 
     @Override
     public ClientHelpersImpl.Tooltips getTooltips() {
-        return new FabricClientHelpersImpl.Tooltips();
+        return new NeoForgeClientHelpersImpl.Tooltips();
     }
 
     @Override
     public ClientHelpersImpl.ParticleProviders getParticleProviders() {
-        return new FabricClientHelpersImpl.ParticleProviders();
+        return new NeoForgeClientHelpersImpl.ParticleProviders();
     }
 }

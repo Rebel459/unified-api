@@ -1,12 +1,10 @@
 package net.rebel459.unified.platform;
 
 import com.google.common.base.Suppliers;
-import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -15,24 +13,19 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Util;
 import net.minecraft.util.datafix.fixes.References;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.LevelBasedValue;
-import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
-import net.minecraft.world.item.enchantment.effects.EnchantmentLocationBasedEffect;
-import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
-import net.minecraft.world.item.enchantment.providers.EnchantmentProvider;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.rebel459.unified.util.SuppliedBlock;
-import net.rebel459.unified.util.registry.SuppliedBlockImpl;
 import net.rebel459.unified.util.SuppliedItem;
+import net.rebel459.unified.util.registry.SuppliedBlockImpl;
 import net.rebel459.unified.util.registry.SuppliedItemImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +35,29 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 public class FabricUnifiedRegistries {
+
+    public record DeferredRegistry(String modId, Registry registry) implements UnifiedRegistries.DeferredRegistry {
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <V, T extends V> Supplier<T> register(String path, Supplier<T> value) {
+            var thing = (T) Registry.register(registry, Identifier.fromNamespaceAndPath(modId, path), value.get());
+            var suppliedThing = Suppliers.memoize(() -> thing);
+            suppliedThing.get();
+            return suppliedThing;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <R, T extends R> Holder<T> registerHolder(String path, Supplier<T> value) {
+            return Registry.registerForHolder(registry, Identifier.fromNamespaceAndPath(modId, path), value.get());
+        }
+
+        @Override
+        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
+            registry.addAlias(convertedFrom, convertedTo);
+        }
+    }
 
     public record Items(String modId) implements UnifiedRegistries.Items {
 
@@ -169,29 +185,6 @@ public class FabricUnifiedRegistries {
         }
     }
 
-    public record ParticleTypes(String modId) implements UnifiedRegistries.ParticleTypes {
-
-        @Override
-        public <T extends ParticleType> Supplier<T> register(String path, ParticleType type) {
-            var particle = Suppliers.memoize(() -> (T) Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(modId, path), type));
-            particle.get();
-            return particle;
-        }
-    }
-
-    public record MobEffects(String modId) implements UnifiedRegistries.MobEffects {
-
-        @Override
-        public Holder<MobEffect> register(String path, MobEffect effect) {
-            return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath(modId, path), effect);
-        }
-
-        @Override
-        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
-            BuiltInRegistries.MOB_EFFECT.addAlias(convertedFrom, convertedTo);
-        }
-    }
-
     public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
 
         @Override
@@ -238,53 +231,30 @@ public class FabricUnifiedRegistries {
 
         @Override
         public Supplier<SoundEvent> register(String path) {
+            return register(path, -1F);
+        }
+        @Override
+        public Supplier<SoundEvent> register(String path, float fixedRange) {
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
-            var soundEvent = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.SOUND_EVENT, identifier, SoundEvent.createVariableRangeEvent(identifier)));
+            SoundEvent rangeType = SoundEvent.createVariableRangeEvent(identifier);
+            if (fixedRange >= 0F) rangeType = SoundEvent.createFixedRangeEvent(identifier, fixedRange);
+            SoundEvent finalRangeType = rangeType;
+            var soundEvent = Suppliers.memoize(() -> Registry.register(BuiltInRegistries.SOUND_EVENT, identifier, finalRangeType));
             soundEvent.get();
             return soundEvent;
         }
 
         @Override
         public Holder<SoundEvent> registerHolder(String path) {
+            return registerHolder(path, -1F);
+        }
+        @Override
+        public Holder<SoundEvent> registerHolder(String path, float fixedRange) {
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
-            return Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, SoundEvent.createVariableRangeEvent(identifier));
-        }
-    }
-
-    public record EnchantmentCodecs(String modId) implements UnifiedRegistries.EnchantmentCodecs {
-
-        @Override
-        public void registerProvider(String path, MapCodec<? extends EnchantmentProvider> codec) {
-            Registry.register(BuiltInRegistries.ENCHANTMENT_PROVIDER_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
-        }
-
-        @Override
-        public void registerLevelBasedValue(String path, MapCodec<? extends LevelBasedValue> codec) {
-            Registry.register(BuiltInRegistries.ENCHANTMENT_LEVEL_BASED_VALUE_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
-        }
-
-        @Override
-        public void registerEntityEffect(String path, MapCodec<? extends EnchantmentEntityEffect> codec) {
-            Registry.register(BuiltInRegistries.ENCHANTMENT_ENTITY_EFFECT_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
-        }
-
-        @Override
-        public void registerValueEffect(String path, MapCodec<? extends EnchantmentValueEffect> codec) {
-            Registry.register(BuiltInRegistries.ENCHANTMENT_VALUE_EFFECT_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
-        }
-
-        @Override
-        public void registerLocationBasedEffect(String path, MapCodec<? extends EnchantmentLocationBasedEffect> codec) {
-            Registry.register(BuiltInRegistries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE, Identifier.fromNamespaceAndPath(modId, path), codec);
-        }
-    }
-
-    public record MapDecorationTypes(String modId) implements UnifiedRegistries.MapDecorationTypes {
-
-        @Override
-        public Holder<MapDecorationType> register(String path, boolean showOnItemFrame, int mapColor, boolean explorationMapElement, boolean trackCount) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            return Registry.registerForHolder(BuiltInRegistries.MAP_DECORATION_TYPE, ResourceKey.create(Registries.MAP_DECORATION_TYPE, id), new MapDecorationType(id, showOnItemFrame, mapColor, explorationMapElement, trackCount));
+            SoundEvent rangeType = SoundEvent.createVariableRangeEvent(identifier);
+            if (fixedRange >= 0F) rangeType = SoundEvent.createFixedRangeEvent(identifier, fixedRange);
+            SoundEvent finalRangeType = rangeType;
+            return Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, finalRangeType);
         }
     }
 }

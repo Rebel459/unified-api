@@ -9,11 +9,9 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -27,7 +25,7 @@ public class ClientHelpersImpl {
         <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite);
 
         static ParticleProviders get() {
-            return ClientInternalHelperImpl.INSTANCE.getParticleProviders();
+            return ClientInternalHandlerImpl.INSTANCE.getParticleProviders();
         }
     }
 
@@ -40,7 +38,7 @@ public class ClientHelpersImpl {
         <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
 
         static EntityRenderers get() {
-            return ClientInternalHelperImpl.INSTANCE.getEntityRenderers();
+            return ClientInternalHandlerImpl.INSTANCE.getEntityRenderers();
         }
     }
 
@@ -49,7 +47,7 @@ public class ClientHelpersImpl {
         void send(CustomPacketPayload payload);
 
         static Networking get() {
-            return ClientInternalHelperImpl.INSTANCE.getNetworkPayloads();
+            return ClientInternalHandlerImpl.INSTANCE.getNetworkPayloads();
         }
     }
 
@@ -58,7 +56,7 @@ public class ClientHelpersImpl {
         <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory);
 
         static Tooltips get() {
-            return ClientInternalHelperImpl.INSTANCE.getTooltips();
+            return ClientInternalHandlerImpl.INSTANCE.getTooltips();
         }
     }
 }
