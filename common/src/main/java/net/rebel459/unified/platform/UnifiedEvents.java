@@ -25,8 +25,10 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.rebel459.unified.util.EventType;
+import net.rebel459.unified.util.SuppliedItem;
 import net.rebel459.unified.util.event.LootTableProvider;
 import net.rebel459.unified.util.event.QuadConsumer;
+import net.rebel459.unified.util.registry.SuppliedItemImpl;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.ArrayList;
@@ -216,8 +218,14 @@ public class UnifiedEvents {
         private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {}
 
         static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) {
-            var table = new LootTableImpl(key, pools, provider);
+            passModify(key, new LootTableImpl(key, pools, provider), provider);
+        }
 
+        static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, EventsImpl.LootTables.LootTable table, HolderLookup.Provider provider) {
+            runHandlers(key, table, provider);
+        }
+
+        private static void runHandlers(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, EventsImpl.LootTables.LootTable table, HolderLookup.Provider provider) {
             for (EventsImpl.LootTables.Entry entry : ENTRIES) {
                 entry.modify(table, key, provider);
             }
@@ -242,7 +250,7 @@ public class UnifiedEvents {
             }
 
             @Override
-            public void editPool(Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
+            public void editPool(Predicate<SuppliedItem> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
                 LootPoolEntryContainer builtEntry = entry.build();
 
                 for (LootPool.Builder pool : pools.pools()) {
@@ -272,9 +280,9 @@ public class UnifiedEvents {
                 }
             }
 
-            private static boolean matches(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate) {
+            private static boolean matches(LootPoolEntryContainer entry, Predicate<SuppliedItem> itemPredicate) {
                 if (entry instanceof LootItem lootItem && lootItem.item instanceof Holder<?> holder && holder.value() instanceof Item) {
-                    return itemPredicate.test(lootItem.item);
+                    return itemPredicate.test(new SuppliedItemImpl(lootItem.item));
                 }
                 return false;
             }

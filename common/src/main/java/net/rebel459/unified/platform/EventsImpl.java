@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.rebel459.unified.util.EventType;
+import net.rebel459.unified.util.SuppliedItem;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.function.BiConsumer;
@@ -40,7 +41,7 @@ public class EventsImpl {
 
         public interface LootTable {
             void addPool(LootPool.Builder pool);
-            void editPool(Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
+            void editPool(Predicate<SuppliedItem> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
         }
 
         public interface Entry {
