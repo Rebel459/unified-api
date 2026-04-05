@@ -13,11 +13,13 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.rebel459.unified.util.EventType;
-import net.rebel459.unified.util.SuppliedItem;
+import net.rebel459.unified.util.event.LootTableProvider;
 import org.apache.logging.log4j.util.TriConsumer;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -41,11 +43,30 @@ public class EventsImpl {
 
         public interface LootTable {
             void addPool(LootPool.Builder pool);
-            void editPool(Predicate<SuppliedItem> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
+            void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
         }
 
         public interface Entry {
             void modify(LootTable table, ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, HolderLookup.Provider provider);
+        }
+
+        public static boolean matches(LootPoolEntryContainer entry, Predicate<Item> itemPredicate) {
+            if (entry instanceof LootItem lootItem) return itemPredicate.test(lootItem.item.value());
+            else return false;
+        }
+
+        public static void handlePoolChanges(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
+            boolean changed = false;
+            for (int i = 0; i < entries.size(); i++) {
+                if (EventsImpl.LootTables.matches(entries.get(i), itemPredicate)) {
+                    entries.set(i, builtEntry);
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                pool.entries = LootTableProvider.immutableBuilder(entries);
+            }
         }
     }
 

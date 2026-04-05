@@ -55,7 +55,7 @@ public record SuppliedItemImpl(Holder<Item> holder) implements SuppliedItem {
 
     @Override
     public boolean is(Holder<Item> holder) {
-        return holder.is(holder);
+        return this.holder == holder;
     }
 
     @Override

@@ -56,7 +56,7 @@ public record SuppliedBlockImpl(Holder<Block> holder) implements SuppliedBlock {
 
     @Override
     public boolean is(Holder<Block> holder) {
-        return holder.is(holder);
+        return this.holder == holder;
     }
 
     @Override

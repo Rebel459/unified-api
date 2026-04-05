@@ -9,14 +9,13 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
-import net.rebel459.unified.util.SuppliedItem;
 import net.rebel459.unified.util.event.LootTableProvider;
 import net.rebel459.unified.util.EventType;
-import net.rebel459.unified.util.registry.SuppliedItemImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,12 +44,12 @@ public class FabricUnifiedEvents {
                 }
 
                 @Override
-                public void editPool(Predicate<SuppliedItem> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
+                public void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
                     LootPoolEntryContainer builtEntry = entry.build();
 
                     tableBuilder.modifyPools(pool -> {
                         List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                        boolean matchesPool = entries.stream().anyMatch(existing -> matches(existing, itemPredicate));
+                        boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, itemPredicate));
                         if (!matchesPool) {
                             return;
                         }
@@ -61,17 +60,7 @@ public class FabricUnifiedEvents {
                             return;
                         }
 
-                        boolean changed = false;
-                        for (int i = 0; i < entries.size(); i++) {
-                            if (matches(entries.get(i), itemPredicate)) {
-                                entries.set(i, builtEntry);
-                                changed = true;
-                            }
-                        }
-
-                        if (changed) {
-                            pool.entries = LootTableProvider.immutableBuilder(entries);
-                        }
+                        EventsImpl.LootTables.handlePoolChanges(entries, itemPredicate, builtEntry, pool);
                     });
                 }
             }, registries);
@@ -82,12 +71,5 @@ public class FabricUnifiedEvents {
         ServerTickEvents.END_LEVEL_TICK.register((level) -> UnifiedEvents.Server.passOnLevelTick(EventType.POST, level));
         ServerLivingEntityEvents.AFTER_DEATH.register(UnifiedEvents.Entities::passOnDeath);
         ServerEntityEvents.EQUIPMENT_CHANGE.register(UnifiedEvents.Entities::passOnEquipmentChange);
-    }
-
-    private static boolean matches(LootPoolEntryContainer entry, Predicate<SuppliedItem> itemPredicate) {
-        if (entry instanceof LootItem lootItem && lootItem.item instanceof Holder<?> holder && holder.value() instanceof Item) {
-            return itemPredicate.test(new SuppliedItemImpl(lootItem.item));
-        }
-        return false;
     }
 }
