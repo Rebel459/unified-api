@@ -1,5 +1,6 @@
 package net.rebel459.unified.platform;
 
+import com.google.common.collect.ImmutableList;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -9,6 +10,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.rebel459.unified.util.event.LootTableProvider;
 import net.rebel459.unified.util.EventType;
 
 import java.util.ArrayList;
@@ -31,7 +34,16 @@ public class FabricUnifiedEvents {
         ServerLifecycleEvents.SERVER_STOPPED.register(UnifiedEvents.Server::passOnStop);
         LootTableEvents.MODIFY.register((targetTable, tableBuilder, source, registries) -> {
             List<LootPool.Builder> pools = new ArrayList<>();
-            tableBuilder.modifyPools(pools::add);
+            for (LootPool pool : getPools(tableBuilder)) {
+                LootPool.Builder builder = LootPool.lootPool();
+                builder.entries = LootTableProvider.immutableBuilder(pool.entries);
+                builder.conditions = LootTableProvider.immutableBuilder(pool.conditions);
+                builder.functions = LootTableProvider.immutableBuilder(pool.functions);
+                builder.rolls = pool.rolls;
+                builder.bonusRolls = pool.bonusRolls;
+                pools.add(builder);
+            }
+
             UnifiedEvents.LootTables.passModify(targetTable, new UnifiedEvents.LootTables.PoolAccess() {
                 @Override
                 public List<LootPool.Builder> pools() {
@@ -41,9 +53,10 @@ public class FabricUnifiedEvents {
                 @Override
                 public void addPool(LootPool.Builder pool) {
                     pools.add(pool);
-                    tableBuilder.withPool(pool);
                 }
             }, registries);
+
+            setPools(tableBuilder, pools);
         });
         ServerTickEvents.START_SERVER_TICK.register((server) -> UnifiedEvents.Server.passOnTick(EventType.PRE, server));
         ServerTickEvents.END_SERVER_TICK.register((server) -> UnifiedEvents.Server.passOnTick(EventType.POST, server));
@@ -51,5 +64,14 @@ public class FabricUnifiedEvents {
         ServerTickEvents.END_LEVEL_TICK.register((level) -> UnifiedEvents.Server.passOnLevelTick(EventType.POST, level));
         ServerLivingEntityEvents.AFTER_DEATH.register(UnifiedEvents.Entities::passOnDeath);
         ServerEntityEvents.EQUIPMENT_CHANGE.register(UnifiedEvents.Entities::passOnEquipmentChange);
+    }
+
+    private static List<LootPool> getPools(LootTable.Builder tableBuilder) {
+        return List.copyOf(tableBuilder.pools.build());
+    }
+
+    private static void setPools(LootTable.Builder tableBuilder, List<LootPool.Builder> pools) {
+        List<LootPool> builtPools = pools.stream().map(LootPool.Builder::build).toList();
+        tableBuilder.pools = LootTableProvider.immutableBuilder(builtPools);
     }
 }
