@@ -88,9 +88,8 @@ public class FabricUnifiedRegistries {
             ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, blockId);
 
             var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.get().setId(blockKey))));
-            var suppliedBlock = new SuppliedBlockImpl(block);
-
-            UnifiedRegistries.Items.create(modId).registerBlockItem(path, suppliedBlock, Item.Properties::new);
+            var blockItem = UnifiedRegistries.Items.create(modId).registerBlockItem(path, () -> block.value(), Item.Properties::new);
+            var suppliedBlock = new SuppliedBlockImpl(block, blockItem);
 
             return suppliedBlock;
         }
@@ -128,8 +127,10 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
-            new Items(modId).register(path, itemFunction, itemProperties);
-            return registerWithoutItem(path, blockFunction, blockProperties);
+            var item = new Items(modId).register(path, itemFunction, itemProperties);
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, id, blockFunction.apply(blockProperties.get().setId(ResourceKey.create(Registries.BLOCK, id)))));
+            return new SuppliedBlockImpl(block, item);
         }
 
         @Override
@@ -144,8 +145,9 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
-            new Items(modId).register(path, itemFunction, itemProperties);
-            return registerWithoutItem(path, blockFunction, blockProperties, type);
+            var block = register(path, blockFunction, blockProperties, itemFunction, itemProperties);
+            type.addValidBlock(block.get());
+            return block;
         }
 
         @Override

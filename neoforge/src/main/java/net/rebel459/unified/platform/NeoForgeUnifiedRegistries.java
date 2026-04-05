@@ -115,9 +115,9 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
-            SuppliedBlock blockHolder = registerWithoutItem(path, function, blockProperties);
-            ITEMS.get(modId).registerSimpleBlockItem(path, blockHolder);
-            return blockHolder;
+            var block = BLOCKS.get(modId).registerBlock(path, function, blockProperties);
+            var item = new SuppliedItemImpl(ITEMS.get(modId).registerSimpleBlockItem(path, block));
+            return new SuppliedBlockImpl(block, item);
         }
 
         @Override
@@ -151,8 +151,8 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
-            new Items(modId).register(path, itemFunction, itemProperties);
-            return registerWithoutItem(path, blockFunction, blockProperties);
+            var item = new Items(modId).register(path, itemFunction, itemProperties);
+            return new SuppliedBlockImpl(BLOCKS.get(modId).registerBlock(path, blockFunction, blockProperties), item);
         }
 
         @Override
@@ -167,8 +167,9 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
-            new Items(modId).register(path, itemFunction, itemProperties);
-            return registerWithoutItem(path, blockFunction, blockProperties, type);
+            var block = register(path, blockFunction, blockProperties, itemFunction, itemProperties);
+            BLOCK_ENTITIES.add(Pair.of(type, block));
+            return block;
         }
 
         @Override

@@ -12,12 +12,18 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.rebel459.unified.util.SuppliedBlock;
+import net.rebel459.unified.util.SuppliedItem;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public record SuppliedBlockImpl(Holder<Block> holder) implements SuppliedBlock {
+public record SuppliedBlockImpl(Holder<Block> holder, SuppliedItem item) implements SuppliedBlock {
+
+    public SuppliedBlockImpl(Holder<Block> holder) {
+        this(holder, null);
+    }
 
     @Override
     public Block value() {
@@ -91,7 +97,7 @@ public record SuppliedBlockImpl(Holder<Block> holder) implements SuppliedBlock {
 
     @Override
     public Item asItem() {
-        return holder.value().asItem();
+        return item != null ? item.get() : holder.value().asItem();
     }
 
     @Override
@@ -101,7 +107,7 @@ public record SuppliedBlockImpl(Holder<Block> holder) implements SuppliedBlock {
 
     @Override
     public ItemStackTemplate getTemplate() {
-        return new ItemStackTemplate(holder.value().asItem());
+        return new ItemStackTemplate(asItem());
     }
 
     @Override
