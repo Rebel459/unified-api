@@ -42,13 +42,13 @@ public class FabricClientHelpersImpl {
         }
 
         @Override
-        public <T extends Entity> void addEntityRenderer(EntityType<? extends T> entityType, EntityRendererProvider<T> entityRendererProvider) {
-            net.minecraft.client.renderer.entity.EntityRenderers.register(entityType, entityRendererProvider);
+        public <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
+            net.minecraft.client.renderer.entity.EntityRenderers.register(entityType.get(), entityRendererProvider);
         }
 
         @Override
-        public <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider) {
-            BlockEntityRenderers.register(blockEntityType, blockEntityRendererProvider);
+        public <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(Supplier<BlockEntityType<? extends T>> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider) {
+            BlockEntityRenderers.register(blockEntityType.get(), blockEntityRendererProvider);
         }
     }
 

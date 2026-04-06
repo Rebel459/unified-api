@@ -33,9 +33,9 @@ public class ClientHelpersImpl {
 
         void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition);
 
-        <T extends Entity> void addEntityRenderer(EntityType<? extends T> entityType, EntityRendererProvider<T> entityRendererProvider);
+        <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider);
 
-        <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
+        <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(Supplier<BlockEntityType<? extends T>> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
 
         static EntityRenderers get() {
             return ClientInternalHandlerImpl.INSTANCE.getEntityRenderers();

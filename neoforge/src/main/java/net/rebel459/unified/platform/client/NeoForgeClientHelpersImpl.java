@@ -50,8 +50,8 @@ public class NeoForgeClientHelpersImpl {
     public static class EntityRenderers implements ClientHelpersImpl.EntityRenderers {
 
         public static List<Pair<ModelLayerLocation, Supplier<LayerDefinition>>> LAYER_DEFINITIONS = new ArrayList<>();
-        public static List<Pair<EntityType, EntityRendererProvider>> ENTITY_RENDERERS = new ArrayList<>();
-        public static List<Pair<BlockEntityType, BlockEntityRendererProvider>> BLOCK_ENTITY_RENDERERS = new ArrayList<>();
+        public static List<Pair<Supplier, EntityRendererProvider>> ENTITY_RENDERERS = new ArrayList<>();
+        public static List<Pair<Supplier, BlockEntityRendererProvider>> BLOCK_ENTITY_RENDERERS = new ArrayList<>();
 
         @Override
         public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
@@ -59,12 +59,12 @@ public class NeoForgeClientHelpersImpl {
         }
 
         @Override
-        public <T extends Entity> void addEntityRenderer(EntityType<? extends T> entityType, EntityRendererProvider<T> entityRendererProvider) {
+        public <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
             ENTITY_RENDERERS.add(Pair.of(entityType, entityRendererProvider));
         }
 
         @Override
-        public <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(BlockEntityType<? extends T> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider) {
+        public <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(Supplier<BlockEntityType<? extends T>> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider) {
             BLOCK_ENTITY_RENDERERS.add(Pair.of(blockEntityType, blockEntityRendererProvider));
         }
 
@@ -77,11 +77,11 @@ public class NeoForgeClientHelpersImpl {
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            for (Pair<EntityType, EntityRendererProvider> entityRenderers : ENTITY_RENDERERS) {
-                event.registerEntityRenderer(entityRenderers.getFirst(), entityRenderers.getSecond());
+            for (Pair<Supplier, EntityRendererProvider> entityRenderers : ENTITY_RENDERERS) {
+                event.registerEntityRenderer((EntityType) entityRenderers.getFirst().get(), entityRenderers.getSecond());
             }
-            for (Pair<BlockEntityType, BlockEntityRendererProvider> blockEntityRenderers : BLOCK_ENTITY_RENDERERS) {
-                event.registerBlockEntityRenderer(blockEntityRenderers.getFirst(), blockEntityRenderers.getSecond());
+            for (Pair<Supplier, BlockEntityRendererProvider> blockEntityRenderers : BLOCK_ENTITY_RENDERERS) {
+                event.registerBlockEntityRenderer((BlockEntityType) blockEntityRenderers.getFirst().get(), blockEntityRenderers.getSecond());
             }
         }
     }
