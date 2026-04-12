@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.rebel459.unified.util.registry.SuppliedItemInterface;
 
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface SuppliedItem extends SuppliedItemInterface, Holder<Item>, Supplier<Item>, ItemLike {}
+public interface SuppliedItem extends SuppliedItemInterface, Holder<Item>, Predicate<Holder<Item>>, Supplier<Item>, ItemLike {}

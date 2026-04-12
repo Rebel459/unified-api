@@ -16,7 +16,6 @@ import net.rebel459.unified.util.SuppliedItem;
 
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public record SuppliedBlockImpl(Holder<Block> holder, SuppliedItem item) implements SuppliedBlock {
@@ -113,5 +112,10 @@ public record SuppliedBlockImpl(Holder<Block> holder, SuppliedItem item) impleme
     @Override
     public Block get() {
         return holder.value();
+    }
+
+    @Override
+    public boolean test(Holder<Block> holder) {
+        return this.holder.is(holder);
     }
 }

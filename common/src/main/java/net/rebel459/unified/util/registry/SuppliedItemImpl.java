@@ -107,4 +107,9 @@ public record SuppliedItemImpl(Holder<Item> holder) implements SuppliedItem {
     public Item get() {
         return holder.value();
     }
+
+    @Override
+    public boolean test(Holder<Item> holder) {
+        return this.holder.is(holder);
+    }
 }
