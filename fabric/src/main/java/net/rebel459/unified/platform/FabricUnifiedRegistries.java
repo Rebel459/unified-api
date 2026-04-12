@@ -89,8 +89,9 @@ public class FabricUnifiedRegistries {
 
             var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.get().setId(blockKey))));
             var blockItem = UnifiedRegistries.Items.create(modId).registerBlockItem(path, () -> block.value(), Item.Properties::new);
+            var suppliedBlock = new SuppliedBlockImpl(block, blockItem);
 
-            return new SuppliedBlockImpl(block, blockItem);
+            return suppliedBlock;
         }
 
         @Override
