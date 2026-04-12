@@ -55,7 +55,7 @@ public class FabricInternalHandler implements InternalHandler {
     }
 
     @Override
-    public HelpersImpl.Networking getNetworkPayloads() {
+    public HelpersImpl.Networking getNetworking() {
         return new FabricHelpersImpl.Networking();
     }
 

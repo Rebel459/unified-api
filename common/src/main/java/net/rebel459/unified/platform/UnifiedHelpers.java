@@ -8,7 +8,7 @@ public class UnifiedHelpers {
 
     public static HelpersImpl.CreativeEntries CREATIVE_ENTRIES = InternalHandlerImpl.INSTANCE.getCreativeEntries();
     public static HelpersImpl.Packs PACKS = InternalHandlerImpl.INSTANCE.getPacks();
-    public static HelpersImpl.Networking NETWORKING = InternalHandlerImpl.INSTANCE.getNetworkPayloads();
+    public static HelpersImpl.Networking NETWORKING = InternalHandlerImpl.INSTANCE.getNetworking();
     public static BlockConversions BLOCK_CONVERSIONS = new BlockConversions() {};
     public static DataComponents DATA_COMPONENTS = new DataComponents() {};
     public static HelpersImpl.BiomeModifications BIOME_MODIFICATIONS = InternalHandlerImpl.INSTANCE.getBiomeModifications();

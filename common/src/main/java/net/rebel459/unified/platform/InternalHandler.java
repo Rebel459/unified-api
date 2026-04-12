@@ -15,7 +15,7 @@ public interface InternalHandler {
 
     HelpersImpl.CreativeEntries getCreativeEntries();
     HelpersImpl.Packs getPacks();
-    HelpersImpl.Networking getNetworkPayloads();
+    HelpersImpl.Networking getNetworking();
     HelpersImpl.Platform getPlatform();
     HelpersImpl.BiomeModifications getBiomeModifications();
 }

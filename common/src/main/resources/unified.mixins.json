@@ -4,11 +4,14 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "block.FuelValuesMixin",
+    "entity.EntityMixin",
+    "entity.LivingEntityMixin",
     "entity.PlayerMixin",
     "entity.ServerLevelEntityCallbacksMixin",
     "entity.ServerPlayerMixin",
     "item.BlockItemMixin",
-    "item.ItemMixin"
+    "item.ItemMixin",
+    "item.ItemStackMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin",

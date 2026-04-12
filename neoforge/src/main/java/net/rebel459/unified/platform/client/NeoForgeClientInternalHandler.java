@@ -8,7 +8,7 @@ public class NeoForgeClientInternalHandler implements ClientInternalHandler {
     }
 
     @Override
-    public ClientHelpersImpl.Networking getNetworkPayloads() {
+    public ClientHelpersImpl.Networking getNetworking() {
         return new NeoForgeClientHelpersImpl.Networking();
     }
 

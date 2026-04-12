@@ -77,7 +77,7 @@ public interface BlockConversions {
         add(item, originalBlock, convertedBlock, sound, 1F, 1F);
     }
     default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
-        BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(item, convertedBlock, (context) -> {
+        Impl.INTERACTIONS.put(originalBlock, new Impl.Record(item, convertedBlock, (context) -> {
             Player player = context.getPlayer();
             if (player == null) return;
             context.getLevel().playSound(player, context.getClickedPos(), sound, SoundSource.BLOCKS, volume, pitch);
@@ -85,7 +85,7 @@ public interface BlockConversions {
         }));
     }
     default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
-        BlockConversions.Impl.ITEM_INTERACTIONS.put(originalBlock, new BlockConversions.Impl.Record(item, convertedBlock, context));
+        Impl.INTERACTIONS.put(originalBlock, new Impl.Record(item, convertedBlock, context));
     }
 
     class Impl {
@@ -114,7 +114,7 @@ public interface BlockConversions {
         }
 
         private static Optional<BlockState> evaluateNewBlockState(UseOnContext context, BlockState oldState) {
-            var interaction = ITEM_INTERACTIONS.get(oldState.getBlock());
+            var interaction = INTERACTIONS.get(oldState.getBlock());
             if (context.getPlayer() == null || interaction == null || !interaction.validItem.test(context.getItemInHand()))
                 return Optional.empty();
             interaction.context.accept(context);
@@ -123,6 +123,6 @@ public interface BlockConversions {
 
         record Record(Predicate<ItemStack> validItem, Block convertedBlock, Consumer<UseOnContext> context) {}
 
-        static HashMap<Block, Record> ITEM_INTERACTIONS = new HashMap<>();
+        static HashMap<Block, Record> INTERACTIONS = new HashMap<>();
     }
 }

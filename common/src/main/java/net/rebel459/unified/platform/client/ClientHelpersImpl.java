@@ -47,7 +47,7 @@ public class ClientHelpersImpl {
         void send(CustomPacketPayload payload);
 
         static Networking get() {
-            return ClientInternalHandlerImpl.INSTANCE.getNetworkPayloads();
+            return ClientInternalHandlerImpl.INSTANCE.getNetworking();
         }
     }
 

@@ -55,7 +55,7 @@ public class NeoForgeInternalHandler implements InternalHandler {
     }
 
     @Override
-    public HelpersImpl.Networking getNetworkPayloads() {
+    public HelpersImpl.Networking getNetworking() {
         return new NeoForgeHelpersImpl.Networking();
     }
 

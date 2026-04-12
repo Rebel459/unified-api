@@ -3,7 +3,6 @@ package net.rebel459.unified.platform;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceKey;
@@ -22,7 +21,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.event.LootTableProvider;
@@ -54,8 +52,13 @@ public class UnifiedEvents {
 
         private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modifyFiltered(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {
+        public static void modifyWithFilter(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, modifier));
+        }
+
+        @Deprecated
+        public static void modifyFiltered(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {
+            modifyWithFilter(filter, modifier);
         }
 
         private record FilteredEntry(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {}
@@ -104,6 +107,17 @@ public class UnifiedEvents {
 
         public static void onRespawn(BiConsumer<ServerPlayer, ServerPlayer> listener) {
             RESPAWN_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final EnumMap<EventType, List<Consumer<Player>>> TICK_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
+
+        public static void onTick(EventType type, Consumer<Player> listener) {
+            TICK_LISTENERS.get(type).add(listener);
         }
 
         // pass handled in impl
@@ -209,8 +223,13 @@ public class UnifiedEvents {
 
         private static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void modifyFiltered(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {
+        public static void modifyWithFilter(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, handler));
+        }
+
+        @Deprecated
+        public static void modifyFiltered(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {
+            modifyWithFilter(filter, handler);
         }
 
         private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {}
@@ -358,6 +377,28 @@ public class UnifiedEvents {
 
         public static void onUnload(BiConsumer<Entity, ServerLevel> listener) {
             UNLOAD_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final EnumMap<EventType, List<Consumer<Entity>>> TICK_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
+
+        public static void onTick(EventType type, Consumer<Entity> listener) {
+            TICK_LISTENERS.get(type).add(listener);
+        }
+
+        // pass handled in impl
+
+        static final EnumMap<EventType, List<Consumer<LivingEntity>>> LIVING_TICK_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
+
+        public static void onLivingTick(EventType type, Consumer<LivingEntity> listener) {
+            LIVING_TICK_LISTENERS.get(type).add(listener);
         }
 
         // pass handled in impl

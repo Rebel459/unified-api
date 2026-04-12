@@ -1,11 +1,20 @@
 package net.rebel459.unified.mixin.entity;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.rebel459.unified.Unified;
+import net.rebel459.unified.platform.EventsImpl;
+import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.helper.StructureMusicImpl;
 import net.rebel459.unified.util.mixin.PlayerStructureMusic;
+import net.rebel459.unified.util.tag.PersistentCooldowns;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 
@@ -75,5 +84,17 @@ public class PlayerMixin implements PlayerStructureMusic {
     @Override
     public void setPlayerGroup(int playerGroup) {
         this.playerGroup = playerGroup;
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void preTick(CallbackInfo ci) {
+        Player player = Player.class.cast(this);
+        EventsImpl.Players.passOnTick(EventType.PRE, player);
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void postTick(CallbackInfo ci) {
+        Player player = Player.class.cast(this);
+        EventsImpl.Players.passOnTick(EventType.POST, player);
     }
 }

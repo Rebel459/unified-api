@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -33,6 +34,12 @@ public class EventsImpl {
         public static void passOnRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer) {
             for (BiConsumer<ServerPlayer, ServerPlayer> listener : UnifiedEvents.Players.RESPAWN_LISTENERS) {
                 listener.accept(oldPlayer, newPlayer);
+            }
+        }
+
+        public static void passOnTick(EventType type, Player player) {
+            for (Consumer<Player> listener : UnifiedEvents.Players.TICK_LISTENERS.get(type)) {
+                listener.accept(player);
             }
         }
     }
@@ -117,6 +124,18 @@ public class EventsImpl {
         public static void passOnUnload(Entity entity, ServerLevel level) {
             for (BiConsumer<Entity, ServerLevel> listener : UnifiedEvents.Entities.UNLOAD_LISTENERS) {
                 listener.accept(entity, level);
+            }
+        }
+
+        public static void passOnTick(EventType type, Entity entity) {
+            for (Consumer<Entity> listener : UnifiedEvents.Entities.TICK_LISTENERS.get(type)) {
+                listener.accept(entity);
+            }
+        }
+
+        public static void passOnLivingTick(EventType type, LivingEntity entity) {
+            for (Consumer<LivingEntity> listener : UnifiedEvents.Entities.LIVING_TICK_LISTENERS.get(type)) {
+                listener.accept(entity);
             }
         }
     }

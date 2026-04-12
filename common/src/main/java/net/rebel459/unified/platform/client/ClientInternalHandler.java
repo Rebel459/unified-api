@@ -4,7 +4,7 @@ public interface ClientInternalHandler {
 
     UnifiedClientRegistries.KeyMappings createKeyMappings(String modId);
 
-    ClientHelpersImpl.Networking getNetworkPayloads();
+    ClientHelpersImpl.Networking getNetworking();
     ClientHelpersImpl.EntityRenderers getEntityRenderers();
     ClientHelpersImpl.Tooltips getTooltips();
     ClientHelpersImpl.ParticleProviders getParticleProviders();
