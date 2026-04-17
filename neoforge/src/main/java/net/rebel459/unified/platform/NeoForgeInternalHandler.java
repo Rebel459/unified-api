@@ -2,9 +2,7 @@ package net.rebel459.unified.platform;
 
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.WeatheringCopper;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
-import net.neoforged.neoforge.registries.datamaps.builtin.Oxidizable;
+import net.minecraft.world.level.block.state.BlockState;
 import net.rebel459.unified.util.helper.BlockConversionsImpl;
 
 import java.util.HashMap;
@@ -87,7 +85,13 @@ public class NeoForgeInternalHandler implements InternalHandler {
 
         @Override
         public BlockConversionsImpl.Oxidizables getOxidizables() {
-            return (from, to) -> OXIDIZABLES.put(from, to);
+            return (from, to) -> {
+                OXIDIZABLES.put(from, to);
+
+                for (BlockState state : from.getStateDefinition().getPossibleStates()) {
+                    state.initCache();
+                }
+            };
         }
     }
 }
