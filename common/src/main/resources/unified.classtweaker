@@ -64,6 +64,11 @@ accessible field net/minecraft/world/level/storage/loot/LootTable$Builder functi
 mutable field net/minecraft/world/level/storage/loot/LootTable$Builder functions Lcom/google/common/collect/ImmutableList$Builder;
 accessible field net/minecraft/world/level/storage/loot/LootTable$Builder pools Lcom/google/common/collect/ImmutableList$Builder;
 mutable field net/minecraft/world/level/storage/loot/LootTable$Builder pools Lcom/google/common/collect/ImmutableList$Builder;
+accessible field net/minecraft/world/level/storage/loot/entries/CompositeEntryBase children Ljava/util/List;
+accessible field net/minecraft/world/level/storage/loot/entries/LootPoolEntryContainer conditions Ljava/util/List;
+accessible method net/minecraft/world/level/storage/loot/entries/AlternativesEntry <init> (Ljava/util/List;Ljava/util/List;)V
+accessible method net/minecraft/world/level/storage/loot/entries/EntryGroup <init> (Ljava/util/List;Ljava/util/List;)V
+accessible method net/minecraft/world/level/storage/loot/entries/SequentialEntry <init> (Ljava/util/List;Ljava/util/List;)V
 
 accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
 accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer trimSpriteLookup Ljava/util/function/Function;

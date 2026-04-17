@@ -1,6 +1,6 @@
 package net.rebel459.unified.platform;
 
-import net.minecraft.core.Holder;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -14,12 +14,18 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
+import net.minecraft.world.level.storage.loot.entries.CompositeEntryBase;
+import net.minecraft.world.level.storage.loot.entries.EntryGroup;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.entries.SequentialEntry;
 import net.rebel459.unified.util.EventType;
+import net.rebel459.unified.util.LootEntry;
 import net.rebel459.unified.util.event.LootTableProvider;
 import org.apache.logging.log4j.util.TriConsumer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -50,6 +56,8 @@ public class EventsImpl {
 
         public interface LootTable {
             void addPool(LootPool.Builder pool);
+            void editPool(Predicate<Item> predicate, LootEntry entry);
+            @Deprecated
             void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
         }
 
@@ -58,23 +66,125 @@ public class EventsImpl {
         }
 
         public static boolean matches(LootPoolEntryContainer entry, Predicate<Item> itemPredicate) {
-            if (entry instanceof LootItem lootItem) return itemPredicate.test(lootItem.item.value());
-            else return false;
+            if (entry instanceof LootItem lootItem) {
+                return itemPredicate.test(lootItem.item.value());
+            }
+            if (entry instanceof CompositeEntryBase compositeEntry) {
+                for (LootPoolEntryContainer child : compositeEntry.children) {
+                    if (matches(child, itemPredicate)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
-        public static void handlePoolChanges(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
+        public static void handlePoolReplacements(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
             boolean changed = false;
+            List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
+
             for (int i = 0; i < entries.size(); i++) {
-                if (EventsImpl.LootTables.matches(entries.get(i), itemPredicate)) {
-                    entries.set(i, builtEntry);
-                    changed = true;
+                Result result = replaceEntry(entries.get(i), itemPredicate, builtEntry);
+                changed |= result.changed();
+                if (result.entry() != null) {
+                    rewrittenEntries.add(result.entry());
                 }
             }
 
             if (changed) {
-                pool.entries = LootTableProvider.immutableBuilder(entries);
+                pool.entries = LootTableProvider.immutableBuilder(rewrittenEntries);
             }
         }
+
+        public static void handlePoolRemovals(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPool.Builder pool) {
+            boolean changed = false;
+            List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
+
+            for (LootPoolEntryContainer entry : entries) {
+                Result result = removeEntry(entry, itemPredicate);
+                changed |= result.changed();
+                if (result.entry() != null) {
+                    rewrittenEntries.add(result.entry());
+                }
+            }
+
+            if (changed) {
+                pool.entries = LootTableProvider.immutableBuilder(rewrittenEntries);
+            }
+        }
+
+        private static Result replaceEntry(LootPoolEntryContainer entry, Predicate<Item> itemPredicate, LootPoolEntryContainer replacement) {
+            if (entry instanceof LootItem lootItem) {
+                return itemPredicate.test(lootItem.item.value()) ? new Result(replacement, true) : new Result(entry, false);
+            }
+            if (entry instanceof CompositeEntryBase compositeEntry) {
+                boolean changed = false;
+                List<LootPoolEntryContainer> rewrittenChildren = new ArrayList<>(compositeEntry.children.size());
+                for (LootPoolEntryContainer child : compositeEntry.children) {
+                    Result result = replaceEntry(child, itemPredicate, replacement);
+                    changed |= result.changed();
+                    if (result.entry() != null) {
+                        rewrittenChildren.add(result.entry());
+                    }
+                }
+
+                if (!changed) {
+                    return new Result(entry, false);
+                }
+                if (rewrittenChildren.isEmpty()) {
+                    return new Result(null, true);
+                }
+
+                return new Result(rebuildEntry(compositeEntry, rewrittenChildren), true);
+            }
+
+            return new Result(entry, false);
+        }
+
+        private static Result removeEntry(LootPoolEntryContainer entry, Predicate<Item> itemPredicate) {
+            if (entry instanceof LootItem lootItem) {
+                return itemPredicate.test(lootItem.item.value()) ? new Result(null, true) : new Result(entry, false);
+            }
+            if (entry instanceof CompositeEntryBase compositeEntry) {
+                boolean changed = false;
+                List<LootPoolEntryContainer> rewrittenChildren = new ArrayList<>(compositeEntry.children.size());
+                for (LootPoolEntryContainer child : compositeEntry.children) {
+                    Result result = removeEntry(child, itemPredicate);
+                    changed |= result.changed();
+                    if (result.entry() != null) {
+                        rewrittenChildren.add(result.entry());
+                    }
+                }
+
+                if (!changed) {
+                    return new Result(entry, false);
+                }
+                if (rewrittenChildren.isEmpty()) {
+                    return new Result(null, true);
+                }
+
+                return new Result(rebuildEntry(compositeEntry, rewrittenChildren), true);
+            }
+
+            return new Result(entry, false);
+        }
+
+        private static LootPoolEntryContainer rebuildEntry(CompositeEntryBase compositeEntry, List<LootPoolEntryContainer> rewrittenChildren) {
+            if (compositeEntry instanceof AlternativesEntry) {
+                return new AlternativesEntry(rewrittenChildren, compositeEntry.conditions);
+            }
+            if (compositeEntry instanceof EntryGroup) {
+                return new EntryGroup(rewrittenChildren, compositeEntry.conditions);
+            }
+            if (compositeEntry instanceof SequentialEntry) {
+                return new SequentialEntry(rewrittenChildren, compositeEntry.conditions);
+            }
+
+            LogUtils.getLogger().warn("Unsupported CompositeEntryBase type skipped");
+            return compositeEntry;
+        }
+
+        private record Result(LootPoolEntryContainer entry, boolean changed) {}
     }
 
     public static class Items {

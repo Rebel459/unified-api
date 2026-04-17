@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.HolderLookup;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.rebel459.unified.util.EventType;
+import net.rebel459.unified.util.LootEntry;
 import net.rebel459.unified.util.event.LootTableProvider;
 import net.rebel459.unified.util.event.QuadConsumer;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -267,24 +269,56 @@ public class UnifiedEvents {
             }
 
             @Override
-            public void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
-                LootPoolEntryContainer builtEntry = entry.build();
+            public void editPool(Predicate<Item> predicate, LootEntry entry) {
+                switch (entry.type()) {
+                    case INSERT -> {
+                        if (entry.entry().isEmpty()) {
+                            LogUtils.getLogger().warn("Invalid UnifiedLootEntry. Type INSERT requires a LootPoolEntryContainer.Builder<?>");
+                            return;
+                        }
+                        LootPoolEntryContainer builtEntry = entry.entry().get().build();
 
-                for (LootPool.Builder pool : pools.pools()) {
-                    List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                    boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, itemPredicate));
-                    if (!matchesPool) {
-                        continue;
+                        for (LootPool.Builder pool : pools.pools()) {
+                            List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
+                            boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, predicate));
+                            if (!matchesPool) {
+                                continue;
+                            }
+
+                            entries.add(builtEntry);
+                            pool.entries = LootTableProvider.immutableBuilder(entries);
+                        }
                     }
+                    case REPLACE -> {
+                        if (entry.entry().isEmpty()) {
+                            LogUtils.getLogger().warn("Invalid UnifiedLootEntry. Type REPLACE requires a LootPoolEntryContainer.Builder<?>");
+                            return;
+                        }
+                        LootPoolEntryContainer builtEntry = entry.entry().get().build();
 
-                    if (!replace) {
-                        entries.add(builtEntry);
-                        pool.entries = LootTableProvider.immutableBuilder(entries);
-                        continue;
+                        for (LootPool.Builder pool : pools.pools()) {
+                            List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
+                            boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, predicate));
+                            if (!matchesPool) {
+                                continue;
+                            }
+
+                            EventsImpl.LootTables.handlePoolReplacements(entries, predicate, builtEntry, pool);
+                        }
                     }
-
-                    EventsImpl.LootTables.handlePoolChanges(entries, itemPredicate, builtEntry, pool);
+                    case REMOVE -> {
+                        for (LootPool.Builder pool : pools.pools()) {
+                            List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
+                            EventsImpl.LootTables.handlePoolRemovals(entries, predicate, pool);
+                        }
+                    }
                 }
+            }
+
+            @Override
+            @Deprecated
+            public void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
+                this.editPool(itemPredicate, replace ? LootEntry.replace(entry) : LootEntry.insert(entry));
             }
         }
     }
