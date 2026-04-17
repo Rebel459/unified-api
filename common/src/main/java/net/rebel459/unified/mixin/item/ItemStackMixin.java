@@ -3,7 +3,7 @@ package net.rebel459.unified.mixin.item;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.rebel459.unified.util.helper.BlockConversions;
+import net.rebel459.unified.util.helper.BlockConversionsImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,7 +14,7 @@ public class ItemStackMixin {
 
     @Inject(at = @At("HEAD"), method = "useOn", cancellable = true)
     private void useOn(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
-        InteractionResult result = BlockConversions.Impl.useOn(context);
+        InteractionResult result = BlockConversionsImpl.useOn(context);
         if (result != InteractionResult.PASS) cir.setReturnValue(result);
     }
 }

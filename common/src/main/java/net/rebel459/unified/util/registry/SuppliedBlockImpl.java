@@ -61,7 +61,7 @@ public record SuppliedBlockImpl(Holder<Block> holder, SuppliedItem item) impleme
 
     @Override
     public boolean is(Holder<Block> holder) {
-        return this.holder == holder;
+        return this.holder.is(holder);
     }
 
     @Override

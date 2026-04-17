@@ -10,6 +10,6 @@ public final class ClientInternalHandlerImpl {
     private static <T> T load(Class<T> clazz) {
         return ServiceLoader.load(clazz, clazz.getClassLoader())
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("No ClientInternalHelper implementation found for " + clazz.getName()));
+                .orElseThrow(() -> new RuntimeException("No ClientInternalHandler implementation found for " + clazz.getName()));
     }
 }

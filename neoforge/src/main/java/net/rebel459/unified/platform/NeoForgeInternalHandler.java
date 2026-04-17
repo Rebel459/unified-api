@@ -1,6 +1,13 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.core.Registry;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.WeatheringCopper;
+import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.neoforged.neoforge.registries.datamaps.builtin.Oxidizable;
+import net.rebel459.unified.util.helper.BlockConversionsImpl;
+
+import java.util.HashMap;
 
 public class NeoForgeInternalHandler implements InternalHandler {
 
@@ -67,5 +74,20 @@ public class NeoForgeInternalHandler implements InternalHandler {
     @Override
     public HelpersImpl.BiomeModifications getBiomeModifications() {
         return new NeoForgeHelpersImpl.BiomeModifications();
+    }
+
+    @Override
+    public InternalHandler.Impl impl() {
+        return new Impl();
+    }
+
+    public static class Impl implements InternalHandler.Impl {
+
+        public static HashMap<Block, Block> OXIDIZABLES = new HashMap<>();
+
+        @Override
+        public BlockConversionsImpl.Oxidizables getOxidizables() {
+            return (from, to) -> OXIDIZABLES.put(from, to);
+        }
     }
 }

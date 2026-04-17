@@ -1,6 +1,11 @@
 package net.rebel459.unified.platform;
 
+import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.world.level.block.Block;
+import net.rebel459.unified.util.helper.BlockConversionsImpl;
+
+import java.util.HashMap;
 
 public class FabricInternalHandler implements InternalHandler {
 
@@ -67,5 +72,18 @@ public class FabricInternalHandler implements InternalHandler {
     @Override
     public HelpersImpl.BiomeModifications getBiomeModifications() {
         return new FabricHelpersImpl.BiomeModifications();
+    }
+
+    @Override
+    public InternalHandler.Impl impl() {
+        return new Impl();
+    }
+
+    public static class Impl implements InternalHandler.Impl {
+
+        @Override
+        public BlockConversionsImpl.Oxidizables getOxidizables() {
+            return OxidizableBlocksRegistry::registerNextStage;
+        }
     }
 }

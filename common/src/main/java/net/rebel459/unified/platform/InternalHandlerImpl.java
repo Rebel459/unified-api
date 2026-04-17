@@ -10,6 +10,6 @@ public final class InternalHandlerImpl {
     private static <T> T load(Class<T> clazz) {
         return ServiceLoader.load(clazz, clazz.getClassLoader())
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("No InternalHelper implementation found for " + clazz.getName()));
+                .orElseThrow(() -> new RuntimeException("No InternalHandler implementation found for " + clazz.getName()));
     }
 }

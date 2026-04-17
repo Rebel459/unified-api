@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "block.NeoForgeComposterBlockMixin",
+    "block.WeatheringCopperMixin",
     "item.DataComponentInitializersMixin",
     "item.DataComponentInitializersPendingComponentsMixin",
     "server.PlayerListMixin",

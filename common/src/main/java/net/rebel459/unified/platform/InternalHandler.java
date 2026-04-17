@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.core.Registry;
+import net.rebel459.unified.util.helper.BlockConversionsImpl;
 
 public interface InternalHandler {
 
@@ -18,4 +19,10 @@ public interface InternalHandler {
     HelpersImpl.Networking getNetworking();
     HelpersImpl.Platform getPlatform();
     HelpersImpl.BiomeModifications getBiomeModifications();
+
+    Impl impl();
+
+    interface Impl {
+        BlockConversionsImpl.Oxidizables getOxidizables();
+    }
 }
