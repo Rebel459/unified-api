@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -9,11 +10,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -39,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class FabricHelpersImpl {
 
@@ -250,13 +247,13 @@ public class FabricHelpersImpl {
             private record AddFeatureAction(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {}
             private record RemoveFeatureAction(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {}
 
-            private final HolderSet<Biome> targetBiomes;
+            private final Predicate<BiomeSelectionContext> targetBiomes;
             private final List<AddFeatureAction> toAddFeature = new ArrayList<>();
             private final List<RemoveFeatureAction> toRemoveFeature = new ArrayList<>();
             private final List<ResourceKey<ConfiguredWorldCarver<?>>> toAddCarver = new ArrayList<>();
             private final List<ResourceKey<ConfiguredWorldCarver<?>>> toRemoveCarver = new ArrayList<>();
 
-            WorldgenBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+            WorldgenBuilder(Predicate<BiomeSelectionContext> target) { this.targetBiomes = target; }
 
             @Override
             public void addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
@@ -282,7 +279,7 @@ public class FabricHelpersImpl {
                 for (var entry : toAddFeature) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.ADDITIONS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getGenerationSettings().addFeature(entry.step, entry.feature);
                                 ID += 1;
@@ -292,7 +289,7 @@ public class FabricHelpersImpl {
                 for (var entry : toRemoveFeature) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REMOVALS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getGenerationSettings().removeFeature(entry.step, entry.feature);
                                 ID += 1;
@@ -302,7 +299,7 @@ public class FabricHelpersImpl {
                 for (var entry : toAddCarver) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.ADDITIONS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getGenerationSettings().addCarver(entry);
                                 ID += 1;
@@ -312,7 +309,7 @@ public class FabricHelpersImpl {
                 for (var entry : toRemoveCarver) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REMOVALS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getGenerationSettings().removeCarver(entry);
                                 ID += 1;
@@ -323,13 +320,13 @@ public class FabricHelpersImpl {
         }
 
         private static class EffectsBuilder implements BiomeModifications.Effects {
-            private final HolderSet<Biome> targetBiomes;
+            private final Predicate<BiomeSelectionContext> targetBiomes;
             private Integer waterColor = null;
             private Integer foliageColor = null;
             private Integer dryFoliageColor = null;
             private Integer grassColor = null;
 
-            EffectsBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+            EffectsBuilder(Predicate<BiomeSelectionContext> target) { this.targetBiomes = target; }
 
             @Override
             public void setWaterColor(int color) {
@@ -355,7 +352,7 @@ public class FabricHelpersImpl {
                 if (waterColor != null) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getEffects().setWaterColor(waterColor);
                                 ID += 1;
@@ -365,7 +362,7 @@ public class FabricHelpersImpl {
                 if (foliageColor != null) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getEffects().setFoliageColorOverride(foliageColor);
                                 ID += 1;
@@ -375,7 +372,7 @@ public class FabricHelpersImpl {
                 if (dryFoliageColor != null) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getEffects().setDryFoliageColorOverride(dryFoliageColor);
                                 ID += 1;
@@ -385,7 +382,7 @@ public class FabricHelpersImpl {
                 if (grassColor != null) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getEffects().setGrassColorOverride(grassColor);
                                 ID += 1;
@@ -396,7 +393,7 @@ public class FabricHelpersImpl {
         }
 
         private static class ClimateBuilder implements HelpersImpl.BiomeModifications.Climate {
-            private final HolderSet<Biome> targetBiomes;
+            private final Predicate<BiomeSelectionContext> targetBiomes;
             private float temperature;
             private boolean changedTemperature = false;
             private float downfall;
@@ -404,7 +401,7 @@ public class FabricHelpersImpl {
             private boolean hasPrecipitation;
             private boolean changedHasPrecipitation = false;
 
-            ClimateBuilder(HolderSet<Biome> target) {this.targetBiomes = target;}
+            ClimateBuilder(Predicate<BiomeSelectionContext> target) {this.targetBiomes = target;}
 
             @Override
             public void setTemperature(float temperature) {
@@ -428,7 +425,7 @@ public class FabricHelpersImpl {
                 if (changedTemperature) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getWeather().setTemperature(temperature);
                                 ID += 1;
@@ -438,7 +435,7 @@ public class FabricHelpersImpl {
                 if (changedDownfall) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getWeather().setDownfall(downfall);
                                 ID += 1;
@@ -448,7 +445,7 @@ public class FabricHelpersImpl {
                 if (changedHasPrecipitation) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getWeather().setPrecipitation(hasPrecipitation);
                                 ID += 1;
@@ -461,10 +458,10 @@ public class FabricHelpersImpl {
         private static class EnvironmentAttributesBuilder implements BiomeModifications.EnvironmentAttributes {
             private record SetAction(EnvironmentAttribute attribute, Object value) {}
 
-            private final HolderSet<Biome> targetBiomes;
+            private final Predicate<BiomeSelectionContext> targetBiomes;
             private final List<EnvironmentAttributesBuilder.SetAction> toSet = new ArrayList<>();
 
-            EnvironmentAttributesBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+            EnvironmentAttributesBuilder(Predicate<BiomeSelectionContext> target) { this.targetBiomes = target; }
 
             @Override
             public <Value> void set(EnvironmentAttribute<Value> attribute, Value value) {
@@ -475,7 +472,7 @@ public class FabricHelpersImpl {
                 for (var entry : toSet) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REPLACEMENTS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getAttributes().set(entry.attribute, entry.value);
                                 ID += 1;
@@ -489,13 +486,13 @@ public class FabricHelpersImpl {
             private record AddSpawn(MobSpawnSettings.SpawnerData data, int weight) {}
             private record AddCharge(EntityType<?> entityType, double charge, double energyBudget) {}
 
-            private final HolderSet<Biome> targetBiomes;
+            private final Predicate<BiomeSelectionContext> targetBiomes;
             private final List<MobSpawnsBuilder.AddSpawn> toAddSpawn = new ArrayList<>();
             private final List<EntityType<?>> toRemoveSpawn = new ArrayList<>();
             private final List<MobSpawnsBuilder.AddCharge> toAddCharge = new ArrayList<>();
             private final List<EntityType<?>> toRemoveCharge = new ArrayList<>();
 
-            MobSpawnsBuilder(HolderSet<Biome> target) { this.targetBiomes = target; }
+            MobSpawnsBuilder(Predicate<BiomeSelectionContext> target) { this.targetBiomes = target; }
 
             @Override
             public void addSpawn(MobSpawnSettings.SpawnerData data, int weight) {
@@ -521,7 +518,7 @@ public class FabricHelpersImpl {
                 for (var entry : toAddSpawn) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.ADDITIONS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getMobSpawnSettings().addSpawn(
                                         entry.data.type().getCategory(),
@@ -535,7 +532,7 @@ public class FabricHelpersImpl {
                 for (var entry : toRemoveSpawn) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REMOVALS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getMobSpawnSettings().removeSpawnsOfEntityType(
                                         entry
@@ -547,7 +544,7 @@ public class FabricHelpersImpl {
                 for (var entry : toAddCharge) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.ADDITIONS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getMobSpawnSettings().addMobCharge(
                                         entry.entityType,
@@ -560,7 +557,7 @@ public class FabricHelpersImpl {
                 for (var entry : toRemoveCharge) {
                     net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
                             ModificationPhase.REMOVALS,
-                            (context -> this.targetBiomes.contains(context.getBiomeHolder())),
+                            (this.targetBiomes),
                             (selectionContext, modificationContext) -> {
                                 modificationContext.getMobSpawnSettings().clearMobCharge(
                                         entry
@@ -572,16 +569,12 @@ public class FabricHelpersImpl {
             }
         }
 
-        private static HolderGetter<Biome> getBiomeLookup() {
-            return VanillaRegistries.createLookup().lookup(Registries.BIOME).get();
-        }
-
-        public void doRegister(HolderSet<Biome> set, Consumer<Context> consumer) {
-            var features = new WorldgenBuilder(set);
-            var effects  = new EffectsBuilder(set);
-            var climate  = new ClimateBuilder(set);
-            var environmentAttributes = new EnvironmentAttributesBuilder(set);
-            var spawns = new MobSpawnsBuilder(set);
+        public void doRegister(Predicate<BiomeSelectionContext> selection, Consumer<Context> consumer) {
+            var features = new WorldgenBuilder(selection);
+            var effects  = new EffectsBuilder(selection);
+            var climate  = new ClimateBuilder(selection);
+            var environmentAttributes = new EnvironmentAttributesBuilder(selection);
+            var spawns = new MobSpawnsBuilder(selection);
 
             Context context = new Context(features, effects, climate, environmentAttributes, spawns);
             consumer.accept(context);
@@ -595,24 +588,17 @@ public class FabricHelpersImpl {
 
         @Override
         public void register(ResourceKey<Biome> biome, Consumer<Context> consumer) {
-            Holder<Biome> holder = getBiomeLookup().getOrThrow(biome);
-            HolderSet<Biome> set = HolderSet.direct(holder);
-            doRegister(set, consumer);
+            doRegister(selection -> selection.getBiomeHolder().is(biome), consumer);
         }
 
         @Override
         public void register(List<ResourceKey<Biome>> biomes, Consumer<Context> consumer) {
-            List<Holder.Reference<Biome>> holders = biomes.stream()
-                    .map(key -> getBiomeLookup().getOrThrow(key))
-                    .toList();
-            HolderSet<Biome> set = HolderSet.direct(holders);
-            doRegister(set, consumer);
+            doRegister(selection -> biomes.contains(selection.getBiomeKey()), consumer);
         }
 
         @Override
         public void register(TagKey<Biome> tag, Consumer<Context> consumer) {
-            HolderSet<Biome> set = getBiomeLookup().getOrThrow(tag);
-            doRegister(set, consumer);
+            doRegister(selection -> selection.hasTag(tag), consumer);
         }
     }
 }
