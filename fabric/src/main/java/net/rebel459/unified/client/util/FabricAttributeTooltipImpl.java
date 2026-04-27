@@ -31,6 +31,9 @@ public final class FabricAttributeTooltipImpl {
 
     public static void clear() {
         CURRENT_MODIFIERS.remove();
+    }
+
+    public static void clearStack() {
         CURRENT_STACK.remove();
     }
 }

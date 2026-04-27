@@ -24,6 +24,6 @@ public class FabricItemStackMixin {
 
     @Inject(method = "addAttributeTooltips", at = @At("TAIL"))
     private void endAttributeTooltip(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
-        FabricAttributeTooltipImpl.clear();
+        FabricAttributeTooltipImpl.clearStack();
     }
 }
