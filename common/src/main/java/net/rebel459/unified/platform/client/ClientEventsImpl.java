@@ -66,7 +66,7 @@ public class ClientEventsImpl {
 
         private ItemTooltips() {}
 
-        public record TooltipContext(ItemStack stack, Item.TooltipContext tooltip, TooltipDisplay display, LocalPlayer player, TooltipFlag flag, Consumer<Component> consumer) {}
+        public record TooltipContext(ItemStack stack, Item.TooltipContext tooltip, TooltipDisplay display, LocalPlayer player, TooltipFlag flag, Consumer<Component> builder) {}
 
         public record LineContext(ItemStack stack, Item.TooltipContext tooltip, LocalPlayer player, TooltipFlag flag, List<Component> components) {}
 
@@ -76,9 +76,9 @@ public class ClientEventsImpl {
             }
         }
 
-        public static void passAddAttributes(EventType type, ItemStack stack, Consumer<Component> consumer, TooltipDisplay display, LocalPlayer player) {
+        public static void passAddAttributes(EventType type, ItemStack stack, Consumer<Component> builder, TooltipDisplay display, LocalPlayer player) {
             for (QuadConsumer<ItemStack, Consumer<Component>, TooltipDisplay, LocalPlayer> listener : UnifiedClientEvents.ItemTooltips.TOOLTIP_ATTRIBUTES.get(type)) {
-                listener.accept(stack, consumer, display, player);
+                listener.accept(stack, builder, display, player);
             }
         }
 

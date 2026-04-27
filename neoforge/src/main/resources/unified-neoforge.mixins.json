@@ -13,7 +13,7 @@
     "worldgen.BiomeAccessor"
   ],
   "client": [
-    "client.AttributeUtilMixin"
+    "client.AttributeUtilMixin",
     "client.NeoForgeGuiMixin"
   ],
   "server": [],
