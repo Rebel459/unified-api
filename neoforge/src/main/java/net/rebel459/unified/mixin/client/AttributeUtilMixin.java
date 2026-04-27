@@ -29,10 +29,9 @@ public class AttributeUtilMixin {
         if (ctx.player() instanceof LocalPlayer player) ClientEventsImpl.ItemTooltips.passAddAttributes(EventType.PRE, stack, tooltip, ctx.tooltipDisplay(), player);
     }
 
-    @WrapOperation(method = "applyModifierTooltips", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/common/util/AttributeUtil;applyTextFor(Lnet/minecraft/world/item/ItemStack;Ljava/util/function/Consumer;Lcom/google/common/collect/Multimap;Lnet/neoforged/neoforge/common/util/AttributeTooltipContext;)V"))
-    private static void passAttributesPost(ItemStack stack, Consumer<Component> tooltip, Multimap<Holder<Attribute>, AttributeModifier> modifierMap, AttributeTooltipContext ctx, Operation<Void> original) {
+    @Inject(method = "applyModifierTooltips", at = @At(value = "TAIL"))
+    private static void passAttributesPost(ItemStack stack, Consumer<Component> tooltip, AttributeTooltipContext ctx, CallbackInfo ci) {
         if (ctx.player() instanceof LocalPlayer player) ClientEventsImpl.ItemTooltips.passAddAttributes(EventType.POST, stack, tooltip, ctx.tooltipDisplay(), player);
-        original.call(stack, tooltip, modifierMap, ctx);
     }
 
     @Inject(
