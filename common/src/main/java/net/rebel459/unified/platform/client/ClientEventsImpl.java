@@ -4,13 +4,19 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.event.QuadConsumer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -79,6 +85,26 @@ public class ClientEventsImpl {
         public static void passAddAttributes(EventType type, ItemStack stack, Consumer<Component> builder, TooltipDisplay display, LocalPlayer player) {
             for (QuadConsumer<ItemStack, Consumer<Component>, TooltipDisplay, LocalPlayer> listener : UnifiedClientEvents.ItemTooltips.TOOLTIP_ATTRIBUTES.get(type)) {
                 listener.accept(stack, builder, display, player);
+            }
+        }
+
+        public interface AttributeEntry {
+            void register(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, AttributeModifier modifier);
+        }
+
+        public static void passAfterAttributeAdded(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, AttributeModifier modifier) {
+            for (AttributeEntry entry : UnifiedClientEvents.ItemTooltips.ATTRIBUTE_ENTRIES) {
+                entry.register(builder, stack, itemModifiers, player, attribute, modifier);
+            }
+        }
+
+        public interface BaseAttributeEntry {
+            void register(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, double displayValue);
+        }
+
+        public static void passAfterBaseAttributeAdded(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, double displayValue) {
+            for (BaseAttributeEntry entry : UnifiedClientEvents.ItemTooltips.BASE_ATTRIBUTE_ENTRIES) {
+                entry.register(builder, stack, itemModifiers, player, attribute, displayValue);
             }
         }
 

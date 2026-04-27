@@ -7,7 +7,10 @@
     "block.FabricComposterBlockMixin"
   ],
   "client": [
-    "client.FabricGuiMixin"
+    "client.FabricGuiMixin",
+    "client.FabricItemAttributeModifiersDisplayDefaultMixin",
+    "client.FabricItemAttributeModifiersMixin",
+    "client.FabricItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

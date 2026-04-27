@@ -103,6 +103,22 @@ public class UnifiedClientEvents {
 
         // pass handled in impl
 
+        static final List<ClientEventsImpl.ItemTooltips.AttributeEntry> ATTRIBUTE_ENTRIES = new CopyOnWriteArrayList<>();
+
+        public static void afterAttributeAdded(ClientEventsImpl.ItemTooltips.AttributeEntry context) {
+            ATTRIBUTE_ENTRIES.add(context);
+        }
+
+        // pass handled in impl
+
+        static final List<ClientEventsImpl.ItemTooltips.BaseAttributeEntry> BASE_ATTRIBUTE_ENTRIES = new CopyOnWriteArrayList<>();
+
+        public static void afterBaseAttributeAdded(ClientEventsImpl.ItemTooltips.BaseAttributeEntry context) {
+            BASE_ATTRIBUTE_ENTRIES.add(context);
+        }
+
+        // pass handled in impl
+
         static final List<Consumer<ClientEventsImpl.ItemTooltips.LineContext>> TOOLTIP_LINES = new CopyOnWriteArrayList<>();
 
         public static void insertLines(Consumer<ClientEventsImpl.ItemTooltips.LineContext> listener) {
