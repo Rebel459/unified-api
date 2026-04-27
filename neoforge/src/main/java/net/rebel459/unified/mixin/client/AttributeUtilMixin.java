@@ -30,7 +30,7 @@ public class AttributeUtilMixin {
     }
 
     @Inject(method = "applyModifierTooltips", at = @At(value = "TAIL"))
-    private static void passAttributesPost(ItemStack stack, Consumer<Component> tooltip, AttributeTooltipContext ctx, CallbackInfo ci) {
+    private static void passAttributesTail(ItemStack stack, Consumer<Component> tooltip, AttributeTooltipContext ctx, CallbackInfo ci) {
         if (ctx.player() instanceof LocalPlayer player) ClientEventsImpl.ItemTooltips.passAddAttributes(EventType.POST, stack, tooltip, ctx.tooltipDisplay(), player);
     }
 
