@@ -3,6 +3,7 @@ package net.rebel459.unified.platform.client;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -21,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static net.rebel459.unified.platform.client.UnifiedClientEvents.Instance.RESPAWN_LISTENERS;
-
 public class ClientEventsImpl {
 
     public static class Instance {
@@ -30,8 +29,20 @@ public class ClientEventsImpl {
         private Instance() {}
 
         public static void passOnRespawn(LocalPlayer player) {
-            for (Consumer<LocalPlayer> listener : RESPAWN_LISTENERS) {
+            for (Consumer<LocalPlayer> listener : UnifiedClientEvents.Instance.RESPAWN_LISTENERS) {
                 listener.accept(player);
+            }
+        }
+
+        public static void passOnLevelLoad(ClientLevel level) {
+            for (Consumer<ClientLevel> listener : UnifiedClientEvents.Instance.LEVEL_LOADED_LISTENERS) {
+                listener.accept(level);
+            }
+        }
+
+        public static void passOnLevelUnload(ClientLevel level) {
+            for (Consumer<ClientLevel> listener : UnifiedClientEvents.Instance.LEVEL_UNLOADED_LISTENERS) {
+                listener.accept(level);
             }
         }
     }

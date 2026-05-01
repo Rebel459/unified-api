@@ -211,6 +211,22 @@ public class UnifiedEvents {
                 listener.accept(level);
             }
         }
+
+        static final List<Consumer<ServerLevel>> LEVEL_LOADED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLevelLoad(Consumer<ServerLevel> handler) {
+            LEVEL_LOADED_LISTENERS.add(handler);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<ServerLevel>> LEVEL_UNLOADED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLevelUnload(Consumer<ServerLevel> handler) {
+            LEVEL_UNLOADED_LISTENERS.add(handler);
+        }
+
+        // pass handled in impl
     }
 
     public static class LootTables {
@@ -436,5 +452,35 @@ public class UnifiedEvents {
         }
 
         // pass handled in impl
+    }
+
+    public static class Levels {
+
+        private Levels() {}
+
+        static final List<Consumer<Level>> LEVEL_LOADED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLoad(Consumer<Level> handler) {
+            LEVEL_LOADED_LISTENERS.add(handler);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<Level>> LEVEL_UNLOADED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onUnload(Consumer<Level> handler) {
+            LEVEL_UNLOADED_LISTENERS.add(handler);
+        }
+
+        // pass handled in impl
+
+        static final EnumMap<EventType, List<Consumer<Level>>> LEVEL_TICK_LISTENERS = new EnumMap<>(Map.of(
+                EventType.PRE, new ArrayList<>(),
+                EventType.POST, new ArrayList<>()
+        ));
+
+        public static void onTick(EventType type, Consumer<Level> listener) {
+            LEVEL_TICK_LISTENERS.get(type).add(listener);
+        }
     }
 }

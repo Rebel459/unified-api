@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
@@ -100,5 +101,13 @@ public class FabricUnifiedEvents {
         ServerTickEvents.END_LEVEL_TICK.register((level) -> UnifiedEvents.Server.passOnLevelTick(EventType.POST, level));
         ServerLivingEntityEvents.AFTER_DEATH.register(UnifiedEvents.Entities::passOnDeath);
         ServerEntityEvents.EQUIPMENT_CHANGE.register(UnifiedEvents.Entities::passOnEquipmentChange);
+        ServerLevelEvents.LOAD.register(((server, level) -> {
+            EventsImpl.Server.passOnLevelLoad(level);
+            EventsImpl.Levels.passOnLoad(level);
+        }));
+        ServerLevelEvents.UNLOAD.register(((server, level) -> {
+            EventsImpl.Server.passOnLevelUnload(level);
+            EventsImpl.Levels.passOnUnload(level);
+        }));
     }
 }

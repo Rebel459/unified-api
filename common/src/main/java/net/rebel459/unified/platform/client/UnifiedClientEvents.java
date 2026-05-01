@@ -2,15 +2,20 @@ package net.rebel459.unified.platform.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.Level;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.event.QuadConsumer;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class UnifiedClientEvents {
@@ -18,6 +23,30 @@ public class UnifiedClientEvents {
     public static class Instance {
 
         private Instance() {}
+
+        private static final List<Consumer<Minecraft>> START_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onStart(Consumer<Minecraft> listener) {
+            START_LISTENERS.add(listener);
+        }
+
+        static void passOnStart(Minecraft client) {
+            for (Consumer<Minecraft> listener : START_LISTENERS) {
+                listener.accept(client);
+            }
+        }
+
+        private static final List<Consumer<Minecraft>> STOP_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onStop(Consumer<Minecraft> listener) {
+            STOP_LISTENERS.add(listener);
+        }
+
+        static void passOnStop(Minecraft client) {
+            for (Consumer<Minecraft> listener : STOP_LISTENERS) {
+                listener.accept(client);
+            }
+        }
 
         private static final EnumMap<EventType, List<Consumer<Minecraft>>> TICK_LISTENERS = new EnumMap<>(Map.of(
                 EventType.PRE, new ArrayList<>(),
@@ -38,6 +67,22 @@ public class UnifiedClientEvents {
 
         public static void onRespawn(Consumer<LocalPlayer> listener) {
             RESPAWN_LISTENERS.add(listener);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<ClientLevel>> LEVEL_LOADED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLevelLoad(Consumer<ClientLevel> handler) {
+            LEVEL_LOADED_LISTENERS.add(handler);
+        }
+
+        // pass handled in impl
+
+        static final List<Consumer<ClientLevel>> LEVEL_UNLOADED_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void onLevelUnload(Consumer<ClientLevel> handler) {
+            LEVEL_UNLOADED_LISTENERS.add(handler);
         }
 
         // pass handled in impl

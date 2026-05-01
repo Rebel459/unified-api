@@ -49,8 +49,13 @@ public class FabricUnifiedRegistries {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <R, T extends R> Holder<T> registerHolder(String path, Supplier<T> value) {
+        public <V, T extends V> Holder<T> registerForHolder(String path, Supplier<T> value) {
             return Registry.registerForHolder(registry, Identifier.fromNamespaceAndPath(modId, path), value.get());
+        }
+
+        @Override
+        public <R, T extends R> Holder<T> registerHolder(String path, Supplier<T> value) {
+            return registerForHolder(path, value);
         }
 
         @Override
@@ -247,16 +252,25 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public Holder<SoundEvent> registerHolder(String path) {
-            return registerHolder(path, -1F);
+        public Holder<SoundEvent> registerForHolder(String path) {
+            return registerForHolder(path, -1F);
         }
         @Override
-        public Holder<SoundEvent> registerHolder(String path, float fixedRange) {
+        public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
             SoundEvent rangeType = SoundEvent.createVariableRangeEvent(identifier);
             if (fixedRange >= 0F) rangeType = SoundEvent.createFixedRangeEvent(identifier, fixedRange);
             SoundEvent finalRangeType = rangeType;
             return Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, finalRangeType);
+        }
+
+        @Override
+        public Holder<SoundEvent> registerHolder(String path) {
+            return registerForHolder(path);
+        }
+        @Override
+        public Holder<SoundEvent> registerHolder(String path, float fixedRange) {
+            return registerForHolder(path, fixedRange);
         }
     }
 }

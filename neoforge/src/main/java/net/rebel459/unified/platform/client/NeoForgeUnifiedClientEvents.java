@@ -2,6 +2,8 @@ package net.rebel459.unified.platform.client;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.lifecycle.ClientStartedEvent;
+import net.neoforged.neoforge.client.event.lifecycle.ClientStoppingEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.rebel459.unified.util.EventType;
 
@@ -13,6 +15,12 @@ public class NeoForgeUnifiedClientEvents {
         });
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> {
             UnifiedClientEvents.Instance.passOnTick(EventType.POST, Minecraft.getInstance());
+        });
+        NeoForge.EVENT_BUS.addListener((ClientStartedEvent event) -> {
+            UnifiedClientEvents.Instance.passOnStart(event.getClient());
+        });
+        NeoForge.EVENT_BUS.addListener((ClientStoppingEvent event) -> {
+            UnifiedClientEvents.Instance.passOnStop(event.getClient());
         });
     }
 }

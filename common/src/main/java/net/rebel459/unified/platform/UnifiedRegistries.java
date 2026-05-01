@@ -30,6 +30,9 @@ public class UnifiedRegistries {
 
         <V, T extends V> Supplier<T> register(String path, Supplier<T> value);
 
+        <V, T extends V> Holder<T> registerForHolder(String path, Supplier<T> value);
+
+        @Deprecated
         <V, T extends V> Holder<T> registerHolder(String path, Supplier<T> value);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
@@ -135,7 +138,12 @@ public class UnifiedRegistries {
         Supplier<SoundEvent> register(String path);
         Supplier<SoundEvent> register(String path, float fixedRange);
 
+        Holder<SoundEvent> registerForHolder(String path);
+        Holder<SoundEvent> registerForHolder(String path, float fixedRange);
+
+        @Deprecated
         Holder<SoundEvent> registerHolder(String path);
+        @Deprecated
         Holder<SoundEvent> registerHolder(String path, float fixedRange);
 
         static SoundEvents create(String modId) {

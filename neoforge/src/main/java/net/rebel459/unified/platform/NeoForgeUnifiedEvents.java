@@ -4,8 +4,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.bus.api.IEventBus;
@@ -16,6 +18,7 @@ import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -105,6 +108,15 @@ public class NeoForgeUnifiedEvents {
         });
         NeoForge.EVENT_BUS.addListener((LivingEquipmentChangeEvent event) -> {
             UnifiedEvents.Entities.passOnEquipmentChange(event.getEntity(), event.getSlot(), event.getFrom(), event.getTo());
+        });
+
+        NeoForge.EVENT_BUS.addListener((LevelEvent.Load event) -> {
+            if (event.getLevel() instanceof ServerLevel level) EventsImpl.Server.passOnLevelLoad(level);
+            if (event.getLevel() instanceof Level level && !level.isClientSide()) EventsImpl.Levels.passOnLoad(level);
+        });
+        NeoForge.EVENT_BUS.addListener((LevelEvent.Unload event) -> {
+            if (event.getLevel() instanceof ServerLevel level) EventsImpl.Server.passOnLevelUnload(level);
+            if (event.getLevel() instanceof Level level && !level.isClientSide()) EventsImpl.Levels.passOnUnload(level);
         });
     }
 

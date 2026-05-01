@@ -81,8 +81,13 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <V, T extends V> Holder<T> registerHolder(String path, Supplier<T> value) {
+        public <V, T extends V> Holder<T> registerForHolder(String path, Supplier<T> value) {
             return DEFERRED.get(Pair.of(modId, registry)).register(path, value).getDelegate();
+        }
+
+        @Override
+        public <V, T extends V> Holder<T> registerHolder(String path, Supplier<T> value) {
+            return registerForHolder(path, value);
         }
 
         @Override
@@ -262,12 +267,21 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public Holder<SoundEvent> registerHolder(String path) {
+        public Holder<SoundEvent> registerForHolder(String path) {
             return ((DeferredRegister<SoundEvent>) DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT))).register(path, () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(modId, path)));
         }
         @Override
-        public Holder<SoundEvent> registerHolder(String path, float fixedRange) {
+        public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
             return ((DeferredRegister<SoundEvent>) DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT))).register(path, () -> SoundEvent.createFixedRangeEvent(Identifier.fromNamespaceAndPath(modId, path), fixedRange));
+        }
+
+        @Override
+        public Holder<SoundEvent> registerHolder(String path) {
+            return registerForHolder(path);
+        }
+        @Override
+        public Holder<SoundEvent> registerHolder(String path, float fixedRange) {
+            return registerForHolder(path);
         }
     }
 }

@@ -1,6 +1,10 @@
 package net.rebel459.unified.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.MusicManager;
@@ -10,6 +14,8 @@ import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
 import net.minecraft.util.Mth;
 import net.rebel459.unified.network.StructurePackets;
+import net.rebel459.unified.platform.EventsImpl;
+import net.rebel459.unified.platform.client.ClientEventsImpl;
 import net.rebel459.unified.platform.client.UnifiedClientHelpers;
 import net.rebel459.unified.util.mixin.PlayerStructureMusic;
 import org.jspecify.annotations.Nullable;
@@ -19,6 +25,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Minecraft.class)
@@ -36,6 +43,9 @@ public abstract class MinecraftMixin {
     @Final
     private SoundManager soundManager;
 
+    @Shadow
+    @Nullable
+    public ClientLevel level;
     @Unique
     private boolean pendingUpdate = false;
 
@@ -120,5 +130,22 @@ public abstract class MinecraftMixin {
             this.pendingUpdate = true;
             this.pendingTicks = 0;
         }
+    }
+
+    @Inject(method = "setLevel", at = @At(value = "HEAD"))
+    private void stopClientLevel(ClientLevel level, CallbackInfo ci) {
+        if (level != null) {
+            ClientEventsImpl.Instance.passOnLevelUnload(level);
+            EventsImpl.Levels.passOnUnload(level);
+        }
+    }
+
+    @WrapOperation(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;onDisconnected()V"))
+    private void stopClientLevel(Gui gui, Operation<Void> original) {
+        if (this.level != null) {
+            ClientEventsImpl.Instance.passOnLevelUnload(this.level);
+            EventsImpl.Levels.passOnUnload(this.level);
+        }
+        original.call(gui);
     }
 }

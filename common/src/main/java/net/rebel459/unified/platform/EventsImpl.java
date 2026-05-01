@@ -26,7 +26,10 @@ import net.rebel459.unified.util.event.LootTableProvider;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -46,6 +49,23 @@ public class EventsImpl {
         public static void passOnTick(EventType type, Player player) {
             for (Consumer<Player> listener : UnifiedEvents.Players.TICK_LISTENERS.get(type)) {
                 listener.accept(player);
+            }
+        }
+    }
+
+    public static class Server {
+
+        private Server() {}
+
+        public static void passOnLevelLoad(ServerLevel level) {
+            for (Consumer<ServerLevel> listener : UnifiedEvents.Server.LEVEL_LOADED_LISTENERS) {
+                listener.accept(level);
+            }
+        }
+
+        public static void passOnLevelUnload(ServerLevel level) {
+            for (Consumer<ServerLevel> listener : UnifiedEvents.Server.LEVEL_UNLOADED_LISTENERS) {
+                listener.accept(level);
             }
         }
     }
@@ -246,6 +266,23 @@ public class EventsImpl {
         public static void passOnLivingTick(EventType type, LivingEntity entity) {
             for (Consumer<LivingEntity> listener : UnifiedEvents.Entities.LIVING_TICK_LISTENERS.get(type)) {
                 listener.accept(entity);
+            }
+        }
+    }
+
+    public static class Levels {
+
+        private Levels() {}
+
+        public static void passOnLoad(Level level) {
+            for (Consumer<Level> listener : UnifiedEvents.Levels.LEVEL_LOADED_LISTENERS) {
+                listener.accept(level);
+            }
+        }
+
+        public static void passOnUnload(Level level) {
+            for (Consumer<Level> listener : UnifiedEvents.Levels.LEVEL_UNLOADED_LISTENERS) {
+                listener.accept(level);
             }
         }
     }

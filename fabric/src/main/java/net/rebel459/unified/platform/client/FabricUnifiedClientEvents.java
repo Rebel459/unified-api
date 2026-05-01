@@ -1,5 +1,6 @@
 package net.rebel459.unified.platform.client;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.rebel459.unified.util.EventType;
 
@@ -8,5 +9,7 @@ public class FabricUnifiedClientEvents {
 
         ClientTickEvents.START_CLIENT_TICK.register((client) -> UnifiedClientEvents.Instance.passOnTick(EventType.PRE, client));
         ClientTickEvents.END_CLIENT_TICK.register((client) -> UnifiedClientEvents.Instance.passOnTick(EventType.POST, client));
+        ClientLifecycleEvents.CLIENT_STARTED.register(UnifiedClientEvents.Instance::passOnStart);
+        ClientLifecycleEvents.CLIENT_STOPPING.register(UnifiedClientEvents.Instance::passOnStop);
     }
 }
