@@ -1,9 +1,11 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -21,6 +23,7 @@ import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
@@ -41,10 +44,12 @@ import net.rebel459.unified.util.*;
 import net.rebel459.unified.util.neoforge.BiomeBuilderEvent;
 import net.rebel459.unified.util.neoforge.UnifiedBiomeModifiers;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class NeoForgeHelpersImpl {
 
@@ -146,31 +151,113 @@ public class NeoForgeHelpersImpl {
 
         @SubscribeEvent
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
+            CreativeModeTab.TabVisibility visibility =
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
+
             for (Pair<ItemStackTemplate, ResourceKey<CreativeModeTab>> pair : INSERT_ITEMS) {
                 ItemStack item = pair.getFirst().create();
                 ResourceKey<CreativeModeTab> tab = pair.getSecond();
+
                 if (event.getTabKey().equals(tab)) {
-                    event.accept(item);
+                    event.accept(item, visibility);
                 }
             }
-            for (int x = INSERT_AFTER_ITEMS.size() - 1; x >= 0; x--) {
-                var triple = INSERT_AFTER_ITEMS.get(x);
-                ItemLike existingItem = triple.getLeft();
-                ItemStack addedItem = triple.getMiddle().create();
-                ResourceKey<CreativeModeTab> tab = triple.getRight();
-                if (event.getTabKey().equals(tab)) {
-                    event.insertAfter(existingItem.asItem().getDefaultInstance(), addedItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
+            applyRelativeItems(event, visibility);
+        }
+
+        private static void applyRelativeItems(BuildCreativeModeTabContentsEvent event, CreativeModeTab.TabVisibility visibility) {
+            List<RelativeEntry> pending = new ArrayList<>();
+
+            for (Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>> triple : INSERT_AFTER_ITEMS) {
+                if (event.getTabKey().equals(triple.getRight())) {
+                    pending.add(new RelativeEntry(RelativePlacement.AFTER, triple.getLeft(), triple.getMiddle(), triple.getRight()));
                 }
             }
+
             for (Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>> triple : INSERT_BEFORE_ITEMS) {
-                ItemLike existingItem = triple.getLeft();
-                ItemStack addedItem = triple.getMiddle().create();
-                ResourceKey<CreativeModeTab> tab = triple.getRight();
-                if (event.getTabKey().equals(tab)) {
-                    event.insertBefore(existingItem.asItem().getDefaultInstance(), addedItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                if (event.getTabKey().equals(triple.getRight())) {
+                    pending.add(new RelativeEntry(RelativePlacement.BEFORE, triple.getLeft(), triple.getMiddle(), triple.getRight()));
+                }
+            }
+
+            boolean changed;
+
+            do {
+                changed = false;
+
+                Iterator<RelativeEntry> iterator = pending.iterator();
+
+                while (iterator.hasNext()) {
+                    RelativeEntry entry = iterator.next();
+
+                    ItemStack anchor = findAnchor(event, entry.anchor(), visibility);
+                    if (anchor == null) {
+                        continue;
+                    }
+
+                    ItemStack added = entry.added().create();
+
+                    if (entry.placement() == RelativePlacement.AFTER) {
+                        event.insertAfter(anchor, added, visibility);
+                    } else {
+                        event.insertBefore(anchor, added, visibility);
+                    }
+
+                    iterator.remove();
+                    changed = true;
+                }
+            } while (changed);
+
+            if (!pending.isEmpty()) {
+                for (RelativeEntry entry : pending) {
+                    ItemStack added = entry.added().create();
+
+                    LogUtils.getLogger().warn(
+                            "Failed to add item {} {} anchor item {} in NeoForge creative tab {} because the anchor was not present",
+                            BuiltInRegistries.ITEM.getKey(added.getItem()),
+                            entry.placement() == RelativePlacement.AFTER ? "after" : "before",
+                            BuiltInRegistries.ITEM.getKey(entry.anchor().asItem()),
+                            entry.tab().identifier()
+                    );
                 }
             }
         }
+
+        private static @Nullable ItemStack findAnchor(BuildCreativeModeTabContentsEvent event, ItemLike item, CreativeModeTab.TabVisibility visibility) {
+            if (visibility == CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS || visibility == CreativeModeTab.TabVisibility.PARENT_TAB_ONLY) {
+                ItemStack parentAnchor = findAnchorIn(event.getParentEntries(), item);
+
+                if (parentAnchor != null) {
+                    return parentAnchor;
+                }
+            }
+
+            if (visibility == CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS || visibility == CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY) {
+                return findAnchorIn(event.getSearchEntries(), item);
+            }
+
+            return null;
+        }
+
+        private static @Nullable ItemStack findAnchorIn(Iterable<ItemStack> entries, ItemLike item) {
+            Item target = item.asItem();
+
+            for (ItemStack stack : entries) {
+                if (stack.is(target)) {
+                    return stack;
+                }
+            }
+
+            return null;
+        }
+
+        private enum RelativePlacement {
+            BEFORE,
+            AFTER
+        }
+
+        private record RelativeEntry(RelativePlacement placement, ItemLike anchor, ItemStackTemplate added, ResourceKey<CreativeModeTab> tab) {}
     }
 
     public static class Packs implements HelpersImpl.Packs {
