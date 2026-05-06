@@ -150,7 +150,7 @@ public class NeoForgeHelpersImpl {
             }
         }
 
-        @SubscribeEvent(priority = EventPriority.LOWEST)
+        @SubscribeEvent(priority = EventPriority.LOW)
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
             CreativeModeTab.TabVisibility visibility =
                     CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
