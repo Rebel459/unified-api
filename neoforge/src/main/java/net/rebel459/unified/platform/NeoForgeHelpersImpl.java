@@ -32,6 +32,7 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
@@ -149,7 +150,7 @@ public class NeoForgeHelpersImpl {
             }
         }
 
-        @SubscribeEvent
+        @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
             CreativeModeTab.TabVisibility visibility =
                     CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
