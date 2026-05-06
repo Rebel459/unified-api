@@ -11,12 +11,14 @@ public class Supplied<T> extends ResourceKey<T> implements Supplier<T> {
 
     private final Supplier<? extends Registry<?>> registry;
     private final ResourceKey<?> key;
+    private final Supplier<?> supplied;
 
     @ApiStatus.Internal
-    public Supplied(Supplier<? extends Registry<?>> registry, ResourceKey<?> key) {
+    public Supplied(Supplier<? extends Registry<?>> registry, ResourceKey<?> key, Supplier<?> supplied) {
         super(key.registry(), key.identifier());
         this.registry = registry;
         this.key = key;
+        this.supplied = supplied;
     }
 
     @SuppressWarnings("unchecked")
@@ -25,7 +27,8 @@ public class Supplied<T> extends ResourceKey<T> implements Supplier<T> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public T get() {
-        return holder().value();
+        return (T) supplied.get();
     }
 }

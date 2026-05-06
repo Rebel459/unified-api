@@ -12,8 +12,8 @@ import java.util.function.Supplier;
 
 public class SuppliedItem extends Supplied<Item> implements ItemLike {
 
-    public SuppliedItem(Supplier<Registry<Item>> registry, ResourceKey<Item> key) {
-        super(registry, key);
+    public <T extends Item> SuppliedItem(Supplier<Registry<Item>> registry, ResourceKey<Item> key, Supplier<T> item) {
+        super(registry, key, item);
     }
 
     public ItemStack defaultItemStack() {
@@ -41,6 +41,6 @@ public class SuppliedItem extends Supplied<Item> implements ItemLike {
 
     @Override
     public Item get() {
-        return this.holder().value();
+        return super.get();
     }
 }

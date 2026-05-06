@@ -1,6 +1,5 @@
 package net.rebel459.unified.platform;
 
-import com.google.common.base.Suppliers;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -42,8 +41,9 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Y> Supplied<T> register(String path, Supplier<T> value) {
             ResourceKey<Y> key = ResourceKey.create(registry.key(), Identifier.fromNamespaceAndPath(modId, path));
-            Registry.register(registry, key, value.get());
-            return new Supplied<>(() -> registry, key);
+            var registered = Registry.register(registry, key, value.get());
+            Supplier<T> supplied = () -> registered;
+            return new Supplied<>(() -> registry, key, supplied);
         }
 
         @Override
@@ -67,8 +67,9 @@ public class FabricUnifiedRegistries {
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             var resourceKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
-            net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
-            return new SuppliedItem(() -> BuiltInRegistries.ITEM, resourceKey);
+            var item = net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
+            Supplier<Item> supplied = () -> item;
+            return new SuppliedItem(() -> BuiltInRegistries.ITEM, resourceKey, supplied);
         }
 
         @Override
@@ -79,8 +80,9 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
             var itemId = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
-            net.minecraft.world.item.Items.registerBlock(block.get(), properties.get());
-            return new SuppliedItem(() -> BuiltInRegistries.ITEM, itemId);
+            var item = net.minecraft.world.item.Items.registerBlock(block.get(), properties.get());
+            Supplier<Item> supplied = () -> item;
+            return new SuppliedItem(() -> BuiltInRegistries.ITEM, itemId, supplied);
         }
 
         @Override
@@ -96,10 +98,13 @@ public class FabricUnifiedRegistries {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
 
-            var block = Registry.register(BuiltInRegistries.BLOCK, key, function.apply(blockProperties.get().setId(key)));
-            net.minecraft.world.item.Items.registerBlock(block, new Item.Properties());
+            Block block = Registry.register(BuiltInRegistries.BLOCK, key, function.apply(blockProperties.get().setId(key)));
+            var item = net.minecraft.world.item.Items.registerBlock(block, new Item.Properties());
 
-            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, new SuppliedItem(() -> BuiltInRegistries.ITEM, ResourceKey.create(Registries.ITEM, id)));
+            Supplier<Block> suppliedBlock = () -> block;
+            Supplier<Item> suppliedItem = () -> item;
+            
+            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, suppliedBlock, new SuppliedItem(() -> BuiltInRegistries.ITEM, ResourceKey.create(Registries.ITEM, id), suppliedItem));
         }
 
         @Override
@@ -113,8 +118,9 @@ public class FabricUnifiedRegistries {
         public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
-            Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key)));
-            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, null);
+            Block block = Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key)));
+            Supplier<Block> supplied = () -> block;
+            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, supplied, null);
         }
 
         @Override
@@ -138,8 +144,9 @@ public class FabricUnifiedRegistries {
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
             var item = new Items(modId).register(path, itemFunction, itemProperties);
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path));
-            Registry.register(BuiltInRegistries.BLOCK, key, blockFunction.apply(blockProperties.get().setId(key)));
-            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, item);
+            Block block = Registry.register(BuiltInRegistries.BLOCK, key, blockFunction.apply(blockProperties.get().setId(key)));
+            Supplier<Block> supplied = () -> block;
+            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, supplied, item);
         }
 
         @Override
@@ -186,8 +193,9 @@ public class FabricUnifiedRegistries {
         @Override
         public <T> Supplied<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
             ResourceKey<DataComponentType<?>> key = ResourceKey.create(Registries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, path));
-            Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, key, unaryOperator.apply(DataComponentType.builder()).build());
-            return new Supplied<>(() -> BuiltInRegistries.DATA_COMPONENT_TYPE, key);
+            DataComponentType<T> component = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, key, unaryOperator.apply(DataComponentType.builder()).build());
+            Supplier<DataComponentType<T>> supplied = () -> component;
+            return new Supplied<>(() -> BuiltInRegistries.DATA_COMPONENT_TYPE, key, supplied);
         }
 
         @Override
@@ -201,8 +209,9 @@ public class FabricUnifiedRegistries {
         @Override
         public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
             ResourceKey<EntityType<?>> resourceKey = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
-            Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey));
-            return new Supplied<>(() -> BuiltInRegistries.ENTITY_TYPE, resourceKey);
+            EntityType<T> entity = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey));
+            Supplier<EntityType<T>> supplied = () -> entity;
+            return new Supplied<>(() -> BuiltInRegistries.ENTITY_TYPE, resourceKey, supplied);
         }
 
         @Override
@@ -230,8 +239,9 @@ public class FabricUnifiedRegistries {
         private @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Set<Block> set) {
             ResourceKey<BlockEntityType<?>> key = ResourceKey.create(Registries.BLOCK_ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
             Util.fetchChoiceType(References.BLOCK_ENTITY, key.identifier().toString());
-            Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, key, new BlockEntityType<>(builder, set));
-            return new Supplied<>(() -> BuiltInRegistries.BLOCK_ENTITY_TYPE, key);
+            BlockEntityType<T> blockEntity = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, key, new BlockEntityType<>(builder, set));
+            Supplier<BlockEntityType<T>> supplied = () -> blockEntity;
+            return new Supplied<>(() -> BuiltInRegistries.BLOCK_ENTITY_TYPE, key, supplied);
         }
 
         @Override
@@ -252,8 +262,9 @@ public class FabricUnifiedRegistries {
             SoundEvent rangeType = SoundEvent.createVariableRangeEvent(key.identifier());
             if (fixedRange >= 0F) rangeType = SoundEvent.createFixedRangeEvent(key.identifier(), fixedRange);
             SoundEvent finalRangeType = rangeType;
-            Registry.register(BuiltInRegistries.SOUND_EVENT, key, finalRangeType);
-            return new Supplied<>(() -> BuiltInRegistries.SOUND_EVENT, key);
+            SoundEvent sound = Registry.register(BuiltInRegistries.SOUND_EVENT, key, finalRangeType);
+            Supplier<SoundEvent> supplied = () -> sound;
+            return new Supplied<>(() -> BuiltInRegistries.SOUND_EVENT, key, supplied);
         }
 
         @Override

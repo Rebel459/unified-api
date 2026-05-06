@@ -16,8 +16,8 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
 
     @Nullable SuppliedItem item;
 
-    public SuppliedBlock(Supplier<Registry<Block>> registry, ResourceKey<Block> key, @Nullable SuppliedItem item) {
-        super(registry, key);
+    public <T extends Block> SuppliedBlock(Supplier<Registry<Block>> registry, ResourceKey<Block> key, Supplier<T> block, @Nullable SuppliedItem item) {
+        super(registry, key, block);
         this.item = item;
     }
 
@@ -46,6 +46,6 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
 
     @Override
     public Block get() {
-        return this.holder().value();
+        return super.get();
     }
 }
