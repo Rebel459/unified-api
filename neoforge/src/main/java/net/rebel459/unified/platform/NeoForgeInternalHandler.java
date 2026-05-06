@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class NeoForgeInternalHandler implements InternalHandler {
 
     @Override
-    public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<?> registry) {
+    public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
         return new NeoForgeUnifiedRegistries.DeferredRegistry<>(modId, registry);
     }
 

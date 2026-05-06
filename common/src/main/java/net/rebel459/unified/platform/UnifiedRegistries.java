@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.util.BlockLike;
+import net.rebel459.unified.util.Supplied;
 import net.rebel459.unified.util.SuppliedBlock;
 import net.rebel459.unified.util.SuppliedItem;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,7 @@ public class UnifiedRegistries {
     public interface DeferredRegistry<Y> {
         String modId();
 
-        <T extends Y> Supplier<T> register(String path, Supplier<T> value);
+        <T extends Y> Supplied<T> register(String path, Supplier<T> value);
 
         <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value);
 
@@ -50,6 +51,7 @@ public class UnifiedRegistries {
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
+        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties);
         <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         static Items create(String modId) {
@@ -99,7 +101,7 @@ public class UnifiedRegistries {
     public interface DataComponentTypes {
         String modId();
 
-        <T> Supplier<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
+        <T> Supplied<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
@@ -111,7 +113,7 @@ public class UnifiedRegistries {
     public interface EntityTypes {
         String modId();
 
-        <T extends Entity> @NotNull Supplier<EntityType<T>> register(String path, EntityType.@NotNull Builder<T> builder);
+        <T extends Entity> @NotNull Supplied<EntityType<T>> register(String path, EntityType.@NotNull Builder<T> builder);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
@@ -123,8 +125,8 @@ public class UnifiedRegistries {
     public interface BlockEntityTypes {
         String modId();
 
-        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder);
-        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks);
+        @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder);
+        @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
@@ -136,8 +138,8 @@ public class UnifiedRegistries {
     public interface SoundEvents {
         String modId();
 
-        Supplier<SoundEvent> register(String path);
-        Supplier<SoundEvent> register(String path, float fixedRange);
+        Supplied<SoundEvent> register(String path);
+        Supplied<SoundEvent> register(String path, float fixedRange);
 
         Holder<SoundEvent> registerForHolder(String path);
         Holder<SoundEvent> registerForHolder(String path, float fixedRange);

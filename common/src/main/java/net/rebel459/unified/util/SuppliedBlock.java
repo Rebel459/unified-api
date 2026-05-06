@@ -1,10 +1,51 @@
 package net.rebel459.unified.util;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.rebel459.unified.util.registry.SuppliedBlockInterface;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public interface SuppliedBlock extends SuppliedBlockInterface, Holder<Block>, Supplier<Block>, BlockLike, ItemLike {}
+public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLike {
+
+    @Nullable SuppliedItem item;
+
+    public SuppliedBlock(Supplier<Registry<Block>> registry, ResourceKey<Block> key, @Nullable SuppliedItem item) {
+        super(registry, key);
+        this.item = item;
+    }
+
+    public BlockState defaultBlockState() {
+        return this.get().defaultBlockState();
+    }
+
+    public ItemStackTemplate defaultTemplate() {
+        return new ItemStackTemplate(this.asItem());
+    }
+
+    @Override
+    public Holder<Block> holder() {
+        return super.holder();
+    }
+
+    @Override
+    public Block asBlock() {
+        return this.holder().value();
+    }
+
+    @Override
+    public Item asItem() {
+        return this.item != null ? this.item.get() : this.holder().value().asItem();
+    }
+
+    @Override
+    public Block get() {
+        return this.holder().value();
+    }
+}

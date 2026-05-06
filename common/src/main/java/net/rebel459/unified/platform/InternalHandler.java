@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 public interface InternalHandler {
 
-    <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<?> registry);
+    <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry);
     UnifiedRegistries.Items createItems(String modId);
     UnifiedRegistries.Blocks createBlocks(String modId);
     UnifiedRegistries.CreativeTabs createCreativeTabs(String modId);
