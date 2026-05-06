@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.SuppliedBlock;
 import net.rebel459.unified.util.SuppliedItem;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +50,7 @@ public class UnifiedRegistries {
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
-        <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
+        <T extends BlockLike> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         static Items create(String modId) {
             return InternalHandlerImpl.INSTANCE.createItems(modId);
@@ -123,7 +124,7 @@ public class UnifiedRegistries {
         String modId();
 
         @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder);
-        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks);
+        @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 

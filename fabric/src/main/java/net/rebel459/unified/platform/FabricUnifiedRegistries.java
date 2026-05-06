@@ -23,12 +23,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.SuppliedBlock;
 import net.rebel459.unified.util.SuppliedItem;
 import net.rebel459.unified.util.registry.SuppliedBlockImpl;
 import net.rebel459.unified.util.registry.SuppliedItemImpl;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -74,8 +76,8 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
-            var item = net.minecraft.world.item.Items.registerBlock(blockSupplier.get(), properties.get());
+        public <T extends BlockLike> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            var item = net.minecraft.world.item.Items.registerBlock(blockSupplier.get().asBlock(), properties.get());
             ResourceKey<Item> key = BuiltInRegistries.ITEM.getResourceKey(item).get();
             return new SuppliedItemImpl(BuiltInRegistries.ITEM.getOrThrow(key));
         }
@@ -216,8 +218,12 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks) {
-            return register(path, builder, Set.of(blocks));
+        public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks) {
+            Set<Block> set = new HashSet<>();
+            for (BlockLike blockLike : blocks) {
+                set.add(blockLike.asBlock());
+            }
+            return register(path, builder, set);
         }
 
         private @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Set<Block> set) {

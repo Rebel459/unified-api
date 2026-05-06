@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +25,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.SuppliedBlock;
 import net.rebel459.unified.util.SuppliedItem;
 import net.rebel459.unified.util.registry.SuppliedBlockImpl;
@@ -109,8 +111,8 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
-            return new SuppliedItemImpl(ITEMS.get(modId).registerSimpleBlockItem(path, blockSupplier, properties));
+        public <T extends BlockLike> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            return new SuppliedItemImpl(ITEMS.get(modId).registerItem(path, props -> new BlockItem(blockSupplier.get().asBlock(), props), () -> properties.get().useBlockDescriptionPrefix()));
         }
     }
 
@@ -241,8 +243,12 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Block... blocks) {
-            return register(path, builder, Set.of(blocks));
+        public @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, BlockLike... blocks) {
+            Set<Block> set = new HashSet<>();
+            for (BlockLike blockLike : blocks) {
+                set.add(blockLike.asBlock());
+            }
+            return register(path, builder, set);
         }
 
         private @NotNull <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Set<Block> set) {

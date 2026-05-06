@@ -95,6 +95,11 @@ public record SuppliedBlockImpl(Holder<Block> holder, SuppliedItem item) impleme
     }
 
     @Override
+    public Block asBlock() {
+        return holder.value();
+    }
+
+    @Override
     public Item asItem() {
         return item != null ? item.get() : holder.value().asItem();
     }

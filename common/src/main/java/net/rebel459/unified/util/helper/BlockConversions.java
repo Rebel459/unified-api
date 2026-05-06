@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.rebel459.unified.platform.InternalHandlerImpl;
+import net.rebel459.unified.util.BlockLike;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +27,18 @@ import java.util.function.Predicate;
 
 public interface BlockConversions {
 
-    default void addStrippable(Block originalBlock, Block convertedBlock) {
+    default void addStrippable(BlockLike originalBlock, BlockLike convertedBlock) {
         add(stack -> stack.getItem() instanceof AxeItem, originalBlock, convertedBlock, SoundEvents.AXE_STRIP);
     }
 
     @Deprecated
     default void addWaxed(Block block, Block waxedBlock, Block exposedBlock, Block waxedExposedBlock, Block weatheredBlock, Block waxedWeatheredBlock, Block oxidizedBlock, Block waxedOxidizedBlock) {
-        addWeathering(new WeatheringCopperBlocks(block, exposedBlock, weatheredBlock, oxidizedBlock, waxedBlock, waxedExposedBlock, waxedWeatheredBlock, waxedOxidizedBlock));
+        addWeathering(block, exposedBlock, weatheredBlock, oxidizedBlock, waxedBlock, waxedExposedBlock, waxedWeatheredBlock, waxedOxidizedBlock);
     }
 
+    default void addWeathering(BlockLike block, BlockLike exposedBlock, BlockLike weatheredBlock, BlockLike oxidizedBlock, BlockLike waxedBlock, BlockLike waxedExposedBlock, BlockLike waxedWeatheredBlock, BlockLike waxedOxidizedBlock) {
+        addWeathering(new WeatheringCopperBlocks(block.asBlock(), exposedBlock.asBlock(), weatheredBlock.asBlock(), oxidizedBlock.asBlock(), waxedBlock.asBlock(), waxedExposedBlock.asBlock(), waxedWeatheredBlock.asBlock(), waxedOxidizedBlock.asBlock()));
+    }
     default void addWeathering(WeatheringCopperBlocks set) {
         Block unaffected = set.unaffected();
         Block exposed = set.exposed();
@@ -88,18 +92,18 @@ public interface BlockConversions {
         oxidizables.add(weathered, oxidized);
     }
 
-    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound) {
+    default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, SoundEvent sound) {
         add(item, originalBlock, convertedBlock, sound, 1F, 1F);
     }
-    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
-        BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock, _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock, (context) -> {
+    default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, SoundEvent sound, float volume, float pitch) {
+        BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock.asBlock(), _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock.asBlock(), (context) -> {
             Player player = context.getPlayer();
             if (player == null) return;
             context.getLevel().playSound(player, context.getClickedPos(), sound, SoundSource.BLOCKS, volume, pitch);
             context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
         }));
     }
-    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
-        BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock, _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock, context));
+    default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, Consumer<UseOnContext> context) {
+        BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock.asBlock(), _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock.asBlock(), context));
     }
 }
