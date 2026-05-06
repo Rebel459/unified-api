@@ -25,19 +25,19 @@ import java.util.function.UnaryOperator;
 
 public class UnifiedRegistries {
 
-    public interface DeferredRegistry {
+    public interface DeferredRegistry<Y> {
         String modId();
 
-        <V, T extends V> Supplier<T> register(String path, Supplier<T> value);
+        <T extends Y> Supplier<T> register(String path, Supplier<T> value);
 
-        <V, T extends V> Holder<T> registerForHolder(String path, Supplier<T> value);
+        <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value);
 
         @Deprecated
-        <V, T extends V> Holder<T> registerHolder(String path, Supplier<T> value);
+        <T extends Y> Holder<T> registerHolder(String path, Supplier<T> value);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
-        static DeferredRegistry create(String modId, Registry<?> registry) {
+        static <Y> DeferredRegistry<Y> create(String modId, Registry<Y> registry) {
             return InternalHandlerImpl.INSTANCE.createDeferredRegistry(modId, registry);
         }
     }

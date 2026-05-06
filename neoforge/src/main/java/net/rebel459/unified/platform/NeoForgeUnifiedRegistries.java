@@ -71,22 +71,22 @@ public class NeoForgeUnifiedRegistries {
         dataComponents.register(modEventBus);
     }
 
-    public record DeferredRegistry(String modId, Registry<?> registry) implements UnifiedRegistries.DeferredRegistry {
+    public record DeferredRegistry<Y>(String modId, Registry<?> registry) implements UnifiedRegistries.DeferredRegistry<Y> {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <V, T extends V> Supplier<T> register(String path, Supplier<T> value) {
+        public <T extends Y> Supplier<T> register(String path, Supplier<T> value) {
             return DEFERRED.get(Pair.of(modId, registry)).register(path, value);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public <V, T extends V> Holder<T> registerForHolder(String path, Supplier<T> value) {
-            return DEFERRED.get(Pair.of(modId, registry)).register(path, value).getDelegate();
+        public <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value) {
+            return DEFERRED.get(Pair.of(modId, registry)).register(path, value);
         }
 
         @Override
-        public <V, T extends V> Holder<T> registerHolder(String path, Supplier<T> value) {
+        public <T extends Y> Holder<T> registerHolder(String path, Supplier<T> value) {
             return registerForHolder(path, value);
         }
 
@@ -100,7 +100,7 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            return new SuppliedItemImpl(ITEMS.get(modId).registerItem(path, function, properties).getDelegate());
+            return new SuppliedItemImpl(ITEMS.get(modId).registerItem(path, function, properties));
         }
 
         @Override

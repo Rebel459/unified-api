@@ -36,11 +36,11 @@ import java.util.function.UnaryOperator;
 
 public class FabricUnifiedRegistries {
 
-    public record DeferredRegistry(String modId, Registry registry) implements UnifiedRegistries.DeferredRegistry {
+    public record DeferredRegistry<Y>(String modId, Registry registry) implements UnifiedRegistries.DeferredRegistry<Y> {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <V, T extends V> Supplier<T> register(String path, Supplier<T> value) {
+        public <T extends Y> Supplier<T> register(String path, Supplier<T> value) {
             var thing = (T) Registry.register(registry, Identifier.fromNamespaceAndPath(modId, path), value.get());
             var suppliedThing = Suppliers.memoize(() -> thing);
             suppliedThing.get();
@@ -49,12 +49,12 @@ public class FabricUnifiedRegistries {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <V, T extends V> Holder<T> registerForHolder(String path, Supplier<T> value) {
+        public <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value) {
             return Registry.registerForHolder(registry, Identifier.fromNamespaceAndPath(modId, path), value.get());
         }
 
         @Override
-        public <R, T extends R> Holder<T> registerHolder(String path, Supplier<T> value) {
+        public <T extends Y> Holder<T> registerHolder(String path, Supplier<T> value) {
             return registerForHolder(path, value);
         }
 
@@ -69,14 +69,15 @@ public class FabricUnifiedRegistries {
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             var resourceKey = ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
-            var item = Holder.direct(net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey)));
-            return new SuppliedItemImpl(item);
+            net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
+            return new SuppliedItemImpl(BuiltInRegistries.ITEM.getOrThrow(resourceKey));
         }
 
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
-            var item = Holder.direct(net.minecraft.world.item.Items.registerBlock(blockSupplier.get(), properties.get()));
-            return new SuppliedItemImpl(item);
+            var item = net.minecraft.world.item.Items.registerBlock(blockSupplier.get(), properties.get());
+            ResourceKey<Item> key = BuiltInRegistries.ITEM.getResourceKey(item).get();
+            return new SuppliedItemImpl(BuiltInRegistries.ITEM.getOrThrow(key));
         }
 
         @Override
@@ -92,11 +93,10 @@ public class FabricUnifiedRegistries {
             Identifier blockId = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, blockId);
 
-            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, blockId, function.apply(blockProperties.get().setId(blockKey))));
-            var blockItem = UnifiedRegistries.Items.create(modId).registerBlockItem(path, () -> block.value(), Item.Properties::new);
-            var suppliedBlock = new SuppliedBlockImpl(block, blockItem);
+            var block = Registry.register(BuiltInRegistries.BLOCK, blockKey, function.apply(blockProperties.get().setId(blockKey)));
+            var blockItem = UnifiedRegistries.Items.create(modId).registerBlockItem(path, () -> block, Item.Properties::new);
 
-            return suppliedBlock;
+            return new SuppliedBlockImpl(BuiltInRegistries.BLOCK.getOrThrow(blockKey), blockItem);
         }
 
         @Override
@@ -108,9 +108,9 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, id, function.apply(properties.get().setId(ResourceKey.create(Registries.BLOCK, id)))));
-            return new SuppliedBlockImpl(block);
+            ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path));
+            Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key)));
+            return new SuppliedBlockImpl(BuiltInRegistries.BLOCK.getOrThrow(key));
         }
 
         @Override
@@ -133,9 +133,9 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
             var item = new Items(modId).register(path, itemFunction, itemProperties);
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            var block = Holder.direct((Block) Registry.register(BuiltInRegistries.BLOCK, id, blockFunction.apply(blockProperties.get().setId(ResourceKey.create(Registries.BLOCK, id)))));
-            return new SuppliedBlockImpl(block, item);
+            ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path));
+            Registry.register(BuiltInRegistries.BLOCK, key, blockFunction.apply(blockProperties.get().setId(key)));
+            return new SuppliedBlockImpl(BuiltInRegistries.BLOCK.getOrThrow(key), item);
         }
 
         @Override
