@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -111,8 +110,8 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends BlockLike> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
-            return new SuppliedItemImpl(ITEMS.get(modId).registerItem(path, props -> new BlockItem(blockSupplier.get().asBlock(), props), () -> properties.get().useBlockDescriptionPrefix()));
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            return new SuppliedItemImpl(ITEMS.get(modId).registerSimpleBlockItem(path, blockSupplier, properties));
         }
     }
 

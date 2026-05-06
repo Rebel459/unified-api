@@ -50,7 +50,7 @@ public class UnifiedRegistries {
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
-        <T extends BlockLike> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
+        <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         static Items create(String modId) {
             return InternalHandlerImpl.INSTANCE.createItems(modId);

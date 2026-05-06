@@ -76,8 +76,8 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends BlockLike> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
-            var item = net.minecraft.world.item.Items.registerBlock(blockSupplier.get().asBlock(), properties.get());
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties) {
+            var item = net.minecraft.world.item.Items.registerBlock(blockSupplier.get(), properties.get());
             ResourceKey<Item> key = BuiltInRegistries.ITEM.getResourceKey(item).get();
             return new SuppliedItemImpl(BuiltInRegistries.ITEM.getOrThrow(key));
         }
