@@ -23,10 +23,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.util.BlockLike;
-import net.rebel459.unified.util.Supplied;
-import net.rebel459.unified.util.SuppliedBlock;
-import net.rebel459.unified.util.SuppliedItem;
+import net.rebel459.unified.util.registry.Supplied;
+import net.rebel459.unified.util.registry.SuppliedBlock;
+import net.rebel459.unified.util.registry.SuppliedItem;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -146,7 +147,7 @@ public class FabricUnifiedRegistries {
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path));
             Block block = Registry.register(BuiltInRegistries.BLOCK, key, blockFunction.apply(blockProperties.get().setId(key)));
             Supplier<Block> supplied = () -> block;
-            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, supplied, item);
+            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, supplied, (SuppliedItem) item);
         }
 
         @Override
@@ -234,6 +235,11 @@ public class FabricUnifiedRegistries {
                 set.add(blockLike.asBlock());
             }
             return register(path, builder, set);
+        }
+
+        @Override
+        public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NonNull BlockEntitySupplier<T> builder, Block... blocks) {
+            return register(path, builder, Set.of(blocks));
         }
 
         private @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Set<Block> set) {

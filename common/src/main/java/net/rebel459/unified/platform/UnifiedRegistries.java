@@ -16,9 +16,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.util.BlockLike;
-import net.rebel459.unified.util.Supplied;
-import net.rebel459.unified.util.SuppliedBlock;
-import net.rebel459.unified.util.SuppliedItem;
+import net.rebel459.unified.util.registry.Supplied;
+import net.rebel459.unified.util.registry.SuppliedBlock;
+import net.rebel459.unified.util.registry.SuppliedItem;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -127,6 +127,8 @@ public class UnifiedRegistries {
 
         @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder);
         @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks);
+        @Deprecated
+        @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 

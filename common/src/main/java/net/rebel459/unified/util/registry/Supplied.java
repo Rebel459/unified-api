@@ -1,4 +1,4 @@
-package net.rebel459.unified.util;
+package net.rebel459.unified.util.registry;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;

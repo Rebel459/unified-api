@@ -5,9 +5,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.ExtraCodecs;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
-import net.rebel459.unified.util.Supplied;
-
-import java.util.function.Supplier;
+import net.rebel459.unified.util.registry.Supplied;
 
 public class UnifiedDataComponents {
 

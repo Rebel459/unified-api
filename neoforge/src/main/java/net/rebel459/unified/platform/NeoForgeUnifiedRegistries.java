@@ -24,13 +24,13 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.rebel459.unified.util.BlockLike;
-import net.rebel459.unified.util.Supplied;
-import net.rebel459.unified.util.SuppliedBlock;
-import net.rebel459.unified.util.SuppliedItem;
+import net.rebel459.unified.util.registry.Supplied;
+import net.rebel459.unified.util.registry.SuppliedBlock;
+import net.rebel459.unified.util.registry.SuppliedItem;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -177,7 +177,7 @@ public class NeoForgeUnifiedRegistries {
             var item = new Items(modId).register(path, itemFunction, itemProperties);
             var block = BLOCKS.get(modId).registerBlock(path, blockFunction, blockProperties);
             var blockRegistry = BLOCKS.get(modId);
-            return new SuppliedBlock(blockRegistry.getRegistry(), block.getKey(), block, item);
+            return new SuppliedBlock(blockRegistry.getRegistry(), block.getKey(), block, (SuppliedItem) item);
         }
 
         @Override
@@ -271,6 +271,11 @@ public class NeoForgeUnifiedRegistries {
                 set.add(blockLike.asBlock());
             }
             return register(path, builder, set);
+        }
+
+        @Override
+        public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NonNull BlockEntitySupplier<T> builder, Block... blocks) {
+            return register(path, builder, Set.of(blocks));
         }
 
         private @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Set<Block> set) {

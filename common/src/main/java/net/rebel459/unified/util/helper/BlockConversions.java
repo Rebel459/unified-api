@@ -30,6 +30,10 @@ public interface BlockConversions {
     default void addStrippable(BlockLike originalBlock, BlockLike convertedBlock) {
         add(stack -> stack.getItem() instanceof AxeItem, originalBlock, convertedBlock, SoundEvents.AXE_STRIP);
     }
+    @Deprecated
+    default void addStrippable(Block originalBlock, Block convertedBlock) {
+        addStrippable((BlockLike) originalBlock, convertedBlock);
+    }
 
     @Deprecated
     default void addWaxed(Block block, Block waxedBlock, Block exposedBlock, Block waxedExposedBlock, Block weatheredBlock, Block waxedWeatheredBlock, Block oxidizedBlock, Block waxedOxidizedBlock) {
@@ -105,5 +109,18 @@ public interface BlockConversions {
     }
     default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, Consumer<UseOnContext> context) {
         BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock.asBlock(), _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock.asBlock(), context));
+    }
+
+    @Deprecated
+    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound) {
+        add(item, (BlockLike) originalBlock, convertedBlock, sound);
+    }
+    @Deprecated
+    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
+        add(item, (BlockLike) originalBlock, convertedBlock, sound, volume, pitch);
+    }
+    @Deprecated
+    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
+        add(item, (BlockLike) originalBlock, convertedBlock, context);
     }
 }
