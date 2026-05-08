@@ -276,46 +276,41 @@ public class FabricHelpersImpl {
             }
 
             void build() {
-                for (var entry : toAddFeature) {
-                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
-                            ModificationPhase.ADDITIONS,
-                            (this.targetBiomes),
-                            (selectionContext, modificationContext) -> {
-                                modificationContext.getGenerationSettings().addFeature(entry.step, entry.feature);
-                                ID += 1;
-                            }
-                    );
+                if (this.toAddFeature.isEmpty() && this.toRemoveFeature.isEmpty()
+                        && this.toAddCarver.isEmpty() && this.toRemoveCarver.isEmpty()) {
+                    return;
                 }
-                for (var entry : toRemoveFeature) {
-                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
-                            ModificationPhase.REMOVALS,
-                            (this.targetBiomes),
-                            (selectionContext, modificationContext) -> {
-                                modificationContext.getGenerationSettings().removeFeature(entry.step, entry.feature);
-                                ID += 1;
+
+                final var addFeatures = List.copyOf(this.toAddFeature);
+                final var removeFeatures = List.copyOf(this.toRemoveFeature);
+                final var addCarvers = List.copyOf(this.toAddCarver);
+                final var removeCarvers = List.copyOf(this.toRemoveCarver);
+
+                final var id = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID);
+
+                net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(id).add(
+                        net.fabricmc.fabric.api.biome.v1.ModificationPhase.REPLACEMENTS,
+                        this.targetBiomes,
+                        (selectionContext, modificationContext) -> {
+                            var generation = modificationContext.getGenerationSettings();
+
+                            for (var action : removeFeatures) {
+                                generation.removeFeature(action.step, action.feature);
                             }
-                    );
-                }
-                for (var entry : toAddCarver) {
-                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
-                            ModificationPhase.ADDITIONS,
-                            (this.targetBiomes),
-                            (selectionContext, modificationContext) -> {
-                                modificationContext.getGenerationSettings().addCarver(entry);
-                                ID += 1;
+
+                            for (var carver : removeCarvers) {
+                                generation.removeCarver(carver);
                             }
-                    );
-                }
-                for (var entry : toRemoveCarver) {
-                    net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID)).add(
-                            ModificationPhase.REMOVALS,
-                            (this.targetBiomes),
-                            (selectionContext, modificationContext) -> {
-                                modificationContext.getGenerationSettings().removeCarver(entry);
-                                ID += 1;
+
+                            for (var action : addFeatures) {
+                                generation.addFeature(action.step, action.feature);
                             }
-                    );
-                }
+
+                            for (var carver : addCarvers) {
+                                generation.addCarver(carver);
+                            }
+                        }
+                );
             }
         }
 
