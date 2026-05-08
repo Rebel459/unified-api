@@ -286,7 +286,10 @@ public class FabricHelpersImpl {
                 final var addCarvers = List.copyOf(this.toAddCarver);
                 final var removeCarvers = List.copyOf(this.toRemoveCarver);
 
-                final var id = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID);
+                final var id = Identifier.fromNamespaceAndPath(
+                        "unified",
+                        "worldgen_" + BiomeModifications.ID++
+                );
 
                 net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(id).add(
                         net.fabricmc.fabric.api.biome.v1.ModificationPhase.REPLACEMENTS,
@@ -303,10 +306,12 @@ public class FabricHelpersImpl {
                             }
 
                             for (var action : addFeatures) {
+                                generation.removeFeature(action.step, action.feature);
                                 generation.addFeature(action.step, action.feature);
                             }
 
                             for (var carver : addCarvers) {
+                                generation.removeCarver(carver);
                                 generation.addCarver(carver);
                             }
                         }
