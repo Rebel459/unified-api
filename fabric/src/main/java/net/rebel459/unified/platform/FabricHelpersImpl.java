@@ -286,10 +286,7 @@ public class FabricHelpersImpl {
                 final var addCarvers = List.copyOf(this.toAddCarver);
                 final var removeCarvers = List.copyOf(this.toRemoveCarver);
 
-                final var id = Identifier.fromNamespaceAndPath(
-                        "unified",
-                        "worldgen_" + BiomeModifications.ID++
-                );
+                final var id = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "unified_modifications_" + ID);
 
                 net.fabricmc.fabric.api.biome.v1.BiomeModifications.create(id).add(
                         net.fabricmc.fabric.api.biome.v1.ModificationPhase.REPLACEMENTS,
