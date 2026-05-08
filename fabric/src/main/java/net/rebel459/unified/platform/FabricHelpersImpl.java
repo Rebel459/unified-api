@@ -276,10 +276,7 @@ public class FabricHelpersImpl {
             }
 
             void build() {
-                if (this.toAddFeature.isEmpty() && this.toRemoveFeature.isEmpty()
-                        && this.toAddCarver.isEmpty() && this.toRemoveCarver.isEmpty()) {
-                    return;
-                }
+                if (this.toAddFeature.isEmpty() && this.toRemoveFeature.isEmpty() && this.toAddCarver.isEmpty() && this.toRemoveCarver.isEmpty()) return;
 
                 final var addFeatures = List.copyOf(this.toAddFeature);
                 final var removeFeatures = List.copyOf(this.toRemoveFeature);
