@@ -18,7 +18,7 @@ public class ComposterBlockInputContainerMixin {
     @WrapOperation(at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/Object2FloatMap;containsKey(Ljava/lang/Object;)Z"), method = "canPlaceItemThroughFace")
     private boolean compostComponentUseItemOn(Object2FloatMap instance, Object object, Operation<Boolean> original) {
         ItemStack stack = getStack(object);
-        return original.call(instance, stack) || (stack.has(UnifiedDataComponents.COMPOST.get()) && stack.get(UnifiedDataComponents.COMPOST.get()) > 0F);
+        return original.call(instance, object) || (stack.has(UnifiedDataComponents.COMPOST.get()) && stack.get(UnifiedDataComponents.COMPOST.get()) > 0F);
     }
 
     @Unique
