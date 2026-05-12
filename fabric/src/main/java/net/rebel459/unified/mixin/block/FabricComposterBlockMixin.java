@@ -32,7 +32,7 @@ public class FabricComposterBlockMixin {
     private static float compostComponentAddItem(Object2FloatMap instance, Object object, Operation<Float> original) {
         ItemStack stack = getStack(object);
         if (stack.has(UnifiedDataComponents.COMPOST.get())) {
-            return stack.get(UnifiedDataComponents.COMPOST.get()).floatValue();
+            return stack.get(UnifiedDataComponents.COMPOST.get());
         }
         else {
             return original.call(instance, object);
