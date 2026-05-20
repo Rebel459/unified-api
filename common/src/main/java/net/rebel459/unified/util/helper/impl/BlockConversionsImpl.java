@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.helper;
+package net.rebel459.unified.util.helper.impl;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;

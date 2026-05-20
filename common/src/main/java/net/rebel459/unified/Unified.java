@@ -1,7 +1,7 @@
 package net.rebel459.unified;
 
 import net.rebel459.unified.registry.UnifiedDataComponents;
-import net.rebel459.unified.util.helper.StructureMusicImpl;
+import net.rebel459.unified.util.helper.impl.StructureMusicImpl;
 
 public class Unified {
 

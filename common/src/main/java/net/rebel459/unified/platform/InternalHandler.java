@@ -1,7 +1,7 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.core.Registry;
-import net.rebel459.unified.util.helper.BlockConversionsImpl;
+import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
 
 public interface InternalHandler {

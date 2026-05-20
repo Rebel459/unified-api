@@ -3,6 +3,7 @@ package net.rebel459.unified.client.util.helper;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.rebel459.unified.client.util.helper.impl.LegacyBabyArmorImpl;
 
 public interface LegacyBabyArmor {
 

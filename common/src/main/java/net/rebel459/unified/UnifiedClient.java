@@ -1,6 +1,6 @@
 package net.rebel459.unified;
 
-import net.rebel459.unified.client.util.helper.LegacyBabyArmorImpl;
+import net.rebel459.unified.client.util.helper.impl.LegacyBabyArmorImpl;
 
 public class UnifiedClient {
 

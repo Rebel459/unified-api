@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.rebel459.unified.platform.InternalHandlerImpl;
 import net.rebel459.unified.util.BlockLike;
+import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 
 import java.util.ArrayList;
 import java.util.List;

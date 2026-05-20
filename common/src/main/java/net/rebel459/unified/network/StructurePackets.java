@@ -9,11 +9,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.rebel459.unified.util.helper.StructureMusicImpl;
+import net.rebel459.unified.util.helper.impl.StructureMusicImpl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class StructurePackets {
     public record Request() implements CustomPacketPayload {
@@ -52,7 +51,7 @@ public class StructurePackets {
         }
     }
 
-    public record Sync(Map<Identifier, StructureMusicImpl.Record> structureMusic) implements CustomPacketPayload {
+    public record Sync(Map<StructureMusicImpl.Target, StructureMusicImpl.Info> structureMusic) implements CustomPacketPayload {
 
         public static final Type<Sync> TYPE = new Type<>(Identifier.fromNamespaceAndPath("unified", "sync_structure_music"));
 
@@ -60,18 +59,21 @@ public class StructurePackets {
                 CustomPacketPayload.codec(
                         (packet, buf) -> buf.writeMap(
                                 packet.structureMusic,
-                                FriendlyByteBuf::writeIdentifier,
-                                (recordBuf, record) -> {
-                                    recordBuf.writeIdentifier(BuiltInRegistries.SOUND_EVENT.getKey(record.music().sound().value()));
-                                    recordBuf.writeVarInt(record.music().minDelay());
-                                    recordBuf.writeVarInt(record.music().maxDelay());
-                                    recordBuf.writeBoolean(record.music().replaceCurrentMusic());
-                                    recordBuf.writeBoolean(record.fullBox());
+                                (recordBuf, target) -> {
+                                    recordBuf.writeIdentifier(target.id());
+                                    recordBuf.writeBoolean(target.tag());
+                                },
+                                (recordBuf, info) -> {
+                                    recordBuf.writeIdentifier(BuiltInRegistries.SOUND_EVENT.getKey(info.music().sound().value()));
+                                    recordBuf.writeVarInt(info.music().minDelay());
+                                    recordBuf.writeVarInt(info.music().maxDelay());
+                                    recordBuf.writeBoolean(info.music().replaceCurrentMusic());
+                                    recordBuf.writeBoolean(info.fullBox());
                                 }
                         ),
                         buf -> new Sync(buf.readMap(
                                 HashMap::new,
-                                FriendlyByteBuf::readIdentifier,
+                                recordBuf -> new StructureMusicImpl.Target(recordBuf.readIdentifier(), recordBuf.readBoolean()),
                                 recordBuf -> {
                                     Identifier soundId = recordBuf.readIdentifier();
                                     SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(soundId);
@@ -86,7 +88,7 @@ public class StructurePackets {
                                             recordBuf.readBoolean()
                                     );
 
-                                    return new StructureMusicImpl.Record(music, recordBuf.readBoolean());
+                                    return new StructureMusicImpl.Info(music, recordBuf.readBoolean());
                                 }
                         ))
                 );

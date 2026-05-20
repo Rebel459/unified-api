@@ -1,15 +1,11 @@
 package net.rebel459.unified.mixin.entity;
 
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.ValueInput;
-import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.EventsImpl;
 import net.rebel459.unified.util.EventType;
-import net.rebel459.unified.util.helper.StructureMusicImpl;
+import net.rebel459.unified.util.helper.impl.StructureMusicImpl;
 import net.rebel459.unified.util.mixin.PlayerStructureMusic;
-import net.rebel459.unified.util.tag.PersistentCooldowns;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,7 +27,7 @@ public class PlayerMixin implements PlayerStructureMusic {
     private boolean replaceCurrentMusic = false;
 
     @Unique
-    private Map<Identifier, StructureMusicImpl.Record> structureMusic = StructureMusicImpl.STRUCTURE_MUSIC;
+    private Map<StructureMusicImpl.Target, StructureMusicImpl.Info> structureMusic = StructureMusicImpl.STRUCTURE_MUSIC;
 
     @Unique
     private int playerGroup = 1;
@@ -52,7 +48,7 @@ public class PlayerMixin implements PlayerStructureMusic {
     }
 
     @Override
-    public Map<Identifier, StructureMusicImpl.Record> getStructureMusic() {
+    public Map<StructureMusicImpl.Target, StructureMusicImpl.Info> getStructureMusic() {
         return this.structureMusic;
     }
 
@@ -77,7 +73,7 @@ public class PlayerMixin implements PlayerStructureMusic {
     }
 
     @Override
-    public void setStructureMusic(Map<Identifier, StructureMusicImpl.Record> structureMusic) {
+    public void setStructureMusic(Map<StructureMusicImpl.Target, StructureMusicImpl.Info> structureMusic) {
         this.structureMusic = structureMusic;
     }
 

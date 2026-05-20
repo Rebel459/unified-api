@@ -3,7 +3,7 @@ package net.rebel459.unified.platform;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.rebel459.unified.util.helper.BlockConversionsImpl;
+import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 
 import java.util.HashMap;
 

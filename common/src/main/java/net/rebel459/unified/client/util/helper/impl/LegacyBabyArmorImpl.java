@@ -1,4 +1,4 @@
-package net.rebel459.unified.client.util.helper;
+package net.rebel459.unified.client.util.helper.impl;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Pair;
@@ -25,7 +25,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.client.UnifiedClientHelpers;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;

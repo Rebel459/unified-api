@@ -17,6 +17,7 @@ import net.rebel459.unified.network.StructurePackets;
 import net.rebel459.unified.platform.EventsImpl;
 import net.rebel459.unified.platform.client.ClientEventsImpl;
 import net.rebel459.unified.platform.client.UnifiedClientHelpers;
+import net.rebel459.unified.util.helper.impl.StructureMusicImpl;
 import net.rebel459.unified.util.mixin.PlayerStructureMusic;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -46,6 +47,10 @@ public abstract class MinecraftMixin {
     @Shadow
     @Nullable
     public ClientLevel level;
+
+    @Shadow
+    public abstract boolean isDemo();
+
     @Unique
     private boolean pendingUpdate = false;
 
@@ -73,9 +78,8 @@ public abstract class MinecraftMixin {
         boolean replaceCurrentMusic = false;
         if (music.getReplaceCurrentMusic()) {
             replaceCurrentMusic = true;
-            Identifier identifier = music.getPieceStructure();
-            if (identifier == EMPTY && music.getStructureMusic().get(music.getBoxStructure()).fullBox()) identifier = music.getBoxStructure();
-            var structureMusic = music.getStructureMusic().get(identifier);
+            var structureMusic = StructureMusicImpl.getStructureMusic(music.getStructureMusic(), music.getPieceStructure(), this.level);
+            if (structureMusic == null) structureMusic = StructureMusicImpl.getStructureMusic(music.getStructureMusic(), music.getBoxStructure(), this.level);
             if (structureMusic != null) {
                 SoundInstance currentMusic = musicManager.currentMusic;
                 if (currentMusic != null && (MusicManager.canReplace(structureMusic.music(), currentMusic))) {
@@ -95,22 +99,17 @@ public abstract class MinecraftMixin {
             }
         }
         if ((this.pendingUpdate || replaceCurrentMusic) && musicManager.nextSongDelay - 1 <= 0) {
-            if (music.getBoxStructure() == EMPTY && music.getPieceStructure() == EMPTY) {
+            if (music.getBoxStructure().equals(EMPTY) && music.getPieceStructure().equals(EMPTY)) {
                 this.pendingTicks++;
             } else {
                 this.pendingUpdate = false;
-                if (music.getPieceStructure() != EMPTY) {
-                    var pieceMusic = music.getStructureMusic().get(music.getPieceStructure());
-                    if (pieceMusic != null) {
-                        cir.setReturnValue(pieceMusic.music());
-                    }
-                }
-                else if (music.getBoxStructure() != EMPTY) {
-                    var boxMusic = music.getStructureMusic().get(music.getBoxStructure());
-                    if (boxMusic != null) {
-                        if (boxMusic.fullBox()) {
-                            cir.setReturnValue(boxMusic.music());
-                        }
+                var pieceMusic = StructureMusicImpl.getStructureMusic(music.getStructureMusic(), music.getPieceStructure(), this.level);
+                if (pieceMusic != null) {
+                    cir.setReturnValue(pieceMusic.music());
+                } else {
+                    var boxMusic = StructureMusicImpl.getStructureMusic(music.getStructureMusic(), music.getBoxStructure(), this.level);
+                    if (boxMusic != null && boxMusic.fullBox()) {
+                        cir.setReturnValue(boxMusic.music());
                     }
                 }
                 music.setBoxStructure(EMPTY);

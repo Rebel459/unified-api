@@ -2,10 +2,7 @@ package net.rebel459.unified.platform;
 
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.block.Block;
-import net.rebel459.unified.util.helper.BlockConversionsImpl;
-
-import java.util.HashMap;
+import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 
 public class FabricInternalHandler implements InternalHandler {
 

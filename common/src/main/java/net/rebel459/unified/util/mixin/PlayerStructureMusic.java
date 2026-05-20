@@ -1,9 +1,8 @@
 package net.rebel459.unified.util.mixin;
 
 import net.minecraft.resources.Identifier;
-import net.rebel459.unified.util.helper.StructureMusicImpl;
+import net.rebel459.unified.util.helper.impl.StructureMusicImpl;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public interface PlayerStructureMusic {
@@ -13,7 +12,7 @@ public interface PlayerStructureMusic {
 
     boolean getReplaceCurrentMusic();
 
-    Map<Identifier, StructureMusicImpl.Record> getStructureMusic();
+    Map<StructureMusicImpl.Target, StructureMusicImpl.Info> getStructureMusic();
 
     int getPlayerGroup();
 
@@ -22,7 +21,7 @@ public interface PlayerStructureMusic {
 
     void setReplaceCurrentMusic(boolean replaceCurrentMusic);
 
-    void setStructureMusic(Map<Identifier, StructureMusicImpl.Record> structureMusic);
+    void setStructureMusic(Map<StructureMusicImpl.Target, StructureMusicImpl.Info> structureMusic);
 
     void setPlayerGroup(int playerGroup);
 }
