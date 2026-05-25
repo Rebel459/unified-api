@@ -304,11 +304,6 @@ public class NeoForgeHelpersImpl {
 
     public static class Networking implements HelpersImpl.Networking {
 
-        @Override
-        public void send(CustomPacketPayload payload, ServerPlayer player) {
-            player.connection.send(new ClientboundCustomPayloadPacket(payload));
-        }
-
         private static final List<ToServer> TO_SERVER_LIST = new ArrayList<>();
         private static final List<ToClient> TO_CLIENT_LIST = new ArrayList<>();
 
@@ -335,9 +330,19 @@ public class NeoForgeHelpersImpl {
             TO_CLIENT_LIST.add(new ToClient<CustomPacketPayload>(type, codec, false));
         }
 
+        @Override
+        public boolean canSend(CustomPacketPayload payload, ServerPlayer player) {
+            return player.connection.hasChannel(payload.type());
+        }
+
+        @Override
+        public void send(CustomPacketPayload payload, ServerPlayer player) {
+            player.connection.send(new ClientboundCustomPayloadPacket(payload));
+        }
+
         @SubscribeEvent
         public static void register(RegisterPayloadHandlersEvent event) {
-            final PayloadRegistrar registrar = event.registrar("1");
+            final PayloadRegistrar registrar = event.registrar("1").optional();
             for (ToServer entry : TO_SERVER_LIST) {
                 if (entry.play) {
                     registrar.playToServer(

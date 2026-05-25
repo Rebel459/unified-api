@@ -56,8 +56,15 @@ public class FabricClientHelpersImpl {
     public static class Networking implements ClientHelpersImpl.Networking {
 
         @Override
+        public boolean canSend(CustomPacketPayload payload) {
+            return ClientPlayNetworking.canSend(payload.type());
+        }
+
+        @Override
         public void send(CustomPacketPayload payload) {
-            ClientPlayNetworking.send(payload);
+            if (ClientPlayNetworking.canSend(payload.type())) {
+                ClientPlayNetworking.send(payload);
+            }
         }
     }
 

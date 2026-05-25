@@ -89,9 +89,15 @@ public class NeoForgeClientHelpersImpl {
     public static class Networking implements ClientHelpersImpl.Networking {
 
         @Override
+        public boolean canSend(CustomPacketPayload payload) {
+            var connection = Minecraft.getInstance().getConnection();
+            return (connection != null && connection.hasChannel(payload.type()));
+        }
+
+        @Override
         public void send(CustomPacketPayload payload) {
             var connection = Minecraft.getInstance().getConnection();
-            if (connection != null) connection.send(new ServerboundCustomPayloadPacket(payload));
+            if (connection != null && connection.hasChannel(payload.type())) connection.send(new ServerboundCustomPayloadPacket(payload));
         }
     }
 

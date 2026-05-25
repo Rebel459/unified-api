@@ -234,6 +234,11 @@ public class FabricHelpersImpl {
         }
 
         @Override
+        public boolean canSend(CustomPacketPayload payload, ServerPlayer player) {
+            return ServerPlayNetworking.canSend(player, payload.type());
+        }
+
+        @Override
         public void send(CustomPacketPayload payload, ServerPlayer player) {
             ServerPlayNetworking.send(player, payload);
         }

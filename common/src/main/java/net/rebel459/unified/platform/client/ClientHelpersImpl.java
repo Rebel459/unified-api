@@ -44,6 +44,8 @@ public class ClientHelpersImpl {
 
     public interface Networking {
 
+        boolean canSend(CustomPacketPayload payload);
+
         void send(CustomPacketPayload payload);
 
         static Networking get() {
