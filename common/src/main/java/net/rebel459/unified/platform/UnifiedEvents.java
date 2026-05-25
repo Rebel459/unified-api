@@ -252,8 +252,9 @@ public class UnifiedEvents {
 
         private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {}
 
-        static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) {
+        static boolean passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) {
             passModify(key, new LootTableImpl(key, pools, provider), provider);
+            return pools.hasChanged();
         }
 
         static void passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, EventsImpl.LootTables.LootTable table, HolderLookup.Provider provider) {
@@ -275,6 +276,10 @@ public class UnifiedEvents {
             List<LootPool.Builder> pools();
 
             void addPool(LootPool.Builder pool);
+
+            void markChanged();
+
+            boolean hasChanged();
         }
 
         private record LootTableImpl(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) implements EventsImpl.LootTables.LootTable {
@@ -303,6 +308,7 @@ public class UnifiedEvents {
 
                             entries.add(builtEntry);
                             pool.entries = LootTableProvider.immutableBuilder(entries);
+                            pools.markChanged();
                         }
                     }
                     case REPLACE -> {
@@ -319,13 +325,17 @@ public class UnifiedEvents {
                                 continue;
                             }
 
-                            EventsImpl.LootTables.handlePoolReplacements(entries, predicate, builtEntry, pool);
+                            if (EventsImpl.LootTables.handlePoolReplacements(entries, predicate, builtEntry, pool)) {
+                                pools.markChanged();
+                            }
                         }
                     }
                     case REMOVE -> {
                         for (LootPool.Builder pool : pools.pools()) {
                             List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                            EventsImpl.LootTables.handlePoolRemovals(entries, predicate, pool);
+                            if (EventsImpl.LootTables.handlePoolRemovals(entries, predicate, pool)) {
+                                pools.markChanged();
+                            }
                         }
                     }
                 }

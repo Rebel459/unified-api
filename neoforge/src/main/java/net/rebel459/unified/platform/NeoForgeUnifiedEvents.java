@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
@@ -57,7 +58,7 @@ public class NeoForgeUnifiedEvents {
             UnifiedEvents.Server.passOnStop(event.getServer());
         });
 
-        NeoForge.EVENT_BUS.addListener((LootTableLoadEvent event) -> {
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, (LootTableLoadEvent event) -> {
             LootTable originalTable = event.getTable();
             List<LootPool.Builder> pools = new ArrayList<>();
             for (LootPool pool : originalTable.pools) {
@@ -70,7 +71,9 @@ public class NeoForgeUnifiedEvents {
                 pools.add(builder);
             }
 
-            UnifiedEvents.LootTables.passModify(event.getKey(), new UnifiedEvents.LootTables.PoolAccess() {
+            boolean changed = UnifiedEvents.LootTables.passModify(event.getKey(), new UnifiedEvents.LootTables.PoolAccess() {
+                private boolean changed;
+
                 @Override
                 public List<LootPool.Builder> pools() {
                     return pools;
@@ -79,8 +82,23 @@ public class NeoForgeUnifiedEvents {
                 @Override
                 public void addPool(LootPool.Builder pool) {
                     pools.add(pool);
+                    this.changed = true;
+                }
+
+                @Override
+                public void markChanged() {
+                    this.changed = true;
+                }
+
+                @Override
+                public boolean hasChanged() {
+                    return this.changed;
                 }
             }, event.getRegistries());
+
+            if (!changed) {
+                return;
+            }
 
             LootTable.Builder rebuilt = LootTable.lootTable().setParamSet(originalTable.getParamSet());
             originalTable.randomSequence.ifPresent(rebuilt::setRandomSequence);

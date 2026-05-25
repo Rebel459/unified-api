@@ -91,7 +91,7 @@ public class EventsImpl {
             return false;
         }
 
-        public static void handlePoolReplacements(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
+        public static boolean handlePoolReplacements(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
             boolean changed = false;
             List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
 
@@ -106,9 +106,10 @@ public class EventsImpl {
             if (changed) {
                 pool.entries = LootTableProvider.immutableBuilder(rewrittenEntries);
             }
+            return changed;
         }
 
-        public static void handlePoolRemovals(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPool.Builder pool) {
+        public static boolean handlePoolRemovals(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPool.Builder pool) {
             boolean changed = false;
             List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
 
@@ -123,6 +124,7 @@ public class EventsImpl {
             if (changed) {
                 pool.entries = LootTableProvider.immutableBuilder(rewrittenEntries);
             }
+            return changed;
         }
 
         private static Result replaceEntry(LootPoolEntryContainer entry, Predicate<Item> itemPredicate, LootPoolEntryContainer replacement) {
