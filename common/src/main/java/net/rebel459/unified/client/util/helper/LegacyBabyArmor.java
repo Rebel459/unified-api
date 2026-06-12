@@ -8,7 +8,7 @@ import net.rebel459.unified.client.util.helper.impl.LegacyBabyArmorImpl;
 public interface LegacyBabyArmor {
 
     default void add(ResourceKey<EquipmentAsset> asset) {
-        add(asset, false);
+        add(asset, true);
     }
     default void add(ResourceKey<EquipmentAsset> asset, boolean resize) {
         add(asset, resize, 50);
