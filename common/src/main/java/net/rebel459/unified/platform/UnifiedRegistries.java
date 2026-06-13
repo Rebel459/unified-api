@@ -17,10 +17,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.util.BlockLike;
-import net.rebel459.unified.util.registry.builder.Woodset;
 import net.rebel459.unified.util.registry.Supplied;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
+import net.rebel459.unified.util.registry.builder.BlockBuilders;
+import net.rebel459.unified.util.registry.builder.Woodset;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -70,8 +71,8 @@ public class UnifiedRegistries {
         <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties);
         <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type);
 
-        default Woodset.Builder woodsetBuilder(String name, MapColor barkColor, MapColor plankColor) {
-            return new Woodset.Builder(Identifier.fromNamespaceAndPath(this.modId(), name), barkColor, plankColor);
+        default BlockBuilders builders() {
+            return new BlockBuilders(modId());
         }
 
         @Deprecated

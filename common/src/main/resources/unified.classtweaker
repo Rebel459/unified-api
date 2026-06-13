@@ -11,6 +11,7 @@ accessible method net/minecraft/world/item/Items registerItem (Lnet/minecraft/re
 accessible method net/minecraft/world/item/Items registerBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/item/Item$Properties;)Lnet/minecraft/world/item/Item;
 accessible method net/minecraft/world/entity/EntityType boatFactory (Ljava/util/function/Supplier;)Lnet/minecraft/world/entity/EntityType$EntityFactory;
 accessible method net/minecraft/world/entity/EntityType chestBoatFactory (Ljava/util/function/Supplier;)Lnet/minecraft/world/entity/EntityType$EntityFactory;
+accessible method net/minecraft/world/level/block/FireBlock setFlammable (Lnet/minecraft/world/level/block/Block;II)V
 
 transitive-accessible class net/minecraft/client/particle/ParticleResources$SpriteParticleRegistration
 transitive-accessible method net/minecraft/client/particle/ParticleResources$MutableSpriteSet <init> ()V
