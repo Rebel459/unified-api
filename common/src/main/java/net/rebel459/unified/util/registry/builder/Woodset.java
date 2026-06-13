@@ -25,10 +25,13 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.rebel459.unified.platform.UnifiedPlatform;
 import net.rebel459.unified.platform.UnifiedRegistries;
+import net.rebel459.unified.util.LoaderType;
 import net.rebel459.unified.util.fabric.WoodTypeBuilder;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
+import net.rebel459.unified.util.registry.builder.impl.WoodsetImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -78,7 +81,7 @@ public class Woodset {
     private SuppliedBlock pressurePlate;
     private SuppliedBlock button;
     private SuppliedBlock door;
-    private SuppliedBlock trapDoor;
+    private SuppliedBlock trapdoor;
     private SuppliedBlock sign;
     private SuppliedBlock wallSign;
     private SuppliedBlock hangingSign;
@@ -127,7 +130,7 @@ public class Woodset {
         pressurePlate = createPressurePlate();
         button = createButton();
         door = createDoor();
-        trapDoor = createTrapDoor();
+        trapdoor = createTrapDoor();
         sign = createSign();
         wallSign = createWallSign();
         hangingSign = createHangingSign();
@@ -162,6 +165,7 @@ public class Woodset {
         registerWood();
         WOODSETS.add(this);
         WOODSET_CREATIVE_ENTRIES.put(this, this.getWoodsetSettings().creativeEntries);
+        if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) WoodsetImpl.init(List.of(this));
     }
 
     private ResourceKey<Item> itemKey(String id) {
@@ -297,8 +301,8 @@ public class Woodset {
         return sign;
     }
 
-    public SuppliedBlock getTrapDoor() {
-        return trapDoor;
+    public SuppliedBlock getTrapdoor() {
+        return trapdoor;
     }
 
     public SuppliedBlock getWallSign() {
@@ -401,7 +405,7 @@ public class Woodset {
                 blockFamily.fenceGate(fenceGate.get());
             }
             blockFamily.door(door.get());
-            blockFamily.trapdoor(trapDoor.get());
+            blockFamily.trapdoor(trapdoor.get());
             blockFamily.sign(sign.get(), wallSign.get());
             blockFamily.button(button.get());
             blockFamily.pressurePlate(pressurePlate.get());

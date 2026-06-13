@@ -1,21 +1,19 @@
 package net.rebel459.unified.util.registry.builder.impl;
 
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.FurnaceBlock;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.util.CreativeModeTabs;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.builder.Woodset;
 
+import java.util.List;
+
 public class WoodsetImpl {
     
-    public static void init() {
-        creativeEntries();
-        for (Woodset woodset : Woodset.WOODSETS) {
+    public static void init(List<Woodset> woodsets) {
+        creativeEntries(woodsets);
+        for (Woodset woodset : woodsets) {
             registerBlockProperties(woodset);
         }
     }
@@ -73,7 +71,7 @@ public class WoodsetImpl {
             }
             UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getPressurePlate(), 300);
             UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getButton(), 100);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getTrapDoor(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getTrapdoor(), 300);
             UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getDoor(), 300);
             UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getFence(), 300);
             UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getFenceGate(), 300);
@@ -92,9 +90,10 @@ public class WoodsetImpl {
         ((FireBlock) Blocks.FIRE).setFlammable(block.get(), burn, spread);
     }
 
-    private static void creativeEntries() {
-        for (Woodset woodset : Woodset.WOODSET_CREATIVE_ENTRIES.keySet()) {
+    private static void creativeEntries(List<Woodset> woodsets) {
+        for (Woodset woodset : woodsets) {
             Woodset.PrecedingCreativeEntries precedingItems = Woodset.WOODSET_CREATIVE_ENTRIES.get(woodset);
+            if (precedingItems == null) continue;
 
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS,
                     precedingItems.building(),
@@ -104,16 +103,11 @@ public class WoodsetImpl {
                     woodset.getFence(),
                     woodset.getFenceGate(),
                     woodset.getDoor(),
-                    woodset.getTrapDoor(),
+                    woodset.getTrapdoor(),
                     woodset.getPressurePlate(),
                     woodset.getButton()
             );
-            if (woodset.hasWood()){
-                UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getWood(), woodset.getStrippedWood());
-            }
-            if (woodset.hasMosaic()){
-                UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getMosaic(), woodset.getMosaicStairs(), woodset.getMosaicSlab());
-            }
+            if (woodset.hasMosaic()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getMosaic(), woodset.getMosaicStairs(), woodset.getMosaicSlab());
             if (woodset.hasWood()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getLog(), woodset.getWood(), woodset.getStrippedLog(), woodset.getStrippedWood());
             else UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getLog(), woodset.getStrippedLog());
 
