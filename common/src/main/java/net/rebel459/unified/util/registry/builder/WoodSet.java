@@ -816,8 +816,7 @@ public class WoodSet {
         private String getLogName() {
             return settings.logName;
         }
-
-
+        
         private String getWoodName() {
             return settings.woodName;
         }
