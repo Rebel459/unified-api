@@ -20,8 +20,8 @@ import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.registry.Supplied;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
-import net.rebel459.unified.util.registry.builder.BlockBuilders;
-import net.rebel459.unified.util.registry.builder.Woodset;
+import net.rebel459.unified.util.registry.builder.WoodPreset;
+import net.rebel459.unified.util.registry.builder.WoodSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -71,8 +71,27 @@ public class UnifiedRegistries {
         <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties);
         <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type);
 
-        default BlockBuilders builders() {
-            return new BlockBuilders(modId());
+        default Builders builders() {
+            return new Builders(modId());
+        }
+
+        class Builders {
+
+            private final String modId;
+            private final UnifiedRegistries.Items itemRegistry;
+            private final UnifiedRegistries.Blocks blockRegistry;
+            private final UnifiedRegistries.EntityTypes entityRegistry;
+
+            public Builders(String modId){
+                this.modId = modId;
+                this.itemRegistry = UnifiedRegistries.Items.create(modId);
+                this.blockRegistry = UnifiedRegistries.Blocks.create(modId);
+                this.entityRegistry = UnifiedRegistries.EntityTypes.create(modId);
+            }
+
+            public WoodSet.Builder<WoodSet.RegistryBuilder> woodsetBuilder(String name, WoodPreset preset, MapColor barkColor, MapColor plankColor) {
+                return new WoodSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), barkColor, plankColor, preset, this.itemRegistry, this.blockRegistry, this.entityRegistry);
+            }
         }
 
         @Deprecated

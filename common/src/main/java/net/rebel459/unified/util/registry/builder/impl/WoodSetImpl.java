@@ -5,20 +5,20 @@ import net.minecraft.world.level.block.FireBlock;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.util.CreativeModeTabs;
 import net.rebel459.unified.util.registry.SuppliedBlock;
-import net.rebel459.unified.util.registry.builder.Woodset;
+import net.rebel459.unified.util.registry.builder.WoodSet;
 
 import java.util.List;
 
-public class WoodsetImpl {
+public class WoodSetImpl {
     
-    public static void init(List<Woodset> woodsets) {
+    public static void init(List<WoodSet> woodsets) {
         creativeEntries(woodsets);
-        for (Woodset woodset : woodsets) {
+        for (WoodSet woodset : woodsets) {
             registerBlockProperties(woodset);
         }
     }
 
-    public static void registerBlockProperties(Woodset woodset) {
+    public static void registerBlockProperties(WoodSet woodset) {
         UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodset.getLog(), woodset.getStrippedLog());
 
         if (woodset.hasWood()){
@@ -28,7 +28,7 @@ public class WoodsetImpl {
         if (woodset.hasLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodset.getLeaves(), 0.3F);
         if (woodset.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodset.getSapling(), 0.3F);
 
-        if (woodset.getWoodsetSettings().canBurn()) {
+        if (woodset.getSettings().isFlammable()) {
             addFlammable(woodset.getLog(), 5, 5);
             addFlammable(woodset.getStrippedLog(), 5, 5);
 
@@ -90,9 +90,9 @@ public class WoodsetImpl {
         ((FireBlock) Blocks.FIRE).setFlammable(block.get(), burn, spread);
     }
 
-    private static void creativeEntries(List<Woodset> woodsets) {
-        for (Woodset woodset : woodsets) {
-            Woodset.PrecedingCreativeEntries precedingItems = Woodset.WOODSET_CREATIVE_ENTRIES.get(woodset);
+    private static void creativeEntries(List<WoodSet> woodsets) {
+        for (WoodSet woodset : woodsets) {
+            WoodSet.PrecedingCreativeEntries precedingItems = WoodSet.WOODSET_CREATIVE_ENTRIES.get(woodset);
             if (precedingItems == null) continue;
 
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS,

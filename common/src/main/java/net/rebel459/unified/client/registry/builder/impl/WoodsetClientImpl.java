@@ -7,19 +7,19 @@ import net.minecraft.client.renderer.entity.BoatRenderer;
 import net.minecraft.client.renderer.entity.RaftRenderer;
 import net.minecraft.resources.Identifier;
 import net.rebel459.unified.platform.client.UnifiedClientHelpers;
-import net.rebel459.unified.util.registry.builder.Woodset;
+import net.rebel459.unified.util.registry.builder.WoodSet;
 
 import java.util.Objects;
 
 public class WoodsetClientImpl {
     
     public static void init() {
-        for (Woodset woodset : Woodset.WOODSETS) {
+        for (WoodSet woodset : WoodSet.WOODSETS) {
             registerBoatModels(woodset);
         }
     }
 
-    private static void registerBoatModels(Woodset woodset){
+    private static void registerBoatModels(WoodSet woodset){
         if (!woodset.hasBoats()) return;
 
         Identifier layerName = woodset.getId().withPrefix("boat/");
@@ -28,7 +28,7 @@ public class WoodsetClientImpl {
         final ModelLayerLocation BOAT_MODEL_LAYER = new ModelLayerLocation(layerName, "main");
         final ModelLayerLocation CHEST_BOAT_MODEL_LAYER = new ModelLayerLocation(chestLayerName, "main");
 
-        final boolean raft = Objects.equals(woodset.getWoodsetSettings().getBoatType(), Woodset.BoatType.RAFT);
+        final boolean raft = Objects.equals(woodset.getSettings().getBoats(), WoodSet.Boats.RAFTS);
 
         UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(BOAT_MODEL_LAYER, raft ? RaftModel::createRaftModel : BoatModel::createBoatModel);
         UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getBoat()::get, ctx -> raft ? new RaftRenderer(ctx, BOAT_MODEL_LAYER) : new BoatRenderer(ctx, BOAT_MODEL_LAYER));
