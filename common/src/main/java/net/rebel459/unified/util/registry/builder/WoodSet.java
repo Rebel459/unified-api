@@ -158,7 +158,7 @@ public class WoodSet {
         this.entityRegistry = entityRegistry;
         registerWood();
         WOODSETS.add(this);
-        WOODSET_CREATIVE_ENTRIES.put(this, this.getSettings().creativeEntries);
+        WOODSET_CREATIVE_ENTRIES.put(this, this.getSettings().precedingCreativeEntries);
         if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) WoodSetImpl.init(List.of(this));
     }
 
@@ -590,7 +590,7 @@ public class WoodSet {
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> trapdoorSounds = Pair.of(() -> SoundEvents.WOODEN_TRAPDOOR_OPEN, () -> SoundEvents.WOODEN_TRAPDOOR_CLOSE);
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> fenceGateSounds = Pair.of(() -> SoundEvents.FENCE_GATE_OPEN, () -> SoundEvents.FENCE_GATE_CLOSE);
 
-        private PrecedingCreativeEntries creativeEntries = null;
+        private PrecedingCreativeEntries precedingCreativeEntries = null;
 
         Settings() {
         }
@@ -626,6 +626,20 @@ public class WoodSet {
         }
         public Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> getFenceGateSounds() {
             return fenceGateSounds;
+        }
+
+        public Pair<Boolean, Boolean> getDoorOpening() {
+            return doorOpening;
+        }
+        public boolean getButtonArrowActivation() {
+            return buttonArrowActivation;
+        }
+        public BlockSetType.PressurePlateSensitivity getPressurePlateSensitivity() {
+            return pressurePlateSensitivity;
+        }
+
+        public PrecedingCreativeEntries getPrecedingCreativeEntries() {
+            return precedingCreativeEntries;
         }
 
         public String getLogName() {
@@ -681,8 +695,8 @@ public class WoodSet {
             super(settings);
         }
 
-        public net.rebel459.unified.util.registry.builder.WoodPreset build() {
-            return new net.rebel459.unified.util.registry.builder.WoodPreset(settings.copy());
+        public WoodPreset build() {
+            return new WoodPreset(settings.copy());
         }
     }
 
@@ -709,7 +723,7 @@ public class WoodSet {
                 ItemLike precedingFunctionalItem,
                 ItemLike precedingUtilitiesItem
         ) {
-            settings.creativeEntries = new PrecedingCreativeEntries(
+            settings.precedingCreativeEntries = new PrecedingCreativeEntries(
                     precedingBuildingItem,
                     precedingNaturalItem,
                     precedingFunctionalItem,
@@ -816,7 +830,7 @@ public class WoodSet {
         private String getLogName() {
             return settings.logName;
         }
-        
+
         private String getWoodName() {
             return settings.woodName;
         }
