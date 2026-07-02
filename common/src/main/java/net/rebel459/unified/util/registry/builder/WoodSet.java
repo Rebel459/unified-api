@@ -69,9 +69,9 @@ public class WoodSet {
     private SuppliedBlock planks;
     private SuppliedBlock stairs;
     private SuppliedBlock slab;
-    private SuppliedBlock mosaic;
-    private SuppliedBlock mosaicStairs;
-    private SuppliedBlock mosaicSlab;
+    private @Nullable SuppliedBlock mosaic;
+    private @Nullable SuppliedBlock mosaicStairs;
+    private @Nullable SuppliedBlock mosaicSlab;
     private SuppliedBlock fence;
     private SuppliedBlock fenceGate;
     private SuppliedBlock pressurePlate;
@@ -592,8 +592,7 @@ public class WoodSet {
 
         private PrecedingCreativeEntries precedingCreativeEntries = null;
 
-        Settings() {
-        }
+        Settings() {}
 
         public boolean isFlammable() {
             return isFlammable;
