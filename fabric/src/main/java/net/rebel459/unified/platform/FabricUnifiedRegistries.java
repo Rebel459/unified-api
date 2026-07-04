@@ -119,6 +119,11 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
+            return register(path, function, blockProperties, type.get());
+        }
+
+        @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
@@ -135,8 +140,8 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties) {
-            return register(path, blockFunction, blockProperties, Item::new, itemProperties);
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
+            return registerWithoutItem(path, function, properties, type.get());
         }
 
         @Override
@@ -151,11 +156,6 @@ public class FabricUnifiedRegistries {
             Block block = Registry.register(BuiltInRegistries.BLOCK, key, blockFunction.apply(blockProperties.get().setId(key)));
             Supplier<Block> supplied = () -> block;
             return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, supplied, (SuppliedItem) item);
-        }
-
-        @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
-            return register(path, blockFunction, blockProperties, Item::new, itemProperties, type);
         }
 
         @Override

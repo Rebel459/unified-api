@@ -132,7 +132,7 @@ public class NeoForgeUnifiedRegistries {
 
     public record Blocks(String modId) implements UnifiedRegistries.Blocks {
 
-        public static List<Pair<BlockEntityType<?>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
+        public static List<Pair<Supplier<? extends BlockEntityType<?>>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
@@ -146,6 +146,11 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type) {
+            return register(path, function, blockProperties, () -> type);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
             var block = register(path, function, blockProperties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
@@ -160,14 +165,14 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type) {
-            var block = registerWithoutItem(path, function, properties);
-            BLOCK_ENTITIES.add(Pair.of(type, block));
-            return block;
+            return registerWithoutItem(path, function, properties, () -> type);
         }
 
         @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties) {
-            return register(path, blockFunction, blockProperties, Item::new, itemProperties);
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
+            var block = registerWithoutItem(path, function, properties);
+            BLOCK_ENTITIES.add(Pair.of(type, block));
+            return block;
         }
 
         @Override
@@ -184,11 +189,6 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
-            return register(path, blockFunction, blockProperties, Item::new, itemProperties, type);
-        }
-
-        @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
             return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
         }
@@ -196,7 +196,7 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
             var block = register(path, blockFunction, blockProperties, itemFunction, itemProperties);
-            BLOCK_ENTITIES.add(Pair.of(type, block));
+            BLOCK_ENTITIES.add(Pair.of(() -> type, block));
             return block;
         }
 
@@ -207,10 +207,10 @@ public class NeoForgeUnifiedRegistries {
 
         @SubscribeEvent
         public static void modifyBlockEntities(BlockEntityTypeAddBlocksEvent event) {
-            for (Pair<BlockEntityType<?>, Supplier<? extends Block>> pair : BLOCK_ENTITIES) {
-                BlockEntityType<?> type = pair.getFirst();
+            for (Pair<Supplier<? extends BlockEntityType<?>>, Supplier<? extends Block>> pair : BLOCK_ENTITIES) {
+                Supplier<? extends BlockEntityType<?>> type = pair.getFirst();
                 Block block = pair.getSecond().get();
-                event.modify(type, block);
+                event.modify(type.get(), block);
             }
         }
     }
