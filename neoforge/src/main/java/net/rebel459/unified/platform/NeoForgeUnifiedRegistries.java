@@ -12,6 +12,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.registry.Supplied;
@@ -244,6 +247,8 @@ public class NeoForgeUnifiedRegistries {
 
     public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
 
+        private static final List<Pair<Supplied<? extends EntityType<? extends LivingEntity>>, AttributeSupplier>> ENTITY_ATTRIBUTES = new ArrayList<>();
+
         @Override
         public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
             DeferredRegister<EntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.ENTITY_TYPE));
@@ -252,8 +257,22 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
+        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, AttributeSupplier attributes) {
+            Supplied<EntityType<T>> entity = register(path, builder);
+            ENTITY_ATTRIBUTES.add(Pair.of(entity, attributes));
+            return entity;
+        }
+
+        @Override
         public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
             DEFERRED.get(Pair.of(modId, BuiltInRegistries.ENTITY_TYPE)).addAlias(convertedFrom, convertedTo);
+        }
+
+        @SubscribeEvent
+        public static void createEntityAttributes(EntityAttributeCreationEvent event) {
+            for (Pair<Supplied<? extends EntityType<? extends LivingEntity>>, AttributeSupplier> pair : ENTITY_ATTRIBUTES) {
+                event.put(pair.getFirst().get(), pair.getSecond());
+            }
         }
     }
 

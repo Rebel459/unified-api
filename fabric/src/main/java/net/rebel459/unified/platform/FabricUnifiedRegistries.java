@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
@@ -14,6 +15,8 @@ import net.minecraft.util.Util;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -213,6 +216,13 @@ public class FabricUnifiedRegistries {
             EntityType<T> entity = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey));
             Supplier<EntityType<T>> supplied = () -> entity;
             return new Supplied<>(() -> BuiltInRegistries.ENTITY_TYPE, resourceKey, supplied);
+        }
+
+        @Override
+        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, AttributeSupplier attributes) {
+            Supplied<EntityType<T>> entity = register(path, builder);
+            FabricDefaultAttributeRegistry.register(entity.get(), attributes);
+            return entity;
         }
 
         @Override
