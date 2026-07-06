@@ -219,9 +219,9 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, AttributeSupplier attributes) {
+        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes) {
             Supplied<EntityType<T>> entity = register(path, builder);
-            FabricDefaultAttributeRegistry.register(entity.get(), attributes);
+            FabricDefaultAttributeRegistry.register(entity.get(), attributes.get());
             return entity;
         }
 

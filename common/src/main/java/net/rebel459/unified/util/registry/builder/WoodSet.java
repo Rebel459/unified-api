@@ -221,14 +221,6 @@ public class WoodSet {
         return id;
     }
 
-    public MapColor getBarkColor() {
-        return barkColor;
-    }
-
-    public MapColor getPlankColor() {
-        return plankColor;
-    }
-
     public SuppliedBlock getButton() {
         return button;
     }
@@ -345,11 +337,11 @@ public class WoodSet {
         return chestBoatItem;
     }
 
-    public List<SuppliedBlock> getRegisteredBlocksList() {
+    public List<SuppliedBlock> getRegisteredBlocks() {
         return registeredBlocksList;
     }
 
-    public List<SuppliedItem> getRegisteredItemsList() {
+    public List<SuppliedItem> getRegisteredItems() {
         return registeredItemsList;
     }
 
@@ -385,16 +377,16 @@ public class WoodSet {
         return blockFamily.getFamily();
     }
     private SuppliedBlock createLog() {
-        return createBlockWithItem(this.getId().getPath() + "_" + settings.getLogName(), RotatedPillarBlock::new, createLogBlock(this.getBarkColor(), this.getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_" + settings.getLogName(), RotatedPillarBlock::new, createLogBlock(this.barkColor, this.plankColor));
     }
     private SuppliedBlock createStrippedLog() {
-        return createBlockWithItem("stripped_" + this.getId().getPath() + "_" + settings.getLogName(), RotatedPillarBlock::new, createLogBlock(this.getBarkColor(), this.getPlankColor()));
+        return createBlockWithItem("stripped_" + this.getId().getPath() + "_" + settings.getLogName(), RotatedPillarBlock::new, createLogBlock(this.barkColor, this.plankColor));
     }
     private SuppliedBlock createWood() {
-        return createBlockWithItem(this.getId().getPath() + "_" + settings.getWoodName(), RotatedPillarBlock::new, createLogBlock(this.getBarkColor(), this.getBarkColor()));
+        return createBlockWithItem(this.getId().getPath() + "_" + settings.getWoodName(), RotatedPillarBlock::new, createLogBlock(this.plankColor, this.barkColor));
     }
     private SuppliedBlock createStrippedWood() {
-        return createBlockWithItem("stripped_" + this.getId().getPath() + "_" + settings.getWoodName(), RotatedPillarBlock::new, createLogBlock(this.getPlankColor(), this.getPlankColor()));
+        return createBlockWithItem("stripped_" + this.getId().getPath() + "_" + settings.getWoodName(), RotatedPillarBlock::new, createLogBlock(this.plankColor, this.plankColor));
     }
     private SuppliedBlock createLeaves() {
         Function<BlockBehaviour.Properties, Block> properties = this.settings.leaf.getFirst();
@@ -408,52 +400,52 @@ public class WoodSet {
         return createBlockWithoutItem("potted_" + this.getId().getPath() + "_sapling", properties -> new FlowerPotBlock(sapling.get(), properties), Blocks::flowerPotProperties);
     }
     private SuppliedBlock createPlanks(){
-        return createBlockWithItem(this.getId().getPath() + "_planks", () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_planks", () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createStairs(){
-        return createBlockWithItem(this.getId().getPath() + "_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createSlab(){
-        return createBlockWithItem(this.getId().getPath() + "_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createMosaic(){
-        return createBlockWithItem(this.getId().getPath() + "_mosaic", () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_mosaic", () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createMosaicStairs(){
-        return createBlockWithItem(this.getId().getPath() + "_mosaic_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_mosaic_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createMosaicSlab(){
-        return createBlockWithItem(this.getId().getPath() + "_mosaic_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_mosaic_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createFence(){
-        return createBlockWithItem(this.getId().getPath() + "_fence", FenceBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_fence", FenceBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createFenceGate(){
-        return createBlockWithItem(this.getId().getPath() + "_fence_gate", settings -> new FenceGateBlock(this.getWoodType().get(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_fence_gate", settings -> new FenceGateBlock(this.getWoodType().get(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createPressurePlate(){
-        return createBlockWithItem(this.getId().getPath() + "_pressure_plate", settings -> new PressurePlateBlock(this.getWoodType().get().setType(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_pressure_plate", settings -> new PressurePlateBlock(this.getWoodType().get().setType(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createButton(){
-        return createBlockWithItem(this.getId().getPath() + "_button", settings -> new ButtonBlock(this.getWoodType().get().setType(), 30, settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()));
+        return createBlockWithItem(this.getId().getPath() + "_button", settings -> new ButtonBlock(this.getWoodType().get().setType(), 30, settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor));
     }
     private SuppliedBlock createDoor(){
-        return createBlockWithItem(this.getId().getPath() + "_door", settings -> new DoorBlock(this.getWoodType().get().setType(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()).noOcclusion());
+        return createBlockWithItem(this.getId().getPath() + "_door", settings -> new DoorBlock(this.getWoodType().get().setType(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor).noOcclusion());
     }
     private SuppliedBlock createTrapDoor(){
-        return createBlockWithItem(this.getId().getPath() + "_trapdoor", settings -> new TrapDoorBlock(this.getWoodType().get().setType(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(getPlankColor()).noOcclusion());
+        return createBlockWithItem(this.getId().getPath() + "_trapdoor", settings -> new TrapDoorBlock(this.getWoodType().get().setType(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase()).sound(getSettings().woodSoundType.get()).mapColor(this.plankColor).noOcclusion());
     }
     private SuppliedBlock createSign(){
         return createBlockWithoutItem(this.getId().getPath() + "_sign", settings -> new StandingSignBlock(
                         this.getWoodType().get(), settings),
-			() -> BlockBehaviour.Properties.ofFullCopy(getSignBase()).mapColor(this.getPlankColor()).sound(getSettings().woodSoundType.get()),
+			() -> BlockBehaviour.Properties.ofFullCopy(getSignBase()).mapColor(this.plankColor).sound(getSettings().woodSoundType.get()),
 			BlockEntityType.SIGN
 		);
     }
     private SuppliedBlock createWallSign(){
         return createBlockWithoutItem(this.getId().getPath() + "_wall_sign", settings -> new WallSignBlock(
                         this.getWoodType().get(), settings),
-			() -> BlockBehaviour.Properties.ofFullCopy(getSignBase()).mapColor(this.getPlankColor()).overrideLootTable(sign.get().getLootTable()).sound(getSettings().woodSoundType.get()),
+			() -> BlockBehaviour.Properties.ofFullCopy(getSignBase()).mapColor(this.plankColor).overrideLootTable(sign.get().getLootTable()).sound(getSettings().woodSoundType.get()),
 			BlockEntityType.SIGN
 		);
     }
@@ -461,14 +453,14 @@ public class WoodSet {
     private SuppliedBlock createHangingSign(){
         return createBlockWithoutItem(this.getId().getPath() + "_hanging_sign", settings -> new CeilingHangingSignBlock(
                         this.getWoodType().get(), settings),
-			() -> BlockBehaviour.Properties.ofFullCopy(getHangingSignBase()).mapColor(this.getPlankColor()).sound(getSettings().hangingSignSoundType.get()),
+			() -> BlockBehaviour.Properties.ofFullCopy(getHangingSignBase()).mapColor(this.plankColor).sound(getSettings().hangingSignSoundType.get()),
 			BlockEntityType.HANGING_SIGN
 		);
     }
     private SuppliedBlock createWallHangingSign(){
         return createBlockWithoutItem(this.getId().getPath() + "_wall_hanging_sign", settings -> new WallHangingSignBlock(
                         this.getWoodType().get(), settings),
-			() -> BlockBehaviour.Properties.ofFullCopy(getHangingSignBase()).mapColor(this.getPlankColor()).overrideLootTable(hangingSign.get().getLootTable()).sound(getSettings().hangingSignSoundType.get()),
+			() -> BlockBehaviour.Properties.ofFullCopy(getHangingSignBase()).mapColor(this.plankColor).overrideLootTable(hangingSign.get().getLootTable()).sound(getSettings().hangingSignSoundType.get()),
 			BlockEntityType.HANGING_SIGN
 		);
     }
@@ -717,10 +709,10 @@ public class WoodSet {
         }
 
         public T creativeInventoryPlacement(
-                ItemLike precedingBuildingItem,
-                ItemLike precedingNaturalItem,
-                ItemLike precedingFunctionalItem,
-                ItemLike precedingUtilitiesItem
+                Supplier<ItemLike> precedingBuildingItem,
+                Supplier<ItemLike> precedingNaturalItem,
+                Supplier<ItemLike> precedingFunctionalItem,
+                Supplier<ItemLike> precedingUtilitiesItem
         ) {
             settings.precedingCreativeEntries = new PrecedingCreativeEntries(
                     precedingBuildingItem,
@@ -835,5 +827,5 @@ public class WoodSet {
         }
     }
 
-    public record PrecedingCreativeEntries(ItemLike building, ItemLike natural, ItemLike functional, ItemLike utilities) {}
+    public record PrecedingCreativeEntries(Supplier<ItemLike> building, Supplier<ItemLike> natural, Supplier<ItemLike> functional, Supplier<ItemLike> utilities) {}
 }

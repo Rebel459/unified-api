@@ -11,77 +11,77 @@ import java.util.List;
 
 public class WoodSetImpl {
     
-    public static void init(List<WoodSet> woodsets) {
-        creativeEntries(woodsets);
-        for (WoodSet woodset : woodsets) {
+    public static void init(List<WoodSet> woodSets) {
+        creativeEntries(woodSets);
+        for (WoodSet woodset : woodSets) {
             registerBlockProperties(woodset);
         }
     }
 
-    public static void registerBlockProperties(WoodSet woodset) {
-        UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodset.getLog(), woodset.getStrippedLog());
+    public static void registerBlockProperties(WoodSet woodSets) {
+        UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSets.getLog(), woodSets.getStrippedLog());
 
-        if (woodset.hasWood()){
-            UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodset.getWood(), woodset.getStrippedWood());
+        if (woodSets.hasWood()){
+            UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSets.getWood(), woodSets.getStrippedWood());
         }
 
-        if (woodset.hasLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodset.getLeaves(), 0.3F);
-        if (woodset.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodset.getSapling(), 0.3F);
+        if (woodSets.hasLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getLeaves(), 0.3F);
+        if (woodSets.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getSapling(), 0.3F);
 
-        if (woodset.getSettings().isFlammable()) {
-            addFlammable(woodset.getLog(), 5, 5);
-            addFlammable(woodset.getStrippedLog(), 5, 5);
+        if (woodSets.getSettings().isFlammable()) {
+            addFlammable(woodSets.getLog(), 5, 5);
+            addFlammable(woodSets.getStrippedLog(), 5, 5);
 
-            if (woodset.hasWood()) {
-                addFlammable(woodset.getWood(), 5, 5);
-                addFlammable(woodset.getStrippedWood(), 5, 5);
+            if (woodSets.hasWood()) {
+                addFlammable(woodSets.getWood(), 5, 5);
+                addFlammable(woodSets.getStrippedWood(), 5, 5);
             }
-            if (woodset.hasMosaic()) {
-                addFlammable(woodset.getMosaic(), 5, 20);
-                addFlammable(woodset.getMosaicStairs(), 5, 20);
-                addFlammable(woodset.getMosaicSlab(), 5, 20);
+            if (woodSets.hasMosaic()) {
+                addFlammable(woodSets.getMosaic(), 5, 20);
+                addFlammable(woodSets.getMosaicStairs(), 5, 20);
+                addFlammable(woodSets.getMosaicSlab(), 5, 20);
             }
-            if (woodset.hasLeaves()) {
-                addFlammable(woodset.getLeaves(), 30, 60);
+            if (woodSets.hasLeaves()) {
+                addFlammable(woodSets.getLeaves(), 30, 60);
             }
 
-            addFlammable(woodset.getPlanks(), 5, 20);
-            addFlammable(woodset.getSlab(), 5, 20);
-            addFlammable(woodset.getStairs(), 5, 20);
-            addFlammable(woodset.getFence(), 5, 20);
-            addFlammable(woodset.getFenceGate(), 5, 20);
+            addFlammable(woodSets.getPlanks(), 5, 20);
+            addFlammable(woodSets.getSlab(), 5, 20);
+            addFlammable(woodSets.getStairs(), 5, 20);
+            addFlammable(woodSets.getFence(), 5, 20);
+            addFlammable(woodSets.getFenceGate(), 5, 20);
 
-            addFlammable(woodset.getSign(), 5, 20);
-            addFlammable(woodset.getWallSign(), 5, 20);
+            addFlammable(woodSets.getSign(), 5, 20);
+            addFlammable(woodSets.getWallSign(), 5, 20);
 
-            addFlammable(woodset.getHangingSign(), 5, 20);
-            addFlammable(woodset.getWallHangingSign(), 5, 20);
-            addFlammable(woodset.getShelf(), 30, 20);
+            addFlammable(woodSets.getHangingSign(), 5, 20);
+            addFlammable(woodSets.getWallHangingSign(), 5, 20);
+            addFlammable(woodSets.getShelf(), 30, 20);
 
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getLog(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getStrippedLog(), 300);
-            if (woodset.hasMosaic()) {
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getMosaic(), 300);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getMosaicSlab(), 150);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getMosaicStairs(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getLog(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getStrippedLog(), 300);
+            if (woodSets.hasMosaic()) {
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getMosaic(), 300);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getMosaicSlab(), 150);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getMosaicStairs(), 300);
             }
-            if (woodset.hasWood()) {
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getWood(), 300);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getStrippedWood(), 300);
+            if (woodSets.hasWood()) {
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getWood(), 300);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getStrippedWood(), 300);
             }
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getPressurePlate(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getButton(), 100);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getTrapdoor(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getDoor(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getFence(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getFenceGate(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getSignItem(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getHangingSignItem(), 800);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getShelf(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getPressurePlate(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getButton(), 100);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getTrapdoor(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getDoor(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getFence(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getFenceGate(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getSignItem(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getHangingSignItem(), 800);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getShelf(), 300);
 
-            if (woodset.hasBoats()){
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getBoatItem(), 1200);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodset.getChestBoatItem(), 1200);
+            if (woodSets.hasBoats()){
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getBoatItem(), 1200);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getChestBoatItem(), 1200);
             }
         }
     }
@@ -90,34 +90,34 @@ public class WoodSetImpl {
         ((FireBlock) Blocks.FIRE).setFlammable(block.get(), burn, spread);
     }
 
-    private static void creativeEntries(List<WoodSet> woodsets) {
-        for (WoodSet woodset : woodsets) {
-            WoodSet.PrecedingCreativeEntries precedingItems = WoodSet.WOODSET_CREATIVE_ENTRIES.get(woodset);
+    private static void creativeEntries(List<WoodSet> woodSets) {
+        for (WoodSet woodSet : woodSets) {
+            WoodSet.PrecedingCreativeEntries precedingItems = WoodSet.WOODSET_CREATIVE_ENTRIES.get(woodSet);
             if (precedingItems == null) continue;
 
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS,
-                    precedingItems.building(),
-                    woodset.getPlanks(),
-                    woodset.getStairs(),
-                    woodset.getSlab(),
-                    woodset.getFence(),
-                    woodset.getFenceGate(),
-                    woodset.getDoor(),
-                    woodset.getTrapdoor(),
-                    woodset.getPressurePlate(),
-                    woodset.getButton()
+                    precedingItems.building().get(),
+                    woodSet.getPlanks(),
+                    woodSet.getStairs(),
+                    woodSet.getSlab(),
+                    woodSet.getFence(),
+                    woodSet.getFenceGate(),
+                    woodSet.getDoor(),
+                    woodSet.getTrapdoor(),
+                    woodSet.getPressurePlate(),
+                    woodSet.getButton()
             );
-            if (woodset.hasMosaic()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getMosaic(), woodset.getMosaicStairs(), woodset.getMosaicSlab());
-            if (woodset.hasWood()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getLog(), woodset.getWood(), woodset.getStrippedLog(), woodset.getStrippedWood());
-            else UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building(), woodset.getLog(), woodset.getStrippedLog());
+            if (woodSet.hasMosaic()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building().get(), woodSet.getMosaic(), woodSet.getMosaicStairs(), woodSet.getMosaicSlab());
+            if (woodSet.hasWood()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building().get(), woodSet.getLog(), woodSet.getWood(), woodSet.getStrippedLog(), woodSet.getStrippedWood());
+            else UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building().get(), woodSet.getLog(), woodSet.getStrippedLog());
 
-            if (woodset.hasLeaves() && woodset.hasSapling()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural(), woodset.getLeaves(), woodset.getSapling().asItem());
-            else if (woodset.hasLeaves()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural(), woodset.getLeaves());
-            else if (woodset.hasSapling()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural(), woodset.getSapling().asItem());
+            if (woodSet.hasLeaves() && woodSet.hasSapling()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLeaves(), woodSet.getSapling().asItem());
+            else if (woodSet.hasLeaves()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLeaves());
+            else if (woodSet.hasSapling()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getSapling().asItem());
 
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS, precedingItems.functional(), woodset.getShelf(), woodset.getSignItem(), woodset.getHangingSignItem());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS, precedingItems.functional().get(), woodSet.getShelf(), woodSet.getSignItem(), woodSet.getHangingSignItem());
 
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.TOOLS_AND_UTILITIES, precedingItems.utilities(), woodset.getBoatItem(), woodset.getChestBoatItem());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.TOOLS_AND_UTILITIES, precedingItems.utilities().get(), woodSet.getBoatItem(), woodSet.getChestBoatItem());
         }
     }
 }

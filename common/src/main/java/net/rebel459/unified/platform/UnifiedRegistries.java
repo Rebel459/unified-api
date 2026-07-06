@@ -22,6 +22,8 @@ import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.registry.Supplied;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
+import net.rebel459.unified.util.registry.builder.BlockPreset;
+import net.rebel459.unified.util.registry.builder.BlockSet;
 import net.rebel459.unified.util.registry.builder.WoodPreset;
 import net.rebel459.unified.util.registry.builder.WoodSet;
 
@@ -92,8 +94,12 @@ public class UnifiedRegistries {
                 this.entityRegistry = UnifiedRegistries.EntityTypes.create(modId);
             }
 
-            public WoodSet.Builder<WoodSet.RegistryBuilder> woodsetBuilder(String name, WoodPreset preset, MapColor barkColor, MapColor plankColor) {
+            public WoodSet.RegistryBuilder woodSet(String name, WoodPreset preset, MapColor barkColor, MapColor plankColor) {
                 return new WoodSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), barkColor, plankColor, preset, this.itemRegistry, this.blockRegistry, this.entityRegistry);
+            }
+
+            public BlockSet.RegistryBuilder blockSet(String name, BlockPreset preset, MapColor color, float hardness, float blastResistance) {
+                return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, hardness, blastResistance, preset, this.blockRegistry);
             }
         }
 
@@ -139,7 +145,7 @@ public class UnifiedRegistries {
         String modId();
 
         <T extends Entity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder);
-        <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, AttributeSupplier attributes);
+        <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
