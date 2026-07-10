@@ -94,22 +94,22 @@ public class EquipmentSet {
 
     private void registerItems() {
         if (hasTools()) {
-            createSword();
-            createSpear();
-            createAxe();
-            createPickaxe();
-            createShovel();
-            createHoe();
+            sword = createSword();
+            spear = createSpear();
+            axe = createAxe();
+            pickaxe = createPickaxe();
+            shovel = createShovel();
+            hoe = createHoe();
         }
         if (hasArmor()) {
-            createHelmet();
-            createChestplate();
-            createLeggings();
-            createBoots();
+            helmet = createHelmet();
+            chestplate = createChestplate();
+            leggings = createLeggings();
+            boots = createBoots();
         }
         if (hasAnimalArmor()) {
-            createHorseArmor();
-            createNautilusArmor();
+            horseArmor = createHorseArmor();
+            nautilusArmor = createNautilusArmor();
         }
     }
 
