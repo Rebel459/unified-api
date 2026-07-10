@@ -351,7 +351,7 @@ public class EquipmentSet {
 
         private @Nullable TagKey<Item> repairMaterials = null;
 
-        private PrecedingToolCreativeEntries precedingToolCreativeEntries = null;
+        private @Nullable PrecedingToolCreativeEntries precedingToolCreativeEntries = null;
         private @Nullable PrecedingArmorCreativeEntries precedingArmorCreativeEntries = null;
 
         private List<Triple<Group, DataComponentType<?>, ?>> components = new ArrayList<>();
@@ -361,8 +361,64 @@ public class EquipmentSet {
 
         Settings() {}
 
+        public float getDamageBonus() {
+            return damageBonus;
+        }
+
+        public float getMiningSpeed() {
+            return miningSpeed;
+        }
+
+        public float getAxeSwingSpeed() {
+            return axeSwingSpeed;
+        }
+
+        public int getToolDurability() {
+            return toolDurability;
+        }
+
+        public int getToolEnchantingPower() {
+            return toolEnchantingPower;
+        }
+
+        public TagKey<Block> getIncorrectBlocksForDrops() {
+            return incorrectBlocksForDrops;
+        }
+
+        public SpearProperties getSpearProperties() {
+            return spearProperties;
+        }
+
+        public int getArmorDurabilityFactor() {
+            return armorDurabilityFactor;
+        }
+
+        public int getArmorEnchantingPower() {
+            return armorEnchantingPower;
+        }
+
         public Map<ArmorType, Integer> getArmorDefense() {
             return armorDefense;
+        }
+
+        public float getArmorToughness() {
+            return armorToughness;
+        }
+
+        public float getKnockbackResistance() {
+            return knockbackResistance;
+        }
+
+        public Holder<SoundEvent> getArmorEquipSound() {
+            return armorEquipSound;
+        }
+
+        public ResourceKey<EquipmentAsset> getArmorAsset() {
+            return armorAsset;
+        }
+
+        public @Nullable TagKey<Item> getRepairMaterials() {
+            return repairMaterials;
         }
 
         public Settings copy() {

@@ -1,10 +1,7 @@
 package net.rebel459.unified.util.builder;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.DamageResistant;
 import net.minecraft.world.item.equipment.ArmorMaterial;
@@ -23,6 +20,7 @@ public class EquipmentPreset {
             .build();
 
     public static final EquipmentPreset WOOD = createFrom(ToolMaterial.WOOD)
+            .setAxeSwingSpeed(0.8F)
             .setSpearProperties(0.65F, 0.7F, 0.75F, 5.0F, 14.0F, 10.0F, 5.1F, 15.0F, 4.6F)
             .build();
 
@@ -30,10 +28,12 @@ public class EquipmentPreset {
             .build();
 
     public static final EquipmentPreset STONE = createFrom(ToolMaterial.STONE)
+            .setAxeSwingSpeed(0.8F)
             .setSpearProperties(0.75F, 0.82F, 0.7F, 4.5F, 13.0F, 9.0F, 5.1F, 13.75F, 4.6F)
             .build();
 
     public static final EquipmentPreset COPPER = createFrom(ToolMaterial.COPPER, ArmorMaterials.COPPER)
+            .setAxeSwingSpeed(0.8F)
             .setSpearProperties(0.85F, 0.82F, 0.65F, 4.0F, 12.0F, 8.25F, 5.1F, 12.5F, 4.6F)
             .build();
 
@@ -41,6 +41,7 @@ public class EquipmentPreset {
             .build();
 
     public static final EquipmentPreset IRON = createFrom(ToolMaterial.IRON, ArmorMaterials.IRON)
+            .setAxeSwingSpeed(0.9F)
             .setSpearProperties(0.95F, 0.95F, 0.6F, 2.5F, 11.0F, 6.75F, 5.1F, 11.25F, 4.6F)
             .build();
 
