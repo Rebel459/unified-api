@@ -25,15 +25,15 @@ public class WoodsetClientImpl {
         Identifier layerName = woodset.getId().withPrefix("boat/");
         Identifier chestLayerName = woodset.getId().withPrefix("chest_boat/");
 
-        final ModelLayerLocation BOAT_MODEL_LAYER = new ModelLayerLocation(layerName, "main");
-        final ModelLayerLocation CHEST_BOAT_MODEL_LAYER = new ModelLayerLocation(chestLayerName, "main");
+        final ModelLayerLocation boatModelLayer = new ModelLayerLocation(layerName, "main");
+        final ModelLayerLocation chestBoatModelLayer = new ModelLayerLocation(chestLayerName, "main");
 
         final boolean raft = Objects.equals(woodset.getSettings().getBoats(), WoodSet.Boats.RAFTS);
 
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(BOAT_MODEL_LAYER, raft ? RaftModel::createRaftModel : BoatModel::createBoatModel);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getBoat()::get, ctx -> raft ? new RaftRenderer(ctx, BOAT_MODEL_LAYER) : new BoatRenderer(ctx, BOAT_MODEL_LAYER));
+        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(boatModelLayer, raft ? RaftModel::createRaftModel : BoatModel::createBoatModel);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getBoat()::get, ctx -> raft ? new RaftRenderer(ctx, boatModelLayer) : new BoatRenderer(ctx, boatModelLayer));
 
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(CHEST_BOAT_MODEL_LAYER, raft ? RaftModel::createChestRaftModel : BoatModel::createChestBoatModel);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getChestBoat()::get, ctx -> raft ? new RaftRenderer(ctx, CHEST_BOAT_MODEL_LAYER) : new BoatRenderer(ctx, CHEST_BOAT_MODEL_LAYER));
+        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(chestBoatModelLayer, raft ? RaftModel::createChestRaftModel : BoatModel::createChestBoatModel);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getChestBoat()::get, ctx -> raft ? new RaftRenderer(ctx, chestBoatModelLayer) : new BoatRenderer(ctx, chestBoatModelLayer));
     }
 }
