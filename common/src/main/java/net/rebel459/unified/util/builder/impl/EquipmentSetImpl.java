@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.rebel459.unified.platform.UnifiedEvents;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.util.CreativeModeTabs;
 import net.rebel459.unified.util.builder.EquipmentSet;
@@ -111,18 +112,22 @@ public class EquipmentSetImpl {
             }
             for (SuppliedItem item : equipment.getRegisteredItems()) {
                 if (SKIPPED_ATTRIBUTE_ITEMS.contains(item)) continue;
-                Pair<ItemAttributeModifiers.Builder, Set<Holder<Attribute>>> pair = attributeMap.get(item);
-                ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
-                Set<Holder<Attribute>> addedAttributes = new HashSet<>();
-                if (pair != null) {
-                    builder = pair.getFirst();
-                    addedAttributes = pair.getSecond();
-                }
-                var originalAttributes = item.defaultItemStack().get(DataComponents.ATTRIBUTE_MODIFIERS);
-                if (originalAttributes != null) for (ItemAttributeModifiers.Entry entry : originalAttributes.modifiers()) {
-                    if (!addedAttributes.contains(entry.attribute())) builder.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display());
-                }
-                UnifiedHelpers.DATA_COMPONENTS.add(item, DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+                UnifiedEvents.DefaultDataComponents.modifyWithFilter(
+                        predicateItem -> item.get() == predicateItem,
+                        (eventItem, eventBuilder, eventProvider) -> {
+                            Pair<ItemAttributeModifiers.Builder, Set<Holder<Attribute>>> pair = attributeMap.get(item);
+                            ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+                            Set<Holder<Attribute>> addedAttributes = new HashSet<>();
+                            if (pair != null) {
+                                builder = pair.getFirst();
+                                addedAttributes = pair.getSecond();
+                            }
+                            var originalAttributes = item.defaultItemStack().get(DataComponents.ATTRIBUTE_MODIFIERS);
+                            if (originalAttributes != null) for (ItemAttributeModifiers.Entry entry : originalAttributes.modifiers()) {
+                                if (!addedAttributes.contains(entry.attribute())) builder.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display());
+                            }
+                            eventBuilder.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+                        });
             }
         }
     }
