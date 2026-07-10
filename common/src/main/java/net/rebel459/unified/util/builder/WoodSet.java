@@ -176,7 +176,7 @@ public class WoodSet {
 		return block;
 	}
 	private SuppliedBlock createBlockWithItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings, BlockEntityType<?> blockEntity){
-		SuppliedBlock block = blockRegistry.register(blockID, factory, settings, blockEntity);
+		SuppliedBlock block = blockRegistry.register(blockID, factory, settings, () -> blockEntity);
 		registeredBlocks.add(block);
 		return block;
 	}
@@ -186,7 +186,7 @@ public class WoodSet {
 		return block;
 	}
 	private SuppliedBlock createBlockWithoutItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings, BlockEntityType<?> blockEntity){
-		SuppliedBlock block = blockRegistry.registerWithoutItem(blockID, factory, settings, blockEntity);
+		SuppliedBlock block = blockRegistry.registerWithoutItem(blockID, factory, settings, () -> blockEntity);
 		registeredBlocks.add(block);
 		return block;
 	}
