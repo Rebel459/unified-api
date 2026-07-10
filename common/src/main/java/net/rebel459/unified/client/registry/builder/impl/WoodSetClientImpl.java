@@ -11,7 +11,7 @@ import net.rebel459.unified.util.builder.WoodSet;
 
 import java.util.Objects;
 
-public class WoodsetClientImpl {
+public class WoodSetClientImpl {
     
     public static void init() {
         for (WoodSet woodset : WoodSet.WOOD_SETS) {
@@ -19,7 +19,7 @@ public class WoodsetClientImpl {
         }
     }
 
-    private static void registerBoatModels(WoodSet woodset){
+    private static void registerBoatModels(WoodSet woodset) {
         if (!woodset.hasBoats()) return;
 
         Identifier layerName = woodset.getId().withPrefix("boat/");
