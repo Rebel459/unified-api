@@ -1,4 +1,4 @@
-package net.rebel459.unified.client.registry.builder.impl;
+package net.rebel459.unified.client.util.builder.impl;
 
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.object.boat.BoatModel;
