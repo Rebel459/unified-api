@@ -109,7 +109,7 @@ public class EquipmentSetImpl {
                 }
             }
             for (SuppliedItem item : equipment.getRegisteredItems()) {
-                if (SKIPPED_ATTRIBUTE_ITEMS.contains(item)) return;
+                if (SKIPPED_ATTRIBUTE_ITEMS.contains(item)) continue;
                 Pair<ItemAttributeModifiers.Builder, Set<Holder<Attribute>>> pair = attributeMap.get(item);
                 ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
                 Set<Holder<Attribute>> addedAttributes = new HashSet<>();
