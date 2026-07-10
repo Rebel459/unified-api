@@ -18,12 +18,13 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class EquipmentSetImpl {
 
-    public static Map<Identifier, List<Triple<EquipmentSet.Group, DataComponentType<?>, ?>>> EQUIPMENT_COMPONENTS = new HashMap<>();
-    public static Map<Identifier, List<Triple<EquipmentSet.Group, DataComponentType<?>, DataComponentInitializers.SingleComponentInitializer<?>>>> EQUIPMENT_PROVIDED_COMPONENTS = new HashMap<>();
-    public static Map<Identifier, List<Triple<EquipmentSet.Group, DataComponentType<?>, ResourceKey<?>>>> EQUIPMENT_KEYED_COMPONENTS = new HashMap<>();
+    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<DataComponentType<?>>, ?>>> EQUIPMENT_COMPONENTS = new HashMap<>();
+    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>>> EQUIPMENT_PROVIDED_COMPONENTS = new HashMap<>();
+    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<DataComponentType<?>>, ResourceKey<?>>>> EQUIPMENT_KEYED_COMPONENTS = new HashMap<>();
     public static Map<Identifier, List<Pair<EquipmentSet.Group, ItemAttributeModifiers.Entry>>> EQUIPMENT_ATTRIBUTES = new HashMap<>();
 
     public static Map<Identifier, EquipmentSet.PrecedingToolCreativeEntries> CREATIVE_TOOL_ENTRIES = new HashMap<>();
@@ -60,27 +61,27 @@ public class EquipmentSetImpl {
     private static <T, Y> void components(List<EquipmentSet> equipmentSets) {
         for (EquipmentSet equipment : equipmentSets) {
             var components = EQUIPMENT_COMPONENTS.get(equipment.getId());
-            if (components != null) for (Triple<EquipmentSet.Group, DataComponentType<?>, ?> entry : components) {
+            if (components != null) for (Triple<EquipmentSet.Group, Supplier<DataComponentType<?>>, ?> entry : components) {
                 for (EquipmentSet.Target target : entry.getLeft().getTargets()) {
                     SuppliedItem targetItem = getItem(equipment, target);
                     if (targetItem != null) {
                         if (entry.getMiddle() == DataComponents.ATTRIBUTE_MODIFIERS) SKIPPED_ATTRIBUTE_ITEMS.add(targetItem);
-                        UnifiedHelpers.DATA_COMPONENTS.add(targetItem, (DataComponentType<T>) entry.getMiddle(), (T) entry.getRight());
+                        UnifiedHelpers.DATA_COMPONENTS.add(targetItem, (DataComponentType<T>) entry.getMiddle().get(), (T) entry.getRight());
                     }
                 }
             }
             var providedComponents = EQUIPMENT_PROVIDED_COMPONENTS.get(equipment.getId());
-            if (providedComponents != null) for (Triple<EquipmentSet.Group, DataComponentType<?>, DataComponentInitializers.SingleComponentInitializer<?>> entry : providedComponents) {
+            if (providedComponents != null) for (Triple<EquipmentSet.Group, Supplier<DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>> entry : providedComponents) {
                 for (EquipmentSet.Target target : entry.getLeft().getTargets()) {
                     SuppliedItem targetItem = getItem(equipment, target);
-                    if (targetItem != null) UnifiedHelpers.DATA_COMPONENTS.addWithProvider(targetItem, (DataComponentType<T>) entry.getMiddle(), (DataComponentInitializers.SingleComponentInitializer<T>) entry.getRight());
+                    if (targetItem != null) UnifiedHelpers.DATA_COMPONENTS.addWithProvider(targetItem, (DataComponentType<T>) entry.getMiddle().get(), (DataComponentInitializers.SingleComponentInitializer<T>) entry.getRight());
                 }
             }
             var keyedComponents = EQUIPMENT_KEYED_COMPONENTS.get(equipment.getId());
-            if (keyedComponents != null) for (Triple<EquipmentSet.Group, DataComponentType<?>, ResourceKey<?>> entry : keyedComponents) {
+            if (keyedComponents != null) for (Triple<EquipmentSet.Group, Supplier<DataComponentType<?>>, ResourceKey<?>> entry : keyedComponents) {
                 for (EquipmentSet.Target target : entry.getLeft().getTargets()) {
                     SuppliedItem targetItem = getItem(equipment, target);
-                    if (targetItem != null) UnifiedHelpers.DATA_COMPONENTS.addWithKey(targetItem, (DataComponentType<Holder<Y>>) entry.getMiddle(), (ResourceKey<Y>) entry.getRight());
+                    if (targetItem != null) UnifiedHelpers.DATA_COMPONENTS.addWithKey(targetItem, (DataComponentType<Holder<Y>>) entry.getMiddle().get(), (ResourceKey<Y>) entry.getRight());
                 }
             }
         }

@@ -57,8 +57,8 @@ public class UnifiedRegistries {
         public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties);
         <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
-        default Blocks.Builders builders() {
-            return new Blocks.Builders(modId());
+        default Builders builders() {
+            return new Builders(modId());
         }
 
         class Builders {
@@ -66,7 +66,7 @@ public class UnifiedRegistries {
             private final String modId;
             private final UnifiedRegistries.Items itemRegistry;
 
-            public Builders(String modId){
+            private Builders(String modId) {
                 this.modId = modId;
                 this.itemRegistry = UnifiedRegistries.Items.create(modId);
             }
@@ -103,7 +103,7 @@ public class UnifiedRegistries {
             private final UnifiedRegistries.Blocks blockRegistry;
             private final UnifiedRegistries.EntityTypes entityRegistry;
 
-            public Builders(String modId){
+            private Builders(String modId) {
                 this.modId = modId;
                 this.itemRegistry = UnifiedRegistries.Items.create(modId);
                 this.blockRegistry = UnifiedRegistries.Blocks.create(modId);

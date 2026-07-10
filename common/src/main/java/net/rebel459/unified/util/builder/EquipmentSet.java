@@ -354,9 +354,9 @@ public class EquipmentSet {
         private @Nullable PrecedingToolCreativeEntries precedingToolCreativeEntries = null;
         private @Nullable PrecedingArmorCreativeEntries precedingArmorCreativeEntries = null;
 
-        private List<Triple<Group, DataComponentType<?>, ?>> components = new ArrayList<>();
-        private List<Triple<Group, DataComponentType<?>, DataComponentInitializers.SingleComponentInitializer<?>>> providedComponents = new ArrayList<>();
-        private List<Triple<Group, DataComponentType<?>, ResourceKey<?>>> keyedComponents = new ArrayList<>();
+        private List<Triple<Group, Supplier<DataComponentType<?>>, ?>> components = new ArrayList<>();
+        private List<Triple<Group, Supplier<DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>> providedComponents = new ArrayList<>();
+        private List<Triple<Group, Supplier<DataComponentType<?>>, ResourceKey<?>>> keyedComponents = new ArrayList<>();
         private List<Pair<Group, ItemAttributeModifiers.Entry>> attributes = new ArrayList<>();
 
         Settings() {}
@@ -569,28 +569,28 @@ public class EquipmentSet {
             return self();
         }
 
-        public <Y> T setComponent(Target target, DataComponentType<Y> type, Y value) {
+        public <Y> T setComponent(Target target, Supplier<DataComponentType<Y>> type, Y value) {
             return setComponent(new Group(target), type, value);
         }
-        public <Y> T setComponent(Group target, DataComponentType<Y> type, Y value) {
+        public <Y> T setComponent(Group target, Supplier<DataComponentType<Y>> type, Y value) {
             var components = settings.components;
             components.add(Triple.of(target, type, value));
             settings.components = components;
             return self();
         }
-        public <Y> T setComponentWithProvider(Target target, DataComponentType<Y> type, DataComponentInitializers.SingleComponentInitializer<Y> initializer) {
+        public <Y> T setComponentWithProvider(Target target, Supplier<DataComponentType<Y>> type, DataComponentInitializers.SingleComponentInitializer<Y> initializer) {
             return setComponentWithProvider(new Group(target), type, initializer);
         }
-        public <Y> T setComponentWithProvider(Group target, DataComponentType<Y> type, DataComponentInitializers.SingleComponentInitializer<Y> initializer) {
+        public <Y> T setComponentWithProvider(Group target, Supplier<DataComponentType<Y>> type, DataComponentInitializers.SingleComponentInitializer<Y> initializer) {
             var providedComponents = settings.providedComponents;
             providedComponents.add(Triple.of(target, type, initializer));
             settings.providedComponents = providedComponents;
             return self();
         }
-        public <Y> T setComponentWithKey(Target target, DataComponentType<Holder<Y>> type, ResourceKey<Y> valueKey) {
+        public <Y> T setComponentWithKey(Target target, Supplier<DataComponentType<Holder<Y>>> type, ResourceKey<Y> valueKey) {
             return setComponentWithKey(new Group(target), type, valueKey);
         }
-        public <Y> T setComponentWithKey(Group target, DataComponentType<Holder<Y>> type, ResourceKey<Y> valueKey) {
+        public <Y> T setComponentWithKey(Group target, Supplier<DataComponentType<Holder<Y>>> type, ResourceKey<Y> valueKey) {
             var keyedComponents = settings.keyedComponents;
             keyedComponents.add(Triple.of(target, type, valueKey));
             settings.keyedComponents = keyedComponents;

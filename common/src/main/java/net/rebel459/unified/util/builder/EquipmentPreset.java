@@ -54,7 +54,7 @@ public class EquipmentPreset {
             .build();
 
     public static final EquipmentPreset NETHERITE = createFrom(ToolMaterial.NETHERITE, ArmorMaterials.NETHERITE)
-            .setComponentWithProvider(EquipmentSet.Group.ALL, DataComponents.DAMAGE_RESISTANT, provider -> new DamageResistant(provider.getOrThrow(DamageTypeTags.IS_FIRE)))
+            .setComponentWithProvider(EquipmentSet.Group.ALL, () -> DataComponents.DAMAGE_RESISTANT, provider -> new DamageResistant(provider.getOrThrow(DamageTypeTags.IS_FIRE)))
             .build();
 
     public static EquipmentSet.PresetBuilder create() {
