@@ -354,9 +354,9 @@ public class EquipmentSet {
         private @Nullable PrecedingToolCreativeEntries precedingToolCreativeEntries = null;
         private @Nullable PrecedingArmorCreativeEntries precedingArmorCreativeEntries = null;
 
-        private List<Triple<Group, Supplier<DataComponentType<?>>, ?>> components = new ArrayList<>();
-        private List<Triple<Group, Supplier<DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>> providedComponents = new ArrayList<>();
-        private List<Triple<Group, Supplier<DataComponentType<?>>, ResourceKey<?>>> keyedComponents = new ArrayList<>();
+        private List<Triple<Group, Supplier<? extends DataComponentType<?>>, ?>> components = new ArrayList<>();
+        private List<Triple<Group, Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>> providedComponents = new ArrayList<>();
+        private List<Triple<Group, Supplier<? extends DataComponentType<?>>, ResourceKey<?>>> keyedComponents = new ArrayList<>();
         private List<Pair<Group, ItemAttributeModifiers.Entry>> attributes = new ArrayList<>();
 
         Settings() {}
