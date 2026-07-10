@@ -197,7 +197,7 @@ public class EquipmentSet {
         return registeredItems;
     }
 
-    private SuppliedItem createSword(){
+    private SuppliedItem createSword() {
         return createItem(
                 this.getId().getPath() + "_sword",
                 () -> new Item.Properties()
@@ -245,7 +245,7 @@ public class EquipmentSet {
         );
     }
 
-    private SuppliedItem createHelmet(){
+    private SuppliedItem createHelmet() {
         return createItem(
                 this.getId().getPath() + "_helmet",
                 () -> new Item.Properties()
@@ -253,7 +253,7 @@ public class EquipmentSet {
         );
     }
 
-    private SuppliedItem createChestplate(){
+    private SuppliedItem createChestplate() {
         return createItem(
                 this.getId().getPath() + "_chestplate",
                 () -> new Item.Properties()
@@ -261,7 +261,7 @@ public class EquipmentSet {
         );
     }
 
-    private SuppliedItem createLeggings(){
+    private SuppliedItem createLeggings() {
         return createItem(
                 this.getId().getPath() + "_leggings",
                 () -> new Item.Properties()
@@ -269,7 +269,7 @@ public class EquipmentSet {
         );
     }
 
-    private SuppliedItem createBoots(){
+    private SuppliedItem createBoots() {
         return createItem(
                 this.getId().getPath() + "_boots",
                 () -> new Item.Properties()
@@ -277,7 +277,7 @@ public class EquipmentSet {
         );
     }
 
-    private SuppliedItem createHorseArmor(){
+    private SuppliedItem createHorseArmor() {
         return createItem(
                 this.getId().getPath() + "_horse_armor",
                 () -> new Item.Properties()
@@ -285,7 +285,7 @@ public class EquipmentSet {
         );
     }
 
-    private SuppliedItem createNautilusArmor(){
+    private SuppliedItem createNautilusArmor() {
         return createItem(
                 this.getId().getPath() + "_nautilus_armor",
                 () -> new Item.Properties()
