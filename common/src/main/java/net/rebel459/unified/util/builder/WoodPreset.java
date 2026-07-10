@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.registry.builder;
+package net.rebel459.unified.util.builder;
 
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.SoundType;
@@ -11,7 +11,7 @@ public final class WoodPreset {
         this.settings = settings;
     }
 
-    public static final WoodPreset DEFAULT = create()
+    public static final WoodPreset DEFAULT = new WoodSet.PresetBuilder()
             .build();
 
     public static final WoodPreset NETHER = create()
@@ -53,7 +53,7 @@ public final class WoodPreset {
             .build();
 
     public static WoodSet.PresetBuilder create() {
-        return new WoodSet.PresetBuilder();
+        return createFrom(DEFAULT);
     }
 
     public static WoodSet.PresetBuilder createFrom(WoodPreset preset) {

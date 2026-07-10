@@ -7,14 +7,14 @@ import net.minecraft.client.renderer.entity.BoatRenderer;
 import net.minecraft.client.renderer.entity.RaftRenderer;
 import net.minecraft.resources.Identifier;
 import net.rebel459.unified.platform.client.UnifiedClientHelpers;
-import net.rebel459.unified.util.registry.builder.WoodSet;
+import net.rebel459.unified.util.builder.WoodSet;
 
 import java.util.Objects;
 
 public class WoodsetClientImpl {
     
     public static void init() {
-        for (WoodSet woodset : WoodSet.WOODSETS) {
+        for (WoodSet woodset : WoodSet.WOOD_SETS) {
             registerBoatModels(woodset);
         }
     }

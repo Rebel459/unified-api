@@ -1,7 +1,4 @@
-package net.rebel459.unified.util.registry.builder;
-
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.level.block.SoundType;
+package net.rebel459.unified.util.builder;
 
 public final class BlockPreset {
 
@@ -11,7 +8,7 @@ public final class BlockPreset {
         this.settings = settings;
     }
 
-    public static final BlockPreset DEFAULT = create()
+    public static final BlockPreset DEFAULT = new BlockSet.PresetBuilder()
             .build();
 
     public static final BlockPreset BASIC = create()
@@ -45,7 +42,7 @@ public final class BlockPreset {
             .build();
 
     public static BlockSet.PresetBuilder create() {
-        return new BlockSet.PresetBuilder();
+        return createFrom(DEFAULT);
     }
 
     public static BlockSet.PresetBuilder createFrom(BlockPreset preset) {

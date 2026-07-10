@@ -1,20 +1,25 @@
-package net.rebel459.unified.util.registry.builder.impl;
+package net.rebel459.unified.util.builder.impl;
 
+import net.minecraft.resources.Identifier;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.util.CreativeModeTabs;
-import net.rebel459.unified.util.registry.builder.BlockSet;
+import net.rebel459.unified.util.builder.BlockSet;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BlockSetImpl {
-    
+
+    public static Map<Identifier, BlockSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = new HashMap<>();
+
     public static void init(List<BlockSet> blockSets) {
         creativeEntries(blockSets);
     }
 
     private static void creativeEntries(List<BlockSet> blockSets) {
         for (BlockSet blockSet : blockSets) {
-            BlockSet.PrecedingCreativeEntries precedingItems = BlockSet.BLOCKSET_CREATIVE_ENTRIES.get(blockSet);
+            BlockSet.PrecedingCreativeEntries precedingItems = CREATIVE_ENTRIES.get(blockSet.getId());
             if (precedingItems == null) continue;
 
             if (blockSet.hasButton()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building().get(), blockSet.getButton());

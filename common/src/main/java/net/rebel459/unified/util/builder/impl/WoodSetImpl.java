@@ -1,16 +1,22 @@
-package net.rebel459.unified.util.registry.builder.impl;
+package net.rebel459.unified.util.builder.impl;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.util.CreativeModeTabs;
+import net.rebel459.unified.util.builder.BlockSet;
 import net.rebel459.unified.util.registry.SuppliedBlock;
-import net.rebel459.unified.util.registry.builder.WoodSet;
+import net.rebel459.unified.util.builder.WoodSet;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WoodSetImpl {
-    
+
+    public static Map<Identifier, WoodSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = new HashMap<>();
+
     public static void init(List<WoodSet> woodSets) {
         creativeEntries(woodSets);
         for (WoodSet woodset : woodSets) {
@@ -92,7 +98,7 @@ public class WoodSetImpl {
 
     private static void creativeEntries(List<WoodSet> woodSets) {
         for (WoodSet woodSet : woodSets) {
-            WoodSet.PrecedingCreativeEntries precedingItems = WoodSet.WOODSET_CREATIVE_ENTRIES.get(woodSet);
+            WoodSet.PrecedingCreativeEntries precedingItems = CREATIVE_ENTRIES.get(woodSet.getId());
             if (precedingItems == null) continue;
 
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS,
@@ -115,7 +121,8 @@ public class WoodSetImpl {
             else if (woodSet.hasLeaves()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLeaves());
             else if (woodSet.hasSapling()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getSapling().asItem());
 
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS, precedingItems.functional().get(), woodSet.getShelf(), woodSet.getSignItem(), woodSet.getHangingSignItem());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS, precedingItems.functionalShelf().get(), woodSet.getShelf());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS, precedingItems.functionalSign().get(), woodSet.getSignItem(), woodSet.getHangingSignItem());
 
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.TOOLS_AND_UTILITIES, precedingItems.utilities().get(), woodSet.getBoatItem(), woodSet.getChestBoatItem());
         }

@@ -19,13 +19,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.util.BlockLike;
+import net.rebel459.unified.util.builder.*;
 import net.rebel459.unified.util.registry.Supplied;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
-import net.rebel459.unified.util.registry.builder.BlockPreset;
-import net.rebel459.unified.util.registry.builder.BlockSet;
-import net.rebel459.unified.util.registry.builder.WoodPreset;
-import net.rebel459.unified.util.registry.builder.WoodSet;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -59,6 +56,25 @@ public class UnifiedRegistries {
 
         public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties);
         <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
+
+        default Blocks.Builders builders() {
+            return new Blocks.Builders(modId());
+        }
+
+        class Builders {
+
+            private final String modId;
+            private final UnifiedRegistries.Items itemRegistry;
+
+            public Builders(String modId){
+                this.modId = modId;
+                this.itemRegistry = UnifiedRegistries.Items.create(modId);
+            }
+
+            public EquipmentSet.RegistryBuilder equipmentSet(String name, EquipmentPreset preset) {
+                return new EquipmentSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, this.itemRegistry);
+            }
+        }
 
         static Items create(String modId) {
             return InternalHandlerImpl.INSTANCE.createItems(modId);
@@ -145,7 +161,7 @@ public class UnifiedRegistries {
         String modId();
 
         <T extends Entity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder);
-        <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes);
+        <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, AttributeSupplier attributes);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 

@@ -1,53 +1,31 @@
-package net.rebel459.unified.util.registry.builder;
+package net.rebel459.unified.util.builder;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.BlockFamily;
-import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.vehicle.boat.Boat;
-import net.minecraft.world.entity.vehicle.boat.ChestBoat;
-import net.minecraft.world.item.BoatItem;
-import net.minecraft.world.item.HangingSignItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
 import net.rebel459.unified.platform.UnifiedPlatform;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.LoaderType;
 import net.rebel459.unified.util.registry.SuppliedBlock;
-import net.rebel459.unified.util.registry.SuppliedItem;
-import net.rebel459.unified.util.registry.builder.impl.BlockSetImpl;
+import net.rebel459.unified.util.builder.impl.BlockSetImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class BlockSet {
 
-    public static final List<BlockSet> BLOCKSETS = new ArrayList<>();
-    public static final HashMap<BlockSet, PrecedingCreativeEntries> BLOCKSET_CREATIVE_ENTRIES = new HashMap<>();
+    public static final List<BlockSet> BLOCK_SETS = new ArrayList<>();
 
-    private final List<SuppliedBlock> registeredBlocksList = new ArrayList<>();
-
-    private static final List<SuppliedBlock> signBlocks = new ArrayList<>();
-    private static final List<SuppliedBlock> hangingSignBlocks = new ArrayList<>();
+    private final List<SuppliedBlock> registeredBlocks = new ArrayList<>();
 
     private final Identifier id;
     private final MapColor color;
@@ -90,8 +68,8 @@ public class BlockSet {
         this.blastResistance = blastResistance;
         this.blockRegistry = blockRegistry;
         registerBlocks();
-        BLOCKSETS.add(this);
-        BLOCKSET_CREATIVE_ENTRIES.put(this, this.getSettings().precedingCreativeEntries);
+        BLOCK_SETS.add(this);
+        BlockSetImpl.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) BlockSetImpl.init(List.of(this));
     }
 
@@ -100,7 +78,7 @@ public class BlockSet {
     }
 	private SuppliedBlock createBlockWithItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings){
 		SuppliedBlock block = blockRegistry.register(blockID, factory, settings);
-		registeredBlocksList.add(block);
+		registeredBlocks.add(block);
 		return block;
 	}
 
@@ -153,7 +131,7 @@ public class BlockSet {
     }
 
     public List<SuppliedBlock> getRegisteredBlocks() {
-        return registeredBlocksList;
+        return registeredBlocks;
     }
 
     private SuppliedBlock createBase(){
@@ -253,6 +231,7 @@ public class BlockSet {
         private boolean hasPillar = false;
 
         private boolean hasPluralName = false;
+        private boolean hasChiseledColumnModel = false;
 
         private boolean buttonArrowActivation = true;
         private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
@@ -261,7 +240,7 @@ public class BlockSet {
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> buttonSounds = Pair.of(() -> SoundEvents.WOODEN_BUTTON_CLICK_ON, () -> SoundEvents.WOODEN_BUTTON_CLICK_OFF);
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> pressurePlateSounds = Pair.of(() -> SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, () -> SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF);
 
-        private PrecedingCreativeEntries precedingCreativeEntries = null;
+        private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;
 
         Settings() {}
 
@@ -280,10 +259,6 @@ public class BlockSet {
         }
         public BlockSetType.PressurePlateSensitivity getPressurePlateSensitivity() {
             return pressurePlateSensitivity;
-        }
-
-        public PrecedingCreativeEntries getPrecedingCreativeEntries() {
-            return precedingCreativeEntries;
         }
 
         public Settings copy() {
@@ -428,8 +403,13 @@ public class BlockSet {
             return self();
         }
 
-        public T setButtonArrowActivation(boolean arrowsActivateButton) {
-            settings.buttonArrowActivation = arrowsActivateButton;
+        public T hasChiseledColumnModel(boolean hasChiseledColumnModel) {
+            settings.hasChiseledColumnModel = hasChiseledColumnModel;
+            return self();
+        }
+
+        public T setButtonArrowActivation(boolean buttonArrowActivation) {
+            settings.buttonArrowActivation = buttonArrowActivation;
             return self();
         }
 

@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.registry.builder;
+package net.rebel459.unified.util.builder;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
@@ -31,7 +31,7 @@ import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.LoaderType;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
-import net.rebel459.unified.util.registry.builder.impl.WoodSetImpl;
+import net.rebel459.unified.util.builder.impl.WoodSetImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -42,11 +42,10 @@ import java.util.function.Supplier;
 
 public class WoodSet {
 
-    public static final List<WoodSet> WOODSETS = new ArrayList<>();
-    public static final HashMap<WoodSet, PrecedingCreativeEntries> WOODSET_CREATIVE_ENTRIES = new HashMap<>();
+    public static final List<WoodSet> WOOD_SETS = new ArrayList<>();
 
-    private final List<SuppliedBlock> registeredBlocksList = new ArrayList<>();
-    private final List<SuppliedItem> registeredItemsList = new ArrayList<>();
+    private final List<SuppliedBlock> registeredBlocks = new ArrayList<>();
+    private final List<SuppliedItem> registeredItems = new ArrayList<>();
 
     private static final List<SuppliedBlock> signBlocks = new ArrayList<>();
     private static final List<SuppliedBlock> hangingSignBlocks = new ArrayList<>();
@@ -157,8 +156,8 @@ public class WoodSet {
         this.blockRegistry = blockRegistry;
         this.entityRegistry = entityRegistry;
         registerWood();
-        WOODSETS.add(this);
-        WOODSET_CREATIVE_ENTRIES.put(this, this.getSettings().precedingCreativeEntries);
+        WOOD_SETS.add(this);
+        WoodSetImpl.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) WoodSetImpl.init(List.of(this));
     }
 
@@ -173,32 +172,32 @@ public class WoodSet {
     }
 	private SuppliedBlock createBlockWithItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings){
 		SuppliedBlock block = blockRegistry.register(blockID, factory, settings);
-		registeredBlocksList.add(block);
+		registeredBlocks.add(block);
 		return block;
 	}
 	private SuppliedBlock createBlockWithItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings, BlockEntityType<?> blockEntity){
 		SuppliedBlock block = blockRegistry.register(blockID, factory, settings, blockEntity);
-		registeredBlocksList.add(block);
+		registeredBlocks.add(block);
 		return block;
 	}
 	private SuppliedBlock createBlockWithoutItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings){
 		SuppliedBlock block = blockRegistry.registerWithoutItem(blockID, factory, settings);
-		registeredBlocksList.add(block);
+		registeredBlocks.add(block);
 		return block;
 	}
 	private SuppliedBlock createBlockWithoutItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings, BlockEntityType<?> blockEntity){
 		SuppliedBlock block = blockRegistry.registerWithoutItem(blockID, factory, settings, blockEntity);
-		registeredBlocksList.add(block);
+		registeredBlocks.add(block);
 		return block;
 	}
     private SuppliedItem createItem(String blockID, Function<Item.Properties, Item> factory, Supplier<Item.Properties> settings){
 		SuppliedItem item = itemRegistry.register(blockID, factory, settings);
-        registeredItemsList.add(item);
+        registeredItems.add(item);
         return item;
     }
     private SuppliedItem createBlockItem(String blockID, Supplier<Block> block, Supplier<Item.Properties> settings){
 		SuppliedItem item = itemRegistry.registerBlockItem(blockID, block, settings);
-		registeredItemsList.add(item);
+		registeredItems.add(item);
 		return item;
 	}
     private ResourceKey<EntityType<?>> entityKey(String id) {
@@ -338,11 +337,11 @@ public class WoodSet {
     }
 
     public List<SuppliedBlock> getRegisteredBlocks() {
-        return registeredBlocksList;
+        return registeredBlocks;
     }
 
     public List<SuppliedItem> getRegisteredItems() {
-        return registeredItemsList;
+        return registeredItems;
     }
 
     public static List<SuppliedBlock> getAllSigns(){
@@ -561,8 +560,8 @@ public class WoodSet {
     public static class Settings implements Cloneable {
         private String logName = "log";
         private String woodName = "wood";
-        private Pair<Function<BlockBehaviour.Properties, Block>, MapColor> leaf = null;
-        private Pair<Function<BlockBehaviour.Properties, Block>, MapColor> sapling = null;
+        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> leaf = null;
+        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> sapling = null;
         private Boats boats = Boats.BOATS;
 
         private boolean hasMosaic = false;
@@ -582,7 +581,7 @@ public class WoodSet {
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> trapdoorSounds = Pair.of(() -> SoundEvents.WOODEN_TRAPDOOR_OPEN, () -> SoundEvents.WOODEN_TRAPDOOR_CLOSE);
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> fenceGateSounds = Pair.of(() -> SoundEvents.FENCE_GATE_OPEN, () -> SoundEvents.FENCE_GATE_CLOSE);
 
-        private PrecedingCreativeEntries precedingCreativeEntries = null;
+        private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;
 
         Settings() {}
 
@@ -629,10 +628,6 @@ public class WoodSet {
             return pressurePlateSensitivity;
         }
 
-        public PrecedingCreativeEntries getPrecedingCreativeEntries() {
-            return precedingCreativeEntries;
-        }
-
         public String getLogName() {
             return logName;
         }
@@ -659,6 +654,16 @@ public class WoodSet {
         private final UnifiedRegistries.Items itemRegistry;
         private final UnifiedRegistries.Blocks blockRegistry;
         private final UnifiedRegistries.EntityTypes entityRegistry;
+
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {
+            settings.leaf = Pair.of(properties, mapColor);
+            return self();
+        }
+
+        public RegistryBuilder createSapling(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {
+            settings.sapling = Pair.of(properties, mapColor);
+            return self();
+        }
 
         public WoodSet build() {
             return new WoodSet(id, barkColor, plankColor, settings, itemRegistry, blockRegistry, entityRegistry);
@@ -711,13 +716,15 @@ public class WoodSet {
         public T creativeInventoryPlacement(
                 Supplier<ItemLike> precedingBuildingItem,
                 Supplier<ItemLike> precedingNaturalItem,
-                Supplier<ItemLike> precedingFunctionalItem,
+                Supplier<ItemLike> precedingFunctionalShelfItem,
+                Supplier<ItemLike> precedingFunctionalSignItem,
                 Supplier<ItemLike> precedingUtilitiesItem
         ) {
             settings.precedingCreativeEntries = new PrecedingCreativeEntries(
                     precedingBuildingItem,
                     precedingNaturalItem,
-                    precedingFunctionalItem,
+                    precedingFunctionalShelfItem,
+                    precedingFunctionalSignItem,
                     precedingUtilitiesItem
             );
             return self();
@@ -760,16 +767,6 @@ public class WoodSet {
 
         public T fenceGateSounds(Supplier<SoundEvent> open, Supplier<SoundEvent> close) {
             settings.fenceGateSounds = Pair.of(open, close);
-            return self();
-        }
-
-        public T createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {
-            settings.leaf = Pair.of(properties, mapColor);
-            return self();
-        }
-
-        public T createSapling(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {
-            settings.sapling = Pair.of(properties, mapColor);
             return self();
         }
 
@@ -827,5 +824,5 @@ public class WoodSet {
         }
     }
 
-    public record PrecedingCreativeEntries(Supplier<ItemLike> building, Supplier<ItemLike> natural, Supplier<ItemLike> functional, Supplier<ItemLike> utilities) {}
+    public record PrecedingCreativeEntries(Supplier<ItemLike> building, Supplier<ItemLike> natural, Supplier<ItemLike> functionalShelf, Supplier<ItemLike> functionalSign, Supplier<ItemLike> utilities) {}
 }

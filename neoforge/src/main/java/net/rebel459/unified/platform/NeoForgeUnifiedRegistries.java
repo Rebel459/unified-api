@@ -247,7 +247,7 @@ public class NeoForgeUnifiedRegistries {
 
     public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
 
-        private static final List<Pair<Supplied<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>>> ENTITY_ATTRIBUTES = new ArrayList<>();
+        private static final List<Pair<Supplied<? extends EntityType<? extends LivingEntity>>, AttributeSupplier>> ENTITY_ATTRIBUTES = new ArrayList<>();
 
         @Override
         public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
@@ -257,7 +257,7 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes) {
+        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, AttributeSupplier attributes) {
             Supplied<EntityType<T>> entity = register(path, builder);
             ENTITY_ATTRIBUTES.add(Pair.of(entity, attributes));
             return entity;
@@ -270,8 +270,8 @@ public class NeoForgeUnifiedRegistries {
 
         @SubscribeEvent
         public static void createEntityAttributes(EntityAttributeCreationEvent event) {
-            for (Pair<Supplied<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>> pair : ENTITY_ATTRIBUTES) {
-                event.put(pair.getFirst().get(), pair.getSecond().get());
+            for (Pair<Supplied<? extends EntityType<? extends LivingEntity>>, AttributeSupplier> pair : ENTITY_ATTRIBUTES) {
+                event.put(pair.getFirst().get(), pair.getSecond());
             }
         }
     }
