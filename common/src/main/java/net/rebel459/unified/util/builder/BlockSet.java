@@ -231,7 +231,6 @@ public class BlockSet {
         private boolean hasPillar = false;
 
         private boolean hasPluralName = false;
-        private boolean hasChiseledColumnModel = false;
 
         private boolean buttonArrowActivation = true;
         private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
@@ -400,11 +399,6 @@ public class BlockSet {
 
         public T hasPluralName(boolean hasPluralName) {
             settings.hasPluralName = hasPluralName;
-            return self();
-        }
-
-        public T hasChiseledColumnModel(boolean hasChiseledColumnModel) {
-            settings.hasChiseledColumnModel = hasChiseledColumnModel;
             return self();
         }
 
