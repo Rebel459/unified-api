@@ -58,22 +58,22 @@ public class ClientEventsImpl {
         }
     }
 
-    public static class Guis {
+    public static class Hud {
 
-        private Guis() {}
+        private Hud() {}
 
         public interface Entry {
             void register(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
         }
 
         public static void passRenderCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
-            for (Entry entry : UnifiedClientEvents.Guis.CROSSHAIR_ENTRIES) {
+            for (Entry entry : UnifiedClientEvents.Hud.CROSSHAIR_ENTRIES) {
                 entry.register(gui, graphics, deltaTracker);
             }
         }
 
         public static void passRenderHotbar(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
-            for (Entry entry : UnifiedClientEvents.Guis.HOTBAR_ENTRIES) {
+            for (Entry entry : UnifiedClientEvents.Hud.HOTBAR_ENTRIES) {
                 entry.register(gui, graphics, deltaTracker);
             }
         }

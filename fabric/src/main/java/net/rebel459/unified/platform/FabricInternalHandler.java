@@ -80,7 +80,7 @@ public class FabricInternalHandler implements InternalHandler {
 
         @Override
         public BlockConversionsImpl.Oxidizables getOxidizables() {
-            return OxidizableBlocksRegistry::registerNextStage;
+            return (from, to) -> OxidizableBlocksRegistry.registerNextStage(from.asBlock(), to.asBlock());
         }
     }
 }

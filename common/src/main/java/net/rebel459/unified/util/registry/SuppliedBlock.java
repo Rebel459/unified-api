@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLike, net.rebel459.unified.util.SuppliedBlock {
+public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLike {
 
     @Nullable SuppliedItem item;
 
@@ -28,12 +28,6 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
 
     public ItemStackTemplate defaultTemplate() {
         return new ItemStackTemplate(this.asItem());
-    }
-
-    @Override
-    @Deprecated
-    public ItemStackTemplate getTemplate() {
-        return defaultTemplate();
     }
 
     @Override

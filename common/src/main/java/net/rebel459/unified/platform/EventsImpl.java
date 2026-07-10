@@ -69,8 +69,6 @@ public class EventsImpl {
         public interface LootTable {
             void addPool(LootPool.Builder pool);
             void editPool(Predicate<Item> predicate, LootEntry entry);
-            @Deprecated
-            void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
         }
 
         public interface Entry {

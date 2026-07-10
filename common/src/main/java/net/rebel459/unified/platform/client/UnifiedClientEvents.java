@@ -5,17 +5,13 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.TooltipDisplay;
-import net.minecraft.world.level.Level;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.event.QuadConsumer;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class UnifiedClientEvents {
@@ -101,21 +97,21 @@ public class UnifiedClientEvents {
         // pass handled in impl
     }
 
-    public static class Guis {
+    public static class Hud {
 
-        private Guis() {}
+        private Hud() {}
 
-        static final List<ClientEventsImpl.Guis.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
+        static final List<ClientEventsImpl.Hud.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void renderCrosshair(ClientEventsImpl.Guis.Entry entry) {
+        public static void renderCrosshair(ClientEventsImpl.Hud.Entry entry) {
             CROSSHAIR_ENTRIES.add(entry);
         }
 
         // pass handled in impl
 
-        static final List<ClientEventsImpl.Guis.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
+        static final List<ClientEventsImpl.Hud.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void renderHotbar(ClientEventsImpl.Guis.Entry entry) {
+        public static void renderHotbar(ClientEventsImpl.Hud.Entry entry) {
             HOTBAR_ENTRIES.add(entry);
         }
 

@@ -7,7 +7,7 @@
     "block.FabricComposterBlockMixin"
   ],
   "client": [
-    "client.FabricGuiMixin",
+    "client.FabricHudMixin",
     "client.FabricItemAttributeModifiersDisplayDefaultMixin",
     "client.FabricItemAttributeModifiersMixin",
     "client.FabricItemStackMixin"

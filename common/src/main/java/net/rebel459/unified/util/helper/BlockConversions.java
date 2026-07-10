@@ -13,7 +13,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.WeatheringCopperBlocks;
+import net.minecraft.world.level.block.WeatheringCopperCollection;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -25,37 +25,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public interface BlockConversions {
 
     default void addStrippable(BlockLike originalBlock, BlockLike convertedBlock) {
         add(stack -> stack.getItem() instanceof AxeItem, originalBlock, convertedBlock, SoundEvents.AXE_STRIP);
     }
-    @Deprecated
-    default void addStrippable(Block originalBlock, Block convertedBlock) {
-        addStrippable((BlockLike) originalBlock, convertedBlock);
-    }
 
-    @Deprecated
-    default void addWaxed(Block block, Block waxedBlock, Block exposedBlock, Block waxedExposedBlock, Block weatheredBlock, Block waxedWeatheredBlock, Block oxidizedBlock, Block waxedOxidizedBlock) {
-        addWeathering(block, exposedBlock, weatheredBlock, oxidizedBlock, waxedBlock, waxedExposedBlock, waxedWeatheredBlock, waxedOxidizedBlock);
-    }
-
-    default void addWeathering(BlockLike block, BlockLike exposedBlock, BlockLike weatheredBlock, BlockLike oxidizedBlock, BlockLike waxedBlock, BlockLike waxedExposedBlock, BlockLike waxedWeatheredBlock, BlockLike waxedOxidizedBlock) {
-        addWeathering(new WeatheringCopperBlocks(block.asBlock(), exposedBlock.asBlock(), weatheredBlock.asBlock(), oxidizedBlock.asBlock(), waxedBlock.asBlock(), waxedExposedBlock.asBlock(), waxedWeatheredBlock.asBlock(), waxedOxidizedBlock.asBlock()));
-    }
-    default void addWeathering(WeatheringCopperBlocks set) {
-        Block unaffected = set.unaffected();
-        Block exposed = set.exposed();
-        Block weathered = set.weathered();
-        Block oxidized = set.oxidized();
-        Block waxed = set.waxed();
-        Block waxedExposed = set.waxedExposed();
-        Block waxedWeathered = set.waxedWeathered();
-        Block waxedOxidized = set.waxedOxidized();
-        List<Pair<Block, Block>> waxPairs = List.of(Pair.of(unaffected, waxed), Pair.of(exposed, waxedExposed), Pair.of(weathered, waxedWeathered), Pair.of(oxidized, waxedOxidized));
-        List<Pair<Block, Block>> oxidizationPairs = List.of(Pair.of(oxidized, weathered), Pair.of(weathered, exposed), Pair.of(exposed, unaffected));
-        for (Pair<Block, Block> pair : waxPairs) {
+    default void addWeathering(BlockLike unaffected, BlockLike exposed, BlockLike weathered, BlockLike oxidized, BlockLike waxed, BlockLike waxedExposed, BlockLike waxedWeathered, BlockLike waxedOxidized) {
+        List<Pair<BlockLike, BlockLike>> waxPairs = List.of(Pair.of(unaffected, waxed), Pair.of(exposed, waxedExposed), Pair.of(weathered, waxedWeathered), Pair.of(oxidized, waxedOxidized));
+        List<Pair<BlockLike, BlockLike>> oxidizationPairs = List.of(Pair.of(oxidized, weathered), Pair.of(weathered, exposed), Pair.of(exposed, unaffected));
+        for (Pair<BlockLike, BlockLike> pair : waxPairs) {
             add(stack -> stack.getItem() instanceof HoneycombItem, pair.getFirst(), pair.getSecond(), (context -> {
                 Player player = context.getPlayer();
                 Level level = context.getLevel();
@@ -80,7 +61,7 @@ public interface BlockConversions {
                 context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
             });
         }
-        for (Pair<Block, Block> pair : oxidizationPairs) {
+        for (Pair<BlockLike, BlockLike> pair : oxidizationPairs) {
             add(stack -> stack.getItem() instanceof AxeItem, pair.getFirst(), pair.getSecond(), (context) -> {
                 Player player = context.getPlayer();
                 Level level = context.getLevel();
@@ -110,18 +91,5 @@ public interface BlockConversions {
     }
     default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, Consumer<UseOnContext> context) {
         BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock.asBlock(), _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock.asBlock(), context));
-    }
-
-    @Deprecated
-    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound) {
-        add(item, (BlockLike) originalBlock, convertedBlock, sound);
-    }
-    @Deprecated
-    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, SoundEvent sound, float volume, float pitch) {
-        add(item, (BlockLike) originalBlock, convertedBlock, sound, volume, pitch);
-    }
-    @Deprecated
-    default void add(Predicate<ItemStack> item, Block originalBlock, Block convertedBlock, Consumer<UseOnContext> context) {
-        add(item, (BlockLike) originalBlock, convertedBlock, context);
     }
 }

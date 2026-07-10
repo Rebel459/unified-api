@@ -82,19 +82,6 @@ jar {
     }
 }
 
-def injectLegacySupplierBridges = tasks.register('injectLegacySupplierBridges', LegacySupplierBridgeTask) {
-    classRoots.from(sourceSets.main.output.classesDirs)
-}
-
-tasks.named('classes') {
-    finalizedBy(injectLegacySupplierBridges)
-}
-
-tasks.named('jar') {
-    dependsOn(injectLegacySupplierBridges)
-    outputs.upToDateWhen { false }
-}
-
 processResources {
     var expandProps = [
             'mod_version'                  : mod_version,

@@ -5,8 +5,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 public class UnifiedPlatform {
 
-    @ApiStatus.Internal
-    public static HelpersImpl.Platform get() {
+    private static HelpersImpl.Platform get() {
         return InternalHandlerImpl.INSTANCE.getPlatform();
     }
 

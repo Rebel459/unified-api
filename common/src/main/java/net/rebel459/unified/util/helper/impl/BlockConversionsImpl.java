@@ -1,6 +1,6 @@
 package net.rebel459.unified.util.helper.impl;
 
-import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.rebel459.unified.util.BlockLike;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +69,6 @@ public class BlockConversionsImpl {
     public static HashMap<Block, List<Record>> INTERACTIONS = new HashMap<>();
 
     public interface Oxidizables {
-        void add(Block from, Block to);
+        void add(BlockLike from, BlockLike to);
     }
 }

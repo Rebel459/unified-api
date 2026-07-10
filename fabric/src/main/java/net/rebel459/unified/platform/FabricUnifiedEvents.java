@@ -87,12 +87,6 @@ public class FabricUnifiedEvents {
                         });
                     }
                 }
-
-                @Override
-                @Deprecated
-                public void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
-                    editPool(itemPredicate, replace ? LootEntry.replace(entry) : LootEntry.insert(entry));
-                }
             }, registries);
         });
         ServerTickEvents.START_SERVER_TICK.register((server) -> UnifiedEvents.Server.passOnTick(EventType.PRE, server));

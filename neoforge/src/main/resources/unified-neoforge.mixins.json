@@ -6,15 +6,13 @@
   "mixins": [
     "block.NeoForgeComposterBlockMixin",
     "block.WeatheringCopperMixin",
-    "item.DataComponentInitializersMixin",
-    "item.DataComponentInitializersPendingComponentsMixin",
     "server.PlayerListMixin",
     "server.ServerLifecycleHooksMixin",
     "worldgen.BiomeAccessor"
   ],
   "client": [
     "client.AttributeUtilMixin",
-    "client.NeoForgeGuiMixin"
+    "client.NeoForgeHudMixin"
   ],
   "server": [],
   "injectors": {

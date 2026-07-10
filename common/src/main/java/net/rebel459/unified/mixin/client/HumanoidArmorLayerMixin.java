@@ -16,7 +16,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -49,7 +49,7 @@ public abstract class HumanoidArmorLayerMixin {
     @SuppressWarnings("unchecked")
     @Inject(method = "renderArmorPiece", at = @At("HEAD"), cancellable = true)
     private void renderLegacyBabyArmor(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, ItemStack itemStack, EquipmentSlot slot, int lightCoords, HumanoidRenderState state, CallbackInfo ci) {
-        if (!state.isBaby || state.entityType == EntityType.ARMOR_STAND) return;
+        if (!state.isBaby || state.entityType == EntityTypes.ARMOR_STAND) return;
 
         Equippable equippable = itemStack.get(DataComponents.EQUIPPABLE);
         if (equippable == null || equippable.assetId().isEmpty() || equippable.slot() != slot) return;

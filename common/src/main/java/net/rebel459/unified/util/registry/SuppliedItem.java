@@ -10,7 +10,7 @@ import net.minecraft.world.level.ItemLike;
 
 import java.util.function.Supplier;
 
-public class SuppliedItem extends Supplied<Item> implements ItemLike, net.rebel459.unified.util.SuppliedItem {
+public class SuppliedItem extends Supplied<Item> implements ItemLike {
 
     public <T extends Item> SuppliedItem(Supplier<Registry<Item>> registry, ResourceKey<Item> key, Supplier<T> item) {
         super(registry, key, item);
@@ -22,18 +22,6 @@ public class SuppliedItem extends Supplied<Item> implements ItemLike, net.rebel4
 
     public ItemStackTemplate defaultTemplate() {
         return new ItemStackTemplate(this.get());
-    }
-
-    @Override
-    @Deprecated
-    public ItemStack getDefaultInstance() {
-        return defaultItemStack();
-    }
-
-    @Override
-    @Deprecated
-    public ItemStackTemplate getTemplate() {
-        return defaultTemplate();
     }
 
     @Override

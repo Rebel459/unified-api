@@ -42,14 +42,14 @@ public class ItemStackMixin {
     @Inject(at = @At("HEAD"), method = "addAttributeTooltips")
     private void passAttributesHead(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
-        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.get().getLoader() != LoaderType.NEOFORGE) {
+        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.getLoader() != LoaderType.NEOFORGE) {
             ClientEventsImpl.ItemTooltips.passAddAttributes(EventType.PRE, stack, consumer, display, localPlayer);
         }
     }
     @Inject(at = @At("TAIL"), method = "addAttributeTooltips")
     private void passAttributesTail(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
-        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.get().getLoader() != LoaderType.NEOFORGE) {
+        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.getLoader() != LoaderType.NEOFORGE) {
             ClientEventsImpl.ItemTooltips.passAddAttributes(EventType.POST, stack, consumer, display, localPlayer);
         }
     }

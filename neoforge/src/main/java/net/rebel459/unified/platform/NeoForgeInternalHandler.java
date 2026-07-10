@@ -86,9 +86,9 @@ public class NeoForgeInternalHandler implements InternalHandler {
         @Override
         public BlockConversionsImpl.Oxidizables getOxidizables() {
             return (from, to) -> {
-                OXIDIZABLES.put(from, to);
+                OXIDIZABLES.put(from.asBlock(), to.asBlock());
 
-                for (BlockState state : from.getStateDefinition().getPossibleStates()) {
+                for (BlockState state : from.asBlock().getStateDefinition().getPossibleStates()) {
                     state.initCache();
                 }
             };

@@ -37,9 +37,6 @@ public class UnifiedRegistries {
 
         <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value);
 
-        @Deprecated
-        <T extends Y> Holder<T> registerHolder(String path, Supplier<T> value);
-
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static <Y> DeferredRegistry<Y> create(String modId, Registry<Y> registry) {
@@ -90,11 +87,6 @@ public class UnifiedRegistries {
         <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties);
         <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type);
 
-        @Deprecated
-        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type);
-        @Deprecated
-        <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type);
-
         default Builders builders() {
             return new Builders(modId());
         }
@@ -121,15 +113,6 @@ public class UnifiedRegistries {
                 return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, hardness, blastResistance, preset, this.blockRegistry);
             }
         }
-
-        @Deprecated
-        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction);
-        @Deprecated
-        <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties);
-        @Deprecated
-        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type);
-        @Deprecated
-        <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
@@ -178,8 +161,6 @@ public class UnifiedRegistries {
 
         <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder);
         <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks);
-        @Deprecated
-        <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, Block... blocks);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
@@ -196,11 +177,6 @@ public class UnifiedRegistries {
 
         Holder<SoundEvent> registerForHolder(String path);
         Holder<SoundEvent> registerForHolder(String path, float fixedRange);
-
-        @Deprecated
-        Holder<SoundEvent> registerHolder(String path);
-        @Deprecated
-        Holder<SoundEvent> registerHolder(String path, float fixedRange);
 
         static SoundEvents create(String modId) {
             return InternalHandlerImpl.INSTANCE.createSoundEvents(modId);

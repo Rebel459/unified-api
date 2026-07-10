@@ -1,12 +1,8 @@
 package net.rebel459.unified.platform;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -14,6 +10,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -44,11 +41,9 @@ public class NeoForgeUnifiedEvents {
             UnifiedEvents.Commands.passRegister(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
         });
 
-        NeoForge.EVENT_BUS.addListener((TagsUpdatedEvent event) -> {
+        NeoForge.EVENT_BUS.addListener((TagsUpdatedEvent.ServerDataLoad event) -> {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD && server != null) {
-                UnifiedEvents.Server.passOnDatapackLoad(server);
-            }
+            if (server != null) UnifiedEvents.Server.passOnDatapackLoad(server);
         });
 
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent event) -> {
@@ -136,15 +131,9 @@ public class NeoForgeUnifiedEvents {
             if (event.getLevel() instanceof ServerLevel level) EventsImpl.Server.passOnLevelUnload(level);
             if (event.getLevel() instanceof Level level && !level.isClientSide()) EventsImpl.Levels.passOnUnload(level);
         });
-    }
 
-    public static final ScopedValue<HolderLookup.Provider> DEFAULT_ITEM_COMPONENTS_LOOKUP_PROVIDER = ScopedValue.newInstance();
-
-    public static void modifyDefaultItemComponentsEvent(HolderLookup.Provider provider) {
-        for (Item item : BuiltInRegistries.ITEM) {
-            DataComponentMap.Builder builder = DataComponentMap.builder().addAll(item.components());
-            UnifiedEvents.DefaultDataComponents.passModify(item, builder, provider);
-            item.builtInRegistryHolder().bindComponents(builder.build());
-        }
+        modEventBus.addListener((ModifyDefaultComponentsEvent event) -> {
+            event.modifyMatching((_, _) -> true, (builder, provider, item) -> UnifiedEvents.DefaultDataComponents.passModify(item, builder, provider));
+        });
     }
 }

@@ -58,11 +58,6 @@ public class UnifiedEvents {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, modifier));
         }
 
-        @Deprecated
-        public static void modifyFiltered(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {
-            modifyWithFilter(filter, modifier);
-        }
-
         private record FilteredEntry(Predicate<Item> filter, TriConsumer<Item, DataComponentMap.Builder, HolderLookup.Provider> modifier) {}
 
         static void passModify(Item item, DataComponentMap.Builder builder, HolderLookup.Provider provider) {
@@ -245,11 +240,6 @@ public class UnifiedEvents {
             FILTERED_ENTRIES.add(new FilteredEntry(filter, handler));
         }
 
-        @Deprecated
-        public static void modifyFiltered(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {
-            modifyWithFilter(filter, handler);
-        }
-
         private record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {}
 
         static boolean passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) {
@@ -339,12 +329,6 @@ public class UnifiedEvents {
                         }
                     }
                 }
-            }
-
-            @Override
-            @Deprecated
-            public void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
-                this.editPool(itemPredicate, replace ? LootEntry.replace(entry) : LootEntry.insert(entry));
             }
         }
     }

@@ -8,9 +8,9 @@ accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEnt
 accessible method net/minecraft/world/level/block/entity/BlockEntityType <init> (Lnet/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier;Ljava/util/Set;)V
 accessible class net/minecraft/world/item/CreativeModeTab$Output
 accessible method net/minecraft/world/item/Items registerItem (Lnet/minecraft/resources/ResourceKey;Ljava/util/function/Function;Lnet/minecraft/world/item/Item$Properties;)Lnet/minecraft/world/item/Item;
-accessible method net/minecraft/world/item/Items registerBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/item/Item$Properties;)Lnet/minecraft/world/item/Item;
-accessible method net/minecraft/world/entity/EntityType boatFactory (Ljava/util/function/Supplier;)Lnet/minecraft/world/entity/EntityType$EntityFactory;
-accessible method net/minecraft/world/entity/EntityType chestBoatFactory (Ljava/util/function/Supplier;)Lnet/minecraft/world/entity/EntityType$EntityFactory;
+accessible method net/minecraft/world/item/Items registerBlock (Lnet/minecraft/references/BlockItemId;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/item/Item$Properties;)Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/EntityTypes boatFactory (Ljava/util/function/Supplier;)Lnet/minecraft/world/entity/EntityType$EntityFactory;
+accessible method net/minecraft/world/entity/EntityTypes chestBoatFactory (Ljava/util/function/Supplier;)Lnet/minecraft/world/entity/EntityType$EntityFactory;
 accessible method net/minecraft/world/level/block/FireBlock setFlammable (Lnet/minecraft/world/level/block/Block;II)V
 
 transitive-accessible class net/minecraft/client/particle/ParticleResources$SpriteParticleRegistration

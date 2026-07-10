@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.vehicle.boat.Boat;
 import net.minecraft.world.entity.vehicle.boat.ChestBoat;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
@@ -29,13 +31,12 @@ import net.minecraft.world.level.material.PushReaction;
 import net.rebel459.unified.platform.UnifiedPlatform;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.LoaderType;
+import net.rebel459.unified.util.builder.impl.WoodSetImpl;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
-import net.rebel459.unified.util.builder.impl.WoodSetImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -438,14 +439,14 @@ public class WoodSet {
         return createBlockWithoutItem(this.getId().getPath() + "_sign", settings -> new StandingSignBlock(
                         this.getWoodType().get(), settings),
 			() -> BlockBehaviour.Properties.ofFullCopy(getSignBase()).mapColor(this.plankColor).sound(getSettings().woodSoundType.get()),
-			BlockEntityType.SIGN
+                BlockEntityTypes.SIGN
 		);
     }
     private SuppliedBlock createWallSign(){
         return createBlockWithoutItem(this.getId().getPath() + "_wall_sign", settings -> new WallSignBlock(
                         this.getWoodType().get(), settings),
 			() -> BlockBehaviour.Properties.ofFullCopy(getSignBase()).mapColor(this.plankColor).overrideLootTable(sign.get().getLootTable()).sound(getSettings().woodSoundType.get()),
-			BlockEntityType.SIGN
+                BlockEntityTypes.SIGN
 		);
     }
 
@@ -453,19 +454,19 @@ public class WoodSet {
         return createBlockWithoutItem(this.getId().getPath() + "_hanging_sign", settings -> new CeilingHangingSignBlock(
                         this.getWoodType().get(), settings),
 			() -> BlockBehaviour.Properties.ofFullCopy(getHangingSignBase()).mapColor(this.plankColor).sound(getSettings().hangingSignSoundType.get()),
-			BlockEntityType.HANGING_SIGN
+			BlockEntityTypes.HANGING_SIGN
 		);
     }
     private SuppliedBlock createWallHangingSign(){
         return createBlockWithoutItem(this.getId().getPath() + "_wall_hanging_sign", settings -> new WallHangingSignBlock(
                         this.getWoodType().get(), settings),
 			() -> BlockBehaviour.Properties.ofFullCopy(getHangingSignBase()).mapColor(this.plankColor).overrideLootTable(hangingSign.get().getLootTable()).sound(getSettings().hangingSignSoundType.get()),
-			BlockEntityType.HANGING_SIGN
+                BlockEntityTypes.HANGING_SIGN
 		);
     }
 
     private SuppliedBlock createShelf(){
-        return createBlockWithItem(this.getId().getPath() + "_shelf", ShelfBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_SHELF).mapColor(plankColor), BlockEntityType.SHELF);
+        return createBlockWithItem(this.getId().getPath() + "_shelf", ShelfBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_SHELF).mapColor(plankColor), BlockEntityTypes.SHELF);
     }
 
     private SuppliedItem createSignItem(){
@@ -476,10 +477,10 @@ public class WoodSet {
     }
 
     private Supplier<EntityType<Boat>> createBoatEntity(){
-        return register(this.getId().getPath() + "_" + getBoatName(), EntityType.Builder.of(EntityType.boatFactory(() -> boatItem.get()), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
+        return register(this.getId().getPath() + "_" + getBoatName(), EntityType.Builder.of(EntityTypes.boatFactory(() -> boatItem.get()), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
     }
     private Supplier<EntityType<ChestBoat>> createChestBoatEntity(){
-        return register(this.getId().getPath() + "_chest_" + getBoatName(), EntityType.Builder.of(EntityType.chestBoatFactory(() -> chestBoatItem.get()), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
+        return register(this.getId().getPath() + "_chest_" + getBoatName(), EntityType.Builder.of(EntityTypes.chestBoatFactory(() -> chestBoatItem.get()), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
     }
     private SuppliedItem createBoatItem(){
         return createItem(this.getId().getPath() + "_" + getBoatName(), settings -> new BoatItem(boat.get(), settings), () -> new Item.Properties().stacksTo(1));

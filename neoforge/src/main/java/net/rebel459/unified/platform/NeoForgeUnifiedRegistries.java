@@ -93,11 +93,6 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends Y> Holder<T> registerHolder(String path, Supplier<T> value) {
-            return registerForHolder(path, value);
-        }
-
-        @Override
         public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
             DEFERRED.get(Pair.of(modId, registry)).addAlias(convertedFrom, convertedTo);
         }
@@ -145,11 +140,6 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type) {
-            return register(path, function, blockProperties, () -> type);
-        }
-
-        @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
             var block = register(path, function, blockProperties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
@@ -164,39 +154,9 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type) {
-            return registerWithoutItem(path, function, properties, () -> type);
-        }
-
-        @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
             var block = registerWithoutItem(path, function, properties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
-            return block;
-        }
-
-        @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction) {
-            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new);
-        }
-
-        @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
-            var item = new Items(modId).register(path, itemFunction, itemProperties);
-            var block = BLOCKS.get(modId).registerBlock(path, blockFunction, blockProperties);
-            var blockRegistry = BLOCKS.get(modId);
-            return new SuppliedBlock(blockRegistry.getRegistry(), block.getKey(), block, (SuppliedItem) item);
-        }
-
-        @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
-            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
-        }
-
-        @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
-            var block = register(path, blockFunction, blockProperties, itemFunction, itemProperties);
-            BLOCK_ENTITIES.add(Pair.of(() -> type, block));
             return block;
         }
 
@@ -292,11 +252,6 @@ public class NeoForgeUnifiedRegistries {
             return register(path, builder, set);
         }
 
-        @Override
-        public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NonNull BlockEntitySupplier<T> builder, Block... blocks) {
-            return register(path, builder, Set.of(blocks));
-        }
-
         private @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Set<Block> set) {
             DeferredRegister<BlockEntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.BLOCK_ENTITY_TYPE));
             var blockEntity = registry.register(path, () -> new BlockEntityType<>(builder, set));
@@ -331,15 +286,6 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
             return ((DeferredRegister<SoundEvent>) DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT))).register(path, () -> SoundEvent.createFixedRangeEvent(Identifier.fromNamespaceAndPath(modId, path), fixedRange));
-        }
-
-        @Override
-        public Holder<SoundEvent> registerHolder(String path) {
-            return registerForHolder(path);
-        }
-        @Override
-        public Holder<SoundEvent> registerHolder(String path, float fixedRange) {
-            return registerForHolder(path);
         }
     }
 }

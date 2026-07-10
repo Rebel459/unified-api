@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -139,12 +140,12 @@ public abstract class MinecraftMixin {
         }
     }
 
-    @WrapOperation(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;onDisconnected()V"))
-    private void stopClientLevel(Gui gui, Operation<Void> original) {
+    @WrapOperation(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Hud;onDisconnected()V"))
+    private void stopClientLevel(Hud hud, Operation<Void> original) {
         if (this.level != null) {
             ClientEventsImpl.Instance.passOnLevelUnload(this.level);
             EventsImpl.Levels.passOnUnload(this.level);
         }
-        original.call(gui);
+        original.call(hud);
     }
 }
