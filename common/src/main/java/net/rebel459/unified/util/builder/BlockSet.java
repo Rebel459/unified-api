@@ -135,7 +135,7 @@ public class BlockSet {
     }
 
     private SuppliedBlock createBase(){
-        return createBlockWithItem(this.getId().getPath(), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).sound(getSettings().getSoundType().get()).mapColor(color).strength(hardness, blastResistance));
+        return createBlockWithItem(this.getId().getPath(), getSettings().baseBlockFunction, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).sound(getSettings().getSoundType().get()).mapColor(color).strength(hardness, blastResistance));
     }
     private SuppliedBlock createStairs(){
         return createBlockWithItem(this.getFormattedName() + "_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
@@ -234,6 +234,7 @@ public class BlockSet {
 
         private boolean buttonArrowActivation = true;
         private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
+        private Function<BlockBehaviour.Properties, Block> baseBlockFunction = Block::new;
 
         private Supplier<SoundType> soundType = () -> SoundType.STONE;
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> buttonSounds = Pair.of(() -> SoundEvents.WOODEN_BUTTON_CLICK_ON, () -> SoundEvents.WOODEN_BUTTON_CLICK_OFF);
@@ -258,6 +259,9 @@ public class BlockSet {
         }
         public BlockSetType.PressurePlateSensitivity getPressurePlateSensitivity() {
             return pressurePlateSensitivity;
+        }
+        public Function<BlockBehaviour.Properties, Block> getBaseBlockFunction() {
+            return baseBlockFunction;
         }
 
         public Settings copy() {
@@ -409,6 +413,11 @@ public class BlockSet {
 
         public T setPressurePlateSensitivity(BlockSetType.PressurePlateSensitivity pressurePlateSensitivity) {
             settings.pressurePlateSensitivity = pressurePlateSensitivity;
+            return self();
+        }
+
+        public T setBaseBlockFunction(Function<BlockBehaviour.Properties, Block> baseBlockFunction) {
+            settings.baseBlockFunction = baseBlockFunction;
             return self();
         }
     }
