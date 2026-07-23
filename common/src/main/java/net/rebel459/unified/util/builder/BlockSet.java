@@ -254,7 +254,7 @@ public class BlockSet {
             return pressurePlateSounds;
         }
 
-        public boolean getCanArrowsActivateButton() {
+        public boolean canArrowsActivateButton() {
             return canArrowsActivateButton;
         }
         public BlockSetType.PressurePlateSensitivity getPressurePlateSensitivity() {

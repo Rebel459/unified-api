@@ -608,7 +608,7 @@ public class WoodSet {
         public Pair<Boolean, Boolean> getDoorOpening() {
             return doorOpening;
         }
-        public boolean getCanArrowsActivateButton() {
+        public boolean canArrowsActivateButton() {
             return canArrowsActivateButton;
         }
         public BlockSetType.PressurePlateSensitivity getPressurePlateSensitivity() {
