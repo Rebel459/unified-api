@@ -112,11 +112,6 @@ public class UnifiedRegistries {
             public BlockSet.RegistryBuilder blockSet(String name, BlockPreset preset, MapColor color) {
                 return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, preset, this.blockRegistry);
             }
-
-            @Deprecated
-            public BlockSet.RegistryBuilder blockSet(String name, BlockPreset preset, MapColor color, float hardness, float blastResistance) {
-                return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, hardness, blastResistance, preset, this.blockRegistry);
-            }
         }
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
