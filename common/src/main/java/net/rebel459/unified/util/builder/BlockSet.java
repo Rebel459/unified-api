@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -29,8 +30,6 @@ public class BlockSet {
 
     private final Identifier id;
     private final MapColor color;
-    private final float hardness;
-    private final float blastResistance;
 
     private final UnifiedRegistries.Blocks blockRegistry;
 
@@ -60,12 +59,10 @@ public class BlockSet {
         if (hasButton()) button = createButton();
     }
 
-    public BlockSet(Identifier id, MapColor color, float hardness, float blastResistance, Settings settings, UnifiedRegistries.Blocks blockRegistry){
+    public BlockSet(Identifier id, MapColor color, Settings settings, UnifiedRegistries.Blocks blockRegistry){
         this.settings = settings;
         this.id = id;
         this.color = color;
-        this.hardness = hardness;
-        this.blastResistance = blastResistance;
         this.blockRegistry = blockRegistry;
         registerBlocks();
         BLOCK_SETS.add(this);
@@ -135,13 +132,17 @@ public class BlockSet {
     }
 
     private SuppliedBlock createBase(){
-        return createBlockWithItem(this.getId().getPath(), getSettings().baseBlockFunction, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).sound(getSettings().getSoundType().get()).mapColor(color).strength(hardness, blastResistance));
+        String name = this.getId().getPath();
+        if (getSettings().baseBlockSuffix.isPresent()) name = name + "_" + getSettings().baseBlockSuffix.get();
+        return createBlockWithItem(name, getSettings().baseBlockFunction, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).sound(getSettings().getSoundType().get()).mapColor(color).strength(getSettings().destroyTime, getSettings().explosionResistance));
     }
     private SuppliedBlock createStairs(){
         return createBlockWithItem(this.getFormattedName() + "_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createSlab(){
-        return createBlockWithItem(this.getFormattedName() + "_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
+        Supplier<BlockBehaviour.Properties> properties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get());
+        if (getSettings().hasLegacySlab) properties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()).strength(2F, 6F);
+        return createBlockWithItem(this.getFormattedName() + "_slab", SlabBlock::new, properties);
     }
     private SuppliedBlock createFence(){
         return createBlockWithItem(this.getFormattedName() + "_fence", FenceBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
@@ -220,6 +221,9 @@ public class BlockSet {
 
     public static class Settings implements Cloneable {
 
+        private float destroyTime = 1.5F;
+        private float explosionResistance = 6F;
+
         private boolean hasStairs = true;
         private boolean hasSlab = true;
         private boolean hasWall = true;
@@ -231,10 +235,12 @@ public class BlockSet {
         private boolean hasPillar = false;
 
         private boolean hasPluralName = false;
+        private boolean hasLegacySlab = false;
 
         private boolean canArrowsActivateButton = true;
         private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
         private Function<BlockBehaviour.Properties, Block> baseBlockFunction = Block::new;
+        private Optional<String> baseBlockSuffix = Optional.empty();
 
         private Supplier<SoundType> soundType = () -> SoundType.STONE;
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> buttonSounds = Pair.of(() -> SoundEvents.WOODEN_BUTTON_CLICK_ON, () -> SoundEvents.WOODEN_BUTTON_CLICK_OFF);
@@ -243,6 +249,14 @@ public class BlockSet {
         private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;
 
         Settings() {}
+
+        public float getDestroyTime() {
+            return destroyTime;
+        }
+
+        public float getExplosionResistance() {
+            return explosionResistance;
+        }
 
         public Supplier<SoundType> getSoundType() {
             return soundType;
@@ -274,22 +288,29 @@ public class BlockSet {
 
         private final Identifier id;
         private final MapColor color;
-        private final float hardness;
-        private final float blastResistance;
 
         private final UnifiedRegistries.Blocks blockRegistry;
 
         public BlockSet build() {
-            return new BlockSet(id, color, hardness, blastResistance, settings, blockRegistry);
+            return new BlockSet(id, color, settings, blockRegistry);
         }
 
-        public RegistryBuilder(Identifier id, MapColor color, float hardness, float blastResistance, BlockPreset preset, UnifiedRegistries.Blocks blockRegistry) {
+        public RegistryBuilder(Identifier id, MapColor color, BlockPreset preset, UnifiedRegistries.Blocks blockRegistry) {
             super(preset.settings.copy());
 
             this.id = id;
             this.color = color;
-            this.hardness = hardness;
-            this.blastResistance = blastResistance;
+            this.blockRegistry = blockRegistry;
+        }
+
+        public RegistryBuilder(Identifier id, MapColor color, float hardness, float blastResistance, BlockPreset preset, UnifiedRegistries.Blocks blockRegistry) {
+            Settings settings = preset.settings.copy();
+            settings.destroyTime = hardness;
+            settings.explosionResistance = blastResistance;
+            super(settings.copy());
+
+            this.id = id;
+            this.color = color;
             this.blockRegistry = blockRegistry;
         }
     }
@@ -335,6 +356,16 @@ public class BlockSet {
                     precedingBuildingItem,
                     precedingNaturalItem
             );
+            return self();
+        }
+
+        public T setDestroyTime(float destroyTime) {
+            settings.destroyTime = destroyTime;
+            return self();
+        }
+
+        public T setExplosionResistance(float explosionResistance) {
+            settings.explosionResistance = explosionResistance;
             return self();
         }
 
@@ -403,6 +434,11 @@ public class BlockSet {
             return self();
         }
 
+        public T hasLegacySlab(boolean hasLegacySlab) {
+            settings.hasLegacySlab = hasLegacySlab;
+            return self();
+        }
+
         public T canArrowsActivateButton(boolean canArrowsActivateButton) {
             settings.canArrowsActivateButton = canArrowsActivateButton;
             return self();
@@ -415,6 +451,11 @@ public class BlockSet {
 
         public T baseBlockFunction(Function<BlockBehaviour.Properties, Block> baseBlockFunction) {
             settings.baseBlockFunction = baseBlockFunction;
+            return self();
+        }
+
+        public T baseBlockSuffix(Optional<String> baseBlockSuffix) {
+            settings.baseBlockSuffix = baseBlockSuffix;
             return self();
         }
     }
