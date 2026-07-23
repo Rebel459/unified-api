@@ -204,7 +204,7 @@ public class BlockSet {
                 id.toString(),
                 true,
                 true,
-                this.settings.buttonArrowActivation,
+                this.settings.canArrowsActivateButton,
                 this.settings.pressurePlateSensitivity,
                 this.settings.soundType.get(),
                 SoundEvents.IRON_DOOR_OPEN,
@@ -232,7 +232,7 @@ public class BlockSet {
 
         private boolean hasPluralName = false;
 
-        private boolean buttonArrowActivation = true;
+        private boolean canArrowsActivateButton = true;
         private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
         private Function<BlockBehaviour.Properties, Block> baseBlockFunction = Block::new;
 
@@ -254,14 +254,11 @@ public class BlockSet {
             return pressurePlateSounds;
         }
 
-        public boolean getButtonArrowActivation() {
-            return buttonArrowActivation;
+        public boolean getCanArrowsActivateButton() {
+            return canArrowsActivateButton;
         }
         public BlockSetType.PressurePlateSensitivity getPressurePlateSensitivity() {
             return pressurePlateSensitivity;
-        }
-        public Function<BlockBehaviour.Properties, Block> getBaseBlockFunction() {
-            return baseBlockFunction;
         }
 
         public Settings copy() {
@@ -341,17 +338,17 @@ public class BlockSet {
             return self();
         }
 
-        public T soundType(Supplier<SoundType> soundType) {
+        public T setSoundType(Supplier<SoundType> soundType) {
             settings.soundType = soundType;
             return self();
         }
 
-        public T buttonSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
+        public T setButtonSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
             settings.buttonSounds = Pair.of(on, off);
             return self();
         }
 
-        public T pressurePlateSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
+        public T setPressurePlateSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
             settings.pressurePlateSounds = Pair.of(on, off);
             return self();
         }
@@ -406,8 +403,8 @@ public class BlockSet {
             return self();
         }
 
-        public T setButtonArrowActivation(boolean buttonArrowActivation) {
-            settings.buttonArrowActivation = buttonArrowActivation;
+        public T canArrowsActivateButton(boolean canArrowsActivateButton) {
+            settings.canArrowsActivateButton = canArrowsActivateButton;
             return self();
         }
 
@@ -416,7 +413,7 @@ public class BlockSet {
             return self();
         }
 
-        public T setBaseBlockFunction(Function<BlockBehaviour.Properties, Block> baseBlockFunction) {
+        public T baseBlockFunction(Function<BlockBehaviour.Properties, Block> baseBlockFunction) {
             settings.baseBlockFunction = baseBlockFunction;
             return self();
         }
