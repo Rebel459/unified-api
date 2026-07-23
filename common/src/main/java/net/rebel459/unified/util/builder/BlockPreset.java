@@ -1,5 +1,8 @@
 package net.rebel459.unified.util.builder;
 
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
+
 public final class BlockPreset {
 
     final BlockSet.Settings settings;
@@ -47,5 +50,14 @@ public final class BlockPreset {
 
     public static BlockSet.PresetBuilder createFrom(BlockPreset preset) {
         return new BlockSet.PresetBuilder(preset.settings.copy());
+    }
+
+    public static BlockSet.PresetBuilder createFrom(BlockSetType blockSetType) {
+        return create()
+                .setButtonSounds(blockSetType::buttonClickOn, blockSetType::buttonClickOff)
+                .setPressurePlateSounds(blockSetType::pressurePlateClickOn, blockSetType::pressurePlateClickOff)
+                .setSoundType(blockSetType::soundType)
+                .canArrowsActivateButton(blockSetType.canButtonBeActivatedByArrows())
+                .setPressurePlateSensitivity(blockSetType.pressurePlateSensitivity());
     }
 }

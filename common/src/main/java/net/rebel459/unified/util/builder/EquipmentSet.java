@@ -38,6 +38,9 @@ public class EquipmentSet {
 
     private final List<SuppliedItem> registeredItems = new ArrayList<>();
 
+    private @Nullable ToolMaterial toolMaterial = null;
+    private @Nullable ArmorMaterial armorMaterial = null;
+
     private final Identifier id;
 
     private final UnifiedRegistries.Items itemRegistry;
@@ -304,7 +307,7 @@ public class EquipmentSet {
     }
 
     public ToolMaterial getToolMaterial() {
-        return new ToolMaterial(
+        if (this.toolMaterial == null) this.toolMaterial = new ToolMaterial(
                 this.settings.incorrectBlocksForDrops,
                 this.settings.toolDurability,
                 this.settings.miningSpeed,
@@ -312,10 +315,11 @@ public class EquipmentSet {
                 this.settings.toolEnchantingPower,
                 this.settings.repairMaterials
         );
+        return this.toolMaterial;
     }
 
     public ArmorMaterial getArmorMaterial() {
-        return new ArmorMaterial(
+        if (this.armorMaterial == null) this.armorMaterial = new ArmorMaterial(
                 this.settings.armorDurabilityFactor,
                 this.settings.armorDefense,
                 this.settings.armorEnchantingPower,
@@ -325,13 +329,14 @@ public class EquipmentSet {
                 this.settings.repairMaterials,
                 this.settings.armorAsset
         );
+        return this.armorMaterial;
     }
 
     public static class Settings implements Cloneable {
 
-        private boolean hasTools = true;
-        private boolean hasArmor = true;
-        private boolean hasAnimalArmor = true;
+        private boolean hasTools = false;
+        private boolean hasArmor = false;
+        private boolean hasAnimalArmor = false;
 
         private float damageBonus = ToolMaterial.NETHERITE.attackDamageBonus();
         private float miningSpeed = ToolMaterial.NETHERITE.speed();

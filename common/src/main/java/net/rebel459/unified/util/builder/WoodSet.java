@@ -29,13 +29,12 @@ import net.minecraft.world.level.material.PushReaction;
 import net.rebel459.unified.platform.UnifiedPlatform;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.LoaderType;
+import net.rebel459.unified.util.builder.impl.WoodSetImpl;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
-import net.rebel459.unified.util.builder.impl.WoodSetImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -46,9 +45,6 @@ public class WoodSet {
 
     private final List<SuppliedBlock> registeredBlocks = new ArrayList<>();
     private final List<SuppliedItem> registeredItems = new ArrayList<>();
-
-    private static final List<SuppliedBlock> signBlocks = new ArrayList<>();
-    private static final List<SuppliedBlock> hangingSignBlocks = new ArrayList<>();
 
     private final Identifier id;
     private final MapColor barkColor;
@@ -109,7 +105,7 @@ public class WoodSet {
             mosaicStairs = createMosaicStairs();
             mosaicSlab = createMosaicSlab();
         }
-        if (this.settings.leaf != null){
+        if (this.settings.leaves != null){
             leaves = createLeaves();
         }
         if (this.settings.sapling != null){
@@ -139,12 +135,6 @@ public class WoodSet {
             boatItem = createBoatItem();
             chestBoatItem = createChestBoatItem();
         }
-
-        signBlocks.add(sign);
-        signBlocks.add(wallSign);
-
-        hangingSignBlocks.add(hangingSign);
-        hangingSignBlocks.add(wallHangingSign);
     }
 
     public WoodSet(Identifier id, MapColor sideColor, MapColor plankColor, Settings settings, UnifiedRegistries.Items itemRegistry, UnifiedRegistries.Blocks blockRegistry, UnifiedRegistries.EntityTypes entityRegistry){
@@ -344,13 +334,6 @@ public class WoodSet {
         return registeredItems;
     }
 
-    public static List<SuppliedBlock> getAllSigns(){
-        return signBlocks;
-    }
-    public static List<SuppliedBlock> getAllHangingSigns(){
-        return hangingSignBlocks;
-    }
-
     public SuppliedBlock getShelf() {
         return shelf;
     }
@@ -388,12 +371,12 @@ public class WoodSet {
         return createBlockWithItem("stripped_" + this.getId().getPath() + "_" + settings.getWoodName(), RotatedPillarBlock::new, createLogBlock(this.plankColor, this.plankColor));
     }
     private SuppliedBlock createLeaves() {
-        Function<BlockBehaviour.Properties, Block> properties = this.settings.leaf.getFirst();
-        return createBlockWithItem(this.getId().getPath() + "_leaves", properties, createLeavesBlock(this.settings.leaf.getSecond()));
+        Function<BlockBehaviour.Properties, Block> properties = this.settings.leaves.getFirst();
+        return createBlockWithItem(this.getId().getPath() + "_" + this.settings.getLeavesName(), properties, createLeavesBlock(this.settings.leaves.getSecond()));
     }
     private SuppliedBlock createSapling() {
         Function<BlockBehaviour.Properties, Block> properties = this.settings.sapling.getFirst();
-        return createBlockWithItem(this.getId().getPath() + "_sapling", properties, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING).mapColor(this.settings.sapling.getSecond()));
+        return createBlockWithItem(this.getId().getPath() + "_" + this.settings.getSaplingName(), properties, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING).mapColor(this.settings.sapling.getSecond()));
     }
     private SuppliedBlock createPottedSapling(SuppliedBlock sapling) {
         return createBlockWithoutItem("potted_" + this.getId().getPath() + "_sapling", properties -> new FlowerPotBlock(sapling.get(), properties), Blocks::flowerPotProperties);
@@ -502,7 +485,7 @@ public class WoodSet {
     }
 
     public boolean hasLeaves(){
-        return this.getSettings().leaf != null;
+        return this.getSettings().leaves != null;
     }
     public boolean hasSapling(){
         return this.getSettings().sapling != null;
@@ -532,7 +515,7 @@ public class WoodSet {
                         id.toString(),
                         this.settings.doorOpening.getFirst(),
                         this.settings.doorOpening.getSecond(),
-                        this.settings.buttonArrowActivation,
+                        this.settings.canArrowsActivateButton,
                         this.settings.pressurePlateSensitivity,
                         this.settings.woodSoundType.get(),
                         this.settings.doorSounds.getSecond().get(),
@@ -560,7 +543,9 @@ public class WoodSet {
     public static class Settings implements Cloneable {
         private String logName = "log";
         private String woodName = "wood";
-        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> leaf = null;
+        private String saplingName = "sapling";
+        private String leavesName = "leaves";
+        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> leaves = null;
         private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> sapling = null;
         private Boats boats = Boats.BOATS;
 
@@ -569,7 +554,7 @@ public class WoodSet {
         private boolean isFlammable = true;
 
         private Pair<Boolean, Boolean> doorOpening = Pair.of(true, true);
-        private boolean buttonArrowActivation = true;
+        private boolean canArrowsActivateButton = true;
         private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
 
         private Supplier<SoundType> leafSoundType = () -> SoundType.GRASS;
@@ -621,8 +606,8 @@ public class WoodSet {
         public Pair<Boolean, Boolean> getDoorOpening() {
             return doorOpening;
         }
-        public boolean getButtonArrowActivation() {
-            return buttonArrowActivation;
+        public boolean getCanArrowsActivateButton() {
+            return canArrowsActivateButton;
         }
         public BlockSetType.PressurePlateSensitivity getPressurePlateSensitivity() {
             return pressurePlateSensitivity;
@@ -631,9 +616,14 @@ public class WoodSet {
         public String getLogName() {
             return logName;
         }
-
         public String getWoodName() {
             return woodName;
+        }
+        public String getSaplingName() {
+            return saplingName;
+        }
+        public String getLeavesName() {
+            return leavesName;
         }
 
         public Settings copy() {
@@ -656,7 +646,7 @@ public class WoodSet {
         private final UnifiedRegistries.EntityTypes entityRegistry;
 
         public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {
-            settings.leaf = Pair.of(properties, mapColor);
+            settings.leaves = Pair.of(properties, mapColor);
             return self();
         }
 
@@ -730,53 +720,63 @@ public class WoodSet {
             return self();
         }
 
-        public T leafSoundType(Supplier<SoundType> leafSoundType) {
+        public T setLeafSoundType(Supplier<SoundType> leafSoundType) {
             settings.leafSoundType = leafSoundType;
             return self();
         }
 
-        public T woodSoundType(Supplier<SoundType> woodSoundType) {
+        public T setWoodSoundType(Supplier<SoundType> woodSoundType) {
             settings.woodSoundType = woodSoundType;
             return self();
         }
 
-        public T hangingSignSoundType(Supplier<SoundType> hangingSignSoundType) {
+        public T setHangingSignSoundType(Supplier<SoundType> hangingSignSoundType) {
             settings.hangingSignSoundType = hangingSignSoundType;
             return self();
         }
 
-        public T buttonSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
+        public T setButtonSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
             settings.buttonSounds = Pair.of(on, off);
             return self();
         }
 
-        public T pressurePlateSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
+        public T setPressurePlateSounds(Supplier<SoundEvent> on, Supplier<SoundEvent> off) {
             settings.pressurePlateSounds = Pair.of(on, off);
             return self();
         }
 
-        public T doorSounds(Supplier<SoundEvent> open, Supplier<SoundEvent> close) {
+        public T setDoorSounds(Supplier<SoundEvent> open, Supplier<SoundEvent> close) {
             settings.doorSounds = Pair.of(open, close);
             return self();
         }
 
-        public T trapdoorSounds(Supplier<SoundEvent> open, Supplier<SoundEvent> close) {
+        public T setTrapdoorSounds(Supplier<SoundEvent> open, Supplier<SoundEvent> close) {
             settings.trapdoorSounds = Pair.of(open, close);
             return self();
         }
 
-        public T fenceGateSounds(Supplier<SoundEvent> open, Supplier<SoundEvent> close) {
+        public T setFenceGateSounds(Supplier<SoundEvent> open, Supplier<SoundEvent> close) {
             settings.fenceGateSounds = Pair.of(open, close);
             return self();
         }
 
-        public T woodName(String woodName) {
+        public T setWoodName(String woodName) {
             settings.woodName = woodName;
             return self();
         }
 
-        public T logName(String logName) {
+        public T setLogName(String logName) {
             settings.logName = logName;
+            return self();
+        }
+
+        public T setSaplingName(String saplingName) {
+            settings.saplingName = saplingName;
+            return self();
+        }
+
+        public T setLeavesName(String leavesName) {
+            settings.leavesName = leavesName;
             return self();
         }
 
@@ -805,8 +805,8 @@ public class WoodSet {
             return self();
         }
 
-        public T setButtonArrowActivation(boolean arrowsActivateButton) {
-            settings.buttonArrowActivation = arrowsActivateButton;
+        public T canArrowsActivateButton(boolean canArrowsActivateButton) {
+            settings.canArrowsActivateButton = canArrowsActivateButton;
             return self();
         }
 

@@ -54,7 +54,7 @@ public class UnifiedRegistries {
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
-        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties);
+        SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties);
         <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
 
         default Builders builders() {
