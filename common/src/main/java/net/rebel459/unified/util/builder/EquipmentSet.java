@@ -28,13 +28,14 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EquipmentSet {
 
-    public static final List<EquipmentSet> EQUIPMENT_SETS = new ArrayList<>();
+    public static final List<EquipmentSet> EQUIPMENT_SETS = new CopyOnWriteArrayList<>();
 
     private final List<SuppliedItem> registeredItems = new ArrayList<>();
 

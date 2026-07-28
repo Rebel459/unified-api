@@ -170,7 +170,9 @@ public class NeoForgeHelpersImpl {
         private static void applyRelativeItems(BuildCreativeModeTabContentsEvent event, CreativeModeTab.TabVisibility visibility) {
             List<RelativeEntry> pending = new ArrayList<>();
 
-            for (Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>> triple : INSERT_AFTER_ITEMS) {
+            ListIterator<Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>>> afterIterator = INSERT_AFTER_ITEMS.listIterator(INSERT_AFTER_ITEMS.size());
+            while (afterIterator.hasPrevious()) {
+                Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>> triple = afterIterator.previous();
                 if (event.getTabKey().equals(triple.getRight())) {
                     pending.add(new RelativeEntry(RelativePlacement.AFTER, triple.getLeft(), triple.getMiddle(), triple.getRight()));
                 }

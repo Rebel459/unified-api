@@ -36,12 +36,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class WoodSet {
 
-    public static final List<WoodSet> WOOD_SETS = new ArrayList<>();
+    public static final List<WoodSet> WOOD_SETS = new CopyOnWriteArrayList<>();
 
     private final List<SuppliedBlock> registeredBlocks = new ArrayList<>();
     private final List<SuppliedItem> registeredItems = new ArrayList<>();
