@@ -23,15 +23,15 @@ import java.util.function.Supplier;
 
 public class EquipmentSetImpl {
 
-    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, ?>>> EQUIPMENT_COMPONENTS = new HashMap<>();
-    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>>> EQUIPMENT_PROVIDED_COMPONENTS = new HashMap<>();
-    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, ResourceKey<?>>>> EQUIPMENT_KEYED_COMPONENTS = new HashMap<>();
-    public static Map<Identifier, List<Pair<EquipmentSet.Group, ItemAttributeModifiers.Entry>>> EQUIPMENT_ATTRIBUTES = new HashMap<>();
+    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, ?>>> EQUIPMENT_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>>> EQUIPMENT_PROVIDED_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, ResourceKey<?>>>> EQUIPMENT_KEYED_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, List<Pair<EquipmentSet.Group, ItemAttributeModifiers.Entry>>> EQUIPMENT_ATTRIBUTES = Collections.synchronizedMap(new HashMap<>());
 
-    public static Map<Identifier, EquipmentSet.PrecedingToolCreativeEntries> CREATIVE_TOOL_ENTRIES = new HashMap<>();
-    public static Map<Identifier, EquipmentSet.PrecedingArmorCreativeEntries> CREATIVE_ARMOR_ENTRIES = new HashMap<>();
+    public static Map<Identifier, EquipmentSet.PrecedingToolCreativeEntries> CREATIVE_TOOL_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, EquipmentSet.PrecedingArmorCreativeEntries> CREATIVE_ARMOR_ENTRIES = Collections.synchronizedMap(new HashMap<>());
 
-    public static final Set<ResourceKey<Item>> SKIPPED_ATTRIBUTE_ITEMS = new HashSet<>();
+    public static final Set<ResourceKey<Item>> SKIPPED_ATTRIBUTE_ITEMS = Collections.synchronizedSet(new HashSet<>());
 
     public static void init(List<EquipmentSet> equipmentSets) {
         creativeEntries(equipmentSets);

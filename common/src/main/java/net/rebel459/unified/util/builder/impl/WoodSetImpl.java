@@ -9,13 +9,14 @@ import net.rebel459.unified.util.builder.BlockSet;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.builder.WoodSet;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class WoodSetImpl {
 
-    public static Map<Identifier, WoodSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = new HashMap<>();
+    public static Map<Identifier, WoodSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<WoodSet> woodSets) {
         creativeEntries(woodSets);

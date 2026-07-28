@@ -5,13 +5,14 @@ import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.util.CreativeModeTabs;
 import net.rebel459.unified.util.builder.BlockSet;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BlockSetImpl {
 
-    public static Map<Identifier, BlockSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = new HashMap<>();
+    public static Map<Identifier, BlockSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<BlockSet> blockSets) {
         creativeEntries(blockSets);

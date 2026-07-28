@@ -19,12 +19,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class BlockSet {
 
-    public static final List<BlockSet> BLOCK_SETS = new ArrayList<>();
+    public static final List<BlockSet> BLOCK_SETS = new CopyOnWriteArrayList<>();
 
     private final List<SuppliedBlock> registeredBlocks = new ArrayList<>();
 
