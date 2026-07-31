@@ -22,6 +22,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.rebel459.unified.client.util.builder.impl.WoodSetClientImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,7 @@ public class NeoForgeClientHelpersImpl {
 
         @SubscribeEvent
         public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+            WoodSetClientImpl.init(true, false);
             for (Pair<ModelLayerLocation, Supplier<LayerDefinition>> layerDefinitions : LAYER_DEFINITIONS) {
                 event.registerLayerDefinition(layerDefinitions.getFirst(), layerDefinitions.getSecond());
             }
@@ -77,6 +79,7 @@ public class NeoForgeClientHelpersImpl {
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            WoodSetClientImpl.init(false, true);
             for (Pair<Supplier, EntityRendererProvider> entityRenderers : ENTITY_RENDERERS) {
                 event.registerEntityRenderer((EntityType) entityRenderers.getFirst().get(), entityRenderers.getSecond());
             }
