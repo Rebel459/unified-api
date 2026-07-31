@@ -12,28 +12,27 @@ import net.rebel459.unified.util.builder.WoodSet;
 import java.util.Objects;
 
 public class WoodSetClientImpl {
-    
-    public static void init() {
+
+    public static void init(boolean layers, boolean renderers) {
         for (WoodSet woodset : WoodSet.WOOD_SETS) {
-            registerBoatModels(woodset);
+            if (!woodset.hasBoats()) return;
+
+            Identifier layerName = woodset.getId().withPrefix("boat/");
+            Identifier chestLayerName = woodset.getId().withPrefix("chest_boat/");
+
+            final ModelLayerLocation boatModelLayer = new ModelLayerLocation(layerName, "main");
+            final ModelLayerLocation chestBoatModelLayer = new ModelLayerLocation(chestLayerName, "main");
+
+            final boolean raft = Objects.equals(woodset.getSettings().getBoats(), WoodSet.Boats.RAFTS);
+
+            if (layers) {
+                UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(boatModelLayer, raft ? RaftModel::createRaftModel : BoatModel::createBoatModel);
+                UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(chestBoatModelLayer, raft ? RaftModel::createChestRaftModel : BoatModel::createChestBoatModel);
+            }
+            if (renderers) {
+                UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getBoat()::get, ctx -> raft ? new RaftRenderer(ctx, boatModelLayer) : new BoatRenderer(ctx, boatModelLayer));
+                UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getChestBoat()::get, ctx -> raft ? new RaftRenderer(ctx, chestBoatModelLayer) : new BoatRenderer(ctx, chestBoatModelLayer));
+            }
         }
-    }
-
-    private static void registerBoatModels(WoodSet woodset) {
-        if (!woodset.hasBoats()) return;
-
-        Identifier layerName = woodset.getId().withPrefix("boat/");
-        Identifier chestLayerName = woodset.getId().withPrefix("chest_boat/");
-
-        final ModelLayerLocation boatModelLayer = new ModelLayerLocation(layerName, "main");
-        final ModelLayerLocation chestBoatModelLayer = new ModelLayerLocation(chestLayerName, "main");
-
-        final boolean raft = Objects.equals(woodset.getSettings().getBoats(), WoodSet.Boats.RAFTS);
-
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(boatModelLayer, raft ? RaftModel::createRaftModel : BoatModel::createBoatModel);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getBoat()::get, ctx -> raft ? new RaftRenderer(ctx, boatModelLayer) : new BoatRenderer(ctx, boatModelLayer));
-
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(chestBoatModelLayer, raft ? RaftModel::createChestRaftModel : BoatModel::createChestBoatModel);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getChestBoat()::get, ctx -> raft ? new RaftRenderer(ctx, chestBoatModelLayer) : new BoatRenderer(ctx, chestBoatModelLayer));
     }
 }
