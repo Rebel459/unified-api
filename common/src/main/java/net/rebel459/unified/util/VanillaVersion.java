@@ -1,5 +1,7 @@
 package net.rebel459.unified.util;
 
+import net.minecraft.SharedConstants;
+
 public record VanillaVersion(int year, int drop, int patch) implements Comparable<VanillaVersion> {
 
     public static VanillaVersion parse(String version) {
@@ -10,6 +12,10 @@ public record VanillaVersion(int year, int drop, int patch) implements Comparabl
         int patch = parts.length > 2 ? Integer.parseInt(parts[2]) : 0;
 
         return new VanillaVersion(major, drop, patch);
+    }
+
+    public static VanillaVersion getCurrentVersion() {
+        return VanillaVersion.parse(SharedConstants.getCurrentVersion().name());
     }
 
     @Override

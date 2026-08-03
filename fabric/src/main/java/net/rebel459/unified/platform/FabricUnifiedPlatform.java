@@ -13,17 +13,6 @@ public class FabricUnifiedPlatform implements HelpersImpl.Platform {
     }
 
     @Override
-    public VanillaVersion getVanillaVersion() {
-        String version = FabricLoader.getInstance()
-                .getModContainer("minecraft")
-                .orElseThrow()
-                .getMetadata()
-                .getVersion()
-                .getFriendlyString();
-        return VanillaVersion.parse(version);
-    }
-
-    @Override
     public boolean isClientSide() {
         return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
     }

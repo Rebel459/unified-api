@@ -1,5 +1,6 @@
 package net.rebel459.unified.platform;
 
+import net.minecraft.SharedConstants;
 import net.rebel459.unified.util.LoaderType;
 import net.rebel459.unified.util.VanillaVersion;
 import org.jetbrains.annotations.ApiStatus;
@@ -13,9 +14,6 @@ public class UnifiedPlatform {
 
     public static LoaderType getLoader() {
         return get().getLoader();
-    }
-    public static VanillaVersion getVanillaVersion() {
-        return get().getVanillaVersion();
     }
 
     public static boolean isClientSide() {

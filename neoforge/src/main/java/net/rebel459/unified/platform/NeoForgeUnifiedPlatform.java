@@ -14,17 +14,6 @@ public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
     }
 
     @Override
-    public VanillaVersion getVanillaVersion() {
-        String version = ModList.get()
-                .getModContainerById("minecraft")
-                .orElseThrow()
-                .getModInfo()
-                .getVersion()
-                .toString();
-        return VanillaVersion.parse(version);
-    }
-
-    @Override
     public boolean isClientSide() {
         return FMLEnvironment.getDist().isClient();
     }

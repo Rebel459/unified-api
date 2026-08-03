@@ -32,7 +32,6 @@ public class HelpersImpl {
     public interface Platform {
 
         LoaderType getLoader();
-        VanillaVersion getVanillaVersion();
 
         boolean isClientSide();
         boolean isServerSide();
