@@ -9,10 +9,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.rebel459.unified.platform.EventsImpl;
 import net.rebel459.unified.platform.client.ClientEventsImpl;
+import net.rebel459.unified.util.EventType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.function.BooleanSupplier;
 
 @Mixin(ClientLevel.class)
 public abstract class ClientLevelMixin {
@@ -24,5 +27,15 @@ public abstract class ClientLevelMixin {
             ClientEventsImpl.Instance.passOnLevelLoad(level);
             EventsImpl.Levels.passOnLoad(level);
         }
+    }
+
+    @Inject(method = "tick", at = @At(value = "HEAD"))
+    private void preTickLevel(BooleanSupplier haveTime, CallbackInfo ci) {
+        EventsImpl.Levels.passOnTick(EventType.PRE, ClientLevel.class.cast(this));
+    }
+
+    @Inject(method = "tick", at = @At(value = "TAIL"))
+    private void postTickLevel(BooleanSupplier haveTime, CallbackInfo ci) {
+        EventsImpl.Levels.passOnTick(EventType.POST, ClientLevel.class.cast(this));
     }
 }

@@ -279,5 +279,11 @@ public class EventsImpl {
                 listener.accept(level);
             }
         }
+
+        public static void passOnTick(EventType type, Level level) {
+            for (Consumer<Level> listener : UnifiedEvents.Levels.LEVEL_TICK_LISTENERS.get(type)) {
+                listener.accept(level);
+            }
+        }
     }
 }

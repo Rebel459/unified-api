@@ -97,8 +97,14 @@ public class FabricUnifiedEvents {
         });
         ServerTickEvents.START_SERVER_TICK.register((server) -> UnifiedEvents.Server.passOnTick(EventType.PRE, server));
         ServerTickEvents.END_SERVER_TICK.register((server) -> UnifiedEvents.Server.passOnTick(EventType.POST, server));
-        ServerTickEvents.START_LEVEL_TICK.register((level) -> UnifiedEvents.Server.passOnLevelTick(EventType.PRE, level));
-        ServerTickEvents.END_LEVEL_TICK.register((level) -> UnifiedEvents.Server.passOnLevelTick(EventType.POST, level));
+        ServerTickEvents.START_LEVEL_TICK.register((level) -> {
+            UnifiedEvents.Server.passOnLevelTick(EventType.PRE, level);
+            EventsImpl.Levels.passOnTick(EventType.PRE, level);
+        });
+        ServerTickEvents.END_LEVEL_TICK.register((level) -> {
+            UnifiedEvents.Server.passOnLevelTick(EventType.POST, level);
+            EventsImpl.Levels.passOnTick(EventType.POST, level);
+        });
         ServerLivingEntityEvents.AFTER_DEATH.register(UnifiedEvents.Entities::passOnDeath);
         ServerEntityEvents.EQUIPMENT_CHANGE.register(UnifiedEvents.Entities::passOnEquipmentChange);
         ServerLevelEvents.LOAD.register(((server, level) -> {

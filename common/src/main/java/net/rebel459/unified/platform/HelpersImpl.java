@@ -21,6 +21,7 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.util.PackType;
 import net.rebel459.unified.util.LoaderType;
+import net.rebel459.unified.util.VanillaVersion;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -31,6 +32,7 @@ public class HelpersImpl {
     public interface Platform {
 
         LoaderType getLoader();
+        VanillaVersion getVanillaVersion();
 
         boolean isClientSide();
         boolean isServerSide();

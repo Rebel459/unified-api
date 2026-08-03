@@ -116,10 +116,16 @@ public class NeoForgeUnifiedEvents {
             UnifiedEvents.Server.passOnTick(EventType.POST, event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> {
-            event.getServer().getAllLevels().forEach(level -> UnifiedEvents.Server.passOnLevelTick(EventType.PRE, level));
+            event.getServer().getAllLevels().forEach(level -> {
+                UnifiedEvents.Server.passOnLevelTick(EventType.PRE, level);
+                EventsImpl.Levels.passOnTick(EventType.PRE, level);
+            });
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> {
-            event.getServer().getAllLevels().forEach(level -> UnifiedEvents.Server.passOnLevelTick(EventType.POST, level));
+            event.getServer().getAllLevels().forEach(level -> {
+                UnifiedEvents.Server.passOnLevelTick(EventType.POST, level);
+                EventsImpl.Levels.passOnTick(EventType.POST, level);
+            });
         });
         NeoForge.EVENT_BUS.addListener((LivingDeathEvent event) -> {
             UnifiedEvents.Entities.passOnDeath(event.getEntity(), event.getSource());
