@@ -1,14 +1,14 @@
 package net.rebel459.unified;
 
-import net.rebel459.unified.client.util.builder.impl.WoodSetClientImpl;
-import net.rebel459.unified.client.util.helper.impl.LegacyBabyArmorImpl;
-import net.rebel459.unified.platform.UnifiedPlatform;
-import net.rebel459.unified.util.LoaderType;
+import net.rebel459.unified.api.platform.ModLoader;
+import net.rebel459.unified.impl.client.builder.WoodSetClientImpl;
+import net.rebel459.unified.impl.client.helper.LegacyBabyArmorImpl;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 
 public class UnifiedClient {
 
     public static void init() {
         LegacyBabyArmorImpl.init();
-        if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) WoodSetClientImpl.init(true, true);
+        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) WoodSetClientImpl.init(true, true);
     }
 }

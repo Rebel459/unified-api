@@ -1,15 +1,15 @@
 package net.rebel459.unified;
 
-import net.rebel459.unified.platform.UnifiedPlatform;
-import net.rebel459.unified.registry.UnifiedDataComponents;
-import net.rebel459.unified.util.LoaderType;
-import net.rebel459.unified.util.builder.BlockSet;
-import net.rebel459.unified.util.builder.EquipmentSet;
-import net.rebel459.unified.util.builder.WoodSet;
-import net.rebel459.unified.util.builder.impl.BlockSetImpl;
-import net.rebel459.unified.util.builder.impl.EquipmentSetImpl;
-import net.rebel459.unified.util.builder.impl.WoodSetImpl;
-import net.rebel459.unified.util.helper.impl.StructureMusicImpl;
+import net.rebel459.unified.api.core.UnifiedPlatform;
+import net.rebel459.unified.api.platform.ModLoader;
+import net.rebel459.unified.api.registry.UnifiedDataComponents;
+import net.rebel459.unified.api.builder.BlockSet;
+import net.rebel459.unified.api.builder.EquipmentSet;
+import net.rebel459.unified.api.builder.WoodSet;
+import net.rebel459.unified.impl.builder.BlockSetImpl;
+import net.rebel459.unified.impl.builder.EquipmentSetImpl;
+import net.rebel459.unified.impl.builder.WoodSetImpl;
+import net.rebel459.unified.impl.helper.StructureMusicImpl;
 
 public class Unified {
 
@@ -19,7 +19,7 @@ public class Unified {
 
     public static void init() {
         StructureMusicImpl.init();
-        if (UnifiedPlatform.getLoader() == LoaderType.NEOFORGE) {
+        if (UnifiedPlatform.getModLoader() == ModLoader.NEOFORGE) {
             WoodSetImpl.init(WoodSet.WOOD_SETS);
             BlockSetImpl.init(BlockSet.BLOCK_SETS);
             EquipmentSetImpl.init(EquipmentSet.EQUIPMENT_SETS);

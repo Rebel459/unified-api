@@ -78,6 +78,6 @@ accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRende
 accessible class net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimSpriteKey
 accessible method net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimSpriteKey <init> (Lnet/minecraft/world/item/equipment/trim/ArmorTrim;Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;)V
 
-inject-interface net/minecraft/world/level/block/Block net/rebel459/unified/util/BlockLike
+inject-interface net/minecraft/world/level/block/Block net/rebel459/unified/api/util/BlockLike
 
 accessible method net/minecraft/resources/ResourceKey <init> (Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)V

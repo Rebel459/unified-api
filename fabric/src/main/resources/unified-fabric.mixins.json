@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "net.rebel459.unified.mixin",
+  "package": "net.rebel459.unified.fabric.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "block.ComposterBlockInputContainerMixin",
