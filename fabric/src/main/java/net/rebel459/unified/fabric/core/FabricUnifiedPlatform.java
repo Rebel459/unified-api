@@ -3,7 +3,7 @@ package net.rebel459.unified.fabric.core;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.platform.VanillaVersion;
+import net.rebel459.unified.api.util.VanillaVersion;
 import net.rebel459.unified.impl.core.HelpersImpl;
 
 public class FabricUnifiedPlatform implements HelpersImpl.Platform {
@@ -11,17 +11,6 @@ public class FabricUnifiedPlatform implements HelpersImpl.Platform {
     @Override
     public ModLoader getModLoader() {
         return ModLoader.FABRIC;
-    }
-
-    @Override
-    public VanillaVersion getVanillaVersion() {
-        String version = FabricLoader.getInstance()
-                .getModContainer("minecraft")
-                .orElseThrow()
-                .getMetadata()
-                .getVersion()
-                .getFriendlyString();
-        return VanillaVersion.parse(version);
     }
 
     @Override

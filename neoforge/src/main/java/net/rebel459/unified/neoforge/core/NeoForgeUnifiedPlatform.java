@@ -4,7 +4,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.platform.VanillaVersion;
+import net.rebel459.unified.api.util.VanillaVersion;
 import net.rebel459.unified.impl.core.HelpersImpl;
 
 public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
@@ -12,17 +12,6 @@ public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
     @Override
     public ModLoader getModLoader() {
         return ModLoader.NEOFORGE;
-    }
-
-    @Override
-    public VanillaVersion getVanillaVersion() {
-        String version = ModList.get()
-                .getModContainerById("minecraft")
-                .orElseThrow()
-                .getModInfo()
-                .getVersion()
-                .toString();
-        return VanillaVersion.parse(version);
     }
 
     @Override

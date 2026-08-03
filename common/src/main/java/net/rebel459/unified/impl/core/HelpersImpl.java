@@ -32,7 +32,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.platform.VanillaVersion;
+import net.rebel459.unified.api.util.VanillaVersion;
 import net.rebel459.unified.api.registry.UnifiedDataComponents;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
@@ -50,8 +50,6 @@ public class HelpersImpl {
     public interface Platform {
 
         ModLoader getModLoader();
-
-        VanillaVersion getVanillaVersion();
 
         boolean isClientSide();
         boolean isServerSide();
