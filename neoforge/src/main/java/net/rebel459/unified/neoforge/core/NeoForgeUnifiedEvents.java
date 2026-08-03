@@ -112,12 +112,16 @@ public class NeoForgeUnifiedEvents {
             EventsImpl.Server.passOnTick(EventTiming.POST, event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> {
-            event.getServer().getAllLevels().forEach(level -> EventsImpl.Server.passOnLevelTick(EventTiming.PRE, level));
-            event.getServer().getAllLevels().forEach(level -> EventsImpl.Levels.passOnTick(EventTiming.PRE, level));
+            event.getServer().getAllLevels().forEach(level -> {
+                EventsImpl.Server.passOnLevelTick(EventTiming.PRE, level);
+                EventsImpl.Levels.passOnTick(EventTiming.PRE, level);
+            });
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> {
-            event.getServer().getAllLevels().forEach(level -> EventsImpl.Server.passOnLevelTick(EventTiming.POST, level));
-            event.getServer().getAllLevels().forEach(level -> EventsImpl.Levels.passOnTick(EventTiming.POST, level));
+            event.getServer().getAllLevels().forEach(level -> {
+                EventsImpl.Server.passOnLevelTick(EventTiming.POST, level);
+                EventsImpl.Levels.passOnTick(EventTiming.POST, level);
+            });
         });
         NeoForge.EVENT_BUS.addListener((LivingDeathEvent event) -> {
             EventsImpl.Entities.passOnDeath(event.getEntity(), event.getSource());
