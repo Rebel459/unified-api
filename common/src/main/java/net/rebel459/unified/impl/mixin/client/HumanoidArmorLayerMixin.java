@@ -23,7 +23,7 @@ import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.rebel459.unified.impl.client.helper.LegacyBabyArmorImpl;
+import net.rebel459.unified.impl.client.helper.SimpleBabyArmorImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -56,14 +56,14 @@ public abstract class HumanoidArmorLayerMixin {
 
         EquipmentAssetManager equipmentAssets = this.equipmentRenderer.equipmentAssets;
         ResourceKey<EquipmentAsset> asset = equippable.assetId().orElseThrow();
-        if (!LegacyBabyArmorImpl.LEGACY_BABY_ARMOR_EQUIPMENT.containsKey(asset)) return;
+        if (!SimpleBabyArmorImpl.LEGACY_BABY_ARMOR_EQUIPMENT.containsKey(asset)) return;
 
         EquipmentClientInfo equipmentInfo = equipmentAssets.get(asset);
         if (!equipmentInfo.getLayers(EquipmentClientInfo.LayerType.HUMANOID_BABY).isEmpty()) return;
 
         HumanoidModel<HumanoidRenderState> prototype = (HumanoidModel<HumanoidRenderState>) this.babyModelSet.get(slot);
-        HumanoidModel<HumanoidRenderState> model = (HumanoidModel<HumanoidRenderState>) LegacyBabyArmorImpl.get((Class<? extends HumanoidModel<?>>) prototype.getClass()).get(slot);
-        if (LegacyBabyArmorImpl.isResizable(asset)) {
+        HumanoidModel<HumanoidRenderState> model = (HumanoidModel<HumanoidRenderState>) SimpleBabyArmorImpl.get((Class<? extends HumanoidModel<?>>) prototype.getClass()).get(slot);
+        if (SimpleBabyArmorImpl.isResizable(asset)) {
             this.renderResizedLegacyBabyArmor(equipmentInfo, asset, slot, model, state, itemStack, poseStack, submitNodeCollector, lightCoords);
         } else {
             this.equipmentRenderer.renderLayers(
@@ -114,7 +114,7 @@ public abstract class HumanoidArmorLayerMixin {
                 continue;
             }
 
-            Identifier texture = LegacyBabyArmorImpl.getResizedTexture(layer.getTextureLocation(layerType), asset);
+            Identifier texture = SimpleBabyArmorImpl.getResizedTexture(layer.getTextureLocation(layerType), asset);
             submitNodeCollector.order(order++)
                     .submitModel(
                             model,

@@ -18,7 +18,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.rebel459.unified.impl.client.helper.LegacyBabyArmorImpl;
+import net.rebel459.unified.impl.client.helper.SimpleBabyArmorImpl;
 import net.rebel459.unified.impl.client.platform.ClientPlatformHandler;
 
 import java.util.function.Function;
@@ -68,7 +68,7 @@ public class CommonClientHelpers {
         }
     }
 
-    public interface LegacyBabyArmor {
+    public interface SimpleBabyArmor {
 
         default void add(ResourceKey<EquipmentAsset> asset) {
             add(asset, 50);
@@ -76,11 +76,11 @@ public class CommonClientHelpers {
         default void add(ResourceKey<EquipmentAsset> asset, int cutoff) {
             int clampedCutoff = Math.clamp(cutoff, 0, 100);
             int alphaCutoff = Math.round(255 * (clampedCutoff / 100F));
-            LegacyBabyArmorImpl.LEGACY_BABY_ARMOR_EQUIPMENT.put(asset, Pair.of(true, alphaCutoff));
+            SimpleBabyArmorImpl.LEGACY_BABY_ARMOR_EQUIPMENT.put(asset, Pair.of(true, alphaCutoff));
         }
 
-        default void addWithoutResize(ResourceKey<EquipmentAsset> asset) {
-            LegacyBabyArmorImpl.LEGACY_BABY_ARMOR_EQUIPMENT.put(asset, Pair.of(false, 0));
+        default void addWithoutDownscale(ResourceKey<EquipmentAsset> asset) {
+            SimpleBabyArmorImpl.LEGACY_BABY_ARMOR_EQUIPMENT.put(asset, Pair.of(false, 0));
         }
     }
 

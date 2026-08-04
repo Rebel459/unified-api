@@ -9,6 +9,6 @@ public class UnifiedClientHelpers {
     public static CommonClientHelpers.EntityRenderers ENTITY_RENDERERS = ClientPlatformHandler.INSTANCE.getEntityRenderers();
     public static CommonClientHelpers.Networking NETWORKING = ClientPlatformHandler.INSTANCE.getNetworking();
     public static CommonClientHelpers.ParticleProviders PARTICLE_PROVIDERS = ClientPlatformHandler.INSTANCE.getParticleProviders();
-    public static CommonClientHelpers.LegacyBabyArmor LEGACY_BABY_ARMOR = new CommonClientHelpers.LegacyBabyArmor() {};
+    public static CommonClientHelpers.SimpleBabyArmor SIMPLE_BABY_ARMOR = new CommonClientHelpers.SimpleBabyArmor() {};
     public static CommonClientHelpers.ResourcePacks RESOURCE_PACKS = ClientPlatformHandler.INSTANCE.getResourcePacks();
 }

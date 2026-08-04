@@ -31,7 +31,7 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-public final class LegacyBabyArmorImpl {
+public final class SimpleBabyArmorImpl {
 
     private static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "legacy_baby_armor");
 
@@ -45,10 +45,10 @@ public final class LegacyBabyArmorImpl {
     );
 
     public static void init() {
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.head(), LegacyBabyArmorImpl::headLayer);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.chest(), LegacyBabyArmorImpl::chestLayer);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.legs(), LegacyBabyArmorImpl::legsLayer);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.feet(), LegacyBabyArmorImpl::feetLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.head(), SimpleBabyArmorImpl::headLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.chest(), SimpleBabyArmorImpl::chestLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.legs(), SimpleBabyArmorImpl::legsLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.feet(), SimpleBabyArmorImpl::feetLayer);
     }
 
     private static final Map<EquipmentSlot, Set<String>> ARMOR_PARTS_PER_SLOT = Map.of(
@@ -68,7 +68,7 @@ public final class LegacyBabyArmorImpl {
     private static final Map<Pair<Identifier, ResourceKey<EquipmentAsset>>, Identifier> CACHED_RESIZED_TEXTURES = new HashMap<>();
     private static final Set<Identifier> REGISTERED_RESIZED_TEXTURES = new HashSet<>();
 
-    private LegacyBabyArmorImpl() {}
+    private SimpleBabyArmorImpl() {}
 
     public static LayerDefinition headLayer() {
         return LAYER_DEFINITIONS.head();
@@ -110,7 +110,7 @@ public final class LegacyBabyArmorImpl {
         }
 
         Pair<Identifier, ResourceKey<EquipmentAsset>> cacheKey = Pair.of(adultTexture, asset);
-        return CACHED_RESIZED_TEXTURES.computeIfAbsent(cacheKey, key -> LegacyBabyArmorImpl.createResizedTexture(key.getFirst(), key.getSecond()));
+        return CACHED_RESIZED_TEXTURES.computeIfAbsent(cacheKey, key -> SimpleBabyArmorImpl.createResizedTexture(key.getFirst(), key.getSecond()));
     }
 
     private static ArmorModelSet<MeshDefinition> createArmorMeshSet(CubeDeformation innerDeformation, CubeDeformation outerDeformation) {
