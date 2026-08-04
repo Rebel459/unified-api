@@ -173,8 +173,6 @@ public class UnifiedEvents {
         public static void onLivingTick(EventTiming type, Consumer<LivingEntity> listener) {
             CommonEvents.Entities.LIVING_TICK_LISTENERS.get(type).add(listener);
         }
-
-        // pass handled in impl
     }
 
     public static class Levels {
