@@ -45,7 +45,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.neoforge.util.BiomeBuilderEvent;
-import net.rebel459.unified.neoforge.util.UnifiedBiomeModifiers;
+import net.rebel459.unified.neoforge.util.CustomBiomeModifiers;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
@@ -521,16 +521,16 @@ public class NeoForgeHelpers {
 
             void build() {
                 if (waterColor != null) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.WATER, waterColor));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetEffectModifier(targetBiomes, CustomBiomeModifiers.EffectType.WATER, waterColor));
                 }
                 if (foliageColor != null) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.FOLIAGE, foliageColor));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetEffectModifier(targetBiomes, CustomBiomeModifiers.EffectType.FOLIAGE, foliageColor));
                 }
                 if (dryFoliageColor != null) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.DRY_FOLIAGE, dryFoliageColor));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetEffectModifier(targetBiomes, CustomBiomeModifiers.EffectType.DRY_FOLIAGE, dryFoliageColor));
                 }
                 if (grassColor != null) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEffectModifier(targetBiomes, UnifiedBiomeModifiers.EffectType.GRASS, grassColor));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetEffectModifier(targetBiomes, CustomBiomeModifiers.EffectType.GRASS, grassColor));
                 }
             }
         }
@@ -566,13 +566,13 @@ public class NeoForgeHelpers {
 
             void build() {
                 if (changedTemperature) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetClimateModifier(this.targetBiomes, UnifiedBiomeModifiers.ClimateType.TEMPERATURE, temperature));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetClimateModifier(this.targetBiomes, CustomBiomeModifiers.ClimateType.TEMPERATURE, temperature));
                 }
                 if (changedDownfall) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetClimateModifier(this.targetBiomes, UnifiedBiomeModifiers.ClimateType.DOWNFALL, downfall));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetClimateModifier(this.targetBiomes, CustomBiomeModifiers.ClimateType.DOWNFALL, downfall));
                 }
                 if (changedHasPrecipitation) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetPrecipitationModifier(this.targetBiomes, hasPrecipitation));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetPrecipitationModifier(this.targetBiomes, hasPrecipitation));
                 }
             }
         }
@@ -592,7 +592,7 @@ public class NeoForgeHelpers {
 
             void build() {
                 for (var entry : toSet) {
-                    MODIFIERS.add(new UnifiedBiomeModifiers.SetEnvironmentAttributeModifier(targetBiomes, entry.attribute, entry.value));
+                    MODIFIERS.add(new CustomBiomeModifiers.SetEnvironmentAttributeModifier(targetBiomes, entry.attribute, entry.value));
                 }
             }
         }

@@ -21,7 +21,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class UnifiedBiomeModifiers {
+public class CustomBiomeModifiers {
 
     private static final DeferredRegister<MapCodec<? extends BiomeModifier>> BIOME_MODIFIER_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, Unified.MOD_ID);
 
@@ -45,13 +45,13 @@ public class UnifiedBiomeModifiers {
             return CODEC.get();
         }
 
-        public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<UnifiedBiomeModifiers.SetClimateModifier>> CODEC = BIOME_MODIFIER_SERIALIZERS.register("set_climate", () -> RecordCodecBuilder.mapCodec(
+        public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<CustomBiomeModifiers.SetClimateModifier>> CODEC = BIOME_MODIFIER_SERIALIZERS.register("set_climate", () -> RecordCodecBuilder.mapCodec(
                 builder -> builder
                         .group(
-                                Biome.LIST_CODEC.fieldOf("biomes").forGetter(UnifiedBiomeModifiers.SetClimateModifier::biomes),
-                                Codec.STRING.fieldOf("climate_type").forGetter(UnifiedBiomeModifiers.SetClimateModifier::type),
-                                Codec.FLOAT.fieldOf("step").forGetter(UnifiedBiomeModifiers.SetClimateModifier::value))
-                        .apply(builder, UnifiedBiomeModifiers.SetClimateModifier::new)));
+                                Biome.LIST_CODEC.fieldOf("biomes").forGetter(CustomBiomeModifiers.SetClimateModifier::biomes),
+                                Codec.STRING.fieldOf("climate_type").forGetter(CustomBiomeModifiers.SetClimateModifier::type),
+                                Codec.FLOAT.fieldOf("step").forGetter(CustomBiomeModifiers.SetClimateModifier::value))
+                        .apply(builder, CustomBiomeModifiers.SetClimateModifier::new)));
     }
 
     public record SetPrecipitationModifier(HolderSet<Biome> biomes, boolean hasPrecipitation) implements BiomeModifier {
@@ -68,12 +68,12 @@ public class UnifiedBiomeModifiers {
             return CODEC.get();
         }
 
-        public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<UnifiedBiomeModifiers.SetPrecipitationModifier>> CODEC = BIOME_MODIFIER_SERIALIZERS.register("set_precipitation", () -> RecordCodecBuilder.mapCodec(
+        public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<CustomBiomeModifiers.SetPrecipitationModifier>> CODEC = BIOME_MODIFIER_SERIALIZERS.register("set_precipitation", () -> RecordCodecBuilder.mapCodec(
                 builder -> builder
                         .group(
-                                Biome.LIST_CODEC.fieldOf("biomes").forGetter(UnifiedBiomeModifiers.SetPrecipitationModifier::biomes),
-                                Codec.BOOL.fieldOf("has_precipitation").forGetter(UnifiedBiomeModifiers.SetPrecipitationModifier::hasPrecipitation))
-                        .apply(builder, UnifiedBiomeModifiers.SetPrecipitationModifier::new)));
+                                Biome.LIST_CODEC.fieldOf("biomes").forGetter(CustomBiomeModifiers.SetPrecipitationModifier::biomes),
+                                Codec.BOOL.fieldOf("has_precipitation").forGetter(CustomBiomeModifiers.SetPrecipitationModifier::hasPrecipitation))
+                        .apply(builder, CustomBiomeModifiers.SetPrecipitationModifier::new)));
     }
 
     public record SetEnvironmentAttributeModifier(HolderSet<Biome> biomes, EnvironmentAttribute attribute, Object value) implements BiomeModifier {
