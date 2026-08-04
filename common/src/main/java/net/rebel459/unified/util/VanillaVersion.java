@@ -14,7 +14,7 @@ public record VanillaVersion(int year, int drop, int patch) implements Comparabl
         return new VanillaVersion(major, drop, patch);
     }
 
-    public static VanillaVersion getCurrentVersion() {
+    public static VanillaVersion getVanillaVersion() {
         return parse(SharedConstants.getCurrentVersion().name());
     }
 

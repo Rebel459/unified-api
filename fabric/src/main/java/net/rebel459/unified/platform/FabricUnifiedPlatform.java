@@ -3,7 +3,6 @@ package net.rebel459.unified.platform;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.rebel459.unified.util.LoaderType;
-import net.rebel459.unified.util.VanillaVersion;
 
 public class FabricUnifiedPlatform implements HelpersImpl.Platform {
 

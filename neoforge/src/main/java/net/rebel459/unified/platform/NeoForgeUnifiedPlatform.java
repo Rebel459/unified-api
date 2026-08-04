@@ -4,7 +4,6 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.rebel459.unified.util.LoaderType;
-import net.rebel459.unified.util.VanillaVersion;
 
 public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
 
