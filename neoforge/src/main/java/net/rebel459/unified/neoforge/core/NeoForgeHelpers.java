@@ -43,7 +43,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
-import net.rebel459.unified.impl.core.HelpersImpl;
+import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.neoforge.util.BiomeBuilderEvent;
 import net.rebel459.unified.neoforge.util.UnifiedBiomeModifiers;
 import org.apache.commons.lang3.tuple.Triple;
@@ -53,9 +53,9 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class NeoForgeHelpersImpl {
+public class NeoForgeHelpers {
 
-    public static class CreativeEntries implements HelpersImpl.CreativeEntries {
+    public static class CreativeEntries implements CommonHelpers.CreativeEntries {
 
         private static List<Pair<ItemStackTemplate, ResourceKey<CreativeModeTab>>> INSERT_ITEMS = new ArrayList<>();
         private static List<Triple<ItemLike, ItemStackTemplate, ResourceKey<CreativeModeTab>>> INSERT_AFTER_ITEMS = new ArrayList<>();
@@ -264,7 +264,7 @@ public class NeoForgeHelpersImpl {
         private record RelativeEntry(RelativePlacement placement, ItemLike anchor, ItemStackTemplate added, ResourceKey<CreativeModeTab> tab) {}
     }
 
-    public static class DataPacks implements HelpersImpl.DataPacks {
+    public static class DataPacks implements CommonHelpers.DataPacks {
 
         public static List<Pair<Identifier, Boolean>> PACK_LIST = new ArrayList<>();
 
@@ -296,7 +296,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class Networking implements HelpersImpl.Networking {
+    public static class Networking implements CommonHelpers.Networking {
 
         private static final List<ToServer> TO_SERVER_LIST = new ArrayList<>();
         private static final List<ToClient> TO_CLIENT_LIST = new ArrayList<>();
@@ -437,7 +437,7 @@ public class NeoForgeHelpersImpl {
         }
     }
 
-    public static class BiomeModifications implements HelpersImpl.BiomeModifications {
+    public static class BiomeModifications implements CommonHelpers.BiomeModifications {
 
         public static final List<BiomeModifier> MODIFIERS = new ArrayList<>();
 

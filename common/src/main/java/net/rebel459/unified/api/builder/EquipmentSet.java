@@ -19,10 +19,10 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.rebel459.unified.api.core.UnifiedPlatform;
+import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.impl.builder.EquipmentSetImpl;
+import net.rebel459.unified.impl.builder.EquipmentSetProperties;
 import net.rebel459.unified.api.core.SuppliedItem;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
@@ -123,13 +123,13 @@ public class EquipmentSet {
         this.itemRegistry = itemRegistry;
         registerItems();
         EQUIPMENT_SETS.add(this);
-        EquipmentSetImpl.EQUIPMENT_COMPONENTS.put(id, settings.components);
-        EquipmentSetImpl.EQUIPMENT_PROVIDED_COMPONENTS.put(id, settings.providedComponents);
-        EquipmentSetImpl.EQUIPMENT_KEYED_COMPONENTS.put(id, settings.keyedComponents);
-        EquipmentSetImpl.EQUIPMENT_ATTRIBUTES.put(id, settings.attributes);
-        EquipmentSetImpl.CREATIVE_ARMOR_ENTRIES.put(id, settings.precedingArmorCreativeEntries);
-        EquipmentSetImpl.CREATIVE_TOOL_ENTRIES.put(id, settings.precedingToolCreativeEntries);
-        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) EquipmentSetImpl.init(List.of(this));
+        EquipmentSetProperties.EQUIPMENT_COMPONENTS.put(id, settings.components);
+        EquipmentSetProperties.EQUIPMENT_PROVIDED_COMPONENTS.put(id, settings.providedComponents);
+        EquipmentSetProperties.EQUIPMENT_KEYED_COMPONENTS.put(id, settings.keyedComponents);
+        EquipmentSetProperties.EQUIPMENT_ATTRIBUTES.put(id, settings.attributes);
+        EquipmentSetProperties.CREATIVE_ARMOR_ENTRIES.put(id, settings.precedingArmorCreativeEntries);
+        EquipmentSetProperties.CREATIVE_TOOL_ENTRIES.put(id, settings.precedingToolCreativeEntries);
+        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) EquipmentSetProperties.init(List.of(this));
     }
 
     private SuppliedItem createItem(String path, Supplier<Item.Properties> settings){

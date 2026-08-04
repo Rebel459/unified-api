@@ -1,14 +1,13 @@
 package net.rebel459.unified.api.core;
 
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.util.VanillaVersion;
-import net.rebel459.unified.impl.core.HelpersImpl;
-import net.rebel459.unified.impl.platform.InternalHandlerImpl;
+import net.rebel459.unified.impl.core.CommonInstance;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 
-public class UnifiedPlatform {
+public class UnifiedInstance {
 
-    private static HelpersImpl.Platform get() {
-        return InternalHandlerImpl.INSTANCE.getPlatform();
+    private static CommonInstance get() {
+        return PlatformHandler.INSTANCE.getInstance();
     }
 
     public static ModLoader getModLoader() {

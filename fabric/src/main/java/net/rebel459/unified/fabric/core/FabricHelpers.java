@@ -29,7 +29,7 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
-import net.rebel459.unified.impl.core.HelpersImpl;
+import net.rebel459.unified.impl.core.CommonHelpers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,9 +38,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class FabricHelpersImpl {
+public class FabricHelpers {
 
-    public static class CreativeEntries implements HelpersImpl.CreativeEntries {
+    public static class CreativeEntries implements CommonHelpers.CreativeEntries {
 
         @Override
         public final void insert(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
@@ -148,7 +148,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class DataPacks implements HelpersImpl.DataPacks {
+    public static class DataPacks implements CommonHelpers.DataPacks {
 
         @Override
         public void addRequired(Identifier id) {
@@ -171,7 +171,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class Networking implements HelpersImpl.Networking {
+    public static class Networking implements CommonHelpers.Networking {
 
         @Override
         public void registerPlayToServer(CustomPacketPayload.Type type, StreamCodec codec) {
@@ -248,7 +248,7 @@ public class FabricHelpersImpl {
         }
     }
 
-    public static class BiomeModifications implements HelpersImpl.BiomeModifications {
+    public static class BiomeModifications implements CommonHelpers.BiomeModifications {
 
         private static int ID = 1;
 

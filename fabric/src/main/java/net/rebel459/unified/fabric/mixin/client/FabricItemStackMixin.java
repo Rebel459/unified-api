@@ -4,7 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.TooltipDisplay;
-import net.rebel459.unified.fabric.util.FabricAttributeTooltipImpl;
+import net.rebel459.unified.fabric.util.FabricAttributeTooltip;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,11 +18,11 @@ public class FabricItemStackMixin {
 
     @Inject(method = "addAttributeTooltips", at = @At("HEAD"))
     private void beginAttributeTooltip(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
-        FabricAttributeTooltipImpl.setStack(ItemStack.class.cast(this));
+        FabricAttributeTooltip.setStack(ItemStack.class.cast(this));
     }
 
     @Inject(method = "addAttributeTooltips", at = @At("TAIL"))
     private void endAttributeTooltip(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
-        FabricAttributeTooltipImpl.clearStack();
+        FabricAttributeTooltip.clearStack();
     }
 }

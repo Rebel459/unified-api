@@ -4,10 +4,10 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.util.VanillaVersion;
-import net.rebel459.unified.impl.core.HelpersImpl;
+import net.rebel459.unified.impl.core.CommonHelpers;
+import net.rebel459.unified.impl.core.CommonInstance;
 
-public class NeoForgeUnifiedPlatform implements HelpersImpl.Platform {
+public class NeoForgeInstance implements CommonInstance {
 
     @Override
     public ModLoader getModLoader() {

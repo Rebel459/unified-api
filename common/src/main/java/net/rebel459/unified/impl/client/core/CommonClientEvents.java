@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-public class ClientEventsImpl {
+public class CommonClientEvents {
 
     public static class Instance {
 
@@ -106,14 +106,14 @@ public class ClientEventsImpl {
             void register(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
         }
 
-        public static final List<ClientEventsImpl.Hud.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
+        public static final List<CommonClientEvents.Hud.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
 
         public static void passRenderCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
             for (Hud.Entry entry : CROSSHAIR_ENTRIES) {
                 entry.register(gui, graphics, deltaTracker);
             }
         }
-        public static final List<ClientEventsImpl.Hud.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
+        public static final List<CommonClientEvents.Hud.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
         public static void passRenderHotbar(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
             for (Hud.Entry entry : HOTBAR_ENTRIES) {
@@ -130,12 +130,12 @@ public class ClientEventsImpl {
 
         public record LineContext(ItemStack stack, Item.TooltipContext tooltip, LocalPlayer player, TooltipFlag flag, List<Component> components) {}
 
-        public static final EnumMap<EventTiming, List<Consumer<ClientEventsImpl.ItemTooltips.TooltipContext>>> TOOLTIP_DETAILS = new EnumMap<>(Map.of(
+        public static final EnumMap<EventTiming, List<Consumer<CommonClientEvents.ItemTooltips.TooltipContext>>> TOOLTIP_DETAILS = new EnumMap<>(Map.of(
                 EventTiming.PRE, new ArrayList<>(),
                 EventTiming.POST, new ArrayList<>()
         ));
 
-        public static void passAddDetails(EventTiming type, ClientEventsImpl.ItemTooltips.TooltipContext client) {
+        public static void passAddDetails(EventTiming type, CommonClientEvents.ItemTooltips.TooltipContext client) {
             for (Consumer<TooltipContext> listener : TOOLTIP_DETAILS.get(type)) {
                 listener.accept(client);
             }
@@ -156,7 +156,7 @@ public class ClientEventsImpl {
             void register(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, AttributeModifier modifier);
         }
 
-        public static final List<ClientEventsImpl.ItemTooltips.AttributeEntry> ATTRIBUTE_ENTRIES = new CopyOnWriteArrayList<>();
+        public static final List<CommonClientEvents.ItemTooltips.AttributeEntry> ATTRIBUTE_ENTRIES = new CopyOnWriteArrayList<>();
 
         public static void passAfterAttributeAdded(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, AttributeModifier modifier) {
             for (AttributeEntry entry : ATTRIBUTE_ENTRIES) {
@@ -168,7 +168,7 @@ public class ClientEventsImpl {
             void register(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, double displayValue);
         }
 
-        public static final List<ClientEventsImpl.ItemTooltips.BaseAttributeEntry> BASE_ATTRIBUTE_ENTRIES = new CopyOnWriteArrayList<>();
+        public static final List<CommonClientEvents.ItemTooltips.BaseAttributeEntry> BASE_ATTRIBUTE_ENTRIES = new CopyOnWriteArrayList<>();
 
         public static void passAfterBaseAttributeAdded(Consumer<Component> builder, ItemStack stack, ItemAttributeModifiers itemModifiers, @Nullable Player player, Holder<Attribute> attribute, double displayValue) {
             for (BaseAttributeEntry entry : BASE_ATTRIBUTE_ENTRIES) {
@@ -176,7 +176,7 @@ public class ClientEventsImpl {
             }
         }
 
-        public static final List<Consumer<ClientEventsImpl.ItemTooltips.LineContext>> TOOLTIP_LINES = new CopyOnWriteArrayList<>();
+        public static final List<Consumer<CommonClientEvents.ItemTooltips.LineContext>> TOOLTIP_LINES = new CopyOnWriteArrayList<>();
 
         public static void passInsertLines(LineContext context) {
             for (Consumer<LineContext> listener : TOOLTIP_LINES) {

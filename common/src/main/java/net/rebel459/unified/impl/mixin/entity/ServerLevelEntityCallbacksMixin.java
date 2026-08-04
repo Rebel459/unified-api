@@ -2,7 +2,7 @@ package net.rebel459.unified.impl.mixin.entity;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.rebel459.unified.impl.core.EventsImpl;
+import net.rebel459.unified.impl.core.CommonEvents;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,11 +19,11 @@ public abstract class ServerLevelEntityCallbacksMixin {
 
 	@Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
 	private void passOnLoad(Entity entity, CallbackInfo ci) {
-		EventsImpl.Entities.passOnLoad(entity, this$0);
+		CommonEvents.Entities.passOnLoad(entity, this$0);
 	}
 
 	@Inject(method = "onTrackingEnd(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
 	private void passOnUnload(Entity entity, CallbackInfo info) {
-		EventsImpl.Entities.passOnUnload(entity, this$0);
+		CommonEvents.Entities.passOnUnload(entity, this$0);
 	}
 }

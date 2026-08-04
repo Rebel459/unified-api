@@ -7,8 +7,8 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.rebel459.unified.fabric.util.FabricAttributeTooltipImpl;
-import net.rebel459.unified.impl.client.core.ClientEventsImpl;
+import net.rebel459.unified.fabric.util.FabricAttributeTooltip;
+import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,7 +22,7 @@ public class FabricItemAttributeModifiersDisplayDefaultMixin {
 
     @Inject(method = "apply", at = @At(value = "TAIL"))
     private void addCriticalDamageTooltip(Consumer<Component> consumer, @Nullable Player player, Holder<Attribute> attribute, AttributeModifier modifier, CallbackInfo ci, @Local(name = "displayAmount") double displayAmount, @Local(name = "displayWithBase") boolean displayWithbase) {
-        if (displayWithbase) ClientEventsImpl.ItemTooltips.passAfterBaseAttributeAdded(consumer, FabricAttributeTooltipImpl.getStack(), FabricAttributeTooltipImpl.get(), player, attribute, displayAmount);
-        else ClientEventsImpl.ItemTooltips.passAfterAttributeAdded(consumer, FabricAttributeTooltipImpl.getStack(), FabricAttributeTooltipImpl.get(), player, attribute, modifier);
+        if (displayWithbase) CommonClientEvents.ItemTooltips.passAfterBaseAttributeAdded(consumer, FabricAttributeTooltip.getStack(), FabricAttributeTooltip.get(), player, attribute, displayAmount);
+        else CommonClientEvents.ItemTooltips.passAfterAttributeAdded(consumer, FabricAttributeTooltip.getStack(), FabricAttributeTooltip.get(), player, attribute, modifier);
     }
 }

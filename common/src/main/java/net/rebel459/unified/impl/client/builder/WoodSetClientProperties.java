@@ -11,7 +11,7 @@ import net.rebel459.unified.api.builder.WoodSet;
 
 import java.util.Objects;
 
-public class WoodSetClientImpl {
+public class WoodSetClientProperties {
 
     public static void init(boolean layers, boolean renderers) {
         for (WoodSet woodset : WoodSet.WOOD_SETS) {

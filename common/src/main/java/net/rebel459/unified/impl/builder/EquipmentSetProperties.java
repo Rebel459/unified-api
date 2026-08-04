@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class EquipmentSetImpl {
+public class EquipmentSetProperties {
 
     public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, ?>>> EQUIPMENT_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, List<Triple<EquipmentSet.Group, Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>>> EQUIPMENT_PROVIDED_COMPONENTS = Collections.synchronizedMap(new HashMap<>());

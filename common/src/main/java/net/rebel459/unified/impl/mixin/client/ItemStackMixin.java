@@ -7,9 +7,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
-import net.rebel459.unified.api.core.UnifiedPlatform;
+import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.impl.client.core.ClientEventsImpl;
+import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import net.rebel459.unified.api.event.EventTiming;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,29 +28,29 @@ public class ItemStackMixin {
     private void passDetailsHead(Item.TooltipContext context, TooltipDisplay display, @Nullable Player player, TooltipFlag tooltipFlag, Consumer<Component> builder, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
         if (player instanceof LocalPlayer localPlayer) {
-            ClientEventsImpl.ItemTooltips.passAddDetails(EventTiming.PRE, new ClientEventsImpl.ItemTooltips.TooltipContext(stack, context, display, localPlayer, tooltipFlag, builder));
+            CommonClientEvents.ItemTooltips.passAddDetails(EventTiming.PRE, new CommonClientEvents.ItemTooltips.TooltipContext(stack, context, display, localPlayer, tooltipFlag, builder));
         }
     }
     @Inject(at = @At("TAIL"), method = "addDetailsToTooltip")
     private void passDetailsTail(Item.TooltipContext context, TooltipDisplay display, @Nullable Player player, TooltipFlag tooltipFlag, Consumer<Component> builder, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
         if (player instanceof LocalPlayer localPlayer) {
-            ClientEventsImpl.ItemTooltips.passAddDetails(EventTiming.POST, new ClientEventsImpl.ItemTooltips.TooltipContext(stack, context, display, localPlayer, tooltipFlag, builder));
+            CommonClientEvents.ItemTooltips.passAddDetails(EventTiming.POST, new CommonClientEvents.ItemTooltips.TooltipContext(stack, context, display, localPlayer, tooltipFlag, builder));
         }
     }
 
     @Inject(at = @At("HEAD"), method = "addAttributeTooltips")
     private void passAttributesHead(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
-        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.getModLoader() != ModLoader.NEOFORGE) {
-            ClientEventsImpl.ItemTooltips.passAddAttributes(EventTiming.PRE, stack, consumer, display, localPlayer);
+        if (player instanceof LocalPlayer localPlayer && UnifiedInstance.getModLoader() != ModLoader.NEOFORGE) {
+            CommonClientEvents.ItemTooltips.passAddAttributes(EventTiming.PRE, stack, consumer, display, localPlayer);
         }
     }
     @Inject(at = @At("TAIL"), method = "addAttributeTooltips")
     private void passAttributesTail(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
-        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.getModLoader() != ModLoader.NEOFORGE) {
-            ClientEventsImpl.ItemTooltips.passAddAttributes(EventTiming.POST, stack, consumer, display, localPlayer);
+        if (player instanceof LocalPlayer localPlayer && UnifiedInstance.getModLoader() != ModLoader.NEOFORGE) {
+            CommonClientEvents.ItemTooltips.passAddAttributes(EventTiming.POST, stack, consumer, display, localPlayer);
         }
     }
 
@@ -58,7 +58,7 @@ public class ItemStackMixin {
     private void passLines(Item.TooltipContext context, @Nullable Player player, TooltipFlag tooltipFlag, CallbackInfoReturnable<List<Component>> cir) {
         ItemStack stack = ItemStack.class.cast(this);
         if (player instanceof LocalPlayer localPlayer) {
-            ClientEventsImpl.ItemTooltips.passInsertLines(new ClientEventsImpl.ItemTooltips.LineContext(stack, context, localPlayer, tooltipFlag, cir.getReturnValue()));
+            CommonClientEvents.ItemTooltips.passInsertLines(new CommonClientEvents.ItemTooltips.LineContext(stack, context, localPlayer, tooltipFlag, cir.getReturnValue()));
         }
     }
 }

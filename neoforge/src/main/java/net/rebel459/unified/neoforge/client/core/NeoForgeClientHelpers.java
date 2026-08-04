@@ -28,17 +28,17 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.rebel459.unified.impl.client.builder.WoodSetClientImpl;
-import net.rebel459.unified.impl.client.core.ClientHelpersImpl;
+import net.rebel459.unified.impl.client.builder.WoodSetClientProperties;
+import net.rebel459.unified.impl.client.core.CommonClientHelpers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class NeoForgeClientHelpersImpl {
+public class NeoForgeClientHelpers {
 
-    public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
+    public static class ParticleProviders implements CommonClientHelpers.ParticleProviders {
 
         public static List<Pair<Supplier, ParticleResources.SpriteParticleRegistration>> PARTICLE_PROVIDERS = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public class NeoForgeClientHelpersImpl {
         }
     }
 
-    public static class EntityRenderers implements ClientHelpersImpl.EntityRenderers {
+    public static class EntityRenderers implements CommonClientHelpers.EntityRenderers {
 
         public static List<Pair<ModelLayerLocation, Supplier<LayerDefinition>>> LAYER_DEFINITIONS = new ArrayList<>();
         public static List<Pair<Supplier, EntityRendererProvider>> ENTITY_RENDERERS = new ArrayList<>();
@@ -78,7 +78,7 @@ public class NeoForgeClientHelpersImpl {
 
         @SubscribeEvent
         public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-            WoodSetClientImpl.init(true, false);
+            WoodSetClientProperties.init(true, false);
             for (Pair<ModelLayerLocation, Supplier<LayerDefinition>> layerDefinitions : LAYER_DEFINITIONS) {
                 event.registerLayerDefinition(layerDefinitions.getFirst(), layerDefinitions.getSecond());
             }
@@ -86,7 +86,7 @@ public class NeoForgeClientHelpersImpl {
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            WoodSetClientImpl.init(false, true);
+            WoodSetClientProperties.init(false, true);
             for (Pair<Supplier, EntityRendererProvider> entityRenderers : ENTITY_RENDERERS) {
                 event.registerEntityRenderer((EntityType) entityRenderers.getFirst().get(), entityRenderers.getSecond());
             }
@@ -96,7 +96,7 @@ public class NeoForgeClientHelpersImpl {
         }
     }
 
-    public static class Networking implements ClientHelpersImpl.Networking {
+    public static class Networking implements CommonClientHelpers.Networking {
 
         @Override
         public boolean canSend(CustomPacketPayload payload) {
@@ -112,7 +112,7 @@ public class NeoForgeClientHelpersImpl {
     }
 
 
-    public static class Tooltips implements ClientHelpersImpl.Tooltips {
+    public static class Tooltips implements CommonClientHelpers.Tooltips {
 
         private record Bindings<T extends TooltipComponent>(Class<T> type, Function<T, ClientTooltipComponent> factory) {}
 
@@ -134,7 +134,7 @@ public class NeoForgeClientHelpersImpl {
         }
     }
 
-    public static class ResourcePacks implements ClientHelpersImpl.ResourcePacks {
+    public static class ResourcePacks implements CommonClientHelpers.ResourcePacks {
 
         public static List<Pair<Identifier, Boolean>> PACK_LIST = new ArrayList<>();
 

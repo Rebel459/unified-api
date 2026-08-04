@@ -2,7 +2,7 @@ package net.rebel459.unified.api.client.core;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import net.rebel459.unified.impl.client.platform.ClientInternalHandlerImpl;
+import net.rebel459.unified.impl.client.platform.ClientPlatformHandler;
 
 import java.util.function.Supplier;
 
@@ -15,7 +15,7 @@ public class UnifiedClientRegistries {
         KeyMapping.Category registerCategory(String path);
 
         static UnifiedClientRegistries.KeyMappings create(String modId) {
-            return ClientInternalHandlerImpl.INSTANCE.createKeyMappings(modId);
+            return ClientPlatformHandler.INSTANCE.createKeyMappings(modId);
         }
     }
 }

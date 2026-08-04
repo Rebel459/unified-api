@@ -3,14 +3,15 @@ package net.rebel459.unified.fabric.platform;
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.minecraft.core.Registry;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.fabric.core.FabricHelpersImpl;
-import net.rebel459.unified.fabric.core.FabricUnifiedPlatform;
+import net.rebel459.unified.fabric.core.FabricHelpers;
+import net.rebel459.unified.fabric.core.FabricInstance;
 import net.rebel459.unified.fabric.core.FabricUnifiedRegistries;
-import net.rebel459.unified.impl.core.HelpersImpl;
-import net.rebel459.unified.impl.platform.InternalHandler;
+import net.rebel459.unified.impl.core.CommonHelpers;
+import net.rebel459.unified.impl.core.CommonInstance;
+import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 
-public class FabricInternalHandler implements InternalHandler {
+public class FabricPlatform implements CommonPlatform {
 
     @Override
     public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
@@ -53,36 +54,36 @@ public class FabricInternalHandler implements InternalHandler {
     }
 
     @Override
-    public HelpersImpl.CreativeEntries getCreativeEntries() {
-        return new FabricHelpersImpl.CreativeEntries();
+    public CommonInstance getInstance() {
+        return new FabricInstance();
     }
 
     @Override
-    public HelpersImpl.DataPacks getDataPacks() {
-        return new FabricHelpersImpl.DataPacks();
+    public CommonHelpers.CreativeEntries getCreativeEntries() {
+        return new FabricHelpers.CreativeEntries();
     }
 
     @Override
-    public HelpersImpl.Networking getNetworking() {
-        return new FabricHelpersImpl.Networking();
+    public CommonHelpers.DataPacks getDataPacks() {
+        return new FabricHelpers.DataPacks();
     }
 
     @Override
-    public HelpersImpl.Platform getPlatform() {
-        return new FabricUnifiedPlatform();
+    public CommonHelpers.Networking getNetworking() {
+        return new FabricHelpers.Networking();
     }
 
     @Override
-    public HelpersImpl.BiomeModifications getBiomeModifications() {
-        return new FabricHelpersImpl.BiomeModifications();
+    public CommonHelpers.BiomeModifications getBiomeModifications() {
+        return new FabricHelpers.BiomeModifications();
     }
 
     @Override
-    public InternalHandler.Impl impl() {
+    public CommonPlatform.Impl impl() {
         return new Impl();
     }
 
-    public static class Impl implements InternalHandler.Impl {
+    public static class Impl implements CommonPlatform.Impl {
 
         @Override
         public BlockConversionsImpl.Oxidizables getOxidizables() {

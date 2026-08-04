@@ -2,7 +2,7 @@ package net.rebel459.unified.impl.mixin.entity;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.rebel459.unified.impl.core.EventsImpl;
+import net.rebel459.unified.impl.core.CommonEvents;
 import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.impl.helper.StructureMusicImpl;
 import net.rebel459.unified.impl.helper.PlayerStructureMusic;
@@ -85,12 +85,12 @@ public class PlayerMixin implements PlayerStructureMusic {
     @Inject(method = "tick", at = @At("HEAD"))
     private void preTick(CallbackInfo ci) {
         Player player = Player.class.cast(this);
-        EventsImpl.Players.passOnTick(EventTiming.PRE, player);
+        CommonEvents.Players.passOnTick(EventTiming.PRE, player);
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void postTick(CallbackInfo ci) {
         Player player = Player.class.cast(this);
-        EventsImpl.Players.passOnTick(EventTiming.POST, player);
+        CommonEvents.Players.passOnTick(EventTiming.POST, player);
     }
 }

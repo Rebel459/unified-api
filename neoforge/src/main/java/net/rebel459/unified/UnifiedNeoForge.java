@@ -3,7 +3,7 @@ package net.rebel459.unified;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.rebel459.unified.neoforge.core.NeoForgeHelpersImpl;
+import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedEvents;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedRegistries;
 
@@ -15,11 +15,11 @@ public class UnifiedNeoForge {
         NeoForgeUnifiedRegistries.registerBus(Unified.MOD_ID, modEventBus);
         Unified.initRegistries();
         modEventBus.addListener(UnifiedNeoForge::commonSetup);
-        modEventBus.addListener(NeoForgeHelpersImpl.CreativeEntries::buildContents);
-        modEventBus.addListener(NeoForgeHelpersImpl.DataPacks::addFeaturePacks);
+        modEventBus.addListener(NeoForgeHelpers.CreativeEntries::buildContents);
+        modEventBus.addListener(NeoForgeHelpers.DataPacks::addFeaturePacks);
         modEventBus.addListener(NeoForgeUnifiedRegistries.Blocks::modifyBlockEntities);
-        modEventBus.addListener(NeoForgeHelpersImpl.Networking::register);
-        modEventBus.addListener(NeoForgeHelpersImpl.Networking::registerWithHandler);
+        modEventBus.addListener(NeoForgeHelpers.Networking::register);
+        modEventBus.addListener(NeoForgeHelpers.Networking::registerWithHandler);
         modEventBus.addListener(NeoForgeUnifiedRegistries.EntityTypes::createEntityAttributes);
     }
 

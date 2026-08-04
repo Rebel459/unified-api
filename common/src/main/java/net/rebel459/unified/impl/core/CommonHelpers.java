@@ -32,12 +32,11 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.util.VanillaVersion;
 import net.rebel459.unified.api.registry.UnifiedDataComponents;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import net.rebel459.unified.impl.helper.StructureMusicImpl;
-import net.rebel459.unified.impl.platform.InternalHandlerImpl;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,19 +44,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class HelpersImpl {
-
-    public interface Platform {
-
-        ModLoader getModLoader();
-
-        boolean isClientSide();
-        boolean isServerSide();
-
-        boolean isModLoaded(String modId);
-
-        boolean isDevelopmentEnvironment();
-    }
+public class CommonHelpers {
 
     public interface CreativeEntries {
 
@@ -142,7 +129,7 @@ public class HelpersImpl {
                     context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
                 });
             }
-            BlockConversionsImpl.Oxidizables oxidizables = InternalHandlerImpl.INSTANCE.impl().getOxidizables();
+            BlockConversionsImpl.Oxidizables oxidizables = PlatformHandler.INSTANCE.impl().getOxidizables();
             oxidizables.add(unaffected, exposed);
             oxidizables.add(exposed, weathered);
             oxidizables.add(weathered, oxidized);

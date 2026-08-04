@@ -2,10 +2,10 @@ package net.rebel459.unified.impl.client.platform;
 
 import java.util.ServiceLoader;
 
-public final class ClientInternalHandlerImpl {
-    public static final ClientInternalHandler INSTANCE = load(ClientInternalHandler.class);
+public final class ClientPlatformHandler {
+    public static final CommonClientPlatform INSTANCE = load(CommonClientPlatform.class);
 
-    private ClientInternalHandlerImpl() {}
+    private ClientPlatformHandler() {}
 
     private static <T> T load(Class<T> clazz) {
         return ServiceLoader.load(clazz, clazz.getClassLoader())

@@ -25,14 +25,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.rebel459.unified.impl.client.core.ClientHelpersImpl;
+import net.rebel459.unified.impl.client.core.CommonClientHelpers;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class FabricClientHelpersImpl {
+public class FabricClientHelpers {
 
-    public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
+    public static class ParticleProviders implements CommonClientHelpers.ParticleProviders {
 
         @Override
         @SuppressWarnings({"rawtypes", "unchecked"})
@@ -41,7 +41,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class EntityRenderers implements ClientHelpersImpl.EntityRenderers {
+    public static class EntityRenderers implements CommonClientHelpers.EntityRenderers {
 
         @Override
         public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
@@ -59,7 +59,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class Networking implements ClientHelpersImpl.Networking {
+    public static class Networking implements CommonClientHelpers.Networking {
 
         @Override
         public boolean canSend(CustomPacketPayload payload) {
@@ -74,7 +74,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class Tooltips implements ClientHelpersImpl.Tooltips {
+    public static class Tooltips implements CommonClientHelpers.Tooltips {
 
         @Override
         public <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory) {
@@ -87,7 +87,7 @@ public class FabricClientHelpersImpl {
         }
     }
 
-    public static class ResourcePacks implements ClientHelpersImpl.ResourcePacks {
+    public static class ResourcePacks implements CommonClientHelpers.ResourcePacks {
 
         @Override
         public void addRequired(Identifier id) {

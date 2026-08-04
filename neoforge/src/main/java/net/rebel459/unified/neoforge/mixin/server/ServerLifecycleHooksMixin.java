@@ -2,7 +2,7 @@ package net.rebel459.unified.neoforge.mixin.server;
 
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.rebel459.unified.neoforge.core.NeoForgeHelpersImpl;
+import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
 import net.rebel459.unified.neoforge.util.BiomeBuilderEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,10 +20,10 @@ public class ServerLifecycleHooksMixin {
             ordinal = 0
     )
     private static List<BiomeModifier> addBiomeModifiers(List<BiomeModifier> biomeModifiers, MinecraftServer server) {
-        NeoForgeHelpersImpl.BiomeModifications.MODIFIERS.clear();
+        NeoForgeHelpers.BiomeModifications.MODIFIERS.clear();
         BiomeBuilderEvent.passOnRunModifiers(server.reloadableRegistries().lookup());
         List<BiomeModifier> modifiers = new ArrayList<>(biomeModifiers);
-        modifiers.addAll(NeoForgeHelpersImpl.BiomeModifications.MODIFIERS);
+        modifiers.addAll(NeoForgeHelpers.BiomeModifications.MODIFIERS);
         return modifiers;
     }
 }

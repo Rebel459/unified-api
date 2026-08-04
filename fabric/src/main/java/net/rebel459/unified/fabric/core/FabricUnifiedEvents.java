@@ -16,7 +16,7 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.api.event.LootEntry;
 import net.rebel459.unified.api.event.LootTableContext;
-import net.rebel459.unified.impl.core.EventsImpl;
+import net.rebel459.unified.impl.core.CommonEvents;
 import net.rebel459.unified.impl.event.LootTableProvider;
 
 import java.util.ArrayList;
@@ -28,18 +28,18 @@ public class FabricUnifiedEvents {
         DefaultItemComponentEvents.MODIFY.register(context -> {
             context.modify(
                     item -> true,
-                    (builder, provider, item) -> EventsImpl.DefaultDataComponents.passModify(item, builder, provider)
+                    (builder, provider, item) -> CommonEvents.DefaultDataComponents.passModify(item, builder, provider)
             );
         });
-        ServerPlayerEvents.JOIN.register(EventsImpl.Players::passOnJoin);
-        ServerPlayerEvents.LEAVE.register(EventsImpl.Players::passOnLeave);
-        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> EventsImpl.Players.passOnRespawn(oldPlayer, newPlayer));
-        CommandRegistrationCallback.EVENT.register(EventsImpl.Commands::passRegister);
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager, b) -> EventsImpl.Server.passOnDatapackLoad(minecraftServer));
-        ServerLifecycleEvents.SERVER_STARTED.register(EventsImpl.Server::passOnStart);
-        ServerLifecycleEvents.SERVER_STOPPED.register(EventsImpl.Server::passOnStop);
+        ServerPlayerEvents.JOIN.register(CommonEvents.Players::passOnJoin);
+        ServerPlayerEvents.LEAVE.register(CommonEvents.Players::passOnLeave);
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> CommonEvents.Players.passOnRespawn(oldPlayer, newPlayer));
+        CommandRegistrationCallback.EVENT.register(CommonEvents.Commands::passRegister);
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager, b) -> CommonEvents.Server.passOnDatapackLoad(minecraftServer));
+        ServerLifecycleEvents.SERVER_STARTED.register(CommonEvents.Server::passOnStart);
+        ServerLifecycleEvents.SERVER_STOPPED.register(CommonEvents.Server::passOnStop);
         LootTableEvents.MODIFY.register((targetTable, tableBuilder, source, registries) -> {
-            EventsImpl.LootTables.passModify(targetTable, new LootTableContext() {
+            CommonEvents.LootTables.passModify(targetTable, new LootTableContext() {
                 @Override
                 public void addPool(LootPool.Builder pool) {
                     tableBuilder.withPool(pool);
@@ -57,7 +57,7 @@ public class FabricUnifiedEvents {
 
                             tableBuilder.modifyPools(pool -> {
                                 List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                                boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, predicate));
+                                boolean matchesPool = entries.stream().anyMatch(existing -> CommonEvents.LootTables.matches(existing, predicate));
                                 if (!matchesPool) {
                                     return;
                                 }
@@ -75,41 +75,41 @@ public class FabricUnifiedEvents {
 
                             tableBuilder.modifyPools(pool -> {
                                 List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                                boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, predicate));
+                                boolean matchesPool = entries.stream().anyMatch(existing -> CommonEvents.LootTables.matches(existing, predicate));
                                 if (!matchesPool) {
                                     return;
                                 }
 
-                                EventsImpl.LootTables.handlePoolReplacements(entries, predicate, builtEntry, pool);
+                                CommonEvents.LootTables.handlePoolReplacements(entries, predicate, builtEntry, pool);
                             });
                         }
                         case REMOVE -> tableBuilder.modifyPools(pool -> {
                             List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                            EventsImpl.LootTables.handlePoolRemovals(entries, predicate, pool);
+                            CommonEvents.LootTables.handlePoolRemovals(entries, predicate, pool);
                         });
                     }
                 }
             }, registries);
         });
-        ServerTickEvents.START_SERVER_TICK.register((server) -> EventsImpl.Server.passOnTick(EventTiming.PRE, server));
-        ServerTickEvents.END_SERVER_TICK.register((server) -> EventsImpl.Server.passOnTick(EventTiming.POST, server));
+        ServerTickEvents.START_SERVER_TICK.register((server) -> CommonEvents.Server.passOnTick(EventTiming.PRE, server));
+        ServerTickEvents.END_SERVER_TICK.register((server) -> CommonEvents.Server.passOnTick(EventTiming.POST, server));
         ServerTickEvents.START_LEVEL_TICK.register((level) -> {
-            EventsImpl.Server.passOnLevelTick(EventTiming.PRE, level);
-            EventsImpl.Levels.passOnTick(EventTiming.PRE, level);
+            CommonEvents.Server.passOnLevelTick(EventTiming.PRE, level);
+            CommonEvents.Levels.passOnTick(EventTiming.PRE, level);
         });
         ServerTickEvents.END_LEVEL_TICK.register((level) -> {
-            EventsImpl.Server.passOnLevelTick(EventTiming.POST, level);
-            EventsImpl.Levels.passOnTick(EventTiming.POST, level);
+            CommonEvents.Server.passOnLevelTick(EventTiming.POST, level);
+            CommonEvents.Levels.passOnTick(EventTiming.POST, level);
         });
-        ServerLivingEntityEvents.AFTER_DEATH.register(EventsImpl.Entities::passOnDeath);
-        ServerEntityEvents.EQUIPMENT_CHANGE.register(EventsImpl.Entities::passOnEquipmentChange);
+        ServerLivingEntityEvents.AFTER_DEATH.register(CommonEvents.Entities::passOnDeath);
+        ServerEntityEvents.EQUIPMENT_CHANGE.register(CommonEvents.Entities::passOnEquipmentChange);
         ServerLevelEvents.LOAD.register(((server, level) -> {
-            EventsImpl.Server.passOnLevelLoad(level);
-            EventsImpl.Levels.passOnLoad(level);
+            CommonEvents.Server.passOnLevelLoad(level);
+            CommonEvents.Levels.passOnLoad(level);
         }));
         ServerLevelEvents.UNLOAD.register(((server, level) -> {
-            EventsImpl.Server.passOnLevelUnload(level);
-            EventsImpl.Levels.passOnUnload(level);
+            CommonEvents.Server.passOnLevelUnload(level);
+            CommonEvents.Levels.passOnUnload(level);
         }));
     }
 }

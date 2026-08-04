@@ -13,10 +13,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
 import net.minecraft.util.Mth;
-import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.impl.network.StructurePackets;
-import net.rebel459.unified.impl.core.EventsImpl;
-import net.rebel459.unified.impl.client.core.ClientEventsImpl;
+import net.rebel459.unified.impl.core.CommonEvents;
+import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import net.rebel459.unified.api.client.core.UnifiedClientHelpers;
 import net.rebel459.unified.impl.helper.StructureMusicImpl;
 import net.rebel459.unified.impl.helper.PlayerStructureMusic;
@@ -135,16 +134,16 @@ public abstract class MinecraftMixin {
     @Inject(method = "setLevel", at = @At(value = "HEAD"))
     private void stopClientLevel(ClientLevel level, CallbackInfo ci) {
         if (level != null) {
-            ClientEventsImpl.Instance.passOnLevelUnload(level);
-            EventsImpl.Levels.passOnUnload(level);
+            CommonClientEvents.Instance.passOnLevelUnload(level);
+            CommonEvents.Levels.passOnUnload(level);
         }
     }
 
     @WrapOperation(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Hud;onDisconnected()V"))
     private void stopClientLevel(Hud hud, Operation<Void> original) {
         if (this.level != null) {
-            ClientEventsImpl.Instance.passOnLevelUnload(this.level);
-            EventsImpl.Levels.passOnUnload(this.level);
+            CommonClientEvents.Instance.passOnLevelUnload(this.level);
+            CommonEvents.Levels.passOnUnload(this.level);
         }
         original.call(hud);
     }

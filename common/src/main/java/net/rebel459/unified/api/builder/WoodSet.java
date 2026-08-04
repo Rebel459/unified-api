@@ -28,10 +28,10 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.rebel459.unified.api.core.UnifiedPlatform;
+import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.impl.builder.WoodSetImpl;
+import net.rebel459.unified.impl.builder.WoodSetProperties;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
 import org.jetbrains.annotations.Nullable;
@@ -150,8 +150,8 @@ public class WoodSet {
         this.entityRegistry = entityRegistry;
         registerWood();
         WOOD_SETS.add(this);
-        WoodSetImpl.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
-        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) WoodSetImpl.init(List.of(this));
+        WoodSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
+        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) WoodSetProperties.init(List.of(this));
     }
 
     private ResourceKey<Item> itemKey(String id) {

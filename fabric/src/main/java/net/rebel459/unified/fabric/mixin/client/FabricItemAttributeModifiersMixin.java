@@ -2,7 +2,7 @@ package net.rebel459.unified.fabric.mixin.client;
 
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.rebel459.unified.fabric.util.FabricAttributeTooltipImpl;
+import net.rebel459.unified.fabric.util.FabricAttributeTooltip;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,11 +14,11 @@ public class FabricItemAttributeModifiersMixin {
 
     @Inject(method = "forEach(Lnet/minecraft/world/entity/EquipmentSlotGroup;Lorg/apache/commons/lang3/function/TriConsumer;)V", at = @At("HEAD"))
     private void beginTooltipContext(EquipmentSlotGroup slot, TriConsumer<?, ?, ?> consumer, CallbackInfo ci) {
-        FabricAttributeTooltipImpl.set(ItemAttributeModifiers.class.cast(this));
+        FabricAttributeTooltip.set(ItemAttributeModifiers.class.cast(this));
     }
 
     @Inject(method = "forEach(Lnet/minecraft/world/entity/EquipmentSlotGroup;Lorg/apache/commons/lang3/function/TriConsumer;)V", at = @At("TAIL"))
     private void endTooltipContext(EquipmentSlotGroup slot, TriConsumer<?, ?, ?> consumer, CallbackInfo ci) {
-        FabricAttributeTooltipImpl.clear();
+        FabricAttributeTooltip.clear();
     }
 }

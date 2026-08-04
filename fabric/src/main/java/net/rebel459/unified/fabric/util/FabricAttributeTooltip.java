@@ -4,12 +4,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import org.jetbrains.annotations.Nullable;
 
-public final class FabricAttributeTooltipImpl {
+public final class FabricAttributeTooltip {
 
     private static final ThreadLocal<ItemAttributeModifiers> CURRENT_MODIFIERS = new ThreadLocal<>();
     private static final ThreadLocal<ItemStack> CURRENT_STACK = new ThreadLocal<>();
 
-    private FabricAttributeTooltipImpl() {}
+    private FabricAttributeTooltip() {}
 
     public static void set(ItemAttributeModifiers modifiers) {
         CURRENT_MODIFIERS.set(modifiers);

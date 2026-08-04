@@ -1,14 +1,14 @@
 package net.rebel459.unified.api.client.core;
 
-import net.rebel459.unified.impl.client.core.ClientHelpersImpl;
-import net.rebel459.unified.impl.client.platform.ClientInternalHandlerImpl;
+import net.rebel459.unified.impl.client.core.CommonClientHelpers;
+import net.rebel459.unified.impl.client.platform.ClientPlatformHandler;
 
 public class UnifiedClientHelpers {
 
-    public static ClientHelpersImpl.Tooltips TOOLTIPS = ClientInternalHandlerImpl.INSTANCE.getTooltips();
-    public static ClientHelpersImpl.EntityRenderers ENTITY_RENDERERS = ClientInternalHandlerImpl.INSTANCE.getEntityRenderers();
-    public static ClientHelpersImpl.Networking NETWORKING = ClientInternalHandlerImpl.INSTANCE.getNetworking();
-    public static ClientHelpersImpl.ParticleProviders PARTICLE_PROVIDERS = ClientInternalHandlerImpl.INSTANCE.getParticleProviders();
-    public static ClientHelpersImpl.LegacyBabyArmor LEGACY_BABY_ARMOR = new ClientHelpersImpl.LegacyBabyArmor() {};
-    public static ClientHelpersImpl.ResourcePacks RESOURCE_PACKS = ClientInternalHandlerImpl.INSTANCE.getResourcePacks();
+    public static CommonClientHelpers.Tooltips TOOLTIPS = ClientPlatformHandler.INSTANCE.getTooltips();
+    public static CommonClientHelpers.EntityRenderers ENTITY_RENDERERS = ClientPlatformHandler.INSTANCE.getEntityRenderers();
+    public static CommonClientHelpers.Networking NETWORKING = ClientPlatformHandler.INSTANCE.getNetworking();
+    public static CommonClientHelpers.ParticleProviders PARTICLE_PROVIDERS = ClientPlatformHandler.INSTANCE.getParticleProviders();
+    public static CommonClientHelpers.LegacyBabyArmor LEGACY_BABY_ARMOR = new CommonClientHelpers.LegacyBabyArmor() {};
+    public static CommonClientHelpers.ResourcePacks RESOURCE_PACKS = ClientPlatformHandler.INSTANCE.getResourcePacks();
 }

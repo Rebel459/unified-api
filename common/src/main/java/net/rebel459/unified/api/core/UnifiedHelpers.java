@@ -1,15 +1,15 @@
 package net.rebel459.unified.api.core;
 
-import net.rebel459.unified.impl.core.HelpersImpl;
-import net.rebel459.unified.impl.platform.InternalHandlerImpl;
+import net.rebel459.unified.impl.core.CommonHelpers;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 
 public class UnifiedHelpers {
 
-    public static HelpersImpl.CreativeEntries CREATIVE_ENTRIES = InternalHandlerImpl.INSTANCE.getCreativeEntries();
-    public static HelpersImpl.DataPacks DATA_PACKS = InternalHandlerImpl.INSTANCE.getDataPacks();
-    public static HelpersImpl.Networking NETWORKING = InternalHandlerImpl.INSTANCE.getNetworking();
-    public static HelpersImpl.BlockConversions BLOCK_CONVERSIONS = new HelpersImpl.BlockConversions() {};
-    public static HelpersImpl.DataComponents DATA_COMPONENTS = new HelpersImpl.DataComponents() {};
-    public static HelpersImpl.BiomeModifications BIOME_MODIFICATIONS = InternalHandlerImpl.INSTANCE.getBiomeModifications();
-    public static HelpersImpl.StructureMusic STRUCTURE_MUSIC = new HelpersImpl.StructureMusic() {};
+    public static CommonHelpers.CreativeEntries CREATIVE_ENTRIES = PlatformHandler.INSTANCE.getCreativeEntries();
+    public static CommonHelpers.DataPacks DATA_PACKS = PlatformHandler.INSTANCE.getDataPacks();
+    public static CommonHelpers.Networking NETWORKING = PlatformHandler.INSTANCE.getNetworking();
+    public static CommonHelpers.BlockConversions BLOCK_CONVERSIONS = new CommonHelpers.BlockConversions() {};
+    public static CommonHelpers.DataComponents DATA_COMPONENTS = new CommonHelpers.DataComponents() {};
+    public static CommonHelpers.BiomeModifications BIOME_MODIFICATIONS = PlatformHandler.INSTANCE.getBiomeModifications();
+    public static CommonHelpers.StructureMusic STRUCTURE_MUSIC = new CommonHelpers.StructureMusic() {};
 }

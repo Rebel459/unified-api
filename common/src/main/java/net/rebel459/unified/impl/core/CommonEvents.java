@@ -39,7 +39,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class EventsImpl {
+public class CommonEvents {
 
     public static class DefaultDataComponents {
         private DefaultDataComponents() {}
@@ -187,11 +187,11 @@ public class EventsImpl {
 
         private LootTables() {}
 
-        public static final List<EventsImpl.LootTables.Entry> ENTRIES = new CopyOnWriteArrayList<>();
+        public static final List<CommonEvents.LootTables.Entry> ENTRIES = new CopyOnWriteArrayList<>();
 
         public static final List<FilteredEntry> FILTERED_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, EventsImpl.LootTables.Entry handler) {}
+        public record FilteredEntry(Predicate<ResourceKey<net.minecraft.world.level.storage.loot.LootTable>> filter, CommonEvents.LootTables.Entry handler) {}
 
         public static boolean passModify(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, PoolAccess pools, HolderLookup.Provider provider) {
             passModify(key, new LootTableImpl(key, pools, provider), provider);
@@ -203,7 +203,7 @@ public class EventsImpl {
         }
 
         private static void runHandlers(ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, LootTableContext table, HolderLookup.Provider provider) {
-            for (EventsImpl.LootTables.Entry entry : ENTRIES) {
+            for (CommonEvents.LootTables.Entry entry : ENTRIES) {
                 entry.modify(table, key, provider);
             }
             for (FilteredEntry entry : FILTERED_ENTRIES) {
@@ -369,7 +369,7 @@ public class EventsImpl {
 
                         for (LootPool.Builder pool : pools.pools()) {
                             List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                            boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, predicate));
+                            boolean matchesPool = entries.stream().anyMatch(existing -> CommonEvents.LootTables.matches(existing, predicate));
                             if (!matchesPool) {
                                 continue;
                             }
@@ -388,12 +388,12 @@ public class EventsImpl {
 
                         for (LootPool.Builder pool : pools.pools()) {
                             List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                            boolean matchesPool = entries.stream().anyMatch(existing -> EventsImpl.LootTables.matches(existing, predicate));
+                            boolean matchesPool = entries.stream().anyMatch(existing -> CommonEvents.LootTables.matches(existing, predicate));
                             if (!matchesPool) {
                                 continue;
                             }
 
-                            if (EventsImpl.LootTables.handlePoolReplacements(entries, predicate, builtEntry, pool)) {
+                            if (CommonEvents.LootTables.handlePoolReplacements(entries, predicate, builtEntry, pool)) {
                                 pools.markChanged();
                             }
                         }
@@ -401,7 +401,7 @@ public class EventsImpl {
                     case REMOVE -> {
                         for (LootPool.Builder pool : pools.pools()) {
                             List<LootPoolEntryContainer> entries = new ArrayList<>(LootTableProvider.getEntries(pool));
-                            if (EventsImpl.LootTables.handlePoolRemovals(entries, predicate, pool)) {
+                            if (CommonEvents.LootTables.handlePoolRemovals(entries, predicate, pool)) {
                                 pools.markChanged();
                             }
                         }

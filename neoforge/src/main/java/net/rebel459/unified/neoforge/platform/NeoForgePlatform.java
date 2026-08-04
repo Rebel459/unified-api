@@ -4,16 +4,17 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.impl.core.HelpersImpl;
-import net.rebel459.unified.impl.platform.InternalHandler;
+import net.rebel459.unified.impl.core.CommonHelpers;
+import net.rebel459.unified.impl.core.CommonInstance;
+import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
-import net.rebel459.unified.neoforge.core.NeoForgeHelpersImpl;
-import net.rebel459.unified.neoforge.core.NeoForgeUnifiedPlatform;
+import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
+import net.rebel459.unified.neoforge.core.NeoForgeInstance;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedRegistries;
 
 import java.util.HashMap;
 
-public class NeoForgeInternalHandler implements InternalHandler {
+public class NeoForgePlatform implements CommonPlatform {
 
     @Override
     public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
@@ -56,36 +57,36 @@ public class NeoForgeInternalHandler implements InternalHandler {
     }
 
     @Override
-    public HelpersImpl.CreativeEntries getCreativeEntries() {
-        return new NeoForgeHelpersImpl.CreativeEntries();
+    public CommonInstance getInstance() {
+        return new NeoForgeInstance();
     }
 
     @Override
-    public HelpersImpl.DataPacks getDataPacks() {
-        return new NeoForgeHelpersImpl.DataPacks();
+    public CommonHelpers.CreativeEntries getCreativeEntries() {
+        return new NeoForgeHelpers.CreativeEntries();
     }
 
     @Override
-    public HelpersImpl.Networking getNetworking() {
-        return new NeoForgeHelpersImpl.Networking();
+    public CommonHelpers.DataPacks getDataPacks() {
+        return new NeoForgeHelpers.DataPacks();
     }
 
     @Override
-    public HelpersImpl.Platform getPlatform() {
-        return new NeoForgeUnifiedPlatform();
+    public CommonHelpers.Networking getNetworking() {
+        return new NeoForgeHelpers.Networking();
     }
 
     @Override
-    public HelpersImpl.BiomeModifications getBiomeModifications() {
-        return new NeoForgeHelpersImpl.BiomeModifications();
+    public CommonHelpers.BiomeModifications getBiomeModifications() {
+        return new NeoForgeHelpers.BiomeModifications();
     }
 
     @Override
-    public InternalHandler.Impl impl() {
+    public CommonPlatform.Impl impl() {
         return new Impl();
     }
 
-    public static class Impl implements InternalHandler.Impl {
+    public static class Impl implements CommonPlatform.Impl {
 
         public static HashMap<Block, Block> OXIDIZABLES = new HashMap<>();
 

@@ -22,7 +22,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.rebel459.unified.api.event.EventTiming;
-import net.rebel459.unified.impl.core.EventsImpl;
+import net.rebel459.unified.impl.core.CommonEvents;
 import net.rebel459.unified.impl.event.LootTableProvider;
 
 import java.util.ArrayList;
@@ -32,26 +32,26 @@ public class NeoForgeUnifiedEvents {
 
     public static void init(IEventBus modEventBus) {
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
-            if (event.getEntity() instanceof ServerPlayer player) EventsImpl.Players.passOnJoin(player);
+            if (event.getEntity() instanceof ServerPlayer player) CommonEvents.Players.passOnJoin(player);
         });
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) -> {
-            if (event.getEntity() instanceof ServerPlayer player) EventsImpl.Players.passOnLeave(player);
+            if (event.getEntity() instanceof ServerPlayer player) CommonEvents.Players.passOnLeave(player);
         });
 
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
-            EventsImpl.Commands.passRegister(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
+            CommonEvents.Commands.passRegister(event.getDispatcher(), event.getBuildContext(), event.getCommandSelection());
         });
 
         NeoForge.EVENT_BUS.addListener((TagsUpdatedEvent.ServerDataLoad event) -> {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if (server != null) EventsImpl.Server.passOnDatapackLoad(server);
+            if (server != null) CommonEvents.Server.passOnDatapackLoad(server);
         });
 
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent event) -> {
-            EventsImpl.Server.passOnStart(event.getServer());
+            CommonEvents.Server.passOnStart(event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
-            EventsImpl.Server.passOnStop(event.getServer());
+            CommonEvents.Server.passOnStop(event.getServer());
         });
 
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, (LootTableLoadEvent event) -> {
@@ -67,7 +67,7 @@ public class NeoForgeUnifiedEvents {
                 pools.add(builder);
             }
 
-            boolean changed = EventsImpl.LootTables.passModify(event.getKey(), new EventsImpl.LootTables.PoolAccess() {
+            boolean changed = CommonEvents.LootTables.passModify(event.getKey(), new CommonEvents.LootTables.PoolAccess() {
                 private boolean changed;
 
                 @Override
@@ -106,41 +106,41 @@ public class NeoForgeUnifiedEvents {
         });
 
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> {
-            EventsImpl.Server.passOnTick(EventTiming.PRE, event.getServer());
+            CommonEvents.Server.passOnTick(EventTiming.PRE, event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> {
-            EventsImpl.Server.passOnTick(EventTiming.POST, event.getServer());
+            CommonEvents.Server.passOnTick(EventTiming.POST, event.getServer());
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> {
             event.getServer().getAllLevels().forEach(level -> {
-                EventsImpl.Server.passOnLevelTick(EventTiming.PRE, level);
-                EventsImpl.Levels.passOnTick(EventTiming.PRE, level);
+                CommonEvents.Server.passOnLevelTick(EventTiming.PRE, level);
+                CommonEvents.Levels.passOnTick(EventTiming.PRE, level);
             });
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> {
             event.getServer().getAllLevels().forEach(level -> {
-                EventsImpl.Server.passOnLevelTick(EventTiming.POST, level);
-                EventsImpl.Levels.passOnTick(EventTiming.POST, level);
+                CommonEvents.Server.passOnLevelTick(EventTiming.POST, level);
+                CommonEvents.Levels.passOnTick(EventTiming.POST, level);
             });
         });
         NeoForge.EVENT_BUS.addListener((LivingDeathEvent event) -> {
-            EventsImpl.Entities.passOnDeath(event.getEntity(), event.getSource());
+            CommonEvents.Entities.passOnDeath(event.getEntity(), event.getSource());
         });
         NeoForge.EVENT_BUS.addListener((LivingEquipmentChangeEvent event) -> {
-            EventsImpl.Entities.passOnEquipmentChange(event.getEntity(), event.getSlot(), event.getFrom(), event.getTo());
+            CommonEvents.Entities.passOnEquipmentChange(event.getEntity(), event.getSlot(), event.getFrom(), event.getTo());
         });
 
         NeoForge.EVENT_BUS.addListener((LevelEvent.Load event) -> {
-            if (event.getLevel() instanceof ServerLevel level) EventsImpl.Server.passOnLevelLoad(level);
-            if (event.getLevel() instanceof Level level && !level.isClientSide()) EventsImpl.Levels.passOnLoad(level);
+            if (event.getLevel() instanceof ServerLevel level) CommonEvents.Server.passOnLevelLoad(level);
+            if (event.getLevel() instanceof Level level && !level.isClientSide()) CommonEvents.Levels.passOnLoad(level);
         });
         NeoForge.EVENT_BUS.addListener((LevelEvent.Unload event) -> {
-            if (event.getLevel() instanceof ServerLevel level) EventsImpl.Server.passOnLevelUnload(level);
-            if (event.getLevel() instanceof Level level && !level.isClientSide()) EventsImpl.Levels.passOnUnload(level);
+            if (event.getLevel() instanceof ServerLevel level) CommonEvents.Server.passOnLevelUnload(level);
+            if (event.getLevel() instanceof Level level && !level.isClientSide()) CommonEvents.Levels.passOnUnload(level);
         });
 
         modEventBus.addListener((ModifyDefaultComponentsEvent event) -> {
-            event.modifyMatching((_, _) -> true, (builder, provider, item) -> EventsImpl.DefaultDataComponents.passModify(item, builder, provider));
+            event.modifyMatching((_, _) -> true, (builder, provider, item) -> CommonEvents.DefaultDataComponents.passModify(item, builder, provider));
         });
     }
 }

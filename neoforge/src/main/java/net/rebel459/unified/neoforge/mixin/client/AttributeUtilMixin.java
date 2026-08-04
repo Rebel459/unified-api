@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.AttributeTooltipContext;
 import net.neoforged.neoforge.common.util.AttributeUtil;
-import net.rebel459.unified.impl.client.core.ClientEventsImpl;
+import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import net.rebel459.unified.api.event.EventTiming;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,12 +24,12 @@ public class AttributeUtilMixin {
 
     @Inject(method = "applyModifierTooltips", at = @At("HEAD"))
     private static void passAttributesHead(ItemStack stack, Consumer<Component> tooltip, AttributeTooltipContext ctx, CallbackInfo ci) {
-        if (ctx.player() instanceof LocalPlayer player) ClientEventsImpl.ItemTooltips.passAddAttributes(EventTiming.PRE, stack, tooltip, ctx.tooltipDisplay(), player);
+        if (ctx.player() instanceof LocalPlayer player) CommonClientEvents.ItemTooltips.passAddAttributes(EventTiming.PRE, stack, tooltip, ctx.tooltipDisplay(), player);
     }
 
     @Inject(method = "applyModifierTooltips", at = @At(value = "TAIL"))
     private static void passAttributesTail(ItemStack stack, Consumer<Component> tooltip, AttributeTooltipContext ctx, CallbackInfo ci) {
-        if (ctx.player() instanceof LocalPlayer player) ClientEventsImpl.ItemTooltips.passAddAttributes(EventTiming.POST, stack, tooltip, ctx.tooltipDisplay(), player);
+        if (ctx.player() instanceof LocalPlayer player) CommonClientEvents.ItemTooltips.passAddAttributes(EventTiming.POST, stack, tooltip, ctx.tooltipDisplay(), player);
     }
 
     @Inject(
@@ -42,7 +42,7 @@ public class AttributeUtilMixin {
             )
     )
     private static void afterBaseModifier(ItemStack stack, Consumer<Component> tooltip, Multimap<Holder<Attribute>, AttributeModifier> modifierMap, AttributeTooltipContext ctx, CallbackInfo ci, @Local(name = "attr") Holder<Attribute> attr, @Local(name = "amt") double amt) {
-        ClientEventsImpl.ItemTooltips.passAfterBaseAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, amt);
+        CommonClientEvents.ItemTooltips.passAfterBaseAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, amt);
     }
 
     @Inject(
@@ -55,7 +55,7 @@ public class AttributeUtilMixin {
             )
     )
     private static void afterMergedModifier(ItemStack stack, Consumer<Component> tooltip, Multimap<Holder<Attribute>, AttributeModifier> modifierMap, AttributeTooltipContext ctx, CallbackInfo ci, @Local(name = "attr") Holder<Attribute> attr, @Local(name = "fakeModif") AttributeModifier fakeModif) {
-        ClientEventsImpl.ItemTooltips.passAfterAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, fakeModif);
+        CommonClientEvents.ItemTooltips.passAfterAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, fakeModif);
     }
 
     @Inject(
@@ -68,7 +68,7 @@ public class AttributeUtilMixin {
             )
     )
     private static void afterSingleModifier(ItemStack stack, Consumer<Component> tooltip, Multimap<Holder<Attribute>, AttributeModifier> modifierMap, AttributeTooltipContext ctx, CallbackInfo ci, @Local(name = "attr") Holder<Attribute> attr, @Local(name = "fakeModif", ordinal = 0) AttributeModifier fakeModif) {
-        ClientEventsImpl.ItemTooltips.passAfterAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, fakeModif);
+        CommonClientEvents.ItemTooltips.passAfterAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, fakeModif);
     }
 
     @Inject(
@@ -81,6 +81,6 @@ public class AttributeUtilMixin {
             )
     )
     private static void afterMergeDisabledModifier(ItemStack stack, Consumer<Component> tooltip, Multimap<Holder<Attribute>, AttributeModifier> modifierMap, AttributeTooltipContext ctx, CallbackInfo ci, @Local(name = "attr") Holder<Attribute> attr, @Local(name = "m") AttributeModifier m) {
-        ClientEventsImpl.ItemTooltips.passAfterAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, m);
+        CommonClientEvents.ItemTooltips.passAfterAttributeAdded(tooltip, stack, stack.getAttributeModifiers(), ctx.player(), attr, m);
     }
 }

@@ -19,19 +19,19 @@ import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.rebel459.unified.impl.client.helper.LegacyBabyArmorImpl;
-import net.rebel459.unified.impl.client.platform.ClientInternalHandlerImpl;
+import net.rebel459.unified.impl.client.platform.ClientPlatformHandler;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ClientHelpersImpl {
+public class CommonClientHelpers {
 
     public interface Tooltips {
 
         <T extends TooltipComponent> void bind(Class<T> type, Function<T, ClientTooltipComponent> factory);
 
         static Tooltips get() {
-            return ClientInternalHandlerImpl.INSTANCE.getTooltips();
+            return ClientPlatformHandler.INSTANCE.getTooltips();
         }
     }
 
@@ -44,7 +44,7 @@ public class ClientHelpersImpl {
         <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(Supplier<BlockEntityType<? extends T>> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
 
         static EntityRenderers get() {
-            return ClientInternalHandlerImpl.INSTANCE.getEntityRenderers();
+            return ClientPlatformHandler.INSTANCE.getEntityRenderers();
         }
     }
 
@@ -55,7 +55,7 @@ public class ClientHelpersImpl {
         void send(CustomPacketPayload payload);
 
         static Networking get() {
-            return ClientInternalHandlerImpl.INSTANCE.getNetworking();
+            return ClientPlatformHandler.INSTANCE.getNetworking();
         }
     }
 
@@ -64,7 +64,7 @@ public class ClientHelpersImpl {
         <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite);
 
         static ParticleProviders get() {
-            return ClientInternalHandlerImpl.INSTANCE.getParticleProviders();
+            return ClientPlatformHandler.INSTANCE.getParticleProviders();
         }
     }
 

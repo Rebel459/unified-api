@@ -2,11 +2,12 @@ package net.rebel459.unified.impl.platform;
 
 import net.minecraft.core.Registry;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.impl.core.HelpersImpl;
+import net.rebel459.unified.impl.core.CommonHelpers;
+import net.rebel459.unified.impl.core.CommonInstance;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
 
-public interface InternalHandler {
+public interface CommonPlatform {
 
     <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry);
     UnifiedRegistries.Items createItems(String modId);
@@ -17,11 +18,11 @@ public interface InternalHandler {
     UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId);
     UnifiedRegistries.SoundEvents createSoundEvents(String modId);
 
-    HelpersImpl.CreativeEntries getCreativeEntries();
-    HelpersImpl.DataPacks getDataPacks();
-    HelpersImpl.Networking getNetworking();
-    HelpersImpl.Platform getPlatform();
-    HelpersImpl.BiomeModifications getBiomeModifications();
+    CommonInstance getInstance();
+    CommonHelpers.CreativeEntries getCreativeEntries();
+    CommonHelpers.DataPacks getDataPacks();
+    CommonHelpers.Networking getNetworking();
+    CommonHelpers.BiomeModifications getBiomeModifications();
 
     @ApiStatus.Internal
     Impl impl();

@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.api.builder.*;
-import net.rebel459.unified.impl.platform.InternalHandlerImpl;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,7 +38,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static <Y> DeferredRegistry<Y> create(String modId, Registry<Y> registry) {
-            return InternalHandlerImpl.INSTANCE.createDeferredRegistry(modId, registry);
+            return PlatformHandler.INSTANCE.createDeferredRegistry(modId, registry);
         }
     }
 
@@ -72,7 +72,7 @@ public class UnifiedRegistries {
         }
 
         static Items create(String modId) {
-            return InternalHandlerImpl.INSTANCE.createItems(modId);
+            return PlatformHandler.INSTANCE.createItems(modId);
         }
     }
 
@@ -115,7 +115,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static Blocks create(String modId) {
-            return InternalHandlerImpl.INSTANCE.createBlocks(modId);
+            return PlatformHandler.INSTANCE.createBlocks(modId);
         }
     }
 
@@ -125,7 +125,7 @@ public class UnifiedRegistries {
         ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon);
 
         static CreativeTabs create(String modId) {
-            return InternalHandlerImpl.INSTANCE.createCreativeTabs(modId);
+            return PlatformHandler.INSTANCE.createCreativeTabs(modId);
         }
     }
 
@@ -137,7 +137,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static DataComponentTypes create(String modId) {
-            return InternalHandlerImpl.INSTANCE.createDataComponentTypes(modId);
+            return PlatformHandler.INSTANCE.createDataComponentTypes(modId);
         }
     }
 
@@ -150,7 +150,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static EntityTypes create(String modId) {
-            return InternalHandlerImpl.INSTANCE.createEntityTypes(modId);
+            return PlatformHandler.INSTANCE.createEntityTypes(modId);
         }
     }
 
@@ -163,7 +163,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static BlockEntityTypes create(String modId) {
-            return InternalHandlerImpl.INSTANCE.createBlockEntityTypes(modId);
+            return PlatformHandler.INSTANCE.createBlockEntityTypes(modId);
         }
     }
 
@@ -177,7 +177,7 @@ public class UnifiedRegistries {
         Holder<SoundEvent> registerForHolder(String path, float fixedRange);
 
         static SoundEvents create(String modId) {
-            return InternalHandlerImpl.INSTANCE.createSoundEvents(modId);
+            return PlatformHandler.INSTANCE.createSoundEvents(modId);
         }
     }
 }

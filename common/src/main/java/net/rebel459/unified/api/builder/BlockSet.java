@@ -9,11 +9,11 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.MapColor;
-import net.rebel459.unified.api.core.UnifiedPlatform;
+import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.impl.builder.BlockSetImpl;
+import net.rebel459.unified.impl.builder.BlockSetProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -67,8 +67,8 @@ public class BlockSet {
         this.blockRegistry = blockRegistry;
         registerBlocks();
         BLOCK_SETS.add(this);
-        BlockSetImpl.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
-        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) BlockSetImpl.init(List.of(this));
+        BlockSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
+        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) BlockSetProperties.init(List.of(this));
     }
 
     private SuppliedBlock createBlockWithItem(String blockID, Supplier<BlockBehaviour.Properties> settings){
