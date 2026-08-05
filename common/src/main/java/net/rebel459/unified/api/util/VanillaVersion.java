@@ -31,6 +31,7 @@ public record VanillaVersion(int year, int drop, int patch) implements Comparabl
 
     @Override
     public String toString() {
+        if (patch == 0) return year + "." + drop;
         return year + "." + drop + "." + patch;
     }
 }
