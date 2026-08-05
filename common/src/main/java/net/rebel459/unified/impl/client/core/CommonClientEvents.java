@@ -103,21 +103,21 @@ public class CommonClientEvents {
         private Hud() {}
 
         public interface Entry {
-            void register(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
+            void register(net.minecraft.client.gui.Hud hud, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
         }
 
         public static final List<CommonClientEvents.Hud.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void passRenderCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+        public static void passRenderCrosshair(net.minecraft.client.gui.Hud hud, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
             for (Hud.Entry entry : CROSSHAIR_ENTRIES) {
-                entry.register(gui, graphics, deltaTracker);
+                entry.register(hud, graphics, deltaTracker);
             }
         }
         public static final List<CommonClientEvents.Hud.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void passRenderHotbar(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+        public static void passRenderHotbar(net.minecraft.client.gui.Hud hud, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
             for (Hud.Entry entry : HOTBAR_ENTRIES) {
-                entry.register(gui, graphics, deltaTracker);
+                entry.register(hud, graphics, deltaTracker);
             }
         }
     }

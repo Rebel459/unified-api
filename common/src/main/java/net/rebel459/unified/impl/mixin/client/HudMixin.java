@@ -15,6 +15,6 @@ public abstract class HudMixin {
 
     @Inject(method = "extractCrosshair", at = @At(value = "HEAD"))
     private void passRenderCrosshair(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        CommonClientEvents.Hud.passRenderCrosshair(Gui.class.cast(this), graphics, deltaTracker);
+        CommonClientEvents.Hud.passRenderCrosshair(Hud.class.cast(this), graphics, deltaTracker);
     }
 }

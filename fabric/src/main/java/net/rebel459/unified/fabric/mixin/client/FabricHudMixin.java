@@ -15,6 +15,6 @@ public abstract class FabricHudMixin {
 
     @Inject(method = "extractHotbarAndDecorations", at = @At(value = "HEAD"))
     private void passRenderHotbar(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        CommonClientEvents.Hud.passRenderHotbar(Gui.class.cast(this), graphics, deltaTracker);
+        CommonClientEvents.Hud.passRenderHotbar(Hud.class.cast(this), graphics, deltaTracker);
     }
 }
