@@ -1,13 +1,8 @@
 package net.rebel459.unified.api.builder;
 
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
-
-import java.util.Optional;
 
 public final class ColoredBlockPreset {
 
@@ -22,7 +17,7 @@ public final class ColoredBlockPreset {
 
     public static final ColoredBlockPreset WOOL = create()
             .properties(() -> BlockBehaviour.Properties.ofFullCopy(Blocks.WOOL.white()))
-            .setFlammability(30, 60)
+            .setFlammability(30, 60, 100)
             .build();
 
     public static final ColoredBlockPreset TERRACOTTA = create()
