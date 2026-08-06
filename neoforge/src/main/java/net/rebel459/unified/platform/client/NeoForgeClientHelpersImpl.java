@@ -13,12 +13,15 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
@@ -124,6 +127,28 @@ public class NeoForgeClientHelpersImpl {
                 event.register(bindings.type, bindings.factory);
             }
             TOOLTIPS.clear();
+        }
+    }
+
+    public static class ReloadListeners implements ClientHelpersImpl.ReloadListeners {
+
+        private static List<Pair<Identifier, PreparableReloadListener>> LISTENERS = new ArrayList<>();
+        private static List<Pair<Identifier, Identifier>> ORDERING = new ArrayList<>();
+
+        @Override
+        public void addListener(Identifier id, PreparableReloadListener listener) {
+            LISTENERS.add(Pair.of(id, listener));
+        }
+
+        @Override
+        public void addOrdering(Identifier first, Identifier second) {
+            ORDERING.add(Pair.of(first, second));
+        }
+
+        @SubscribeEvent
+        public static void addClientReloadListeners(final AddClientReloadListenersEvent event) {
+            LISTENERS.forEach(pair -> event.addListener(pair.getFirst(), pair.getSecond()));
+            ORDERING.forEach(pair -> event.addDependency(pair.getFirst(), pair.getSecond()));
         }
     }
 }

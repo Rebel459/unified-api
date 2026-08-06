@@ -75,6 +75,11 @@ public class NeoForgeInternalHandler implements InternalHandler {
     }
 
     @Override
+    public HelpersImpl.ReloadListeners getReloadListeners() {
+        return new NeoForgeHelpersImpl.ReloadListeners();
+    }
+
+    @Override
     public InternalHandler.Impl impl() {
         return new Impl();
     }

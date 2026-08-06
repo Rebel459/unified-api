@@ -72,6 +72,11 @@ public class FabricInternalHandler implements InternalHandler {
     }
 
     @Override
+    public HelpersImpl.ReloadListeners getReloadListeners() {
+        return new FabricHelpersImpl.ReloadListeners();
+    }
+
+    @Override
     public InternalHandler.Impl impl() {
         return new Impl();
     }

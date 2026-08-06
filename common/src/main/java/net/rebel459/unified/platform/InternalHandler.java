@@ -20,6 +20,7 @@ public interface InternalHandler {
     HelpersImpl.Networking getNetworking();
     HelpersImpl.Platform getPlatform();
     HelpersImpl.BiomeModifications getBiomeModifications();
+    HelpersImpl.ReloadListeners getReloadListeners();
 
     @ApiStatus.Internal
     Impl impl();

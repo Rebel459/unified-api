@@ -9,4 +9,5 @@ public class UnifiedClientHelpers {
     public static ClientHelpersImpl.Networking NETWORKING = ClientInternalHandlerImpl.INSTANCE.getNetworking();
     public static ClientHelpersImpl.ParticleProviders PARTICLE_PROVIDERS = ClientInternalHandlerImpl.INSTANCE.getParticleProviders();
     public static LegacyBabyArmor LEGACY_BABY_ARMOR = new LegacyBabyArmor() {};
+    public static ClientHelpersImpl.ReloadListeners RELOAD_LISTENERS = ClientInternalHandlerImpl.INSTANCE.getReloadListeners();
 }

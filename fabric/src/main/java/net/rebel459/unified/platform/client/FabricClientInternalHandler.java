@@ -26,4 +26,9 @@ public class FabricClientInternalHandler implements ClientInternalHandler {
     public ClientHelpersImpl.ParticleProviders getParticleProviders() {
         return new FabricClientHelpersImpl.ParticleProviders();
     }
+
+    @Override
+    public ClientHelpersImpl.ReloadListeners getReloadListeners() {
+        return new FabricClientHelpersImpl.ReloadListeners();
+    }
 }

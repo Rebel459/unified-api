@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.entity.EntityType;
@@ -150,5 +151,11 @@ public class HelpersImpl {
         void register(ResourceKey<Biome> biome, Consumer<Context> context);
         void register(List<ResourceKey<Biome>> biomes, Consumer<Context> context);
         void register(TagKey<Biome> biome, Consumer<Context> context);
+    }
+
+    public interface ReloadListeners {
+
+        void addListener(Identifier id, PreparableReloadListener listener);
+        void addOrdering(Identifier first, Identifier second);
     }
 }

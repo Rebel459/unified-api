@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.attribute.EnvironmentAttribute;
@@ -37,11 +38,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.rebel459.unified.util.*;
+import net.rebel459.unified.util.PackType;
 import net.rebel459.unified.util.neoforge.BiomeBuilderEvent;
 import net.rebel459.unified.util.neoforge.UnifiedBiomeModifiers;
 import org.apache.commons.lang3.tuple.Triple;
@@ -50,7 +52,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class NeoForgeHelpersImpl {
 
@@ -699,6 +700,28 @@ public class NeoForgeHelpersImpl {
                 HolderSet<Biome> set = provider.lookup(Registries.BIOME).get().getOrThrow(tag);
                 doRegister(set, consumer, provider);
             });
+        }
+    }
+
+    public static class ReloadListeners implements HelpersImpl.ReloadListeners {
+
+        private static List<Pair<Identifier, PreparableReloadListener>> LISTENERS = new ArrayList<>();
+        private static List<Pair<Identifier, Identifier>> ORDERING = new ArrayList<>();
+
+        @Override
+        public void addListener(Identifier id, PreparableReloadListener listener) {
+            LISTENERS.add(Pair.of(id, listener));
+        }
+
+        @Override
+        public void addOrdering(Identifier first, Identifier second) {
+            ORDERING.add(Pair.of(first, second));
+        }
+
+        @SubscribeEvent
+        public static void addServerReloadListeners(final AddServerReloadListenersEvent event) {
+            LISTENERS.forEach(pair -> event.addListener(pair.getFirst(), pair.getSecond()));
+            ORDERING.forEach(pair -> event.addDependency(pair.getFirst(), pair.getSecond()));
         }
     }
 }

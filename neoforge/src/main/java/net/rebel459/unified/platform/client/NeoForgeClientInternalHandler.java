@@ -26,4 +26,9 @@ public class NeoForgeClientInternalHandler implements ClientInternalHandler {
     public ClientHelpersImpl.ParticleProviders getParticleProviders() {
         return new NeoForgeClientHelpersImpl.ParticleProviders();
     }
+
+    @Override
+    public ClientHelpersImpl.ReloadListeners getReloadListeners() {
+        return new NeoForgeClientHelpersImpl.ReloadListeners();
+    }
 }

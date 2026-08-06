@@ -16,6 +16,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.entity.EntityType;
@@ -598,6 +599,19 @@ public class FabricHelpersImpl {
         @Override
         public void register(TagKey<Biome> tag, Consumer<Context> consumer) {
             doRegister(selection -> selection.hasTag(tag), consumer);
+        }
+    }
+
+    public static class ReloadListeners implements HelpersImpl.ReloadListeners {
+
+        @Override
+        public void addListener(Identifier id, PreparableReloadListener listener) {
+            ResourceLoader.get(net.minecraft.server.packs.PackType.SERVER_DATA).registerReloadListener(id, listener);
+        }
+
+        @Override
+        public void addOrdering(Identifier first, Identifier second) {
+            ResourceLoader.get(net.minecraft.server.packs.PackType.SERVER_DATA).addListenerOrdering(first, second);
         }
     }
 }

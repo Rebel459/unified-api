@@ -13,4 +13,5 @@ public class UnifiedHelpers {
     public static DataComponents DATA_COMPONENTS = new DataComponents() {};
     public static HelpersImpl.BiomeModifications BIOME_MODIFICATIONS = InternalHandlerImpl.INSTANCE.getBiomeModifications();
     public static StructureMusic STRUCTURE_MUSIC = new StructureMusic() {};
+    public static HelpersImpl.ReloadListeners RELOAD_LISTENERS = InternalHandlerImpl.INSTANCE.getReloadListeners();
 }

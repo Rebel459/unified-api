@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -15,6 +16,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -78,6 +82,19 @@ public class FabricClientHelpersImpl {
                 }
                 return null;
             });
+        }
+    }
+
+    public static class ReloadListeners implements ClientHelpersImpl.ReloadListeners {
+
+        @Override
+        public void addListener(Identifier id, PreparableReloadListener listener) {
+            ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id, listener);
+        }
+
+        @Override
+        public void addOrdering(Identifier first, Identifier second) {
+            ResourceLoader.get(PackType.CLIENT_RESOURCES).addListenerOrdering(first, second);
         }
     }
 }

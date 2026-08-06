@@ -8,4 +8,5 @@ public interface ClientInternalHandler {
     ClientHelpersImpl.EntityRenderers getEntityRenderers();
     ClientHelpersImpl.Tooltips getTooltips();
     ClientHelpersImpl.ParticleProviders getParticleProviders();
+    ClientHelpersImpl.ReloadListeners getReloadListeners();
 }
