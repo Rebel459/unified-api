@@ -162,7 +162,7 @@ public class ColoredItemSet {
         return registeredItems;
     }
 
-    public DyeColor getDyeFromBlock(SuppliedItem item) {
+    public DyeColor getDyeFromItem(SuppliedItem item) {
         return dyesByItem.get(item);
     }
 
