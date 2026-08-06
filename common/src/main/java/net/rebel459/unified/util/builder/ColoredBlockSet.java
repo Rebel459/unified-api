@@ -181,7 +181,7 @@ public class ColoredBlockSet {
     public static class Settings implements Cloneable {
 
         private Function<BlockBehaviour.Properties, Block> function = Block::new;
-        private Supplier<BlockBehaviour.Properties> properties = () -> new BlockBehaviour.Properties();
+        private Supplier<BlockBehaviour.Properties> properties = BlockBehaviour.Properties::new;
         private @Nullable Pair<Integer, Integer> flammability = null;
 
         private boolean createWithoutItems = false;
