@@ -37,4 +37,9 @@ public class NeoForgeClientPlatform implements CommonClientPlatform {
     public CommonClientHelpers.ResourcePacks getResourcePacks() {
         return new NeoForgeClientHelpers.ResourcePacks();
     }
+
+    @Override
+    public CommonClientHelpers.ReloadListeners getReloadListeners() {
+        return new NeoForgeClientHelpers.ReloadListeners();
+    }
 }

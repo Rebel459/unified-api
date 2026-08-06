@@ -82,6 +82,11 @@ public class NeoForgePlatform implements CommonPlatform {
     }
 
     @Override
+    public CommonHelpers.ReloadListeners getReloadListeners() {
+        return new NeoForgeHelpers.ReloadListeners();
+    }
+
+    @Override
     public CommonPlatform.Impl impl() {
         return new Impl();
     }
