@@ -497,15 +497,15 @@ public class EquipmentSet {
             return (T) this;
         }
 
-        public T creativeArmorPlacement(Supplier<ItemLike> precedingCombatArmor) {
+        public T creativeArmorPlacement(Supplier<? extends ItemLike> precedingCombatArmor) {
             settings.precedingArmorCreativeEntries = new PrecedingArmorCreativeEntries(precedingCombatArmor, null, null);
             return self();
         }
-        public T creativeArmorPlacement(Supplier<ItemLike> precedingCombatArmor, Supplier<ItemLike> precedingCombatHorseArmor, Supplier<ItemLike> precedingCombatNautilusArmor) {
+        public T creativeArmorPlacement(Supplier<? extends ItemLike> precedingCombatArmor, Supplier<? extends ItemLike> precedingCombatHorseArmor, Supplier<? extends ItemLike> precedingCombatNautilusArmor) {
             settings.precedingArmorCreativeEntries = new PrecedingArmorCreativeEntries(precedingCombatArmor, precedingCombatHorseArmor, precedingCombatNautilusArmor);
             return self();
         }
-        public T creativeToolPlacement(Supplier<ItemLike> precedingUtilitiesItem, Supplier<ItemLike> precedingCombatSword, Supplier<ItemLike> precedingCombatSpear, Supplier<ItemLike> precedingCombatAxe) {
+        public T creativeToolPlacement(Supplier<? extends ItemLike> precedingUtilitiesItem, Supplier<? extends ItemLike> precedingCombatSword, Supplier<? extends ItemLike> precedingCombatSpear, Supplier<? extends ItemLike> precedingCombatAxe) {
             settings.precedingToolCreativeEntries = new PrecedingToolCreativeEntries(precedingUtilitiesItem, precedingCombatSword, precedingCombatSpear, precedingCombatAxe);
             return self();
         }
@@ -616,6 +616,6 @@ public class EquipmentSet {
 
     public record SpearProperties(float attackDuration, float damageMultiplier, float delay, float dismountTime, float dismountThreshold, float knockbackTime, float knockbackThreshold, float damageTime, float damageThreshold) {}
 
-    public record PrecedingToolCreativeEntries(Supplier<ItemLike> utilities, Supplier<ItemLike> combatSword, Supplier<ItemLike> combatSpear, Supplier<ItemLike> combatAxe) {}
-    public record PrecedingArmorCreativeEntries(Supplier<ItemLike> combatArmor, @Nullable Supplier<ItemLike> combatHorseArmor, @Nullable Supplier<ItemLike> combatNautilusArmor) {}
+    public record PrecedingToolCreativeEntries(Supplier<? extends ItemLike> utilities, Supplier<? extends ItemLike> combatSword, Supplier<? extends ItemLike> combatSpear, Supplier<? extends ItemLike> combatAxe) {}
+    public record PrecedingArmorCreativeEntries(Supplier<? extends ItemLike> combatArmor, @Nullable Supplier<? extends ItemLike> combatHorseArmor, @Nullable Supplier<? extends ItemLike> combatNautilusArmor) {}
 }

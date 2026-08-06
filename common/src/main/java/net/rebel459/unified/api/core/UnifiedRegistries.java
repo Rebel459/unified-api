@@ -22,6 +22,7 @@ import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -49,8 +50,13 @@ public class UnifiedRegistries {
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
+        SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
+        <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
+
+        @Deprecated
         SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties);
-        <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> blockSupplier, Supplier<Item.Properties> properties);
+        @Deprecated
+        <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties);
 
         default Builders builders() {
             return new Builders(modId());
@@ -68,6 +74,10 @@ public class UnifiedRegistries {
 
             public EquipmentSet.RegistryBuilder equipmentSet(String name, EquipmentPreset preset) {
                 return new EquipmentSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, this.itemRegistry);
+            }
+
+            public ColoredItemSet.RegistryBuilder coloredItemSet(String name, ColoredItemPreset preset) {
+                return new ColoredItemSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, this.itemRegistry);
             }
         }
 
@@ -109,6 +119,10 @@ public class UnifiedRegistries {
 
             public BlockSet.RegistryBuilder blockSet(String name, BlockPreset preset, MapColor color) {
                 return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, preset, this.blockRegistry);
+            }
+
+            public ColoredBlockSet.RegistryBuilder coloredBlockSet(String name, ColoredBlockPreset preset) {
+                return new ColoredBlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, this.blockRegistry);
             }
         }
 

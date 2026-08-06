@@ -348,11 +348,11 @@ public class BlockSet {
             return (T) this;
         }
 
-        public T creativeInventoryPlacement(Supplier<ItemLike> precedingBuildingItem) {
+        public T creativeInventoryPlacement(Supplier<? extends ItemLike> precedingBuildingItem) {
             settings.precedingCreativeEntries = new PrecedingCreativeEntries(precedingBuildingItem, null);
             return self();
         }
-        public T creativeInventoryPlacement(Supplier<ItemLike> precedingBuildingItem, Supplier<ItemLike> precedingNaturalItem) {
+        public T creativeInventoryPlacement(Supplier<? extends ItemLike> precedingBuildingItem, Supplier<? extends ItemLike> precedingNaturalItem) {
             settings.precedingCreativeEntries = new PrecedingCreativeEntries(
                     precedingBuildingItem,
                     precedingNaturalItem
@@ -461,5 +461,5 @@ public class BlockSet {
         }
     }
 
-    public record PrecedingCreativeEntries(Supplier<ItemLike> building, @Nullable Supplier<ItemLike> natural) {}
+    public record PrecedingCreativeEntries(Supplier<? extends ItemLike> building, @Nullable Supplier<? extends ItemLike> natural) {}
 }

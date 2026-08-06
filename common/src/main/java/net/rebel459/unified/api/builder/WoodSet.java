@@ -707,11 +707,11 @@ public class WoodSet {
         }
 
         public T creativeInventoryPlacement(
-                Supplier<ItemLike> precedingBuildingItem,
-                Supplier<ItemLike> precedingNaturalItem,
-                Supplier<ItemLike> precedingFunctionalShelfItem,
-                Supplier<ItemLike> precedingFunctionalSignItem,
-                Supplier<ItemLike> precedingUtilitiesItem
+                Supplier<? extends ItemLike> precedingBuildingItem,
+                Supplier<? extends ItemLike> precedingNaturalItem,
+                Supplier<? extends ItemLike> precedingFunctionalShelfItem,
+                Supplier<? extends ItemLike> precedingFunctionalSignItem,
+                Supplier<? extends ItemLike> precedingUtilitiesItem
         ) {
             settings.precedingCreativeEntries = new PrecedingCreativeEntries(
                     precedingBuildingItem,
@@ -827,5 +827,5 @@ public class WoodSet {
         }
     }
 
-    public record PrecedingCreativeEntries(Supplier<ItemLike> building, Supplier<ItemLike> natural, Supplier<ItemLike> functionalShelf, Supplier<ItemLike> functionalSign, Supplier<ItemLike> utilities) {}
+    public record PrecedingCreativeEntries(Supplier<? extends ItemLike> building, Supplier<? extends ItemLike> natural, Supplier<? extends ItemLike> functionalShelf, Supplier<? extends ItemLike> functionalSign, Supplier<? extends ItemLike> utilities) {}
 }

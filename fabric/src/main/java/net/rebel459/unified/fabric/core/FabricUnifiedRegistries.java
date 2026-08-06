@@ -18,6 +18,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,15 +27,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.api.core.Supplied;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
+import net.rebel459.unified.api.core.UnifiedRegistries;
+import net.rebel459.unified.api.util.BlockLike;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -73,16 +75,28 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block.identifier().getPath(), block, properties);
+        public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            return registerBlockItem(block.identifier().getPath(), block, function, properties);
         }
 
         @Override
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             var itemId = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
-            Item item = net.minecraft.world.item.Items.registerBlock(new BlockItemId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path)), itemId), block.get(), properties.get());
+            Item item = net.minecraft.world.item.Items.registerBlock(new BlockItemId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path)), itemId), block.get(), function, properties.get());
             Supplier<Item> supplied = () -> item;
             return new SuppliedItem(() -> BuiltInRegistries.ITEM, itemId, supplied);
+        }
+
+        @Override
+        @Deprecated
+        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties) {
+            return registerBlockItem(block, BlockItem::new, properties);
+        }
+
+        @Override
+        @Deprecated
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
+            return registerBlockItem(path, block, BlockItem::new, properties);
         }
 
         @Override
@@ -99,7 +113,7 @@ public class FabricUnifiedRegistries {
             BlockItemId blockItemId = BlockItemId.create(blockId, blockId);
 
             Block block = Registry.register(BuiltInRegistries.BLOCK, blockItemId.block(), function.apply(blockProperties.get().setId(blockItemId.block())));
-            Item item = net.minecraft.world.item.Items.registerBlock(blockItemId, block, new Item.Properties());
+            Item item = net.minecraft.world.item.Items.registerBlock(blockItemId, block, BlockItem::new, new Item.Properties());
 
             Supplier<Block> suppliedBlock = () -> block;
             Supplier<Item> suppliedItem = () -> item;

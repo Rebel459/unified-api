@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -108,15 +109,27 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
+        public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            return registerBlockItem(block.identifier().getPath(), block, function, properties);
+        }
+
+        @Override
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             var registry = ITEMS.get(modId);
-            var item = ITEMS.get(modId).registerItem(path, props -> new BlockItem(block.get(), props), () -> properties.get().useBlockDescriptionPrefix());
+            var item = registry.registerItem(path, settings -> function.apply(block.get(), settings), () -> properties.get().useBlockDescriptionPrefix().requiredFeatures(block.get().requiredFeatures()));
             return new SuppliedItem(registry.getRegistry(), item.getKey(), item);
         }
 
         @Override
+        @Deprecated
         public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block.identifier().getPath(), block, properties);
+            return registerBlockItem(block, BlockItem::new, properties);
+        }
+
+        @Override
+        @Deprecated
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
+            return registerBlockItem(path, block, BlockItem::new, properties);
         }
 
         @Override
