@@ -33,9 +33,8 @@ public class FabricClientHelpersImpl {
     public static class ParticleProviders implements ClientHelpersImpl.ParticleProviders {
 
         @Override
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        public <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
-            ParticleProviderRegistry.getInstance().register((ParticleType) type.get(), sprite::create);
+        public <T extends ParticleOptions> void add(Supplier<? extends ParticleType<T>> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
+            ParticleProviderRegistry.getInstance().register(type.get(), sprite::create);
         }
     }
 
