@@ -12,6 +12,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -88,5 +89,11 @@ public class CommonClientHelpers {
 
         void addRequired(Identifier id);
         void addOptional(Identifier id);
+    }
+
+    public interface ReloadListeners {
+
+        void addListener(Identifier id, PreparableReloadListener listener);
+        void addOrdering(Identifier first, Identifier second);
     }
 }

@@ -20,6 +20,8 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -107,6 +109,19 @@ public class FabricClientHelpers {
                     Component.translatable("pack." + id.getNamespace() + "." + id.getPath()),
                     type
             );
+        }
+    }
+
+    public static class ReloadListeners implements CommonClientHelpers.ReloadListeners {
+
+        @Override
+        public void addListener(Identifier id, PreparableReloadListener listener) {
+            ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id, listener);
+        }
+
+        @Override
+        public void addOrdering(Identifier first, Identifier second) {
+            ResourceLoader.get(PackType.CLIENT_RESOURCES).addListenerOrdering(first, second);
         }
     }
 }

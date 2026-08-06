@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -31,7 +32,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
-import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.UnifiedDataComponents;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
@@ -211,5 +211,11 @@ public class CommonHelpers {
         default void add(TagKey<Structure> structure, Music music, boolean fullBox) {
             StructureMusicImpl.addStructureTag(structure, music, fullBox);
         }
+    }
+
+    public interface ReloadListeners {
+
+        void addListener(Identifier id, PreparableReloadListener listener);
+        void addOrdering(Identifier first, Identifier second);
     }
 }

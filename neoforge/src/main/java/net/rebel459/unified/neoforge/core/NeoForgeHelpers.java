@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.attribute.EnvironmentAttribute;
@@ -35,9 +36,11 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
@@ -691,6 +694,28 @@ public class NeoForgeHelpers {
                 HolderSet<Biome> set = provider.lookup(Registries.BIOME).get().getOrThrow(tag);
                 doRegister(set, consumer, provider);
             });
+        }
+    }
+
+    public static class ReloadListeners implements CommonHelpers.ReloadListeners {
+
+        private static List<Pair<Identifier, PreparableReloadListener>> LISTENERS = new ArrayList<>();
+        private static List<Pair<Identifier, Identifier>> ORDERING = new ArrayList<>();
+
+        @Override
+        public void addListener(Identifier id, PreparableReloadListener listener) {
+            LISTENERS.add(Pair.of(id, listener));
+        }
+
+        @Override
+        public void addOrdering(Identifier first, Identifier second) {
+            ORDERING.add(Pair.of(first, second));
+        }
+
+        @SubscribeEvent
+        public static void addServerReloadListeners(final AddServerReloadListenersEvent event) {
+            LISTENERS.forEach(pair -> event.addListener(pair.getFirst(), pair.getSecond()));
+            ORDERING.forEach(pair -> event.addDependency(pair.getFirst(), pair.getSecond()));
         }
     }
 }

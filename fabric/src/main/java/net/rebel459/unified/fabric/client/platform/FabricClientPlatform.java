@@ -37,4 +37,9 @@ public class FabricClientPlatform implements CommonClientPlatform {
     public CommonClientHelpers.ResourcePacks getResourcePacks() {
         return new FabricClientHelpers.ResourcePacks();
     }
+
+    @Override
+    public CommonClientHelpers.ReloadListeners getReloadListeners() {
+        return new FabricClientHelpers.ReloadListeners();
+    }
 }

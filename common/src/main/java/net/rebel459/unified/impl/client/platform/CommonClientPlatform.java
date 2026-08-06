@@ -12,4 +12,5 @@ public interface CommonClientPlatform {
     CommonClientHelpers.Tooltips getTooltips();
     CommonClientHelpers.ParticleProviders getParticleProviders();
     CommonClientHelpers.ResourcePacks getResourcePacks();
+    CommonClientHelpers.ReloadListeners getReloadListeners();
 }

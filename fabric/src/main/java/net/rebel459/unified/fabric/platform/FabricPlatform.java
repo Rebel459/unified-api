@@ -79,6 +79,11 @@ public class FabricPlatform implements CommonPlatform {
     }
 
     @Override
+    public CommonHelpers.ReloadListeners getReloadListeners() {
+        return new FabricHelpers.ReloadListeners();
+    }
+
+    @Override
     public CommonPlatform.Impl impl() {
         return new Impl();
     }

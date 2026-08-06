@@ -19,5 +19,6 @@ public class UnifiedNeoForgeClient {
         modEventBus.addListener(NeoForgeUnifiedClientRegistries.KeyMappings::registerBindings);
         modEventBus.addListener(NeoForgeClientHelpers.Tooltips::registerTooltipFactories);
         modEventBus.addListener(NeoForgeClientHelpers.ResourcePacks::addFeaturePacks);
+        modEventBus.addListener(NeoForgeClientHelpers.ReloadListeners::addClientReloadListeners);
     }
 }

@@ -23,6 +23,7 @@ public interface CommonPlatform {
     CommonHelpers.DataPacks getDataPacks();
     CommonHelpers.Networking getNetworking();
     CommonHelpers.BiomeModifications getBiomeModifications();
+    CommonHelpers.ReloadListeners getReloadListeners();
 
     @ApiStatus.Internal
     Impl impl();

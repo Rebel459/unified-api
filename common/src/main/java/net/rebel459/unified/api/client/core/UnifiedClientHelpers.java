@@ -11,4 +11,5 @@ public class UnifiedClientHelpers {
     public static CommonClientHelpers.ParticleProviders PARTICLE_PROVIDERS = ClientPlatformHandler.INSTANCE.getParticleProviders();
     public static CommonClientHelpers.SimpleBabyArmor SIMPLE_BABY_ARMOR = new CommonClientHelpers.SimpleBabyArmor() {};
     public static CommonClientHelpers.ResourcePacks RESOURCE_PACKS = ClientPlatformHandler.INSTANCE.getResourcePacks();
+    public static CommonClientHelpers.ReloadListeners RELOAD_LISTENERS = ClientPlatformHandler.INSTANCE.getReloadListeners();
 }
