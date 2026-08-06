@@ -9,10 +9,12 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.impl.builder.ColoredBlockSetProperties;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -182,7 +184,7 @@ public class ColoredBlockSet {
 
         private Function<BlockBehaviour.Properties, Block> function = Block::new;
         private Supplier<BlockBehaviour.Properties> properties = BlockBehaviour.Properties::new;
-        private @Nullable Pair<Integer, Integer> flammability = null;
+        private @Nullable Triple<Integer, Integer, Integer> flammability = null;
 
         private boolean createWithoutItems = false;
 
@@ -192,7 +194,7 @@ public class ColoredBlockSet {
             return createWithoutItems;
         }
 
-        public @Nullable Pair<Integer, Integer> getFlammability() {
+        public @Nullable Triple<Integer, Integer, Integer> getFlammability() {
             return flammability;
         }
 
@@ -285,7 +287,11 @@ public class ColoredBlockSet {
         }
 
         public T setFlammability(int igniteOdds, int burnOdds) {
-            settings.flammability = Pair.of(igniteOdds, burnOdds);
+            settings.flammability = Triple.of(igniteOdds, burnOdds, 0);
+            return self();
+        }
+        public T setFlammability(int igniteOdds, int burnOdds, int furnaceTicks) {
+            settings.flammability = Triple.of(igniteOdds, burnOdds, furnaceTicks);
             return self();
         }
     }

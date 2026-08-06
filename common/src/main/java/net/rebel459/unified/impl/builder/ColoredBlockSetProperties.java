@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.FireBlock;
 import net.rebel459.unified.api.builder.ColoredBlockSet;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.UnifiedHelpers;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
 
@@ -23,10 +24,11 @@ public class ColoredBlockSetProperties {
     private static void flammability(List<ColoredBlockSet> coloredBlockSets) {
         for (ColoredBlockSet coloredBlockSet : coloredBlockSets) {
             final FireBlock fire = (FireBlock) Blocks.FIRE;
-            Pair<Integer, Integer> flammability = coloredBlockSet.getSettings().getFlammability();
+            Triple<Integer, Integer, Integer> flammability = coloredBlockSet.getSettings().getFlammability();
             if (flammability == null) continue;
             for (SuppliedBlock block : coloredBlockSet.getRegisteredBlocks()) {
-                fire.setFlammable(block.get(), flammability.getFirst(), flammability.getSecond());
+                fire.setFlammable(block.get(), flammability.getLeft(), flammability.getMiddle());
+                if (!coloredBlockSet.getSettings().createdWithoutItems() && flammability.getRight() > 0) UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(block, flammability.getRight());
             }
         }
     }
