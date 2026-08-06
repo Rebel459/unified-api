@@ -22,7 +22,7 @@ public final class ColoredBlockPreset {
 
     public static final ColoredBlockPreset WOOL = create()
             .properties(() -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL))
-            .setFlammability(30, 60)
+            .setFlammability(30, 60, 100)
             .build();
 
     public static final ColoredBlockPreset TERRACOTTA = create()
