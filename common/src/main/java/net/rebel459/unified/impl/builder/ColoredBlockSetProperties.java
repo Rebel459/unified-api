@@ -36,6 +36,7 @@ public class ColoredBlockSetProperties {
     private static void creativeEntries(List<ColoredBlockSet> coloredBlockSets) {
         for (ColoredBlockSet coloredBlockSet : coloredBlockSets) {
             ColoredBlockSet.PrecedingCreativeEntries entries = CREATIVE_ENTRIES.get(coloredBlockSet.getId());
+            if (entries == null) continue;
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(
                     CreativeModeTabs.COLORED_BLOCKS,
                     entries.colored().get(),

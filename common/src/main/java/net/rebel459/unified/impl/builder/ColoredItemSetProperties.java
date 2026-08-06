@@ -55,6 +55,7 @@ public class ColoredItemSetProperties {
     private static void creativeEntries(List<ColoredItemSet> coloredItemSets) {
         for (ColoredItemSet coloredItemSet : coloredItemSets) {
             ColoredItemSet.PrecedingCreativeEntries entries = CREATIVE_ENTRIES.get(coloredItemSet.getId());
+            if (entries == null) continue;
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(
                     entries.firstTab().getFirst(),
                     entries.firstTab().getSecond().get(),
