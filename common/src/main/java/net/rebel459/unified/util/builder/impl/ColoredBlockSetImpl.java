@@ -26,10 +26,11 @@ public class ColoredBlockSetImpl {
     private static void flammability(List<ColoredBlockSet> coloredBlockSets) {
         for (ColoredBlockSet coloredBlockSet : coloredBlockSets) {
             final FireBlock fire = (FireBlock) Blocks.FIRE;
-            Pair<Integer, Integer> flammability = coloredBlockSet.getSettings().getFlammability();
+            Triple<Integer, Integer, Integer> flammability = coloredBlockSet.getSettings().getFlammability();
             if (flammability == null) continue;
             for (SuppliedBlock block : coloredBlockSet.getRegisteredBlocks()) {
-                fire.setFlammable(block.get(), flammability.getFirst(), flammability.getSecond());
+                fire.setFlammable(block.get(), flammability.getLeft(), flammability.getMiddle());
+                if (!coloredBlockSet.getSettings().createdWithoutItems() && flammability.getRight() > 0) UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(block, flammability.getRight());
             }
         }
     }

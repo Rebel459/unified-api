@@ -182,7 +182,7 @@ public class ColoredBlockSet {
 
         private Function<BlockBehaviour.Properties, Block> function = Block::new;
         private Supplier<BlockBehaviour.Properties> properties = BlockBehaviour.Properties::new;
-        private @Nullable Pair<Integer, Integer> flammability = null;
+        private @Nullable Triple<Integer, Integer, Integer> flammability = null;
 
         private boolean createWithoutItems = false;
 
@@ -192,7 +192,7 @@ public class ColoredBlockSet {
             return createWithoutItems;
         }
 
-        public @Nullable Pair<Integer, Integer> getFlammability() {
+        public @Nullable Triple<Integer, Integer, Integer> getFlammability() {
             return flammability;
         }
 
@@ -285,7 +285,11 @@ public class ColoredBlockSet {
         }
 
         public T setFlammability(int igniteOdds, int burnOdds) {
-            settings.flammability = Pair.of(igniteOdds, burnOdds);
+            settings.flammability = Triple.of(igniteOdds, burnOdds, 0);
+            return self();
+        }
+        public T setFlammability(int igniteOdds, int burnOdds, int furnaceTicks) {
+            settings.flammability = Triple.of(igniteOdds, burnOdds, furnaceTicks);
             return self();
         }
     }
