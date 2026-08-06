@@ -122,20 +122,20 @@ public class WoodSetImpl {
             if (woodSet.hasWood()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building().get(), woodSet.getLog(), woodSet.getWood(), woodSet.getStrippedLog(), woodSet.getStrippedWood());
             else UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.BUILDING_BLOCKS, precedingItems.building().get(), woodSet.getLog(), woodSet.getStrippedLog());
 
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLog());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLog());
 
             if (woodSet.hasLeaves()) {
                 Supplier<? extends ItemLike> item = LEAF_CREATIVE_ENTRIES.get(woodSet.getId());
-                if (item != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, item.get(), woodSet.getLeaves());
+                if (item != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, item.get(), woodSet.getLeaves());
             }
             if (woodSet.hasSapling()) {
                 Supplier<? extends ItemLike> item = SAPLING_CREATIVE_ENTRIES.get(woodSet.getId());
-                if (item != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, item.get(), woodSet.getSapling());
+                if (item != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.NATURAL_BLOCKS, item.get(), woodSet.getSapling());
             }
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.FUNCTIONAL_BLOCKS, precedingItems.functionalShelf().get(), woodSet.getShelf());
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.FUNCTIONAL_BLOCKS, precedingItems.functionalSign().get(), woodSet.getSignItem(), woodSet.getHangingSignItem());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS, precedingItems.functionalShelf().get(), woodSet.getShelf());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS, precedingItems.functionalSign().get(), woodSet.getSignItem(), woodSet.getHangingSignItem());
 
-            if (precedingItems.utilities() != null && woodSet.hasBoats()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.TOOLS_AND_UTILITIES, precedingItems.utilities().get(), woodSet.getBoatItem(), woodSet.getChestBoatItem());
+            if (precedingItems.utilities() != null && woodSet.hasBoats()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabs.TOOLS_AND_UTILITIES, precedingItems.utilities().get(), woodSet.getBoatItem(), woodSet.getChestBoatItem());
         }
     }
 }

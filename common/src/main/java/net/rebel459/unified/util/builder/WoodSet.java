@@ -637,7 +637,7 @@ public class WoodSet {
             return self();
         }
         public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor, Supplier<? extends ItemLike> precedingCreativeLeaf) {
-            WoodSetProperties.LEAF_CREATIVE_ENTRIES.put(id, precedingCreativeLeaf);
+            WoodSetImpl.LEAF_CREATIVE_ENTRIES.put(id, precedingCreativeLeaf);
             return createLeaves(properties, mapColor);
         }
 
@@ -646,7 +646,7 @@ public class WoodSet {
             return self();
         }
         public RegistryBuilder createSapling(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor, Supplier<? extends ItemLike> precedingCreativeSapling) {
-            WoodSetProperties.SAPLING_CREATIVE_ENTRIES.put(id, precedingCreativeSapling);
+            WoodSetImpl.SAPLING_CREATIVE_ENTRIES.put(id, precedingCreativeSapling);
             return createSapling(properties, mapColor);
         }
 
