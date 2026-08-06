@@ -652,10 +652,18 @@ public class WoodSet {
             settings.leaves = Pair.of(properties, mapColor);
             return self();
         }
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor, Supplier<? extends ItemLike> precedingCreativeLeaf) {
+            WoodSetProperties.LEAF_CREATIVE_ENTRIES.put(id, precedingCreativeLeaf);
+            return createLeaves(properties, mapColor);
+        }
 
         public RegistryBuilder createSapling(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {
             settings.sapling = Pair.of(properties, mapColor);
             return self();
+        }
+        public RegistryBuilder createSapling(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor, Supplier<? extends ItemLike> precedingCreativeSapling) {
+            WoodSetProperties.SAPLING_CREATIVE_ENTRIES.put(id, precedingCreativeSapling);
+            return createSapling(properties, mapColor);
         }
 
         public WoodSet build() {
@@ -704,6 +712,22 @@ public class WoodSet {
         @SuppressWarnings("unchecked")
         protected T self() {
             return (T) this;
+        }
+
+        public T creativeInventoryPlacement(
+                Supplier<? extends ItemLike> precedingBuildingItem,
+                Supplier<? extends ItemLike> precedingNaturalItem,
+                Supplier<? extends ItemLike> precedingFunctionalShelfItem,
+                Supplier<? extends ItemLike> precedingFunctionalSignItem
+        ) {
+            settings.precedingCreativeEntries = new PrecedingCreativeEntries(
+                    precedingBuildingItem,
+                    precedingNaturalItem,
+                    precedingFunctionalShelfItem,
+                    precedingFunctionalSignItem,
+                    null
+            );
+            return self();
         }
 
         public T creativeInventoryPlacement(
@@ -827,5 +851,5 @@ public class WoodSet {
         }
     }
 
-    public record PrecedingCreativeEntries(Supplier<? extends ItemLike> building, Supplier<? extends ItemLike> natural, Supplier<? extends ItemLike> functionalShelf, Supplier<? extends ItemLike> functionalSign, Supplier<? extends ItemLike> utilities) {}
+    public record PrecedingCreativeEntries(Supplier<? extends ItemLike> building, Supplier<? extends ItemLike> natural, Supplier<? extends ItemLike> functionalShelf, Supplier<? extends ItemLike> functionalSign, @Nullable Supplier<? extends ItemLike> utilities) {}
 }

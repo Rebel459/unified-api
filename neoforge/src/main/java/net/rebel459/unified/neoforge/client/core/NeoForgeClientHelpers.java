@@ -42,18 +42,23 @@ public class NeoForgeClientHelpers {
 
     public static class ParticleProviders implements CommonClientHelpers.ParticleProviders {
 
-        public static List<Pair<Supplier, ParticleResources.SpriteParticleRegistration>> PARTICLE_PROVIDERS = new ArrayList<>();
+        private static final List<ParticleProviderRegistration> PARTICLE_PROVIDERS = new ArrayList<>();
 
         @Override
-        public <T extends ParticleOptions> void add(Supplier<T> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
-            PARTICLE_PROVIDERS.add(Pair.of(type, sprite));
+        public <T extends ParticleOptions> void add(Supplier<? extends ParticleType<T>> type, ParticleResources.SpriteParticleRegistration<T> sprite) {
+            PARTICLE_PROVIDERS.add(event -> event.registerSpriteSet(type.get(), sprite));
         }
 
         @SubscribeEvent
         public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-            for (Pair<Supplier, ParticleResources.SpriteParticleRegistration> pair : PARTICLE_PROVIDERS) {
-                event.registerSpriteSet((ParticleType<? extends ParticleOptions>) pair.getFirst().get(), pair.getSecond());
+            for (ParticleProviderRegistration registration : PARTICLE_PROVIDERS) {
+                registration.register(event);
             }
+        }
+
+        @FunctionalInterface
+        private interface ParticleProviderRegistration {
+            void register(RegisterParticleProvidersEvent event);
         }
     }
 

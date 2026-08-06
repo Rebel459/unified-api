@@ -1,6 +1,7 @@
 package net.rebel459.unified.impl.builder;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.rebel459.unified.api.core.UnifiedHelpers;
@@ -12,10 +13,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class WoodSetProperties {
 
     public static Map<Identifier, WoodSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, Supplier<? extends ItemLike>> SAPLING_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, Supplier<? extends ItemLike>> LEAF_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<WoodSet> woodSets) {
         creativeEntries(woodSets);
@@ -117,14 +121,20 @@ public class WoodSetProperties {
             if (woodSet.hasWood()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), woodSet.getLog(), woodSet.getWood(), woodSet.getStrippedLog(), woodSet.getStrippedWood());
             else UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), woodSet.getLog(), woodSet.getStrippedLog());
 
-            if (woodSet.hasLeaves() && woodSet.hasSapling()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLeaves(), woodSet.getSapling().asItem());
-            else if (woodSet.hasLeaves()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLeaves());
-            else if (woodSet.hasSapling()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getSapling().asItem());
+            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLog());
 
+            if (woodSet.hasLeaves()) {
+                Supplier<? extends ItemLike> item = LEAF_CREATIVE_ENTRIES.get(woodSet.getId());
+                if (item != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, item.get(), woodSet.getLeaves());
+            }
+            if (woodSet.hasSapling()) {
+                Supplier<? extends ItemLike> item = SAPLING_CREATIVE_ENTRIES.get(woodSet.getId());
+                if (item != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, item.get(), woodSet.getSapling());
+            }
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.FUNCTIONAL_BLOCKS, precedingItems.functionalShelf().get(), woodSet.getShelf());
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.FUNCTIONAL_BLOCKS, precedingItems.functionalSign().get(), woodSet.getSignItem(), woodSet.getHangingSignItem());
 
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.TOOLS_AND_UTILITIES, precedingItems.utilities().get(), woodSet.getBoatItem(), woodSet.getChestBoatItem());
+            if (precedingItems.utilities() != null && woodSet.hasBoats()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.TOOLS_AND_UTILITIES, precedingItems.utilities().get(), woodSet.getBoatItem(), woodSet.getChestBoatItem());
         }
     }
 }
