@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,6 +35,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -77,16 +79,28 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block.identifier().getPath(), block, properties);
+        public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            return registerBlockItem(block.identifier().getPath(), block, function, properties);
         }
 
         @Override
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             var itemId = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
-            var item = net.minecraft.world.item.Items.registerBlock(block.get(), properties.get());
+            var item = net.minecraft.world.item.Items.registerBlock(block.get(), function, properties.get());
             Supplier<Item> supplied = () -> item;
             return new SuppliedItem(() -> BuiltInRegistries.ITEM, itemId, supplied);
+        }
+
+        @Override
+        @Deprecated
+        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties) {
+            return registerBlockItem(block, BlockItem::new, properties);
+        }
+
+        @Override
+        @Deprecated
+        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
+            return registerBlockItem(path, block, BlockItem::new, properties);
         }
 
         @Override

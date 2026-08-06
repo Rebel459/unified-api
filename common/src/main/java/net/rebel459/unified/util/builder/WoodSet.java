@@ -152,12 +152,6 @@ public class WoodSet {
         if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) WoodSetImpl.init(List.of(this));
     }
 
-    private ResourceKey<Item> itemKey(String id) {
-        return ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(this.getId().getNamespace(), id));
-    }
-    private ResourceKey<Block> blockKey(String id) {
-        return ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(this.getId().getNamespace(), id));
-    }
     private SuppliedBlock createBlockWithItem(String blockID, Supplier<BlockBehaviour.Properties> settings){
         return createBlockWithItem(blockID, Block::new, settings);
     }
@@ -185,14 +179,6 @@ public class WoodSet {
 		SuppliedItem item = itemRegistry.register(blockID, factory, settings);
         registeredItems.add(item);
         return item;
-    }
-    private SuppliedItem createBlockItem(String blockID, Supplier<Block> block, Supplier<Item.Properties> settings){
-		SuppliedItem item = itemRegistry.registerBlockItem(blockID, block, settings);
-		registeredItems.add(item);
-		return item;
-	}
-    private ResourceKey<EntityType<?>> entityKey(String id) {
-        return ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(this.getId().getNamespace(), id));
     }
 
 	public <T extends Entity> Supplier<EntityType<T>> register(String name, EntityType.Builder<T> type){
@@ -705,11 +691,11 @@ public class WoodSet {
         }
 
         public T creativeInventoryPlacement(
-                Supplier<ItemLike> precedingBuildingItem,
-                Supplier<ItemLike> precedingNaturalItem,
-                Supplier<ItemLike> precedingFunctionalShelfItem,
-                Supplier<ItemLike> precedingFunctionalSignItem,
-                Supplier<ItemLike> precedingUtilitiesItem
+                Supplier<? extends ItemLike> precedingBuildingItem,
+                Supplier<? extends ItemLike> precedingNaturalItem,
+                Supplier<? extends ItemLike> precedingFunctionalShelfItem,
+                Supplier<? extends ItemLike> precedingFunctionalSignItem,
+                Supplier<? extends ItemLike> precedingUtilitiesItem
         ) {
             settings.precedingCreativeEntries = new PrecedingCreativeEntries(
                     precedingBuildingItem,
@@ -825,5 +811,5 @@ public class WoodSet {
         }
     }
 
-    public record PrecedingCreativeEntries(Supplier<ItemLike> building, Supplier<ItemLike> natural, Supplier<ItemLike> functionalShelf, Supplier<ItemLike> functionalSign, Supplier<ItemLike> utilities) {}
+    public record PrecedingCreativeEntries(Supplier<? extends ItemLike> building, Supplier<? extends ItemLike> natural, Supplier<? extends ItemLike> functionalShelf, Supplier<? extends ItemLike> functionalSign, Supplier<? extends ItemLike> utilities) {}
 }
