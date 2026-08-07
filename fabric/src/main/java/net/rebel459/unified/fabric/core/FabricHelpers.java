@@ -163,7 +163,7 @@ public class FabricHelpers {
         }
 
         private static void add(Identifier id, boolean required) {
-            PackActivationType type = PackActivationType.DEFAULT_ENABLED;
+            PackActivationType type = PackActivationType.NORMAL;
             if (required) type = PackActivationType.ALWAYS_ENABLED;
             ResourceLoader.registerBuiltinPack(
                     id, FabricLoader.getInstance().getModContainer(id.getNamespace()).get(),
