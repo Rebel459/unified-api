@@ -714,6 +714,7 @@ public class NeoForgeHelpers {
 
         @SubscribeEvent
         public static void addServerReloadListeners(final AddServerReloadListenersEvent event) {
+            LogUtils.getLogger().info("ran!");
             LISTENERS.forEach(pair -> event.addListener(pair.getFirst(), pair.getSecond()));
             ORDERING.forEach(pair -> event.addDependency(pair.getFirst(), pair.getSecond()));
         }

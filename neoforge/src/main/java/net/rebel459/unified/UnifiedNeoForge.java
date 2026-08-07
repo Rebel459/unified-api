@@ -3,6 +3,7 @@ package net.rebel459.unified;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedEvents;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedRegistries;
@@ -21,7 +22,7 @@ public class UnifiedNeoForge {
         modEventBus.addListener(NeoForgeHelpers.Networking::register);
         modEventBus.addListener(NeoForgeHelpers.Networking::registerWithHandler);
         modEventBus.addListener(NeoForgeUnifiedRegistries.EntityTypes::createEntityAttributes);
-        modEventBus.addListener(NeoForgeHelpers.ReloadListeners::addServerReloadListeners);
+        NeoForge.EVENT_BUS.addListener(NeoForgeHelpers.ReloadListeners::addServerReloadListeners);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
