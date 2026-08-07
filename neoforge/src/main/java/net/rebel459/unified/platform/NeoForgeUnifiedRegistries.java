@@ -145,7 +145,7 @@ public class NeoForgeUnifiedRegistries {
 
     public record Blocks(String modId) implements UnifiedRegistries.Blocks {
 
-        public static List<Pair<Supplier<? extends BlockEntityType<?>>, Supplier<? extends Block>>> BLOCK_ENTITIES = new ArrayList<>();
+        public static List<Pair<Supplier<? extends BlockEntityType<?>>, Supplier<? extends BlockLike>>> BLOCK_ENTITIES = new ArrayList<>();
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
@@ -220,9 +220,9 @@ public class NeoForgeUnifiedRegistries {
 
         @SubscribeEvent
         public static void modifyBlockEntities(BlockEntityTypeAddBlocksEvent event) {
-            for (Pair<Supplier<? extends BlockEntityType<?>>, Supplier<? extends Block>> pair : BLOCK_ENTITIES) {
+            for (Pair<Supplier<? extends BlockEntityType<?>>, Supplier<? extends BlockLike>> pair : BLOCK_ENTITIES) {
                 Supplier<? extends BlockEntityType<?>> type = pair.getFirst();
-                Block block = pair.getSecond().get();
+                Block block = pair.getSecond().get().asBlock();
                 event.modify(type.get(), block);
             }
         }
@@ -293,10 +293,22 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder) {
-            return register(path, builder, Set.of());
+            DeferredRegister<BlockEntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.BLOCK_ENTITY_TYPE));
+            var blockEntity = registry.register(path, () -> new BlockEntityType<>(builder, Set.of()));
+            return new Supplied<>(registry.getRegistry(), blockEntity.getKey(), blockEntity);
         }
 
         @Override
+        public <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, Supplier<? extends BlockLike>... blocks) {
+            var blockEntity = register(path, builder);
+            for  (Supplier<? extends BlockLike> block : blocks) {
+                Blocks.BLOCK_ENTITIES.add(Pair.of(blockEntity, block));
+            }
+            return blockEntity;
+        }
+
+        @Override
+        @Deprecated
         public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, BlockLike... blocks) {
             Set<Block> set = new HashSet<>();
             for (BlockLike blockLike : blocks) {
@@ -306,10 +318,12 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
+        @Deprecated
         public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NonNull BlockEntitySupplier<T> builder, Block... blocks) {
             return register(path, builder, Set.of(blocks));
         }
 
+        @Deprecated
         private @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Set<Block> set) {
             DeferredRegister<BlockEntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.BLOCK_ENTITY_TYPE));
             var blockEntity = registry.register(path, () -> new BlockEntityType<>(builder, set));

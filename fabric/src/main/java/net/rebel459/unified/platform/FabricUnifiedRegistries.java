@@ -253,6 +253,17 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
+        @SafeVarargs
+        public final <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, Supplier<? extends BlockLike>... blocks) {
+            Set<Block> set = new HashSet<>();
+            for (Supplier<? extends BlockLike> block : blocks) {
+                set.add(block.get().asBlock());
+            }
+            return register(path, builder, set);
+        }
+
+        @Override
+        @Deprecated
         public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks) {
             Set<Block> set = new HashSet<>();
             for (BlockLike blockLike : blocks) {
@@ -262,6 +273,7 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
+        @Deprecated
         public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NonNull BlockEntitySupplier<T> builder, Block... blocks) {
             return register(path, builder, Set.of(blocks));
         }
