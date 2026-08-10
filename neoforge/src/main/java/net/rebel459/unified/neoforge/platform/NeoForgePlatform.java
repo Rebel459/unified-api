@@ -91,11 +91,11 @@ public class NeoForgePlatform implements CommonPlatform {
     }
 
     @Override
-    public CommonPlatform.Impl impl() {
-        return new Impl();
+    public CommonPlatform.Internal internal() {
+        return new Internal();
     }
 
-    public static class Impl implements CommonPlatform.Impl {
+    public static class Internal implements CommonPlatform.Internal {
 
         public static HashMap<Block, Block> OXIDIZABLES = new HashMap<>();
 

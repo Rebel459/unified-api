@@ -16,7 +16,7 @@ public interface WeatheringCopperMixin {
     @Inject(at = @At(value = "TAIL"), method = "getNext(Lnet/minecraft/world/level/block/Block;)Ljava/util/Optional;", cancellable = true)
     private static void getNextFromUnified(Block block, CallbackInfoReturnable<Optional<Block>> cir) {
         if (cir.getReturnValue().isPresent()) return;
-        Block next = NeoForgePlatform.Impl.OXIDIZABLES.get(block);
+        Block next = NeoForgePlatform.Internal.OXIDIZABLES.get(block);
         if (next == null) return;
         cir.setReturnValue(Optional.of(next));
     }

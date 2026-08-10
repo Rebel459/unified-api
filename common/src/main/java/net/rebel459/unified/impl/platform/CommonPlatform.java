@@ -1,11 +1,16 @@
 package net.rebel459.unified.impl.platform;
 
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.function.Supplier;
 
 public interface CommonPlatform {
 
@@ -26,10 +31,10 @@ public interface CommonPlatform {
     CommonHelpers.ReloadListeners getReloadListeners();
 
     @ApiStatus.Internal
-    Impl impl();
+    Internal internal();
 
     @ApiStatus.Internal
-    interface Impl {
+    interface Internal {
         BlockConversionsImpl.Oxidizables getOxidizables();
         CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);
     }
