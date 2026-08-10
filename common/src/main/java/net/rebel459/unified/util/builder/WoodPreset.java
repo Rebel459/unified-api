@@ -37,6 +37,7 @@ public final class WoodPreset {
             .build();
 
     public static final WoodPreset CHERRY = createFrom(WoodType.CHERRY)
+            .setLeavesSoundType(() -> SoundType.CHERRY_LEAVES)
             .build();
 
     public static final WoodPreset PALE_OAK = createFrom(WoodType.PALE_OAK)

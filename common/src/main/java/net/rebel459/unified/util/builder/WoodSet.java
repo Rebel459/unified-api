@@ -2,11 +2,9 @@ package net.rebel459.unified.util.builder;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
@@ -488,7 +486,7 @@ public class WoodSet {
     }
 
     private Supplier<BlockBehaviour.Properties> createLeavesBlock(MapColor color) {
-        return () -> BlockBehaviour.Properties.of().mapColor(color).strength(0.2F).randomTicks().sound(settings.leafSoundType.get()).noOcclusion().isValidSpawn(Blocks::ocelotOrParrot).isSuffocating((_, _, _) -> false).isViewBlocking((_, _, _) -> false).ignitedByLava().pushReaction(PushReaction.DESTROY).isRedstoneConductor((_, _, _) -> false);
+        return () -> BlockBehaviour.Properties.of().mapColor(color).strength(0.2F).randomTicks().sound(settings.leavesSoundType.get()).noOcclusion().isValidSpawn(Blocks::ocelotOrParrot).isSuffocating((_, _, _) -> false).isViewBlocking((_, _, _) -> false).ignitedByLava().pushReaction(PushReaction.DESTROY).isRedstoneConductor((_, _, _) -> false);
     }
 
     private String getBoatName(){
@@ -544,7 +542,7 @@ public class WoodSet {
         private boolean canArrowsActivateButton = true;
         private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
 
-        private Supplier<SoundType> leafSoundType = () -> SoundType.GRASS;
+        private Supplier<SoundType> leavesSoundType = () -> SoundType.GRASS;
         private Supplier<SoundType> woodSoundType = () -> SoundType.WOOD;
         private Supplier<SoundType> hangingSignSoundType = () -> SoundType.HANGING_SIGN;
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> buttonSounds = Pair.of(() -> SoundEvents.WOODEN_BUTTON_CLICK_ON, () -> SoundEvents.WOODEN_BUTTON_CLICK_OFF);
@@ -565,8 +563,12 @@ public class WoodSet {
             return boats;
         }
 
+        public Supplier<SoundType> getLeavesSoundType() {
+            return leavesSoundType;
+        }
+        @Deprecated
         public Supplier<SoundType> getLeafSoundType() {
-            return leafSoundType;
+            return getLeavesSoundType();
         }
         public Supplier<SoundType> getWoodSoundType() {
             return woodSoundType;
@@ -731,9 +733,14 @@ public class WoodSet {
             return self();
         }
 
-        public T setLeafSoundType(Supplier<SoundType> leafSoundType) {
-            settings.leafSoundType = leafSoundType;
+        public T setLeavesSoundType(Supplier<SoundType> leafSoundType) {
+            settings.leavesSoundType = leafSoundType;
             return self();
+        }
+
+        @Deprecated
+        public T setLeafSoundType(Supplier<SoundType> leafSoundType) {
+            return setLeavesSoundType(leafSoundType);
         }
 
         public T setWoodSoundType(Supplier<SoundType> woodSoundType) {
