@@ -82,11 +82,11 @@ public class ColoredItemSet {
         this.itemRegistry = itemRegistry;
         registerItems();
         COLORED_ITEM_SETS.add(this);
-        ColoredItemSetProperties.COMPONENTS.put(id, settings.components);
-        ColoredItemSetProperties.DYED_COMPONENTS.put(id, settings.dyedComponents);
-        ColoredItemSetProperties.PROVIDED_COMPONENTS.put(id, settings.providedComponents);
-        ColoredItemSetProperties.KEYED_COMPONENTS.put(id, settings.keyedComponents);
-        ColoredItemSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
+        ColoredItemSetImpl.COMPONENTS.put(id, settings.components);
+        ColoredItemSetImpl.DYED_COMPONENTS.put(id, settings.dyedComponents);
+        ColoredItemSetImpl.PROVIDED_COMPONENTS.put(id, settings.providedComponents);
+        ColoredItemSetImpl.KEYED_COMPONENTS.put(id, settings.keyedComponents);
+        ColoredItemSetImpl.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) ColoredItemSetImpl.init(List.of(this));
     }
 

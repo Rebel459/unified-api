@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.util;
+package net.rebel459.unified.util;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
