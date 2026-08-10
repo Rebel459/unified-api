@@ -2,6 +2,9 @@ package net.rebel459.unified.fabric.platform;
 
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.fabric.core.FabricHelpers;
 import net.rebel459.unified.fabric.core.FabricInstance;
@@ -10,6 +13,8 @@ import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
 import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
+
+import java.util.function.Supplier;
 
 public class FabricPlatform implements CommonPlatform {
 
@@ -74,11 +79,11 @@ public class FabricPlatform implements CommonPlatform {
     }
 
     @Override
-    public CommonPlatform.Impl impl() {
-        return new Impl();
+    public CommonPlatform.Internal internal() {
+        return new Internal();
     }
 
-    public static class Impl implements CommonPlatform.Impl {
+    public static class Internal implements CommonPlatform.Internal {
 
         @Override
         public BlockConversionsImpl.Oxidizables getOxidizables() {

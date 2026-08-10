@@ -6,6 +6,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.rebel459.unified.impl.platform.CommonPlatform;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 import net.rebel459.unified.platform.InternalHandlerImpl;
 
 import java.util.function.Supplier;
@@ -96,7 +98,7 @@ public class UnifiedCreativeModeTabs {
         }
 
         public CreativeModeTab build() {
-            CreativeModeTab tab = InternalHandlerImpl.INSTANCE.impl().createCreativeModeTab(this.row, this.column, this.displayName, this.iconGenerator, this.displayItemsGenerator);
+            CreativeModeTab tab = PlatformHandler.INSTANCE.internal().createCreativeModeTab(this.row, this.column, this.displayName, this.iconGenerator, this.displayItemsGenerator);
             tab.alignedRight = this.alignedRight;
             tab.showTitle = this.showTitle;
             tab.canScroll = this.canScroll;
