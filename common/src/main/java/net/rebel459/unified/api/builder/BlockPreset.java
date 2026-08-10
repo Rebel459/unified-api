@@ -112,6 +112,30 @@ public final class BlockPreset {
             .baseBlockSuffix(Optional.of("block"))
             .build();
 
+    public static final BlockPreset SULFUR = create()
+            .setSoundType(() -> SoundType.SULFUR)
+            .hasChiseled(true)
+            .build();
+
+    public static final BlockPreset POLISHED_SULFUR = createFrom(SULFUR)
+            .hasChiseled(false)
+            .build();
+
+    public static final BlockPreset SULFUR_BRICKS = createFrom(POLISHED_SULFUR)
+            .build();
+
+    public static final BlockPreset CINNABAR = create()
+            .setSoundType(() -> SoundType.CINNABAR)
+            .hasChiseled(true)
+            .build();
+
+    public static final BlockPreset POLISHED_CINNABAR = createFrom(SULFUR)
+            .hasChiseled(false)
+            .build();
+
+    public static final BlockPreset CINNABAR_BRICKS = createFrom(POLISHED_CINNABAR)
+            .build();
+
     @Deprecated
     public static final BlockPreset CRACKED = create()
             .hasCracked(true)
