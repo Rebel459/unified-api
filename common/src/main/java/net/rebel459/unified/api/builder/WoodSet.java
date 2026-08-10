@@ -13,10 +13,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.vehicle.boat.Boat;
 import net.minecraft.world.entity.vehicle.boat.ChestBoat;
-import net.minecraft.world.item.BoatItem;
-import net.minecraft.world.item.HangingSignItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -34,8 +31,7 @@ import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.impl.builder.WoodSetProperties;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -79,6 +75,7 @@ public class WoodSet {
     private SuppliedBlock hangingSign;
     private SuppliedBlock wallHangingSign;
     private SuppliedBlock shelf;
+    private @Nullable Map<MapColor, SuppliedBlock> coloredLeaves;
 
     private SuppliedItem signItem;
     private SuppliedItem hangingSignItem;
@@ -286,7 +283,16 @@ public class WoodSet {
     }
 
     public @Nullable SuppliedBlock getLeaves() {
-        return leaves;
+        Set<MapColor> colors = getLeavesColors();
+        if (colors.isEmpty()) return null;
+        return coloredLeaves.get(new ArrayList<>(getLeavesColors()).getFirst());
+    }
+    public @Nullable SuppliedBlock getLeaves(MapColor color) {
+        return coloredLeaves.get(color);
+    }
+
+    public Set<MapColor> getLeavesColors() {
+        return getSettings().leavesColors;
     }
 
     public @Nullable SuppliedBlock getSapling() {
@@ -471,8 +477,14 @@ public class WoodSet {
         else return Blocks.OAK_HANGING_SIGN;
     }
 
-    public boolean hasLeaves(){
+    public boolean hasSingleLeaves(){
+        return hasAnyLeaves() && !hasColoredLeaves();
+    }
+    public boolean hasAnyLeaves(){
         return this.getSettings().leaves != null;
+    }
+    public boolean hasColoredLeaves(){
+        return getSettings().leavesColors.size() > 1;
     }
     public boolean hasSapling(){
         return this.getSettings().sapling != null;
@@ -532,7 +544,8 @@ public class WoodSet {
         private String woodName = "wood";
         private String saplingName = "sapling";
         private String leavesName = "leaves";
-        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> leaves = null;
+        private Set<MapColor> leavesColors = new HashSet<>();
+        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, Set<MapColor>> leaves = null;
         private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> sapling = null;
         private Boats boats = Boats.BOATS;
 
@@ -632,13 +645,21 @@ public class WoodSet {
         private final UnifiedRegistries.Blocks blockRegistry;
         private final UnifiedRegistries.EntityTypes entityRegistry;
 
-        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {
-            settings.leaves = Pair.of(properties, mapColor);
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor color) {
+            return createLeaves(properties, Set.of(color));
+        }
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor color, Supplier<? extends ItemLike> precedingCreativeLeaves) {
+            WoodSetProperties.LEAVES_CREATIVE_ENTRIES.put(id, precedingCreativeLeaves);
+            return createLeaves(properties, color);
+        }
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, Set<MapColor> colors) {
+            settings.leaves = Pair.of(properties, colors);
+            settings.leavesColors = colors;
             return self();
         }
-        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor, Supplier<? extends ItemLike> precedingCreativeLeaf) {
-            WoodSetProperties.LEAF_CREATIVE_ENTRIES.put(id, precedingCreativeLeaf);
-            return createLeaves(properties, mapColor);
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, Set<MapColor> colors, Supplier<? extends ItemLike> precedingCreativeLeaves) {
+            WoodSetProperties.LEAVES_CREATIVE_ENTRIES.put(id, precedingCreativeLeaves);
+            return createLeaves(properties, colors);
         }
 
         public RegistryBuilder createSapling(Function<BlockBehaviour.Properties, Block> properties, MapColor mapColor) {

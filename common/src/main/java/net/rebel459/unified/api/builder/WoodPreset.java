@@ -47,6 +47,10 @@ public final class WoodPreset {
             .setSaplingName("propagule")
             .build();
 
+    public static final WoodPreset POPLAR = createFrom(WoodType.POPLAR)
+            .setLeavesSoundType(() -> SoundType.POPLAR_LEAVES)
+            .build();
+
     public static WoodSet.PresetBuilder create() {
         return createFrom(DEFAULT);
     }

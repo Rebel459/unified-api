@@ -4,22 +4,20 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.builder.WoodSet;
 import net.rebel459.unified.api.registry.UnifiedCreativeModeTabs;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class WoodSetProperties {
 
     public static Map<Identifier, WoodSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, Supplier<? extends ItemLike>> SAPLING_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
-    public static Map<Identifier, Supplier<? extends ItemLike>> LEAF_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, Supplier<? extends ItemLike>> LEAVES_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<WoodSet> woodSets) {
         creativeEntries(woodSets);
@@ -35,7 +33,7 @@ public class WoodSetProperties {
             UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSets.getWood(), woodSets.getStrippedWood());
         }
 
-        if (woodSets.hasLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getLeaves(), 0.3F);
+        if (woodSets.hasAnyLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getLeaves(), 0.3F);
         if (woodSets.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getSapling(), 0.3F);
 
         if (woodSets.getSettings().isFlammable()) {
@@ -51,8 +49,10 @@ public class WoodSetProperties {
                 addFlammable(woodSets.getMosaicStairs(), 5, 20);
                 addFlammable(woodSets.getMosaicSlab(), 5, 20);
             }
-            if (woodSets.hasLeaves()) {
-                addFlammable(woodSets.getLeaves(), 30, 60);
+            if (woodSets.hasAnyLeaves()) {
+                for (MapColor color : woodSets.getLeavesColors()) {
+                    addFlammable(woodSets.getLeaves(color), 30, 60);
+                }
             }
 
             addFlammable(woodSets.getPlanks(), 5, 20);
@@ -123,9 +123,16 @@ public class WoodSetProperties {
 
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLog());
 
-            if (woodSet.hasLeaves()) {
-                Supplier<? extends ItemLike> item = LEAF_CREATIVE_ENTRIES.get(woodSet.getId());
-                if (item != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, item.get(), woodSet.getLeaves());
+            if (woodSet.hasAnyLeaves()) {
+                Supplier<? extends ItemLike> item = LEAVES_CREATIVE_ENTRIES.get(woodSet.getId());
+                if (item != null) {
+                    List<MapColor> reversed = new ArrayList<>(woodSet.getLeavesColors());
+                    Collections.reverse(reversed);
+                    Set<MapColor> reversedSet = new LinkedHashSet<>(reversed);
+                    for (MapColor color : reversedSet) {
+                        UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, item.get(), woodSet.getLeaves(color));
+                    }
+                }
             }
             if (woodSet.hasSapling()) {
                 Supplier<? extends ItemLike> item = SAPLING_CREATIVE_ENTRIES.get(woodSet.getId());
