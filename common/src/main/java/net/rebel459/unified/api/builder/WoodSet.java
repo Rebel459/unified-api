@@ -26,12 +26,12 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.impl.builder.WoodSetProperties;
-import net.rebel459.unified.api.core.SuppliedBlock;
-import net.rebel459.unified.api.core.SuppliedItem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -152,12 +152,6 @@ public class WoodSet {
         if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) WoodSetProperties.init(List.of(this));
     }
 
-    private ResourceKey<Item> itemKey(String id) {
-        return ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(this.getId().getNamespace(), id));
-    }
-    private ResourceKey<Block> blockKey(String id) {
-        return ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(this.getId().getNamespace(), id));
-    }
     private SuppliedBlock createBlockWithItem(String blockID, Supplier<BlockBehaviour.Properties> settings){
         return createBlockWithItem(blockID, Block::new, settings);
     }
@@ -185,14 +179,6 @@ public class WoodSet {
 		SuppliedItem item = itemRegistry.register(blockID, factory, settings);
         registeredItems.add(item);
         return item;
-    }
-    private SuppliedItem createBlockItem(String blockID, Supplier<Block> block, Supplier<Item.Properties> settings){
-		SuppliedItem item = itemRegistry.registerBlockItem(blockID, block, settings);
-		registeredItems.add(item);
-		return item;
-	}
-    private ResourceKey<EntityType<?>> entityKey(String id) {
-        return ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(this.getId().getNamespace(), id));
     }
 
 	public <T extends Entity> Supplier<EntityType<T>> register(String name, EntityType.Builder<T> type){
