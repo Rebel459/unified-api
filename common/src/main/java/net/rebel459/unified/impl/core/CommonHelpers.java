@@ -129,7 +129,7 @@ public class CommonHelpers {
                     context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
                 });
             }
-            BlockConversionsImpl.Oxidizables oxidizables = PlatformHandler.INSTANCE.impl().getOxidizables();
+            BlockConversionsImpl.Oxidizables oxidizables = PlatformHandler.INSTANCE.internal().getOxidizables();
             oxidizables.add(unaffected, exposed);
             oxidizables.add(exposed, weathered);
             oxidizables.add(weathered, oxidized);
