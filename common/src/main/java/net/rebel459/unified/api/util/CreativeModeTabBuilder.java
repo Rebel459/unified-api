@@ -4,9 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.platform.PlatformHandler;
-import net.rebel459.unified.platform.InternalHandlerImpl;
 
 import java.util.function.Supplier;
 
