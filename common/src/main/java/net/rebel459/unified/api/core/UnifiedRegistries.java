@@ -133,6 +133,7 @@ public class UnifiedRegistries {
         }
     }
 
+    @Deprecated
     public interface CreativeTabs {
         String modId();
 
@@ -168,6 +169,7 @@ public class UnifiedRegistries {
         }
     }
 
+    @Deprecated
     public interface BlockEntityTypes {
         String modId();
 
