@@ -1,11 +1,15 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 public class NeoForgeInternalHandler implements InternalHandler {
 
@@ -97,6 +101,15 @@ public class NeoForgeInternalHandler implements InternalHandler {
                     state.initCache();
                 }
             };
+        }
+
+        @Override
+        public CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
+            return new CreativeModeTab.Builder(row, column)
+                    .title(displayName)
+                    .icon(iconGenerator)
+                    .displayItems(displayItemsGenerator)
+                    .build();
         }
     }
 }

@@ -1,8 +1,13 @@
 package net.rebel459.unified.platform;
 
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.function.Supplier;
 
 public interface InternalHandler {
 
@@ -28,5 +33,6 @@ public interface InternalHandler {
     @ApiStatus.Internal
     interface Impl {
         BlockConversionsImpl.Oxidizables getOxidizables();
+        CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);
     }
 }

@@ -2,7 +2,12 @@ package net.rebel459.unified.platform;
 
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
+
+import java.util.function.Supplier;
 
 public class FabricInternalHandler implements InternalHandler {
 
@@ -86,6 +91,11 @@ public class FabricInternalHandler implements InternalHandler {
         @Override
         public BlockConversionsImpl.Oxidizables getOxidizables() {
             return OxidizableBlocksRegistry::registerNextStage;
+        }
+
+        @Override
+        public CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
+            return new CreativeModeTab(row, column, CreativeModeTab.Type.CATEGORY, displayName, iconGenerator, displayItemsGenerator);
         }
     }
 }

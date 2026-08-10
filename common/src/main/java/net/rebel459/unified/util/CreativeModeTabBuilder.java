@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.rebel459.unified.platform.InternalHandlerImpl;
 
 import java.util.function.Supplier;
 
@@ -17,7 +18,6 @@ public class CreativeModeTabBuilder {
         private boolean canScroll;
         private boolean showTitle;
         private boolean alignedRight;
-        private CreativeModeTab.Type type;
         private Identifier backgroundTexture;
 
         public CreativeModeTabBuilder() {
@@ -25,7 +25,6 @@ public class CreativeModeTabBuilder {
             this.canScroll = true;
             this.showTitle = true;
             this.alignedRight = false;
-            this.type = CreativeModeTab.Type.CATEGORY;
             this.backgroundTexture = CreativeModeTab.DEFAULT_BACKGROUND;
             this.row = CreativeModeTab.Row.TOP;
             this.column = 0;
@@ -77,15 +76,11 @@ public class CreativeModeTabBuilder {
         }
 
         public CreativeModeTab build() {
-            if ((this.type == CreativeModeTab.Type.HOTBAR || this.type == CreativeModeTab.Type.INVENTORY) && this.displayItemsGenerator != EMPTY_GENERATOR) {
-                throw new IllegalStateException("Special tabs can't have display items");
-            } else {
-                CreativeModeTab tab = new CreativeModeTab(this.row, this.column, this.type, this.displayName, this.iconGenerator, this.displayItemsGenerator);
-                tab.alignedRight = this.alignedRight;
-                tab.showTitle = this.showTitle;
-                tab.canScroll = this.canScroll;
-                tab.backgroundTexture = this.backgroundTexture;
-                return tab;
-            }
+            CreativeModeTab tab = InternalHandlerImpl.INSTANCE.impl().createCreativeModeTab(this.row, this.column, this.displayName, this.iconGenerator, this.displayItemsGenerator);
+            tab.alignedRight = this.alignedRight;
+            tab.showTitle = this.showTitle;
+            tab.canScroll = this.canScroll;
+            tab.backgroundTexture = this.backgroundTexture;
+            return tab;
         }
     }
