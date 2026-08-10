@@ -83,3 +83,10 @@ accessible method net/minecraft/client/renderer/entity/layers/EquipmentLayerRend
 inject-interface net/minecraft/world/level/block/Block net/rebel459/unified/util/BlockLike
 
 accessible method net/minecraft/resources/ResourceKey <init> (Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)V
+
+accessible method net/minecraft/world/item/CreativeModeTab <init> (Lnet/minecraft/world/item/CreativeModeTab$Row;ILnet/minecraft/world/item/CreativeModeTab$Type;Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;Lnet/minecraft/world/item/CreativeModeTab$DisplayItemsGenerator;)V
+accessible field net/minecraft/world/item/CreativeModeTab DEFAULT_BACKGROUND Lnet/minecraft/resources/Identifier;
+accessible field net/minecraft/world/item/CreativeModeTab alignedRight Z
+accessible field net/minecraft/world/item/CreativeModeTab showTitle Z
+accessible field net/minecraft/world/item/CreativeModeTab canScroll Z
+accessible field net/minecraft/world/item/CreativeModeTab backgroundTexture Lnet/minecraft/resources/Identifier;
