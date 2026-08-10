@@ -733,8 +733,8 @@ public class WoodSet {
             return self();
         }
 
-        public T setLeavesSoundType(Supplier<SoundType> leafSoundType) {
-            settings.leavesSoundType = leafSoundType;
+        public T setLeavesSoundType(Supplier<SoundType> leavesSoundType) {
+            settings.leavesSoundType = leavesSoundType;
             return self();
         }
 
