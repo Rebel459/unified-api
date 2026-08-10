@@ -50,7 +50,7 @@ public class WoodSetProperties {
                 addFlammable(woodSets.getMosaicSlab(), 5, 20);
             }
             if (woodSets.hasAnyLeaves()) {
-                for (MapColor color : woodSets.getLeavesColors()) {
+                for (WoodSet.LeavesColor color : woodSets.getLeavesColors()) {
                     addFlammable(woodSets.getLeaves(color), 30, 60);
                 }
             }
@@ -126,10 +126,10 @@ public class WoodSetProperties {
             if (woodSet.hasAnyLeaves()) {
                 Supplier<? extends ItemLike> item = LEAVES_CREATIVE_ENTRIES.get(woodSet.getId());
                 if (item != null) {
-                    List<MapColor> reversed = new ArrayList<>(woodSet.getLeavesColors());
+                    List<WoodSet.LeavesColor> reversed = new ArrayList<>(woodSet.getLeavesColors());
                     Collections.reverse(reversed);
-                    Set<MapColor> reversedSet = new LinkedHashSet<>(reversed);
-                    for (MapColor color : reversedSet) {
+                    Set<WoodSet.LeavesColor> reversedSet = new LinkedHashSet<>(reversed);
+                    for (WoodSet.LeavesColor color : reversedSet) {
                         UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, item.get(), woodSet.getLeaves(color));
                     }
                 }

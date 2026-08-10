@@ -55,7 +55,7 @@ public class WoodSet {
     private SuppliedBlock strippedLog;
     private @Nullable SuppliedBlock wood;
     private @Nullable SuppliedBlock strippedWood;
-    private @Nullable SuppliedBlock leaves = null;
+    private @Nullable Map<LeavesColor, SuppliedBlock> leaves = null;
     private @Nullable SuppliedBlock sapling = null;
     private @Nullable SuppliedBlock pottedSapling = null;
     private SuppliedBlock planks;
@@ -75,7 +75,6 @@ public class WoodSet {
     private SuppliedBlock hangingSign;
     private SuppliedBlock wallHangingSign;
     private SuppliedBlock shelf;
-    private @Nullable Map<MapColor, SuppliedBlock> coloredLeaves;
 
     private SuppliedItem signItem;
     private SuppliedItem hangingSignItem;
@@ -283,15 +282,15 @@ public class WoodSet {
     }
 
     public @Nullable SuppliedBlock getLeaves() {
-        Set<MapColor> colors = getLeavesColors();
+        Set<LeavesColor> colors = getLeavesColors();
         if (colors.isEmpty()) return null;
-        return coloredLeaves.get(new ArrayList<>(getLeavesColors()).getFirst());
+        return leaves.get(new ArrayList<>(getLeavesColors()).getFirst());
     }
-    public @Nullable SuppliedBlock getLeaves(MapColor color) {
-        return coloredLeaves.get(color);
+    public @Nullable SuppliedBlock getLeaves(LeavesColor color) {
+        return leaves.get(color);
     }
 
-    public Set<MapColor> getLeavesColors() {
+    public Set<LeavesColor> getLeavesColors() {
         return getSettings().leavesColors;
     }
 
@@ -363,9 +362,16 @@ public class WoodSet {
     private SuppliedBlock createStrippedWood() {
         return createBlockWithItem("stripped_" + this.getId().getPath() + "_" + settings.getWoodName(), RotatedPillarBlock::new, createLogBlock(this.plankColor, this.plankColor));
     }
-    private SuppliedBlock createLeaves() {
+    private Map<LeavesColor, SuppliedBlock> createLeaves() {
         Function<BlockBehaviour.Properties, Block> properties = this.settings.leaves.getFirst();
-        return createBlockWithItem(this.getId().getPath() + "_" + this.settings.getLeavesName(), properties, createLeavesBlock(this.settings.leaves.getSecond()));
+        Map<LeavesColor, SuppliedBlock> leaves = new HashMap<>();
+        for (LeavesColor color : getLeavesColors()) {
+            String name = this.getId().getPath() + "_" + this.settings.getLeavesName();
+            if (!color.getName().isEmpty()) name = color.getName() + "_" + name;
+            SuppliedBlock block = createBlockWithItem(name, properties, createLeavesBlock(color.getColor()));
+            leaves.put(color, block);
+        }
+        return leaves;
     }
     private SuppliedBlock createSapling() {
         Function<BlockBehaviour.Properties, Block> properties = this.settings.sapling.getFirst();
@@ -544,8 +550,8 @@ public class WoodSet {
         private String woodName = "wood";
         private String saplingName = "sapling";
         private String leavesName = "leaves";
-        private Set<MapColor> leavesColors = new HashSet<>();
-        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, Set<MapColor>> leaves = null;
+        private Set<LeavesColor> leavesColors = new HashSet<>();
+        private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, Set<LeavesColor>> leaves = null;
         private @Nullable Pair<Function<BlockBehaviour.Properties, Block>, MapColor> sapling = null;
         private Boats boats = Boats.BOATS;
 
@@ -646,18 +652,18 @@ public class WoodSet {
         private final UnifiedRegistries.EntityTypes entityRegistry;
 
         public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor color) {
-            return createLeaves(properties, Set.of(color));
+            return createLeaves(properties, Set.of(new LeavesColor("", color)));
         }
         public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, MapColor color, Supplier<? extends ItemLike> precedingCreativeLeaves) {
             WoodSetProperties.LEAVES_CREATIVE_ENTRIES.put(id, precedingCreativeLeaves);
             return createLeaves(properties, color);
         }
-        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, Set<MapColor> colors) {
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, Set<LeavesColor> colors) {
             settings.leaves = Pair.of(properties, colors);
             settings.leavesColors = colors;
             return self();
         }
-        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, Set<MapColor> colors, Supplier<? extends ItemLike> precedingCreativeLeaves) {
+        public RegistryBuilder createLeaves(Function<BlockBehaviour.Properties, Block> properties, Set<LeavesColor> colors, Supplier<? extends ItemLike> precedingCreativeLeaves) {
             WoodSetProperties.LEAVES_CREATIVE_ENTRIES.put(id, precedingCreativeLeaves);
             return createLeaves(properties, colors);
         }
@@ -853,6 +859,30 @@ public class WoodSet {
 
         private String getWoodName() {
             return settings.woodName;
+        }
+    }
+
+    public static class LeavesColor {
+
+        private final String name;
+        private final MapColor color;
+
+        public LeavesColor(String name, MapColor color) {
+            this.name = name;
+            this.color = color;
+        }
+
+        public LeavesColor(DyeColor dyeColor) {
+            this.name = dyeColor.getName();
+            this.color = dyeColor.getMapColor();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public MapColor getColor() {
+            return color;
         }
     }
 
