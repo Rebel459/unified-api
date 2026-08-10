@@ -121,19 +121,13 @@ public final class BlockPreset {
             .hasChiseled(false)
             .build();
 
-    public static final BlockPreset SULFUR_BRICKS = createFrom(POLISHED_SULFUR)
-            .build();
-
     public static final BlockPreset CINNABAR = create()
             .setSoundType(() -> SoundType.CINNABAR)
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset POLISHED_CINNABAR = createFrom(SULFUR)
+    public static final BlockPreset POLISHED_CINNABAR = createFrom(CINNABAR)
             .hasChiseled(false)
-            .build();
-
-    public static final BlockPreset CINNABAR_BRICKS = createFrom(POLISHED_CINNABAR)
             .build();
 
     @Deprecated
