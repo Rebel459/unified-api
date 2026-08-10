@@ -30,5 +30,6 @@ public interface CommonPlatform {
     @ApiStatus.Internal
     interface Impl {
         BlockConversionsImpl.Oxidizables getOxidizables();
+        CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);
     }
 }

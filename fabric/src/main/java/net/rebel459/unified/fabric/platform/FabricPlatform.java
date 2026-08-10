@@ -84,5 +84,10 @@ public class FabricPlatform implements CommonPlatform {
         public BlockConversionsImpl.Oxidizables getOxidizables() {
             return (from, to) -> OxidizableBlocksRegistry.registerNextStage(from.asBlock(), to.asBlock());
         }
+
+        @Override
+        public CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
+            return new CreativeModeTab(row, column, CreativeModeTab.Type.CATEGORY, displayName, iconGenerator, displayItemsGenerator);
+        }
     }
 }
