@@ -300,9 +300,9 @@ public class ColoredItemSet {
             settings.components = components;
             return self();
         }
-        public <Y> T setComponentWithDye(Supplier<DataComponentType<Y>> type, Function<DyeColor, Y> valueFactory) {
+        public <Y> T setComponentWithDye(Supplier<DataComponentType<Y>> type, Function<DyeColor, Y> dyeValue) {
             var dyeComponents = settings.dyedComponents;
-            dyeComponents.add(Pair.of(type, valueFactory));
+            dyeComponents.add(Pair.of(type, dyeValue));
             settings.dyedComponents = dyeComponents;
             return self();
         }
