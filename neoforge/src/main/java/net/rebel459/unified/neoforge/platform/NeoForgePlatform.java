@@ -32,11 +32,6 @@ public class NeoForgePlatform implements CommonPlatform {
     }
 
     @Override
-    public UnifiedRegistries.CreativeTabs createCreativeTabs(String modId) {
-        return new NeoForgeUnifiedRegistries.CreativeTabs(modId);
-    }
-
-    @Override
     public UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId) {
         return new NeoForgeUnifiedRegistries.DataComponentTypes(modId);
     }
@@ -44,11 +39,6 @@ public class NeoForgePlatform implements CommonPlatform {
     @Override
     public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
         return new NeoForgeUnifiedRegistries.EntityTypes(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId) {
-        return new NeoForgeUnifiedRegistries.BlockEntityTypes(modId);
     }
 
     @Override

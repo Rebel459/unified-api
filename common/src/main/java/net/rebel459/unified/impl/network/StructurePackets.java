@@ -3,6 +3,7 @@ package net.rebel459.unified.impl.network;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
@@ -19,11 +20,7 @@ public class StructurePackets {
 
         public static final Type<Request> TYPE = new Type<>(Identifier.fromNamespaceAndPath("unified", "request_structure_music"));
 
-        public static final StreamCodec<FriendlyByteBuf, Request> CODEC =
-                CustomPacketPayload.codec(
-                        (packet, buf) -> {},
-                        buf -> new Request()
-                );
+        public static final StreamCodec<FriendlyByteBuf, Request> CODEC = StreamCodec.unit(new Request());
 
         @Override
         public Type<? extends CustomPacketPayload> type() {
@@ -35,15 +32,15 @@ public class StructurePackets {
 
         public static final Type<Send> TYPE = new Type<>(Identifier.fromNamespaceAndPath("unified", "send_structure_music"));
 
-        public static final StreamCodec<FriendlyByteBuf, Send> CODEC =
-                CustomPacketPayload.codec(
-                        (packet, buf) -> {
-                            buf.writeIdentifier(packet.pieceStructure());
-                            buf.writeIdentifier(packet.boxStructure());
-                            buf.writeBoolean(packet.replaceCurrentMusic);
-                        },
-                        buf -> new Send(buf.readIdentifier(), buf.readIdentifier(), buf.readBoolean())
-                );
+        public static final StreamCodec<FriendlyByteBuf, Send> CODEC = StreamCodec.composite(
+                Identifier.STREAM_CODEC,
+                Send::pieceStructure,
+                Identifier.STREAM_CODEC,
+                Send::boxStructure,
+                ByteBufCodecs.BOOL,
+                Send::replaceCurrentMusic,
+                Send::new
+        );
 
         @Override
         public Type<? extends CustomPacketPayload> type() {
@@ -55,43 +52,35 @@ public class StructurePackets {
 
         public static final Type<Sync> TYPE = new Type<>(Identifier.fromNamespaceAndPath("unified", "sync_structure_music"));
 
-        public static final StreamCodec<FriendlyByteBuf, Sync> CODEC =
-                CustomPacketPayload.codec(
-                        (packet, buf) -> buf.writeMap(
-                                packet.structureMusic,
-                                (recordBuf, target) -> {
-                                    recordBuf.writeIdentifier(target.id());
-                                    recordBuf.writeBoolean(target.tag());
-                                },
-                                (recordBuf, info) -> {
-                                    recordBuf.writeIdentifier(BuiltInRegistries.SOUND_EVENT.getKey(info.music().sound().value()));
-                                    recordBuf.writeVarInt(info.music().minDelay());
-                                    recordBuf.writeVarInt(info.music().maxDelay());
-                                    recordBuf.writeBoolean(info.music().replaceCurrentMusic());
-                                    recordBuf.writeBoolean(info.fullBox());
-                                }
-                        ),
-                        buf -> new Sync(buf.readMap(
-                                HashMap::new,
-                                recordBuf -> new StructureMusicImpl.Target(recordBuf.readIdentifier(), recordBuf.readBoolean()),
-                                recordBuf -> {
-                                    Identifier soundId = recordBuf.readIdentifier();
-                                    SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(soundId);
-                                    if (soundEvent == null) {
-                                        soundEvent = SoundEvents.EMPTY;
-                                    }
+        private static final StreamCodec<FriendlyByteBuf, StructureMusicImpl.Target> TARGET_CODEC = StreamCodec.composite(
+                Identifier.STREAM_CODEC,
+                StructureMusicImpl.Target::id,
+                ByteBufCodecs.BOOL,
+                StructureMusicImpl.Target::tag,
+                StructureMusicImpl.Target::new
+        );
 
-                                    Music music = new Music(
-                                            Holder.direct(soundEvent),
-                                            recordBuf.readVarInt(),
-                                            recordBuf.readVarInt(),
-                                            recordBuf.readBoolean()
-                                    );
+        private static final StreamCodec<FriendlyByteBuf, StructureMusicImpl.Info> INFO_CODEC = StreamCodec.composite(
+                Identifier.STREAM_CODEC,
+                info -> BuiltInRegistries.SOUND_EVENT.getKey(info.music().sound().value()),
+                ByteBufCodecs.VAR_INT,
+                info -> info.music().minDelay(),
+                ByteBufCodecs.VAR_INT,
+                info -> info.music().maxDelay(),
+                ByteBufCodecs.BOOL,
+                info -> info.music().replaceCurrentMusic(),
+                ByteBufCodecs.BOOL,
+                StructureMusicImpl.Info::fullBox,
+                (soundId, minDelay, maxDelay, replaceCurrentMusic, fullBox) -> {
+                    SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(soundId);
+                    if (soundEvent == null) soundEvent = SoundEvents.EMPTY;
+                    return new StructureMusicImpl.Info(new Music(Holder.direct(soundEvent), minDelay, maxDelay, replaceCurrentMusic), fullBox);
+                }
+        );
 
-                                    return new StructureMusicImpl.Info(music, recordBuf.readBoolean());
-                                }
-                        ))
-                );
+        private static final StreamCodec<FriendlyByteBuf, Map<StructureMusicImpl.Target, StructureMusicImpl.Info>> MAP_CODEC = ByteBufCodecs.map(HashMap::new, TARGET_CODEC, INFO_CODEC);
+
+        public static final StreamCodec<FriendlyByteBuf, Sync> CODEC = StreamCodec.composite(MAP_CODEC, Sync::structureMusic, Sync::new);
 
         @Override
         public Type<? extends CustomPacketPayload> type() {

@@ -16,7 +16,7 @@ import net.minecraft.world.entity.vehicle.boat.ChestBoat;
 import net.minecraft.world.item.BoatItem;
 import net.minecraft.world.item.HangingSignItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SignItem;
+import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -439,7 +439,7 @@ public class WoodSet {
     }
 
     private SuppliedItem createSignItem(){
-        return createItem(this.getId().getPath() + "_sign", settings -> new SignItem(this.getSign().get(), this.getWallSign().get(), settings), () -> new Item.Properties().stacksTo(16));
+        return createItem(this.getId().getPath() + "_sign", settings -> new StandingAndWallBlockItem(this.getSign().get(), this.getWallSign().get(), Direction.DOWN, settings), () -> new Item.Properties().stacksTo(16));
     }
     private SuppliedItem createHangingSignItem(){
         return createItem(this.getId().getPath() + "_hanging_sign", settings -> new HangingSignItem(this.getHangingSign().get(), this.getWallHangingSign().get(), settings), () -> new Item.Properties().stacksTo(16));
@@ -488,7 +488,7 @@ public class WoodSet {
     }
 
     private Supplier<BlockBehaviour.Properties> createLeavesBlock(MapColor color) {
-        return () -> BlockBehaviour.Properties.of().mapColor(color).strength(0.2F).randomTicks().sound(settings.leavesSoundType.get()).noOcclusion().isValidSpawn(Blocks::ocelotOrParrot).isSuffocating((_, _, _) -> false).isViewBlocking((_, _, _) -> false).ignitedByLava().pushReaction(PushReaction.DESTROY).isRedstoneConductor((_, _, _) -> false);
+        return () -> BlockBehaviour.Properties.of().mapColor(color).strength(0.2F).randomTicks().sound(settings.leavesSoundType.get()).noOcclusion().isValidSpawn(Blocks::ocelotOrParrot).isSuffocating((_, _, _) -> false).isViewBlocking(((blockState, blockGetter, blockPos, aabb) -> false)).ignitedByLava().pushReaction(PushReaction.POPPED).isRedstoneConductor((_, _, _) -> false);
     }
 
     private String getBoatName(){
@@ -567,10 +567,6 @@ public class WoodSet {
 
         public Supplier<SoundType> getLeavesSoundType() {
             return leavesSoundType;
-        }
-        @Deprecated
-        public Supplier<SoundType> getLeafSoundType() {
-            return getLeavesSoundType();
         }
         public Supplier<SoundType> getWoodSoundType() {
             return woodSoundType;
@@ -738,11 +734,6 @@ public class WoodSet {
         public T setLeavesSoundType(Supplier<SoundType> leavesSoundType) {
             settings.leavesSoundType = leavesSoundType;
             return self();
-        }
-
-        @Deprecated
-        public T setLeafSoundType(Supplier<SoundType> leafSoundType) {
-            return setLeavesSoundType(leafSoundType);
         }
 
         public T setWoodSoundType(Supplier<SoundType> woodSoundType) {

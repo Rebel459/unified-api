@@ -4,7 +4,6 @@
   "package": "net.rebel459.unified.neoforge.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "block.NeoForgeComposterBlockMixin",
     "block.WeatheringCopperMixin",
     "server.PlayerListMixin",
     "server.ServerLifecycleHooksMixin",

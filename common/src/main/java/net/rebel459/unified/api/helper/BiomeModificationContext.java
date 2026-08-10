@@ -5,7 +5,7 @@ import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public final class BiomeModificationContext {
@@ -46,8 +46,8 @@ public final class BiomeModificationContext {
     public interface Worldgen {
         void addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step);
         void removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step);
-        void addCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey);
-        void removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey);
+        void addCarver(ResourceKey<WorldCarver> carverKey);
+        void removeCarver(ResourceKey<WorldCarver> carverKey);
     }
 
     public interface Effects {

@@ -2,13 +2,13 @@ package net.rebel459.unified.impl.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.resources.palette.PalettedTextureManager;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
@@ -106,6 +106,9 @@ public abstract class HumanoidArmorLayerMixin {
 
         int dyeColor = DyedItemColor.getOrDefault(itemStack, 0);
         boolean renderFoil = itemStack.hasFoil();
+        ArmorTrim trim = itemStack.get(DataComponents.TRIM);
+        boolean renderTrim = trim != null;
+        boolean renderLayerGlint = renderFoil && !renderTrim;
         int order = 1;
 
         for (EquipmentClientInfo.Layer layer : layers) {
@@ -120,47 +123,46 @@ public abstract class HumanoidArmorLayerMixin {
                             model,
                             state,
                             poseStack,
-                            RenderTypes.armorCutoutNoCull(texture),
+                            renderLayerGlint ? RenderTypes.armorCutoutNoCullGlint(texture) : RenderTypes.armorCutoutNoCull(texture),
                             lightCoords,
                             OverlayTexture.NO_OVERLAY,
                             color,
                             null,
-                            state.outlineColor,
-                            null
+                            state.outlineColor
                     );
-            if (renderFoil) {
-                submitNodeCollector.order(order++)
-                        .submitModel(
-                                model,
-                                state,
-                                poseStack,
-                                RenderTypes.armorEntityGlint(),
-                                lightCoords,
-                                OverlayTexture.NO_OVERLAY,
-                                color,
-                                null,
-                                state.outlineColor,
-                                null
-                );
-                renderFoil = false;
-            }
+            renderLayerGlint = false;
         }
 
-        ArmorTrim trim = itemStack.get(DataComponents.TRIM);
-        if (trim != null) {
-            submitNodeCollector.order(order)
+        if (renderTrim) {
+            PalettedTextureManager.Handle trimTexture = this.equipmentRenderer.trimTextureLookup.apply(
+                    new EquipmentLayerRenderer.TrimTextureKey(trim, layerType, equipmentInfo)
+            );
+            submitNodeCollector.order(order++)
                     .submitModel(
                             model,
                             state,
                             poseStack,
-                            Sheets.armorTrimsSheet(trim.pattern().value().decal()),
+                            RenderTypes.armorTrim(trimTexture.textureLocation(), trim.pattern().value().decal()),
                             lightCoords,
                             OverlayTexture.NO_OVERLAY,
                             -1,
-                            this.equipmentRenderer.trimSpriteLookup.apply(new EquipmentLayerRenderer.TrimSpriteKey(trim, layerType, asset)),
-                            state.outlineColor,
-                            null
+                            trimTexture,
+                            state.outlineColor
                     );
+            if (renderFoil) {
+                submitNodeCollector.order(order)
+                        .submitModel(
+                                model,
+                                state,
+                                poseStack,
+                                RenderTypes.trimmedArmorGlint(),
+                                lightCoords,
+                                OverlayTexture.NO_OVERLAY,
+                                -1,
+                                null,
+                                0
+                        );
+            }
         }
     }
 

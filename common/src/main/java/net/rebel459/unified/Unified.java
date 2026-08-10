@@ -3,15 +3,12 @@ package net.rebel459.unified;
 import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.registry.UnifiedDataComponents;
 import net.rebel459.unified.impl.builder.*;
 import net.rebel459.unified.impl.helper.StructureMusicImpl;
 
 public class Unified {
 
-    public static void initRegistries() {
-        UnifiedDataComponents.init();
-    }
+    public static void initRegistries() {}
 
     public static void init() {
         StructureMusicImpl.init();

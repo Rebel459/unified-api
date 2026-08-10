@@ -130,16 +130,6 @@ public final class BlockPreset {
             .hasChiseled(false)
             .build();
 
-    @Deprecated
-    public static final BlockPreset CRACKED = create()
-            .hasCracked(true)
-            .build();
-
-    @Deprecated
-    public static final BlockPreset CHISELED = create()
-            .hasChiseled(true)
-            .build();
-
     public static BlockSet.PresetBuilder create() {
         return createFrom(DEFAULT);
     }

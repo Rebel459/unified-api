@@ -54,8 +54,8 @@ accessible field net/minecraft/client/sounds/MusicManager random Lnet/minecraft/
 
 accessible field net/minecraft/world/level/storage/loot/LootPool$Builder entries Lcom/google/common/collect/ImmutableList$Builder;
 mutable field net/minecraft/world/level/storage/loot/LootPool$Builder entries Lcom/google/common/collect/ImmutableList$Builder;
-accessible field net/minecraft/world/level/storage/loot/LootPool$Builder conditions Lcom/google/common/collect/ImmutableList$Builder;
-mutable field net/minecraft/world/level/storage/loot/LootPool$Builder conditions Lcom/google/common/collect/ImmutableList$Builder;
+accessible field net/minecraft/world/level/storage/loot/LootPool$Builder condition Lcom/google/common/collect/ImmutableList$Builder;
+mutable field net/minecraft/world/level/storage/loot/LootPool$Builder condition Lcom/google/common/collect/ImmutableList$Builder;
 accessible field net/minecraft/world/level/storage/loot/LootPool$Builder functions Lcom/google/common/collect/ImmutableList$Builder;
 mutable field net/minecraft/world/level/storage/loot/LootPool$Builder functions Lcom/google/common/collect/ImmutableList$Builder;
 accessible field net/minecraft/world/level/storage/loot/LootPool$Builder rolls Lnet/minecraft/world/level/storage/loot/providers/number/NumberProvider;
@@ -69,16 +69,24 @@ mutable field net/minecraft/world/level/storage/loot/LootTable$Builder functions
 accessible field net/minecraft/world/level/storage/loot/LootTable$Builder pools Lcom/google/common/collect/ImmutableList$Builder;
 mutable field net/minecraft/world/level/storage/loot/LootTable$Builder pools Lcom/google/common/collect/ImmutableList$Builder;
 accessible field net/minecraft/world/level/storage/loot/entries/CompositeEntryBase children Ljava/util/List;
-accessible field net/minecraft/world/level/storage/loot/entries/LootPoolEntryContainer conditions Ljava/util/List;
+accessible field net/minecraft/world/level/storage/loot/entries/LootPoolEntryContainer condition Ljava/util/Optional;
 accessible method net/minecraft/world/level/storage/loot/entries/AlternativesEntry <init> (Ljava/util/List;Ljava/util/List;)V
 accessible method net/minecraft/world/level/storage/loot/entries/EntryGroup <init> (Ljava/util/List;Ljava/util/List;)V
 accessible method net/minecraft/world/level/storage/loot/entries/SequentialEntry <init> (Ljava/util/List;Ljava/util/List;)V
+accessible field net/minecraft/world/level/storage/loot/entries/LootPoolEntryContainer modifier Ljava/util/Optional;
 
 accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
-accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer trimSpriteLookup Ljava/util/function/Function;
-accessible class net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimSpriteKey
-accessible method net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimSpriteKey <init> (Lnet/minecraft/world/item/equipment/trim/ArmorTrim;Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;)V
+accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer trimTextureLookup Ljava/util/function/Function;
+accessible class net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimTextureKey
+accessible method net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimTextureKey <init> (Lnet/minecraft/world/item/equipment/trim/ArmorTrim;Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/client/resources/model/EquipmentClientInfo;)V
 
 inject-interface net/minecraft/world/level/block/Block net/rebel459/unified/api/util/BlockLike
 
 accessible method net/minecraft/resources/ResourceKey <init> (Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;)V
+
+accessible method net/minecraft/world/item/CreativeModeTab <init> (Lnet/minecraft/world/item/CreativeModeTab$Row;ILnet/minecraft/world/item/CreativeModeTab$Type;Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;Lnet/minecraft/world/item/CreativeModeTab$DisplayItemsGenerator;)V
+accessible field net/minecraft/world/item/CreativeModeTab DEFAULT_BACKGROUND Lnet/minecraft/resources/Identifier;
+accessible field net/minecraft/world/item/CreativeModeTab alignedRight Z
+accessible field net/minecraft/world/item/CreativeModeTab showTitle Z
+accessible field net/minecraft/world/item/CreativeModeTab canScroll Z
+accessible field net/minecraft/world/item/CreativeModeTab backgroundTexture Lnet/minecraft/resources/Identifier;

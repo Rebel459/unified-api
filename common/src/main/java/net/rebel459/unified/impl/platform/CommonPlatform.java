@@ -12,13 +12,12 @@ public interface CommonPlatform {
     <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry);
     UnifiedRegistries.Items createItems(String modId);
     UnifiedRegistries.Blocks createBlocks(String modId);
-    UnifiedRegistries.CreativeTabs createCreativeTabs(String modId);
     UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId);
     UnifiedRegistries.EntityTypes createEntityTypes(String modId);
-    UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId);
     UnifiedRegistries.SoundEvents createSoundEvents(String modId);
 
     CommonInstance getInstance();
+
     CommonHelpers.CreativeEntries getCreativeEntries();
     CommonHelpers.DataPacks getDataPacks();
     CommonHelpers.Networking getNetworking();

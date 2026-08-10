@@ -4,21 +4,17 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 
@@ -52,11 +48,6 @@ public class UnifiedRegistries {
 
         SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
         <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
-
-        @Deprecated
-        SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties);
-        @Deprecated
-        <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties);
 
         default Builders builders() {
             return new Builders(modId());
@@ -133,17 +124,6 @@ public class UnifiedRegistries {
         }
     }
 
-    @Deprecated
-    public interface CreativeTabs {
-        String modId();
-
-        ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon);
-
-        static CreativeTabs create(String modId) {
-            return PlatformHandler.INSTANCE.createCreativeTabs(modId);
-        }
-    }
-
     public interface DataComponentTypes {
         String modId();
 
@@ -166,24 +146,6 @@ public class UnifiedRegistries {
 
         static EntityTypes create(String modId) {
             return PlatformHandler.INSTANCE.createEntityTypes(modId);
-        }
-    }
-
-    @Deprecated
-    public interface BlockEntityTypes {
-        String modId();
-
-        <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder);
-        @SuppressWarnings("unchecked")
-        <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, Supplier<? extends BlockLike>... blocks);
-
-        @Deprecated
-        <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks);
-
-        void addAlias(Identifier convertedFrom, Identifier convertedTo);
-
-        static BlockEntityTypes create(String modId) {
-            return PlatformHandler.INSTANCE.createBlockEntityTypes(modId);
         }
     }
 

@@ -335,13 +335,13 @@ public class CommonEvents {
 
         private static LootPoolEntryContainer rebuildEntry(CompositeEntryBase compositeEntry, List<LootPoolEntryContainer> rewrittenChildren) {
             if (compositeEntry instanceof AlternativesEntry) {
-                return new AlternativesEntry(rewrittenChildren, compositeEntry.conditions);
+                return new AlternativesEntry(rewrittenChildren, compositeEntry.condition, compositeEntry.modifier);
             }
             if (compositeEntry instanceof EntryGroup) {
-                return new EntryGroup(rewrittenChildren, compositeEntry.conditions);
+                return new EntryGroup(rewrittenChildren, compositeEntry.condition, compositeEntry.modifier);
             }
             if (compositeEntry instanceof SequentialEntry) {
-                return new SequentialEntry(rewrittenChildren, compositeEntry.conditions);
+                return new SequentialEntry(rewrittenChildren, compositeEntry.condition, compositeEntry.modifier);
             }
 
             LogUtils.getLogger().warn("Unsupported CompositeEntryBase type skipped");

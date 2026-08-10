@@ -6,7 +6,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -14,11 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -28,14 +23,17 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.api.core.Supplied;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
+import net.rebel459.unified.api.core.UnifiedRegistries;
+import net.rebel459.unified.api.util.BlockLike;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -121,18 +119,6 @@ public class NeoForgeUnifiedRegistries {
         }
 
         @Override
-        @Deprecated
-        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block, BlockItem::new, properties);
-        }
-
-        @Override
-        @Deprecated
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
-            return registerBlockItem(path, block, BlockItem::new, properties);
-        }
-
-        @Override
         public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
             ITEMS.get(modId).addAlias(convertedFrom, convertedTo);
         }
@@ -188,21 +174,6 @@ public class NeoForgeUnifiedRegistries {
         }
     }
 
-    public record CreativeTabs(String modId) implements UnifiedRegistries.CreativeTabs {
-
-        @Override
-        public ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            DEFERRED.get(Pair.of(modId, BuiltInRegistries.CREATIVE_MODE_TAB)).register(id.getPath(), () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup." + id.getNamespace() + "." + id.getPath()))
-                    .icon(() -> new ItemStack(icon.get()))
-                    .displayItems((params, output) -> {
-                    })
-                    .build());
-            return ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), id);
-        }
-    }
-
     public record DataComponentTypes(String modId) implements UnifiedRegistries.DataComponentTypes {
 
         @Override
@@ -246,46 +217,6 @@ public class NeoForgeUnifiedRegistries {
             for (Pair<Supplied<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>> pair : ENTITY_ATTRIBUTES) {
                 event.put(pair.getFirst().get(), pair.getSecond().get());
             }
-        }
-    }
-
-    public record BlockEntityTypes(String modId) implements UnifiedRegistries.BlockEntityTypes {
-
-        @Override
-        public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder) {
-            DeferredRegister<BlockEntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.BLOCK_ENTITY_TYPE));
-            var blockEntity = registry.register(path, () -> new BlockEntityType<>(builder, Set.of()));
-            return new Supplied<>(registry.getRegistry(), blockEntity.getKey(), blockEntity);
-        }
-
-        @Override
-        public <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, Supplier<? extends BlockLike>... blocks) {
-            var blockEntity = register(path, builder);
-            for  (Supplier<? extends BlockLike> block : blocks) {
-                Blocks.BLOCK_ENTITIES.add(Pair.of(blockEntity, block));
-            }
-            return blockEntity;
-        }
-
-        @Override
-        @Deprecated
-        public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, BlockLike... blocks) {
-            Set<Block> set = new HashSet<>();
-            for (BlockLike blockLike : blocks) {
-                set.add(blockLike.asBlock());
-            }
-            return register(path, builder, set);
-        }
-
-        private @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder, Set<Block> set) {
-            DeferredRegister<BlockEntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.BLOCK_ENTITY_TYPE));
-            var blockEntity = registry.register(path, () -> new BlockEntityType<>(builder, set));
-            return new Supplied<>(registry.getRegistry(), blockEntity.getKey(), blockEntity);
-        }
-
-        @Override
-        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
-            DEFERRED.get(Pair.of(modId, BuiltInRegistries.BLOCK_ENTITY_TYPE)).addAlias(convertedFrom, convertedTo);
         }
     }
 

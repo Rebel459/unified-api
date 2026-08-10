@@ -27,7 +27,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
@@ -261,8 +261,8 @@ public class FabricHelpers {
             private final Predicate<BiomeSelectionContext> targetBiomes;
             private final List<AddFeatureAction> toAddFeature = new ArrayList<>();
             private final List<RemoveFeatureAction> toRemoveFeature = new ArrayList<>();
-            private final List<ResourceKey<ConfiguredWorldCarver<?>>> toAddCarver = new ArrayList<>();
-            private final List<ResourceKey<ConfiguredWorldCarver<?>>> toRemoveCarver = new ArrayList<>();
+            private final List<ResourceKey<WorldCarver>> toAddCarver = new ArrayList<>();
+            private final List<ResourceKey<WorldCarver>> toRemoveCarver = new ArrayList<>();
 
             WorldgenBuilder(Predicate<BiomeSelectionContext> target) { this.targetBiomes = target; }
 
@@ -277,12 +277,12 @@ public class FabricHelpers {
             }
 
             @Override
-            public void addCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey) {
+            public void addCarver(ResourceKey<WorldCarver> carverKey) {
                 toAddCarver.add(carverKey);
             }
 
             @Override
-            public void removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey) {
+            public void removeCarver(ResourceKey<WorldCarver> carverKey) {
                 toRemoveCarver.add(carverKey);
             }
 

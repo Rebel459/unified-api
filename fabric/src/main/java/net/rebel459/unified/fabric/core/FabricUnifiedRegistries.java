@@ -88,18 +88,6 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        @Deprecated
-        public SuppliedItem registerBlockItem(SuppliedBlock block, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block, BlockItem::new, properties);
-        }
-
-        @Override
-        @Deprecated
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, Supplier<Item.Properties> properties) {
-            return registerBlockItem(path, block, BlockItem::new, properties);
-        }
-
-        @Override
         public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
             BuiltInRegistries.ITEM.addAlias(convertedFrom, convertedTo);
         }
@@ -150,22 +138,6 @@ public class FabricUnifiedRegistries {
         }
     }
 
-    public record CreativeTabs(String modId) implements UnifiedRegistries.CreativeTabs {
-
-        @Override
-        public ResourceKey<CreativeModeTab> register(String path, Supplier<? extends ItemLike> icon) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            CreativeModeTab tab = FabricCreativeModeTab.builder()
-                    .icon(() -> new ItemStack(icon.get()))
-                    .title(Component.translatable("itemGroup." + id.getNamespace() + "." + id.getPath()))
-                    .displayItems((params, output) -> {})
-                    .build();
-            ResourceKey<CreativeModeTab> tabKey = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), id);
-            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, tabKey, tab);
-            return tabKey;
-        }
-    }
-
     public record DataComponentTypes(String modId) implements UnifiedRegistries.DataComponentTypes {
 
         @Override
@@ -202,47 +174,6 @@ public class FabricUnifiedRegistries {
         @Override
         public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
             BuiltInRegistries.ENTITY_TYPE.addAlias(convertedFrom, convertedTo);
-        }
-    }
-
-    public record BlockEntityTypes(String modId) implements UnifiedRegistries.BlockEntityTypes {
-
-        @Override
-        public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.@NotNull BlockEntitySupplier<T> builder) {
-            return register(path, builder, Set.of());
-        }
-
-        @Override
-        @SafeVarargs
-        public final <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, BlockEntityType.BlockEntitySupplier<T> builder, Supplier<? extends BlockLike>... blocks) {
-            Set<Block> set = new HashSet<>();
-            for (Supplier<? extends BlockLike> block : blocks) {
-                set.add(block.get().asBlock());
-            }
-            return register(path, builder, set);
-        }
-
-        @Override
-        @Deprecated
-        public @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, BlockLike... blocks) {
-            Set<Block> set = new HashSet<>();
-            for (BlockLike blockLike : blocks) {
-                set.add(blockLike.asBlock());
-            }
-            return register(path, builder, set);
-        }
-
-        private @NotNull <T extends BlockEntity> Supplied<BlockEntityType<T>> register(String path, @NotNull BlockEntityType.BlockEntitySupplier<T> builder, Set<Block> set) {
-            ResourceKey<BlockEntityType<?>> key = ResourceKey.create(Registries.BLOCK_ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
-            Util.fetchChoiceType(References.BLOCK_ENTITY, key.identifier().toString());
-            BlockEntityType<T> blockEntity = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, key, new BlockEntityType<>(builder, set));
-            Supplier<BlockEntityType<T>> supplied = () -> blockEntity;
-            return new Supplied<>(() -> BuiltInRegistries.BLOCK_ENTITY_TYPE, key, supplied);
-        }
-
-        @Override
-        public void addAlias(Identifier convertedFrom, Identifier convertedTo) {
-            BuiltInRegistries.BLOCK_ENTITY_TYPE.addAlias(convertedFrom, convertedTo);
         }
     }
 

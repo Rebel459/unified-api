@@ -11,7 +11,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorMaterials;
@@ -19,11 +20,11 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.impl.builder.EquipmentSetProperties;
-import net.rebel459.unified.api.core.SuppliedItem;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
@@ -220,8 +221,9 @@ public class EquipmentSet {
     private SuppliedItem createAxe() {
         return createItem(
                 this.getId().getPath() + "_axe",
-                (properties) -> new AxeItem(getToolMaterial(), 5F, -4F + getSettings().axeSwingSpeed, properties),
-                Item.Properties::new
+                Item::new,
+                () -> new Item.Properties()
+                        .axe(getToolMaterial(), 5F, -4F + getSettings().axeSwingSpeed)
         );
     }
 
@@ -236,16 +238,18 @@ public class EquipmentSet {
     private SuppliedItem createShovel() {
         return createItem(
                 this.getId().getPath() + "_shovel",
-                (properties) -> new ShovelItem(getToolMaterial(), 1.5F, -3F, properties),
-                Item.Properties::new
+                Item::new,
+                () -> new Item.Properties()
+                        .shovel(getToolMaterial(), 1.5F, -3F)
         );
     }
 
     private SuppliedItem createHoe() {
         return createItem(
                 this.getId().getPath() + "_hoe",
-                (properties) -> new HoeItem(getToolMaterial(), -4F, 0F, properties),
-                Item.Properties::new
+                Item::new,
+                () -> new Item.Properties()
+                        .hoe(getToolMaterial(), -4F, 0F)
         );
     }
 

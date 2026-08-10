@@ -29,11 +29,6 @@ public class FabricPlatform implements CommonPlatform {
     }
 
     @Override
-    public UnifiedRegistries.CreativeTabs createCreativeTabs(String modId) {
-        return new FabricUnifiedRegistries.CreativeTabs(modId);
-    }
-
-    @Override
     public UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId) {
         return new FabricUnifiedRegistries.DataComponentTypes(modId);
     }
@@ -41,11 +36,6 @@ public class FabricPlatform implements CommonPlatform {
     @Override
     public UnifiedRegistries.EntityTypes createEntityTypes(String modId) {
         return new FabricUnifiedRegistries.EntityTypes(modId);
-    }
-
-    @Override
-    public UnifiedRegistries.BlockEntityTypes createBlockEntityTypes(String modId) {
-        return new FabricUnifiedRegistries.BlockEntityTypes(modId);
     }
 
     @Override
