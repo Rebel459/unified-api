@@ -82,7 +82,11 @@ public class ColoredItemSet {
         this.itemRegistry = itemRegistry;
         registerItems();
         COLORED_ITEM_SETS.add(this);
-        ColoredItemSetImpl.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
+        ColoredItemSetProperties.COMPONENTS.put(id, settings.components);
+        ColoredItemSetProperties.DYED_COMPONENTS.put(id, settings.dyedComponents);
+        ColoredItemSetProperties.PROVIDED_COMPONENTS.put(id, settings.providedComponents);
+        ColoredItemSetProperties.KEYED_COMPONENTS.put(id, settings.keyedComponents);
+        ColoredItemSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         if (UnifiedPlatform.getLoader() == LoaderType.FABRIC) ColoredItemSetImpl.init(List.of(this));
     }
 
@@ -193,6 +197,7 @@ public class ColoredItemSet {
         private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;
 
         private List<Pair<Supplier<? extends DataComponentType<?>>, ?>> components = new ArrayList<>();
+        private List<Pair<Supplier<? extends DataComponentType<?>>, Function<DyeColor, ?>>> dyedComponents = new ArrayList<>();
         private List<Pair<Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>> providedComponents = new ArrayList<>();
         private List<Pair<Supplier<? extends DataComponentType<?>>, ResourceKey<?>>> keyedComponents = new ArrayList<>();
 
@@ -293,6 +298,12 @@ public class ColoredItemSet {
             var components = settings.components;
             components.add(Pair.of(type, value));
             settings.components = components;
+            return self();
+        }
+        public <Y> T setComponentWithDye(Supplier<DataComponentType<Y>> type, Function<DyeColor, Y> valueFactory) {
+            var dyeComponents = settings.dyedComponents;
+            dyeComponents.add(Pair.of(type, valueFactory));
+            settings.dyedComponents = dyeComponents;
             return self();
         }
         public <Y> T setComponentWithProvider(Supplier<DataComponentType<Y>> type, DataComponentInitializers.SingleComponentInitializer<Y> initializer) {
