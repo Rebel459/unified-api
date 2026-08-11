@@ -1,6 +1,7 @@
 package net.rebel459.unified.impl.builder;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.rebel459.unified.api.builder.BlockSet;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.registry.UnifiedCreativeModeTabs;
@@ -16,6 +17,7 @@ public class BlockSetProperties {
 
     public static void init(List<BlockSet> blockSets) {
         creativeEntries(blockSets);
+        blockSets.forEach(blockSet -> BlockSetType.register(blockSet.getBlockSetType().get()));
     }
 
     private static void creativeEntries(List<BlockSet> blockSets) {

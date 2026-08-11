@@ -90,3 +90,5 @@ accessible field net/minecraft/world/item/CreativeModeTab alignedRight Z
 accessible field net/minecraft/world/item/CreativeModeTab showTitle Z
 accessible field net/minecraft/world/item/CreativeModeTab canScroll Z
 accessible field net/minecraft/world/item/CreativeModeTab backgroundTexture Lnet/minecraft/resources/Identifier;
+
+accessible method net/minecraft/world/level/block/state/properties/BlockSetType register (Lnet/minecraft/world/level/block/state/properties/BlockSetType;)Lnet/minecraft/world/level/block/state/properties/BlockSetType;
