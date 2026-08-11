@@ -47,6 +47,8 @@ public class BlockSet {
 
     private final Settings settings;
 
+    private Supplier<BlockSetType> blockSetType = null;
+
     private void registerBlocks() {
         base = createBase();
         if (hasStairs()) stairs = createStairs();
@@ -202,22 +204,25 @@ public class BlockSet {
     }
 
     public Supplier<BlockSetType> getBlockSetType() {
-        return () -> new BlockSetType(
-                id.toString(),
-                true,
-                true,
-                this.settings.canArrowsActivateButton,
-                this.settings.pressurePlateSensitivity,
-                this.settings.soundType.get(),
-                SoundEvents.IRON_DOOR_OPEN,
-                SoundEvents.IRON_DOOR_CLOSE,
-                SoundEvents.IRON_TRAPDOOR_OPEN,
-                SoundEvents.IRON_TRAPDOOR_CLOSE,
-                this.settings.pressurePlateSounds.getSecond().get(),
-                this.settings.pressurePlateSounds.getFirst().get(),
-                this.settings.buttonSounds.getSecond().get(),
-                this.settings.buttonSounds.getFirst().get()
-        );
+        if (this.blockSetType == null) {
+            this.blockSetType = () -> new BlockSetType(
+                    id.toString(),
+                    true,
+                    true,
+                    this.settings.canArrowsActivateButton,
+                    this.settings.pressurePlateSensitivity,
+                    this.settings.soundType.get(),
+                    SoundEvents.IRON_DOOR_OPEN,
+                    SoundEvents.IRON_DOOR_CLOSE,
+                    SoundEvents.IRON_TRAPDOOR_OPEN,
+                    SoundEvents.IRON_TRAPDOOR_CLOSE,
+                    this.settings.pressurePlateSounds.getSecond().get(),
+                    this.settings.pressurePlateSounds.getFirst().get(),
+                    this.settings.buttonSounds.getSecond().get(),
+                    this.settings.buttonSounds.getFirst().get()
+            );
+        }
+        return this.blockSetType;
     }
 
     public static class Settings implements Cloneable {

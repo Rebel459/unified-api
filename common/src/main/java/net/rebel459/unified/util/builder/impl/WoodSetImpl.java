@@ -25,74 +25,79 @@ public class WoodSetImpl {
     public static void init(List<WoodSet> woodSets) {
         creativeEntries(woodSets);
         for (WoodSet woodset : woodSets) {
+            registerTypes(woodset);
             registerBlockProperties(woodset);
         }
     }
+    public static void registerTypes(WoodSet woodSet) {
+        WoodType woodtype = WoodType.register(woodSet.getWoodType().get());
+        BlockSetType.register(woodtype.setType());
+    }
 
-    public static void registerBlockProperties(WoodSet woodSets) {
-        UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSets.getLog(), woodSets.getStrippedLog());
+    public static void registerBlockProperties(WoodSet woodSet) {
+        UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSet.getLog(), woodSet.getStrippedLog());
 
-        if (woodSets.hasWood()){
-            UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSets.getWood(), woodSets.getStrippedWood());
+        if (woodSet.hasWood()){
+            UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSet.getWood(), woodSet.getStrippedWood());
         }
 
         if (woodSets.hasLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getLeaves(), 0.3F);
         if (woodSets.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getSapling(), 0.3F);
 
-        if (woodSets.getSettings().isFlammable()) {
-            addFlammable(woodSets.getLog(), 5, 5);
-            addFlammable(woodSets.getStrippedLog(), 5, 5);
+        if (woodSet.getSettings().isFlammable()) {
+            addFlammable(woodSet.getLog(), 5, 5);
+            addFlammable(woodSet.getStrippedLog(), 5, 5);
 
-            if (woodSets.hasWood()) {
-                addFlammable(woodSets.getWood(), 5, 5);
-                addFlammable(woodSets.getStrippedWood(), 5, 5);
+            if (woodSet.hasWood()) {
+                addFlammable(woodSet.getWood(), 5, 5);
+                addFlammable(woodSet.getStrippedWood(), 5, 5);
             }
-            if (woodSets.hasMosaic()) {
-                addFlammable(woodSets.getMosaic(), 5, 20);
-                addFlammable(woodSets.getMosaicStairs(), 5, 20);
-                addFlammable(woodSets.getMosaicSlab(), 5, 20);
+            if (woodSet.hasMosaic()) {
+                addFlammable(woodSet.getMosaic(), 5, 20);
+                addFlammable(woodSet.getMosaicStairs(), 5, 20);
+                addFlammable(woodSet.getMosaicSlab(), 5, 20);
             }
             if (woodSets.hasLeaves()) {
                 addFlammable(woodSets.getLeaves(), 30, 60);
             }
 
-            addFlammable(woodSets.getPlanks(), 5, 20);
-            addFlammable(woodSets.getSlab(), 5, 20);
-            addFlammable(woodSets.getStairs(), 5, 20);
-            addFlammable(woodSets.getFence(), 5, 20);
-            addFlammable(woodSets.getFenceGate(), 5, 20);
+            addFlammable(woodSet.getPlanks(), 5, 20);
+            addFlammable(woodSet.getSlab(), 5, 20);
+            addFlammable(woodSet.getStairs(), 5, 20);
+            addFlammable(woodSet.getFence(), 5, 20);
+            addFlammable(woodSet.getFenceGate(), 5, 20);
 
-            addFlammable(woodSets.getSign(), 5, 20);
-            addFlammable(woodSets.getWallSign(), 5, 20);
+            addFlammable(woodSet.getSign(), 5, 20);
+            addFlammable(woodSet.getWallSign(), 5, 20);
 
-            addFlammable(woodSets.getHangingSign(), 5, 20);
-            addFlammable(woodSets.getWallHangingSign(), 5, 20);
-            addFlammable(woodSets.getShelf(), 30, 20);
+            addFlammable(woodSet.getHangingSign(), 5, 20);
+            addFlammable(woodSet.getWallHangingSign(), 5, 20);
+            addFlammable(woodSet.getShelf(), 30, 20);
 
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getLog(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getStrippedLog(), 300);
-            if (woodSets.hasMosaic()) {
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getMosaic(), 300);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getMosaicSlab(), 150);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getMosaicStairs(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getLog(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getStrippedLog(), 300);
+            if (woodSet.hasMosaic()) {
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getMosaic(), 300);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getMosaicSlab(), 150);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getMosaicStairs(), 300);
             }
-            if (woodSets.hasWood()) {
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getWood(), 300);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getStrippedWood(), 300);
+            if (woodSet.hasWood()) {
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getWood(), 300);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getStrippedWood(), 300);
             }
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getPressurePlate(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getButton(), 100);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getTrapdoor(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getDoor(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getFence(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getFenceGate(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getSignItem(), 300);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getHangingSignItem(), 800);
-            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getShelf(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getPressurePlate(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getButton(), 100);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getTrapdoor(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getDoor(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getFence(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getFenceGate(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getSignItem(), 300);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getHangingSignItem(), 800);
+            UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getShelf(), 300);
 
-            if (woodSets.hasBoats()){
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getBoatItem(), 1200);
-                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSets.getChestBoatItem(), 1200);
+            if (woodSet.hasBoats()){
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getBoatItem(), 1200);
+                UnifiedHelpers.DATA_COMPONENTS.addFurnaceFuel(woodSet.getChestBoatItem(), 1200);
             }
         }
     }
