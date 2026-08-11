@@ -4,6 +4,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.rebel459.unified.platform.UnifiedHelpers;
 import net.rebel459.unified.util.CreativeModeTabs;
 import net.rebel459.unified.util.builder.BlockSet;
