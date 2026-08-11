@@ -89,6 +89,8 @@ public class WoodSet {
     private @Nullable Supplier<EntityType<ChestBoat>> chestBoat;
 
     private BlockFamily.Builder blockFamily = null;
+    private Supplier<WoodType> woodType = null;
+
     private final Settings settings;
 
     private void registerWood() {
@@ -439,10 +441,10 @@ public class WoodSet {
     }
 
     private SuppliedItem createSignItem(){
-        return createItem(this.getId().getPath() + "_sign", settings -> new SignItem(this.getSign().get(), this.getWallSign().get(), settings), () -> new Item.Properties().stacksTo(16));
+        return createItem(this.getId().getPath() + "_sign", settings -> new SignItem(this.getSign().get(), this.getWallSign().get(), settings), () -> new Item.Properties().stacksTo(16).useBlockDescriptionPrefix());
     }
     private SuppliedItem createHangingSignItem(){
-        return createItem(this.getId().getPath() + "_hanging_sign", settings -> new HangingSignItem(this.getHangingSign().get(), this.getWallHangingSign().get(), settings), () -> new Item.Properties().stacksTo(16));
+        return createItem(this.getId().getPath() + "_hanging_sign", settings -> new HangingSignItem(this.getHangingSign().get(), this.getWallHangingSign().get(), settings), () -> new Item.Properties().stacksTo(16).useBlockDescriptionPrefix());
     }
 
     private Supplier<EntityType<Boat>> createBoatEntity(){
@@ -496,29 +498,32 @@ public class WoodSet {
     }
 
     public Supplier<WoodType> getWoodType() {
-        return () -> new WoodType(
-                id.toString(),
-                new BlockSetType(
-                        id.toString(),
-                        this.settings.doorOpening.getFirst(),
-                        this.settings.doorOpening.getSecond(),
-                        this.settings.canArrowsActivateButton,
-                        this.settings.pressurePlateSensitivity,
-                        this.settings.woodSoundType.get(),
-                        this.settings.doorSounds.getSecond().get(),
-                        this.settings.doorSounds.getFirst().get(),
-                        this.settings.trapdoorSounds.getSecond().get(),
-                        this.settings.trapdoorSounds.getFirst().get(),
-                        this.settings.pressurePlateSounds.getSecond().get(),
-                        this.settings.pressurePlateSounds.getFirst().get(),
-                        this.settings.buttonSounds.getSecond().get(),
-                        this.settings.buttonSounds.getFirst().get()
-                ),
-                this.settings.woodSoundType.get(),
-                this.settings.hangingSignSoundType.get(),
-                this.settings.fenceGateSounds.getSecond().get(),
-                this.settings.fenceGateSounds.getFirst().get()
-        );
+        if (this.woodType == null) {
+            this.woodType = () -> new WoodType(
+                    id.toString(),
+                    new BlockSetType(
+                            id.toString(),
+                            this.settings.doorOpening.getFirst(),
+                            this.settings.doorOpening.getSecond(),
+                            this.settings.canArrowsActivateButton,
+                            this.settings.pressurePlateSensitivity,
+                            this.settings.woodSoundType.get(),
+                            this.settings.doorSounds.getSecond().get(),
+                            this.settings.doorSounds.getFirst().get(),
+                            this.settings.trapdoorSounds.getSecond().get(),
+                            this.settings.trapdoorSounds.getFirst().get(),
+                            this.settings.pressurePlateSounds.getSecond().get(),
+                            this.settings.pressurePlateSounds.getFirst().get(),
+                            this.settings.buttonSounds.getSecond().get(),
+                            this.settings.buttonSounds.getFirst().get()
+                    ),
+                    this.settings.woodSoundType.get(),
+                    this.settings.hangingSignSoundType.get(),
+                    this.settings.fenceGateSounds.getSecond().get(),
+                    this.settings.fenceGateSounds.getFirst().get()
+            );
+        }
+        return this.woodType;
     }
 
     public enum Boats {
