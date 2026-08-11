@@ -42,8 +42,8 @@ public class WoodSetProperties {
             UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSet.getWood(), woodSet.getStrippedWood());
         }
 
-        if (woodSets.hasLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getLeaves(), 0.3F);
-        if (woodSets.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSets.getSapling(), 0.3F);
+        if (woodSet.hasLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSet.getLeaves(), 0.3F);
+        if (woodSet.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSet.getSapling(), 0.3F);
 
         if (woodSet.getSettings().isFlammable()) {
             addFlammable(woodSet.getLog(), 5, 5);
@@ -58,8 +58,8 @@ public class WoodSetProperties {
                 addFlammable(woodSet.getMosaicStairs(), 5, 20);
                 addFlammable(woodSet.getMosaicSlab(), 5, 20);
             }
-            if (woodSets.hasLeaves()) {
-                addFlammable(woodSets.getLeaves(), 30, 60);
+            if (woodSet.hasLeaves()) {
+                addFlammable(woodSet.getLeaves(), 30, 60);
             }
 
             addFlammable(woodSet.getPlanks(), 5, 20);
