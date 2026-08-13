@@ -1,5 +1,6 @@
 package net.rebel459.unified.impl.builder;
 
+import com.mojang.datafixers.util.Either;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
@@ -18,7 +19,7 @@ public class WoodSetProperties {
 
     public static Map<Identifier, WoodSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, Supplier<? extends ItemLike>> SAPLING_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
-    public static Map<Identifier, Supplier<? extends ItemLike>> LEAVES_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, Either<String, Supplier<? extends ItemLike>>> LEAVES_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<WoodSet> woodSets) {
         creativeEntries(woodSets);
@@ -56,8 +57,8 @@ public class WoodSetProperties {
                 addFlammable(woodSet.getMosaicSlab(), 5, 20);
             }
             if (woodSet.hasAnyLeaves()) {
-                for (WoodSet.LeavesColor color : woodSet.getLeavesColors()) {
-                    addFlammable(woodSet.getLeaves(color), 30, 60);
+                for (WoodSet.Leaves leaves : woodSet.getAllLeaves()) {
+                    addFlammable(woodSet.getLeavesVariant(leaves), 30, 60);
                 }
             }
 
@@ -130,13 +131,14 @@ public class WoodSetProperties {
             UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLog());
 
             if (woodSet.hasAnyLeaves()) {
-                Supplier<? extends ItemLike> item = LEAVES_CREATIVE_ENTRIES.get(woodSet.getId());
+                Either<String, Supplier<? extends ItemLike>> item = LEAVES_CREATIVE_ENTRIES.get(woodSet.getId());
                 if (item != null) {
-                    List<WoodSet.LeavesColor> reversed = new ArrayList<>(woodSet.getLeavesColors());
+                    List<WoodSet.Leaves> reversed = new ArrayList<>(woodSet.getAllLeaves());
                     Collections.reverse(reversed);
-                    Set<WoodSet.LeavesColor> reversedSet = new LinkedHashSet<>(reversed);
-                    for (WoodSet.LeavesColor color : reversedSet) {
-                        UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, item.get(), woodSet.getLeaves(color));
+                    Set<WoodSet.Leaves> reversedSet = new LinkedHashSet<>(reversed);
+                    for (WoodSet.Leaves leaves : reversedSet) {
+                        if (item.left().isPresent()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, woodSet.getLeavesVariant(item.left().get()), woodSet.getLeavesVariant(leaves));
+                        if (item.right().isPresent()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(UnifiedCreativeModeTabs.NATURAL_BLOCKS, item.right().get().get(), woodSet.getLeavesVariant(leaves));
                     }
                 }
             }
