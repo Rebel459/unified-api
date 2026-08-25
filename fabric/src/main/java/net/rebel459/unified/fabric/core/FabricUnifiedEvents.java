@@ -48,7 +48,7 @@ public class FabricUnifiedEvents {
 
                 @Override
                 public void modifyPool(Predicate<Holder<Item>> predicate, LootEntry entry) {
-                    switch (entry.type()) {
+                    switch (entry.getType()) {
                         case INSERT -> {
                             if (entry.getEntry().isEmpty()) {
                                 LogUtils.getLogger().warn("Invalid UnifiedLootEntry. Type INSERT requires a LootPoolEntryContainer.Builder<?>");
@@ -95,12 +95,6 @@ public class FabricUnifiedEvents {
                 @Deprecated
                 public void editPool(Predicate<Item> predicate, LootEntry entry) {
                     this.modifyPool(holder -> predicate.test(holder.value()), entry);
-                }
-
-                @Override
-                @Deprecated
-                public void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
-                    editPool(itemPredicate, replace ? LootEntry.replace(entry) : LootEntry.insert(entry));
                 }
             }, registries);
         });

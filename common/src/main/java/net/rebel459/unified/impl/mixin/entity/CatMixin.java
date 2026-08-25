@@ -1,9 +1,9 @@
-package net.rebel459.unified.mixin.entity;
+package net.rebel459.unified.impl.mixin.entity;
 
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.animal.feline.Cat;
-import net.rebel459.unified.util.mixin.LivingEntityVariant;
+import net.rebel459.unified.impl.util.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

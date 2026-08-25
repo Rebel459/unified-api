@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.data;
+package net.rebel459.unified.impl.registry;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -21,8 +21,8 @@ import net.minecraft.world.entity.variant.SpawnCondition;
 import net.minecraft.world.entity.variant.SpawnContext;
 import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.platform.UnifiedAttachments;
-import net.rebel459.unified.platform.UnifiedHelpers;
+import net.rebel459.unified.api.core.UnifiedAttachments;
+import net.rebel459.unified.api.core.UnifiedHelpers;
 
 import java.util.List;
 import java.util.Optional;

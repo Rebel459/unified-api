@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.data;
+package net.rebel459.unified.impl.registry;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,8 +13,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.platform.UnifiedEvents;
-import net.rebel459.unified.platform.UnifiedHelpers;
+import net.rebel459.unified.api.core.UnifiedEvents;
+import net.rebel459.unified.api.core.UnifiedHelpers;
 
 import java.util.List;
 import java.util.Map;

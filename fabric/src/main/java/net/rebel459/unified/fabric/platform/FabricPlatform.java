@@ -15,6 +15,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.fabric.core.FabricHelpers;
 import net.rebel459.unified.fabric.core.FabricInstance;
@@ -100,13 +103,13 @@ public class FabricPlatform implements CommonPlatform {
         return new FabricHelpers.ReloadListeners();
     }
 
-    public HelpersImpl.DataRegistries getDataRegistries() {
-        return new FabricHelpersImpl.DataRegistries();
+    public CommonHelpers.DataRegistries getDataRegistries() {
+        return new FabricHelpers.DataRegistries();
     }
 
     @Override
-    public HelpersImpl.EntityData getEntityData() {
-        return new FabricHelpersImpl.EntityData();
+    public CommonHelpers.EntityData getEntityData() {
+        return new FabricHelpers.EntityData();
     }
 
     @Override

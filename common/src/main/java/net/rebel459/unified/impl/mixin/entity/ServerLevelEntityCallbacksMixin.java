@@ -2,7 +2,9 @@ package net.rebel459.unified.impl.mixin.entity;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.rebel459.unified.impl.core.CommonEvents;
+import net.rebel459.unified.impl.util.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,9 +21,7 @@ public abstract class ServerLevelEntityCallbacksMixin {
 
 	@Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
 	private void selectMissingVariant(Entity entity, CallbackInfo ci) {
-		if (entity instanceof Mob
-				&& entity instanceof LivingEntityVariant variant
-				&& variant.getVariant().isEmpty()) {
+		if (entity instanceof Mob && entity instanceof LivingEntityVariant variant && variant.getVariant().isEmpty()) {
 			variant.spawnVariant(this$0);
 		}
 	}

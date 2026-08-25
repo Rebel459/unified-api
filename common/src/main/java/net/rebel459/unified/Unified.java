@@ -6,6 +6,9 @@ import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.UnifiedDataComponents;
 import net.rebel459.unified.impl.builder.*;
 import net.rebel459.unified.impl.helper.StructureMusicImpl;
+import net.rebel459.unified.impl.registry.ComponentModifiers;
+import net.rebel459.unified.impl.registry.LootInjections;
+import net.rebel459.unified.impl.registry.MobVariants;
 
 public class Unified {
 

@@ -48,6 +48,9 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.neoforge.util.BiomeBuilderEvent;
@@ -724,7 +727,7 @@ public class NeoForgeHelpers {
         }
     }
 
-    public static class DataRegistries implements HelpersImpl.DataRegistries {
+    public static class DataRegistries implements CommonHelpers.DataRegistries {
 
         private static final List<Consumer<DataPackRegistryEvent.NewRegistry>> REGISTRATIONS = new ArrayList<>();
         @Override
@@ -744,12 +747,11 @@ public class NeoForgeHelpers {
         }
     }
 
-    public static class EntityData implements HelpersImpl.EntityData {
+    public static class EntityData implements CommonHelpers.EntityData {
 
         @Override
         public void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {
             UnifiedRegistries.DeferredRegistry.create(id.getNamespace(), NeoForgeRegistries.ENTITY_DATA_SERIALIZERS).register(id.getPath(), serializer);
         }
-
     }
 }
