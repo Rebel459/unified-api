@@ -626,7 +626,7 @@ public class FabricHelpers {
         }
     }
 
-    public static class DataRegistries implements HelpersImpl.DataRegistries {
+    public static class DataRegistries implements CommonHelpers.DataRegistries {
 
         @Override
         public <T> void register(ResourceKey<Registry<T>> key, Codec<T> codec) {
@@ -639,7 +639,7 @@ public class FabricHelpers {
         }
     }
 
-    public static class EntityData implements HelpersImpl.EntityData {
+    public static class EntityData implements CommonHelpers.EntityData {
 
         @Override
         public void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {

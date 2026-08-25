@@ -11,6 +11,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
@@ -36,7 +39,8 @@ public interface CommonPlatform {
     CommonHelpers.Networking getNetworking();
     CommonHelpers.BiomeModifications getBiomeModifications();
     CommonHelpers.ReloadListeners getReloadListeners();
-    HelpersImpl.EntityData getEntityData();
+    CommonHelpers.DataRegistries getDataRegistries();
+    CommonHelpers.EntityData getEntityData();
 
     @ApiStatus.Internal
     Internal internal();

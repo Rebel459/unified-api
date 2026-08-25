@@ -1,4 +1,4 @@
-package net.rebel459.unified.mixin.client;
+package net.rebel459.unified.impl.mixin.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -7,8 +7,8 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.rebel459.unified.util.mixin.LivingEntityRenderStateVariant;
-import net.rebel459.unified.util.mixin.LivingEntityVariant;
+import net.rebel459.unified.impl.client.util.LivingEntityRenderStateVariant;
+import net.rebel459.unified.impl.util.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

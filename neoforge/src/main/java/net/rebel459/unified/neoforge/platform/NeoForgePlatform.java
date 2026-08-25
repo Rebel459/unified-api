@@ -14,6 +14,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
@@ -90,13 +95,13 @@ public class NeoForgePlatform implements CommonPlatform {
         return new NeoForgeHelpers.ReloadListeners();
     }
 
-    public HelpersImpl.DataRegistries getDataRegistries() {
-        return new NeoForgeHelpersImpl.DataRegistries();
+    public CommonHelpers.DataRegistries getDataRegistries() {
+        return new NeoForgeHelpers.DataRegistries();
     }
 
     @Override
-    public HelpersImpl.EntityData getEntityData() {
-        return new NeoForgeHelpersImpl.EntityData();
+    public CommonHelpers.EntityData getEntityData() {
+        return new NeoForgeHelpers.EntityData();
     }
 
     @Override

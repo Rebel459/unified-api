@@ -1,4 +1,4 @@
-package net.rebel459.unified.mixin.entity;
+package net.rebel459.unified.impl.mixin.entity;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -9,8 +9,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
-import net.rebel459.unified.util.data.MobVariants;
-import net.rebel459.unified.util.mixin.LivingEntityVariant;
+import net.rebel459.unified.impl.registry.MobVariants;
+import net.rebel459.unified.impl.util.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

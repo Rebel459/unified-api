@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
-import net.rebel459.unified.util.event.LootTableProvider;
+import net.rebel459.unified.impl.event.LootTableProvider;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -62,9 +62,9 @@ public class LootEntry {
 
     private static final MapCodec<LootPoolEntryContainer> ENTRY_CODEC = BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.byNameCodec().dispatch(LootPoolEntryContainer::codec, Function.identity()).fieldOf("entry");
 
-    private static final MapCodec<LootEntry> INSERT_CODEC = ENTRY_CODEC.xmap(container -> createForCodec(Type.INSERT, container), entry -> entry.entry().orElseThrow().build());
+    private static final MapCodec<LootEntry> INSERT_CODEC = ENTRY_CODEC.xmap(container -> createForCodec(Type.INSERT, container), entry -> entry.getEntry().orElseThrow().build());
 
-    private static final MapCodec<LootEntry> REPLACE_CODEC = ENTRY_CODEC.xmap(container -> createForCodec(Type.REPLACE, container), entry -> entry.entry().orElseThrow().build());
+    private static final MapCodec<LootEntry> REPLACE_CODEC = ENTRY_CODEC.xmap(container -> createForCodec(Type.REPLACE, container), entry -> entry.getEntry().orElseThrow().build());
 
     private static final MapCodec<LootEntry> REMOVE_CODEC = MapCodec.unit(LootEntry::remove);
 

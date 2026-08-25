@@ -1,4 +1,4 @@
-package net.rebel459.unified.platform;
+package net.rebel459.unified.api.core;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -7,6 +7,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.rebel459.unified.impl.platform.CommonPlatform;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -68,7 +70,7 @@ public interface UnifiedAttachments<T, H> {
 
             @Override
             public BlockEntity<T> build() {
-                return InternalHandlerImpl.INSTANCE.impl().createBlockEntityAttachment(
+                return PlatformHandler.INSTANCE.internal().createBlockEntityAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,
@@ -91,7 +93,7 @@ public interface UnifiedAttachments<T, H> {
 
             @Override
             public Chunk<T> build() {
-                return InternalHandlerImpl.INSTANCE.impl().createChunkAttachment(
+                return PlatformHandler.INSTANCE.internal().createChunkAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,
@@ -125,7 +127,7 @@ public interface UnifiedAttachments<T, H> {
                     throw new IllegalStateException("copyOnDeath requires a persistent attachment");
                 }
 
-                return InternalHandlerImpl.INSTANCE.impl().createEntityAttachment(
+                return PlatformHandler.INSTANCE.internal().createEntityAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,
@@ -149,7 +151,7 @@ public interface UnifiedAttachments<T, H> {
 
             @Override
             public Level<T> build() {
-                return InternalHandlerImpl.INSTANCE.impl().createLevelAttachment(
+                return PlatformHandler.INSTANCE.internal().createLevelAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,
