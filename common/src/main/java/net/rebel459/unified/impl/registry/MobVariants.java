@@ -5,11 +5,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.codec.RegistryFixedCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
@@ -81,7 +81,7 @@ public class MobVariants {
                 TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),
                 SoundVariants.CODEC.optionalFieldOf("sounds", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds)
         ).apply(instance, Variant::new));
-        public static final RegistryFixedCodec<Variant> REGISTRY_CODEC = RegistryFixedCodec.create(KEY);
+        public static final Codec<Holder<Variant>> REGISTRY_CODEC = RegistryFixedCodec.create(KEY);
         public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Variant>>> STREAM_CODEC = ByteBufCodecs.optional(ByteBufCodecs.holderRegistry(KEY));
 
         public List<Selector<SpawnContext, SpawnCondition>> selectors() {

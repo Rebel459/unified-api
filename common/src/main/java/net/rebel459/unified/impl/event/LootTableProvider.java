@@ -24,10 +24,10 @@ public final class LootTableProvider {
 
         LootPool.Builder builder = LootPool.lootPool();
         builder.entries = immutableBuilder(pool.entries);
-        builder.conditions = immutableBuilder(pool.conditions);
-        builder.functions = immutableBuilder(pool.functions);
-        builder.rolls = pool.rolls;
-        builder.bonusRolls = pool.bonusRolls;
+        pool.condition.ifPresent(builder::when);
+        pool.modifier.ifPresent(builder::apply);
+        builder.setRolls(pool.rolls);
+        builder.setBonusRolls(pool.bonusRolls);
         return builder;
     }
 

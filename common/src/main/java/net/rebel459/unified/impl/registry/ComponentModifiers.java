@@ -4,10 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.codec.RegistryCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
@@ -57,7 +57,7 @@ public class ComponentModifiers {
 
     public record Target(HolderSet<Item> items, Map<DataComponentType<?>, Object> components) {
         public static final Codec<Target> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                RegistryCodecs.homogeneousList(Registries.ITEM).optionalFieldOf("items", HolderSet.empty()).forGetter(Target::items),
+                RegistryCodecs.holderSet(Registries.ITEM).optionalFieldOf("items", HolderSet.empty()).forGetter(Target::items),
                 DataComponentType.VALUE_MAP_CODEC.optionalFieldOf("components", Map.of()).forGetter(Target::components)
         ).apply(instance, Target::new));
     }

@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -135,7 +136,7 @@ public class CommonHelpers {
                     context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
                 });
             }
-            BlockConversionsImpl.Oxidizables oxidizables = PlatformHandler.INSTANCE.impl().getOxidizables();
+            BlockConversionsImpl.Oxidizables oxidizables = PlatformHandler.INSTANCE.internal().getOxidizables();
             oxidizables.add(unaffected, exposed);
             oxidizables.add(exposed, weathered);
             oxidizables.add(weathered, oxidized);

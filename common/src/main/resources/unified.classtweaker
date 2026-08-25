@@ -75,6 +75,8 @@ accessible method net/minecraft/world/level/storage/loot/entries/AlternativesEnt
 accessible method net/minecraft/world/level/storage/loot/entries/EntryGroup <init> (Ljava/util/List;Ljava/util/List;)V
 accessible method net/minecraft/world/level/storage/loot/entries/SequentialEntry <init> (Ljava/util/List;Ljava/util/List;)V
 accessible field net/minecraft/world/level/storage/loot/entries/LootPoolEntryContainer modifier Ljava/util/Optional;
+accessible field net/minecraft/world/level/storage/loot/LootPool$Builder conditions Lcom/google/common/collect/ImmutableList$Builder;
+accessible field net/minecraft/world/level/storage/loot/LootPool modifier Ljava/util/Optional;
 
 accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
 accessible field net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer trimTextureLookup Ljava/util/function/Function;
