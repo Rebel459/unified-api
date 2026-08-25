@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.mixin;
+package net.rebel459.unified.client.util.mixin;
 
 import net.minecraft.core.Holder;
 import net.rebel459.unified.util.data.MobVariants;

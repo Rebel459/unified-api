@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.rebel459.unified.util.mixin.LivingEntityRenderStateVariant;
+import net.rebel459.unified.client.util.mixin.LivingEntityRenderStateVariant;
 import net.rebel459.unified.util.mixin.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
