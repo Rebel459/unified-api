@@ -5,11 +5,17 @@
   "mixins": [
     "block.BlockMixin",
     "block.FuelValuesMixin",
+    "entity.AnimalMixin",
+    "entity.CatMixin",
     "entity.EntityMixin",
+    "entity.FoxMixin",
     "entity.LivingEntityMixin",
+    "entity.MobMixin",
     "entity.PlayerMixin",
+    "entity.ProjectileUtilMixin",
     "entity.ServerLevelEntityCallbacksMixin",
     "entity.ServerPlayerMixin",
+    "entity.TamableAnimalMixin",
     "item.BlockItemMixin",
     "item.ItemMixin",
     "item.ItemStackMixin"
@@ -20,6 +26,8 @@
     "client.HudMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemStackMixin",
+    "client.LivingEntityRendererMixin",
+    "client.LivingEntityRenderStateMixin",
     "client.LocalPlayerMixin",
     "client.MinecraftMixin"
   ],

@@ -2,9 +2,11 @@ package net.rebel459.unified.neoforge.core;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -55,6 +58,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class NeoForgeHelpers {
 
@@ -718,5 +722,34 @@ public class NeoForgeHelpers {
             LISTENERS.forEach(pair -> event.addListener(pair.getFirst(), pair.getSecond()));
             ORDERING.forEach(pair -> event.addDependency(pair.getFirst(), pair.getSecond()));
         }
+    }
+
+    public static class DataRegistries implements HelpersImpl.DataRegistries {
+
+        private static final List<Consumer<DataPackRegistryEvent.NewRegistry>> REGISTRATIONS = new ArrayList<>();
+        @Override
+        public <T> void register(ResourceKey<Registry<T>> key, Codec<T> codec) {
+            REGISTRATIONS.add(event -> event.dataPackRegistry(key, codec));
+        }
+
+        @Override
+        public <T> void registerSynced(ResourceKey<Registry<T>> key, Codec<T> serverCodec, Codec<T> clientCodec) {
+            REGISTRATIONS.add(event -> event.dataPackRegistry(key, serverCodec, clientCodec));
+        }
+
+        @SubscribeEvent
+        public static void registerDataRegistries(final DataPackRegistryEvent.NewRegistry event) {
+            LogUtils.getLogger().info("ran!");
+            REGISTRATIONS.forEach(consumer -> consumer.accept(event));
+        }
+    }
+
+    public static class EntityData implements HelpersImpl.EntityData {
+
+        @Override
+        public void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {
+            UnifiedRegistries.DeferredRegistry.create(id.getNamespace(), NeoForgeRegistries.ENTITY_DATA_SERIALIZERS).register(id.getPath(), serializer);
+        }
+
     }
 }

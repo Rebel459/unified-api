@@ -11,6 +11,9 @@ public class Unified {
 
     public static void initRegistries() {
         UnifiedDataComponents.init();
+        LootInjections.init();
+        ComponentModifiers.init();
+        MobVariants.init();
     }
 
     public static void init() {

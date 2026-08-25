@@ -17,6 +17,15 @@ public abstract class ServerLevelEntityCallbacksMixin {
 	@Final
     ServerLevel this$0;
 
+	@Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
+	private void selectMissingVariant(Entity entity, CallbackInfo ci) {
+		if (entity instanceof Mob
+				&& entity instanceof LivingEntityVariant variant
+				&& variant.getVariant().isEmpty()) {
+			variant.spawnVariant(this$0);
+		}
+	}
+
 	@Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
 	private void passOnLoad(Entity entity, CallbackInfo ci) {
 		CommonEvents.Entities.passOnLoad(entity, this$0);
