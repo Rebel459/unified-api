@@ -58,13 +58,7 @@ public class NeoForgeUnifiedEvents {
             LootTable originalTable = event.getTable();
             List<LootPool.Builder> pools = new ArrayList<>();
             for (LootPool pool : originalTable.pools) {
-                LootPool.Builder builder = LootPool.lootPool();
-                builder.entries = LootTableProvider.immutableBuilder(pool.entries);
-                builder.conditions = LootTableProvider.immutableBuilder(pool.conditions);
-                builder.functions = LootTableProvider.immutableBuilder(pool.functions);
-                builder.rolls = pool.rolls;
-                builder.bonusRolls = pool.bonusRolls;
-                pools.add(builder);
+                pools.add(LootTableProvider.poolBuilder(pool));
             }
 
             boolean changed = CommonEvents.LootTables.passModify(event.getKey(), new CommonEvents.LootTables.PoolAccess() {

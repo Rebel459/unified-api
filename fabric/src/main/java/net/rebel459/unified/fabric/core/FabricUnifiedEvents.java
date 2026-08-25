@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
@@ -46,8 +47,8 @@ public class FabricUnifiedEvents {
                 }
 
                 @Override
-                public void editPool(Predicate<Item> predicate, LootEntry entry) {
-                    switch (entry.getType()) {
+                public void modifyPool(Predicate<Holder<Item>> predicate, LootEntry entry) {
+                    switch (entry.type()) {
                         case INSERT -> {
                             if (entry.getEntry().isEmpty()) {
                                 LogUtils.getLogger().warn("Invalid UnifiedLootEntry. Type INSERT requires a LootPoolEntryContainer.Builder<?>");
@@ -88,6 +89,18 @@ public class FabricUnifiedEvents {
                             CommonEvents.LootTables.handlePoolRemovals(entries, predicate, pool);
                         });
                     }
+                }
+
+                @Override
+                @Deprecated
+                public void editPool(Predicate<Item> predicate, LootEntry entry) {
+                    this.modifyPool(holder -> predicate.test(holder.value()), entry);
+                }
+
+                @Override
+                @Deprecated
+                public void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace) {
+                    editPool(itemPredicate, replace ? LootEntry.replace(entry) : LootEntry.insert(entry));
                 }
             }, registries);
         });

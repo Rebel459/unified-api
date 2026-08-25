@@ -8,7 +8,11 @@ import net.rebel459.unified.impl.helper.StructureMusicImpl;
 
 public class Unified {
 
-    public static void initRegistries() {}
+    public static void initRegistries() {
+        LootInjections.init();
+        ComponentModifiers.init();
+        MobVariants.init();
+    }
 
     public static void init() {
         StructureMusicImpl.init();
