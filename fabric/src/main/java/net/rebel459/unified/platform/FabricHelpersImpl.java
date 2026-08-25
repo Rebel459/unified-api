@@ -1,18 +1,23 @@
 package net.rebel459.unified.platform;
 
+import com.mojang.serialization.Codec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,6 +42,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class FabricHelpersImpl {
 
@@ -612,6 +618,27 @@ public class FabricHelpersImpl {
         @Override
         public void addOrdering(Identifier first, Identifier second) {
             ResourceLoader.get(net.minecraft.server.packs.PackType.SERVER_DATA).addListenerOrdering(first, second);
+        }
+    }
+
+    public static class DataRegistries implements HelpersImpl.DataRegistries {
+
+        @Override
+        public <T> void register(ResourceKey<Registry<T>> key, Codec<T> codec) {
+            DynamicRegistries.register(key, codec);
+        }
+
+        @Override
+        public <T> void registerSynced(ResourceKey<Registry<T>> key, Codec<T> serverCodec, Codec<T> clientCodec) {
+            DynamicRegistries.registerSynced(key, serverCodec, clientCodec);
+        }
+    }
+
+    public static class EntityData implements HelpersImpl.EntityData {
+
+        @Override
+        public void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {
+            FabricEntityDataRegistry.register(id, serializer.get());
         }
     }
 }

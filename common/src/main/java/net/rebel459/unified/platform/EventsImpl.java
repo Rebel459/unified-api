@@ -1,6 +1,7 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -68,6 +69,9 @@ public class EventsImpl {
 
         public interface LootTable {
             void addPool(LootPool.Builder pool);
+            void modifyPool(Predicate<Holder<Item>> predicate, LootEntry entry);
+
+            @Deprecated
             void editPool(Predicate<Item> predicate, LootEntry entry);
             @Deprecated
             void editPool(Predicate<Item> itemPredicate, LootPoolEntryContainer.Builder<?> entry, boolean replace);
@@ -77,9 +81,9 @@ public class EventsImpl {
             void modify(LootTable table, ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, HolderLookup.Provider provider);
         }
 
-        public static boolean matches(LootPoolEntryContainer entry, Predicate<Item> itemPredicate) {
+        public static boolean matches(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate) {
             if (entry instanceof LootItem lootItem) {
-                return itemPredicate.test(lootItem.item.value());
+                return itemPredicate.test(lootItem.item);
             }
             if (entry instanceof CompositeEntryBase compositeEntry) {
                 for (LootPoolEntryContainer child : compositeEntry.children) {
@@ -91,7 +95,7 @@ public class EventsImpl {
             return false;
         }
 
-        public static boolean handlePoolReplacements(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
+        public static boolean handlePoolReplacements(List<LootPoolEntryContainer> entries, Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
             boolean changed = false;
             List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
 
@@ -109,7 +113,7 @@ public class EventsImpl {
             return changed;
         }
 
-        public static boolean handlePoolRemovals(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPool.Builder pool) {
+        public static boolean handlePoolRemovals(List<LootPoolEntryContainer> entries, Predicate<Holder<Item>> itemPredicate, LootPool.Builder pool) {
             boolean changed = false;
             List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
 
@@ -127,9 +131,9 @@ public class EventsImpl {
             return changed;
         }
 
-        private static Result replaceEntry(LootPoolEntryContainer entry, Predicate<Item> itemPredicate, LootPoolEntryContainer replacement) {
+        private static Result replaceEntry(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer replacement) {
             if (entry instanceof LootItem lootItem) {
-                return itemPredicate.test(lootItem.item.value()) ? new Result(replacement, true) : new Result(entry, false);
+                return itemPredicate.test(lootItem.item) ? new Result(replacement, true) : new Result(entry, false);
             }
             if (entry instanceof CompositeEntryBase compositeEntry) {
                 boolean changed = false;
@@ -155,9 +159,9 @@ public class EventsImpl {
             return new Result(entry, false);
         }
 
-        private static Result removeEntry(LootPoolEntryContainer entry, Predicate<Item> itemPredicate) {
+        private static Result removeEntry(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate) {
             if (entry instanceof LootItem lootItem) {
-                return itemPredicate.test(lootItem.item.value()) ? new Result(null, true) : new Result(entry, false);
+                return itemPredicate.test(lootItem.item) ? new Result(null, true) : new Result(entry, false);
             }
             if (entry instanceof CompositeEntryBase compositeEntry) {
                 boolean changed = false;

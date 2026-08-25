@@ -29,7 +29,7 @@ public class CreativeModeTabBuilder {
     private boolean alignedRight;
     private Identifier backgroundTexture;
 
-    private CreativeModeTabBuilder() {
+    public CreativeModeTabBuilder() {
         this.displayItemsGenerator = EMPTY_GENERATOR;
         this.canScroll = true;
         this.showTitle = true;

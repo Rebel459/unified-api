@@ -28,6 +28,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.registry.Supplied;
 import net.rebel459.unified.util.registry.SuppliedBlock;
@@ -62,6 +63,12 @@ public class NeoForgeUnifiedRegistries {
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
         DeferredRegister.Blocks blocks = BLOCKS.computeIfAbsent(modId, string -> DeferredRegister.createBlocks(modId));
         DeferredRegister.DataComponents dataComponents = DATA_COMPONENTS.computeIfAbsent(modId, string -> DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
+
+        DeferredRegister<?> entityDataSerializers = DEFERRED.computeIfAbsent(Pair.of(modId, NeoForgeRegistries.ENTITY_DATA_SERIALIZERS), _ -> DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, modId));
+        entityDataSerializers.register(modEventBus);
+
+        DeferredRegister<?> attachmentTypes = DEFERRED.computeIfAbsent(Pair.of(modId, NeoForgeRegistries.ATTACHMENT_TYPES), _ -> DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, modId));
+        attachmentTypes.register(modEventBus);
 
         for (Registry<?> registry : BuiltInRegistries.REGISTRY) {
             DeferredRegister<?> deferred = DEFERRED.computeIfAbsent(Pair.of(modId, registry), _ -> DeferredRegister.create(registry, modId));

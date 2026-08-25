@@ -6,6 +6,7 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
 
 public final class LootTableProvider {
 
@@ -13,6 +14,22 @@ public final class LootTableProvider {
     private static final Field IMMUTABLE_LIST_BUILDER_SIZE = findField(ImmutableList.Builder.class, "size");
 
     private LootTableProvider() {}
+
+    public static LootPoolEntryContainer.Builder<?> entryBuilder(LootPoolEntryContainer entry) {
+        return new BuiltEntryBuilder(Objects.requireNonNull(entry, "entry"));
+    }
+
+    public static LootPool.Builder poolBuilder(LootPool pool) {
+        Objects.requireNonNull(pool, "pool");
+
+        LootPool.Builder builder = LootPool.lootPool();
+        builder.entries = immutableBuilder(pool.entries);
+        builder.conditions = immutableBuilder(pool.conditions);
+        builder.functions = immutableBuilder(pool.functions);
+        builder.rolls = pool.rolls;
+        builder.bonusRolls = pool.bonusRolls;
+        return builder;
+    }
 
     public static List<LootPoolEntryContainer> getEntries(LootPool.Builder pool) {
         try {
@@ -44,5 +61,23 @@ public final class LootTableProvider {
             builder.add(value);
         }
         return builder;
+    }
+
+    private static final class BuiltEntryBuilder extends LootPoolEntryContainer.Builder<BuiltEntryBuilder> {
+        private final LootPoolEntryContainer entry;
+
+        private BuiltEntryBuilder(LootPoolEntryContainer entry) {
+            this.entry = entry;
+        }
+
+        @Override
+        protected BuiltEntryBuilder getThis() {
+            return this;
+        }
+
+        @Override
+        public LootPoolEntryContainer build() {
+            return this.entry;
+        }
     }
 }

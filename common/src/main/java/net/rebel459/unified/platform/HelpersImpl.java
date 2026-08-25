@@ -1,9 +1,12 @@
 package net.rebel459.unified.platform;
 
+import com.mojang.serialization.Codec;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,6 +29,7 @@ import net.rebel459.unified.util.LoaderType;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class HelpersImpl {
 
@@ -157,5 +161,15 @@ public class HelpersImpl {
 
         void addListener(Identifier id, PreparableReloadListener listener);
         void addOrdering(Identifier first, Identifier second);
+    }
+
+    public interface DataRegistries {
+
+        <T> void register(ResourceKey<Registry<T>> key, Codec<T> codec);
+        <T> void registerSynced(ResourceKey<Registry<T>> key, Codec<T> serverCodec, Codec<T> clientCodec);
+    }
+
+    public interface EntityData {
+        void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer);
     }
 }

@@ -1,12 +1,22 @@
 package net.rebel459.unified.platform;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
 public interface InternalHandler {
@@ -26,6 +36,8 @@ public interface InternalHandler {
     HelpersImpl.Platform getPlatform();
     HelpersImpl.BiomeModifications getBiomeModifications();
     HelpersImpl.ReloadListeners getReloadListeners();
+    HelpersImpl.DataRegistries getDataRegistries();
+    HelpersImpl.EntityData getEntityData();
 
     @ApiStatus.Internal
     Impl impl();
@@ -34,5 +46,9 @@ public interface InternalHandler {
     interface Impl {
         BlockConversionsImpl.Oxidizables getOxidizables();
         CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);
+        <T> UnifiedAttachments.Entity<T> createEntityAttachment(Identifier id, Supplier<T> defaultValue, MapCodec<T> persistenceCodec, StreamCodec<? super RegistryFriendlyByteBuf, T> syncCodec, BiPredicate<Entity, ServerPlayer> syncPredicate, boolean copyOnDeath);
+        <T> UnifiedAttachments.BlockEntity<T> createBlockEntityAttachment(Identifier id, Supplier<T> defaultValue, MapCodec<T> persistenceCodec, StreamCodec<? super RegistryFriendlyByteBuf, T> syncCodec, BiPredicate<BlockEntity, ServerPlayer> syncPredicate);
+        <T> UnifiedAttachments.Chunk<T> createChunkAttachment(Identifier id, Supplier<T> defaultValue, MapCodec<T> persistenceCodec, StreamCodec<? super RegistryFriendlyByteBuf, T> syncCodec, BiPredicate<ChunkAccess, ServerPlayer> syncPredicate);
+        <T> UnifiedAttachments.Level<T> createLevelAttachment(Identifier id, Supplier<T> defaultValue, MapCodec<T> persistenceCodec, StreamCodec<? super RegistryFriendlyByteBuf, T> syncCodec, BiPredicate<ServerLevel, ServerPlayer> syncPredicate);
     }
 }

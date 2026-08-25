@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceKey;
@@ -290,7 +291,7 @@ public class UnifiedEvents {
             }
 
             @Override
-            public void editPool(Predicate<Item> predicate, LootEntry entry) {
+            public void modifyPool(Predicate<Holder<Item>> predicate, LootEntry entry) {
                 switch (entry.type()) {
                     case INSERT -> {
                         if (entry.entry().isEmpty()) {
@@ -339,6 +340,12 @@ public class UnifiedEvents {
                         }
                     }
                 }
+            }
+
+            @Override
+            @Deprecated
+            public void editPool(Predicate<Item> predicate, LootEntry entry) {
+                this.modifyPool(holder -> predicate.test(holder.value()), entry);
             }
 
             @Override
