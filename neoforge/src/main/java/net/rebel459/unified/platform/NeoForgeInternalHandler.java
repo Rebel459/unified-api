@@ -1,14 +1,19 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.serialization.MapCodec;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -21,6 +26,8 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
+import net.rebel459.unified.util.data.MobVariants;
+import net.rebel459.unified.util.registry.EntityTypeCopies;
 
 import java.util.HashMap;
 import java.util.function.BiPredicate;
@@ -134,6 +141,19 @@ public class NeoForgeInternalHandler implements InternalHandler {
         @Override
         public void prepareRegistryNamespace(String namespace) {
             NeoForgeUnifiedRegistries.prepareNamespace(namespace);
+        }
+
+        @Override
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        public void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant) {
+            ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+            net.neoforged.neoforge.registries.DeferredRegister registry = NeoForgeUnifiedRegistries.DEFERRED.get(
+                    com.mojang.datafixers.util.Pair.of(id.getNamespace(), BuiltInRegistries.ENTITY_TYPE)
+            );
+            registry.register(id.getPath(), () -> defaultVariant.map(
+                    variant -> EntityTypeCopies.create(key, base, variant),
+                    variant -> EntityTypeCopies.create(key, base, variant)
+            ));
         }
 
         public static HashMap<Block, Block> OXIDIZABLES = new HashMap<>();

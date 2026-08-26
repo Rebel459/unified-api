@@ -21,6 +21,7 @@ public class Unified {
         UnifiedBlockTypes.init();
         new ItemRegistry().init();
         new BlockRegistry().init();
+        new EntityRegistry().init();
     }
 
     public static void init() {

@@ -18,6 +18,7 @@ import net.rebel459.unified.platform.EventsImpl;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.data.MobVariants;
 import net.rebel459.unified.util.mixin.LivingEntityVariant;
+import net.rebel459.unified.util.registry.EntityTypeCopies;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -104,12 +105,22 @@ public class LivingEntityMixin implements LivingEntityVariant {
         Identifier entityType = EntityType.getKey(entity.getType());
         RandomSource random = level.getRandom();
 
-        Stream<Holder.Reference<MobVariants.Variant>> candidates = level.registryAccess()
-                        .lookupOrThrow(MobVariants.KEY)
+        var variants = level.registryAccess().lookupOrThrow(MobVariants.KEY);
+        var defaultVariantKey = EntityTypeCopies.defaultVariant(entity.getType());
+        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityTypeCopies.resolveDefaultVariant(entity.getType(), variants);
+        if (defaultVariant.isEmpty()) {
+            defaultVariantKey.ifPresent(key -> {
+                throw new IllegalStateException("Missing default mob variant " + key.identifier() + " for " + entityType);
+            });
+        }
+
+        Stream<Holder.Reference<MobVariants.Variant>> candidates = variants
                         .listElements()
-                        .filter(holder -> holder.value().target().equals(entityType))
+                        .filter(holder -> holder.value().target().map(entityType::equals).orElse(false))
+                        .filter(holder -> defaultVariantKey.map(key -> !holder.key().equals(key)).orElse(true))
                         .filter(holder -> random.nextFloat() < holder.value().spawnChance());
 
-        PriorityProvider.pick(candidates, Holder::value, random, SpawnContext.create(level, entity.blockPosition())).ifPresent(holder -> setVariant(Optional.of(holder)));
+        Optional<Holder<MobVariants.Variant>> selected = PriorityProvider.pick(candidates, Holder::value, random, SpawnContext.create(level, entity.blockPosition())).map(holder -> holder);
+        selected.or(() -> defaultVariant).ifPresent(holder -> setVariant(Optional.of(holder)));
     }
 }

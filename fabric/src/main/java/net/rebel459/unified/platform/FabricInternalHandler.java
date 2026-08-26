@@ -1,24 +1,31 @@
 package net.rebel459.unified.platform;
 
 import com.mojang.serialization.MapCodec;
+import com.mojang.datafixers.util.Either;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
+import net.rebel459.unified.util.data.MobVariants;
+import net.rebel459.unified.util.registry.EntityTypeCopies;
 
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -130,6 +137,16 @@ public class FabricInternalHandler implements InternalHandler {
 
         @Override
         public void prepareRegistryNamespace(String namespace) {
+        }
+
+        @Override
+        public void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant) {
+            ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+            EntityType<?> entityType = defaultVariant.map(
+                    variant -> EntityTypeCopies.create(key, base, variant),
+                    variant -> EntityTypeCopies.create(key, base, variant)
+            );
+            Registry.register(BuiltInRegistries.ENTITY_TYPE, key, entityType);
         }
 
         @Override

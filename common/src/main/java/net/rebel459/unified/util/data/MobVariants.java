@@ -11,7 +11,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.RegistryFixedCodec;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
@@ -49,7 +49,7 @@ public class MobVariants {
             .build();
 
     public record Variant(
-            Identifier target,
+            Optional<Identifier> target,
             Optional<TextureReplacement> texture,
             Optional<TextureReplacement> babyTexture,
             SoundVariants sounds,
@@ -62,7 +62,7 @@ public class MobVariants {
     ) implements PriorityProvider<SpawnContext, SpawnCondition> {
 
         public static final Codec<Variant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("target").forGetter(Variant::target),
+                Identifier.CODEC.optionalFieldOf("target").forGetter(Variant::target),
                 TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Variant::texture),
                 TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),
                 SoundVariants.CODEC.optionalFieldOf("sounds", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds),
@@ -74,18 +74,20 @@ public class MobVariants {
                 ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(Variant::lootTable)
         ).apply(instance, Variant::new));
 
-        private Variant(Identifier target, Optional<TextureReplacement> texture, Optional<TextureReplacement> babyTexture, SoundVariants sounds) {
+        private Variant(Optional<Identifier> target, Optional<TextureReplacement> texture, Optional<TextureReplacement> babyTexture, SoundVariants sounds) {
             this(target, texture, babyTexture, sounds, SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty());
         }
 
         public static final Codec<Variant> NETWORK_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-                Identifier.CODEC.fieldOf("target").forGetter(Variant::target),
+                Identifier.CODEC.optionalFieldOf("target").forGetter(Variant::target),
                 TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Variant::texture),
                 TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),
                 SoundVariants.CODEC.optionalFieldOf("sounds", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds)
         ).apply(instance, Variant::new));
-        public static final RegistryFixedCodec<Variant> REGISTRY_CODEC = RegistryFixedCodec.create(KEY);
-        public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Variant>>> STREAM_CODEC = ByteBufCodecs.optional(ByteBufCodecs.holderRegistry(KEY));
+        public static final Codec<Holder<Variant>> REGISTRY_CODEC = RegistryFileCodec.create(KEY, CODEC);
+        public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Variant>>> STREAM_CODEC = ByteBufCodecs.optional(
+                ByteBufCodecs.holder(KEY, ByteBufCodecs.fromCodecWithRegistries(NETWORK_CODEC))
+        );
 
         public List<Selector<SpawnContext, SpawnCondition>> selectors() {
             return this.spawnConditions.selectors();

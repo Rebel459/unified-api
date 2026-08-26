@@ -7,6 +7,7 @@
     "block.FuelValuesMixin",
     "entity.AnimalMixin",
     "entity.CatMixin",
+    "entity.DefaultAttributesMixin",
     "entity.EntityMixin",
     "entity.FoxMixin",
     "entity.LivingEntityMixin",
@@ -15,7 +16,9 @@
     "entity.ProjectileUtilMixin",
     "entity.ServerLevelEntityCallbacksMixin",
     "entity.ServerPlayerMixin",
+    "entity.SpawnPlacementsMixin",
     "entity.TamableAnimalMixin",
+    "registry.MappedRegistryMixin",
     "item.BlockItemMixin",
     "item.ItemMixin",
     "item.ItemStackMixin"
@@ -23,6 +26,7 @@
   "client": [
     "client.AbstractContainerScreenMixin",
     "client.ClientLevelMixin",
+    "client.EntityRenderersMixin",
     "client.GuiMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemStackMixin",

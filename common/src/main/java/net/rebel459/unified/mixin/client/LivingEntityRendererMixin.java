@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.rebel459.unified.client.util.mixin.LivingEntityRenderStateVariant;
 import net.rebel459.unified.util.mixin.LivingEntityVariant;
+import net.rebel459.unified.util.registry.EntityTypeCopies;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +29,9 @@ public abstract class LivingEntityRendererMixin {
     private Identifier getVariantTexture(LivingEntityRenderer<?, ?, ?> renderer, LivingEntityRenderState state, Operation<Identifier> original) {
         Identifier originalTexture = original.call(renderer, state);
         return ((LivingEntityRenderStateVariant) state).getVariant()
-                .filter(variant -> variant.value().target().equals(EntityType.getKey(state.entityType)))
+                .filter(variant -> variant.value().target()
+                        .map(EntityType.getKey(state.entityType)::equals)
+                        .orElseGet(() -> EntityTypeCopies.isDefaultVariant(state.entityType, variant)))
                 .flatMap(variant -> state.isBaby ? variant.value().babyTexture() : variant.value().texture())
                 .filter(texture -> texture.original().map(originalId -> getTexture(originalId).equals(originalTexture)).orElse(true))
                 .map(texture -> getTexture(texture.replacement()))
