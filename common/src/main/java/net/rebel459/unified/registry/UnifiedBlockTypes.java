@@ -35,7 +35,7 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.util.valueproviders.IntProviders;
 import net.rebel459.unified.util.codec.ExtensibleCodec;
-import net.rebel459.unified.util.data.BlockRegistry;
+import net.rebel459.unified.util.data.registry.BlockRegistry;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;

@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 import net.rebel459.unified.util.data.MobVariants;
-import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
+import net.rebel459.unified.util.data.registry.impl.EntityRegistryImpl;
 
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;

@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.data.impl;
+package net.rebel459.unified.util.data.registry.impl;
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.registries.BuiltInRegistries;

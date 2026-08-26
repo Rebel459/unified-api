@@ -11,10 +11,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
-import net.rebel459.unified.util.event.BiomeModificationContext;
-import net.rebel459.unified.util.event.BiomeModificationsImpl;
+import net.rebel459.unified.util.event.impl.BiomeModificationContextImpl;
+import net.rebel459.unified.util.data.BiomeModifiers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +28,13 @@ public final class NeoForgeBiomeModifications {
     public static List<BiomeModifier> create(MinecraftServer server) {
         HolderLookup.Provider provider = server.registryAccess();
         Registry<Biome> biomes = server.registryAccess().lookupOrThrow(Registries.BIOME);
-        List<BiomeModificationsImpl.PreparedModification> modifications = BiomeModificationsImpl.prepare(provider);
+        List<BiomeModifiers.PreparedModification> modifications = BiomeModifiers.prepare(provider);
         markForNetworkSync(modifications, biomes);
         return modifications.stream().map(modification -> (BiomeModifier) new PreparedModifier(modification, provider)).toList();
     }
 
     @SuppressWarnings("unchecked")
-    private static void markForNetworkSync(List<BiomeModificationsImpl.PreparedModification> modifications,
+    private static void markForNetworkSync(List<BiomeModifiers.PreparedModification> modifications,
                                            Registry<Biome> registry) {
         if (!(registry instanceof MappedRegistry<?> mapped)) return;
         MappedRegistry<Biome> biomes = (MappedRegistry<Biome>) mapped;
@@ -41,17 +43,16 @@ public final class NeoForgeBiomeModifications {
                         (ignored, info) -> new RegistrationInfo(Optional.empty(), info.lifecycle())));
     }
 
-    private record PreparedModifier(BiomeModificationsImpl.PreparedModification modification,
+    private record PreparedModifier(BiomeModifiers.PreparedModification modification,
                                     HolderLookup.Provider provider) implements BiomeModifier {
         @Override
         public void modify(Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
-            if (phase != Phase.AFTER_EVERYTHING || !(biome instanceof Holder.Reference<Biome> reference)
-                    || !modification.targets().test(reference)) return;
+            if (phase != Phase.AFTER_EVERYTHING || !(biome instanceof Holder.Reference<Biome> reference) || !modification.targets().test(reference)) return;
 
             ModifiableBiomeInfo.BiomeInfo current = builder.build();
-            BiomeModificationContext editor = new BiomeModificationContext(provider, current.climateSettings(),
-                    current.generationSettings(), current.mobSpawnSettings(), biome.value().getAttributes(), current.effects());
-            editor.apply(modification);
+            BiomeModificationContextImpl editor = new BiomeModificationContextImpl(provider, current.climateSettings(), current.generationSettings(), current.mobSpawnSettings(), biome.value().getAttributes(), current.effects());
+
+            editor.apply(modification, reference);
             if (!editor.changed()) return;
 
             var climate = builder.getClimateSettings();
@@ -68,13 +69,12 @@ public final class NeoForgeBiomeModifications {
             effects.grassColorModifier(editor.effects().grassColorModifier());
 
             var generation = builder.getGenerationSettings();
-            for (var step : net.minecraft.world.level.levelgen.GenerationStep.Decoration.values()) {
-                List<Holder<net.minecraft.world.level.levelgen.placement.PlacedFeature>> features = generation.getFeatures(step);
+            for (GenerationStep.Decoration step : GenerationStep.Decoration.values()) {
+                List<Holder<PlacedFeature>> features = generation.getFeatures(step);
                 features.clear();
-                if (editor.generation().features().size() > step.ordinal()) {
-                    features.addAll(editor.generation().features().get(step.ordinal()).stream().toList());
-                }
+                if (editor.generation().features().size() > step.ordinal()) features.addAll(editor.generation().features().get(step.ordinal()).stream().toList());
             }
+
             generation.getCarvers().clear();
             editor.generation().getCarvers().forEach(generation.getCarvers()::add);
 
@@ -84,6 +84,7 @@ public final class NeoForgeBiomeModifications {
                 target.removeIf(ignored -> true);
                 for (var entry : editor.mobSpawns().getMobs(category).unwrap()) target.add(entry.value(), entry.weight());
             }
+
             List<EntityType<?>> existingCosts = new ArrayList<>(spawns.getEntityTypes());
             spawns.removeSpawnCost(existingCosts.toArray(EntityType[]::new));
             editor.spawnCosts().forEach((type, cost) -> spawns.addMobCharge(type, cost.charge(), cost.energyBudget()));

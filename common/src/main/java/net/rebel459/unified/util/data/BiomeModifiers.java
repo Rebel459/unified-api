@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.event;
+package net.rebel459.unified.util.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -20,7 +20,8 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedHelpers;
-import org.jetbrains.annotations.ApiStatus;
+import net.rebel459.unified.util.event.BiomeModificationContext;
+import net.rebel459.unified.util.event.impl.BiomeModificationContextImpl;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,17 +31,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-/** Internal common implementation for both loader APIs and datapack biome modifications. */
-@ApiStatus.Internal
-public final class BiomeModificationsImpl {
+public final class BiomeModifiers {
 
-    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(
-            Identifier.fromNamespaceAndPath(Unified.MOD_ID, "biome_modifications")
-    );
+    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "biome_modifiers"));
 
-    private static final List<ProgrammaticEntry> PROGRAMMATIC_ENTRIES = new CopyOnWriteArrayList<>();
+    public static final List<EventEntry> EVENT_ENTRIES = new CopyOnWriteArrayList<>();
 
-    private BiomeModificationsImpl() {}
+    private BiomeModifiers() {}
 
     public static void init() {
         UnifiedHelpers.DATA_REGISTRIES.register(KEY, Definition.CODEC);
@@ -48,47 +45,31 @@ public final class BiomeModificationsImpl {
 
     public static List<PreparedModification> prepare(HolderLookup.Provider provider) {
         List<PreparedModification> entries = new ArrayList<>();
-
         int order = 0;
-        for (ProgrammaticEntry entry : PROGRAMMATIC_ENTRIES) {
-            entries.add(new PreparedModification(0, false, order++, entry.targets(), entry.modifier(), EnvironmentAttributeMap.EMPTY));
+
+        for (EventEntry entry : EVENT_ENTRIES) {
+            entries.add(new PreparedModification(entry.priority(), false, order++, _ -> true, entry.modifier()));
         }
 
         Optional<? extends HolderLookup.RegistryLookup<Definition>> definitions = provider.lookup(KEY);
         if (definitions.isPresent()) {
             for (Holder.Reference<Definition> holder : definitions.get().listElements().toList()) {
                 Definition definition = holder.value();
-                entries.add(new PreparedModification(definition.priority(), true, order++, definition.targets()::contains,
-                        definition::apply, definition.attributes()));
+                entries.add(new PreparedModification(definition.priority(), true, order++, definition.targets()::contains, (_, context) -> definition.apply((BiomeModificationContextImpl) context)));
             }
         }
 
-        entries.sort(Comparator.comparingInt(PreparedModification::priority)
-                .thenComparing(PreparedModification::datapack)
-                .thenComparingInt(PreparedModification::order));
+        entries.sort(Comparator.comparingInt(PreparedModification::priority).thenComparing(PreparedModification::datapack).thenComparingInt(PreparedModification::order));
         return List.copyOf(entries);
     }
 
-    public static void register(ResourceKey<Biome> biome, Consumer<BiomeModificationContext> modifier) {
-        PROGRAMMATIC_ENTRIES.add(new ProgrammaticEntry(holder -> holder.is(biome), modifier));
-    }
+    public record EventEntry(int priority, Entry modifier) {}
+    public record PreparedModification(int priority, boolean datapack, int order, Predicate<Holder.Reference<Biome>> targets, Entry modifier) {}
 
-    public static void register(List<ResourceKey<Biome>> biomes, Consumer<BiomeModificationContext> modifier) {
-        List<ResourceKey<Biome>> targets = List.copyOf(biomes);
-        PROGRAMMATIC_ENTRIES.add(new ProgrammaticEntry(holder -> holder.unwrapKey().map(targets::contains).orElse(false), modifier));
+    @FunctionalInterface
+    public interface Entry {
+        void modify(Holder.Reference<Biome> biome, BiomeModificationContext context);
     }
-
-    public static void register(TagKey<Biome> biome, Consumer<BiomeModificationContext> modifier) {
-        PROGRAMMATIC_ENTRIES.add(new ProgrammaticEntry(holder -> holder.is(biome), modifier));
-    }
-
-    private record ProgrammaticEntry(Predicate<Holder.Reference<Biome>> targets,
-                                     Consumer<BiomeModificationContext> modifier) {}
-    @ApiStatus.Internal
-    public record PreparedModification(int priority, boolean datapack, int order,
-                                       Predicate<Holder.Reference<Biome>> targets,
-                                       Consumer<BiomeModificationContext> modifier,
-                                       EnvironmentAttributeMap attributes) {}
 
     public record Definition(
             HolderSet<Biome> targets,
@@ -109,7 +90,7 @@ public final class BiomeModificationsImpl {
                 MobSpawns.CODEC.optionalFieldOf("mob_spawns", MobSpawns.EMPTY).forGetter(Definition::mobSpawns)
         ).apply(instance, Definition::new));
 
-        private void apply(BiomeModificationContext context) {
+        private void apply(BiomeModificationContextImpl context) {
             for (FeatureEntry entry : worldgen.addFeatures()) context.getFeatures().addFeature(entry.feature(), entry.step());
             for (FeatureEntry entry : worldgen.removeFeatures()) context.getFeatures().removeFeature(entry.feature(), entry.step());
             for (ResourceKey<ConfiguredWorldCarver<?>> carver : worldgen.addCarvers()) context.getFeatures().addCarver(carver);
@@ -123,6 +104,8 @@ public final class BiomeModificationsImpl {
             climate.temperature().ifPresent(context.getClimate()::setTemperature);
             climate.downfall().ifPresent(context.getClimate()::setDownfall);
             climate.hasPrecipitation().ifPresent(context.getClimate()::setPrecipitation);
+
+            context.addAttributes(attributes);
 
             for (SpawnEntry entry : mobSpawns.addSpawns()) context.getMobSpawns().addSpawn(entry.data(), entry.weight());
             for (EntityType<?> type : mobSpawns.removeSpawns()) context.getMobSpawns().removeSpawn(type);
@@ -138,11 +121,10 @@ public final class BiomeModificationsImpl {
         ).apply(instance, FeatureEntry::new));
     }
 
-    public record Worldgen(List<FeatureEntry> addFeatures, List<FeatureEntry> removeFeatures,
-                           List<ResourceKey<ConfiguredWorldCarver<?>>> addCarvers,
-                           List<ResourceKey<ConfiguredWorldCarver<?>>> removeCarvers) {
+    public record Worldgen(List<FeatureEntry> addFeatures, List<FeatureEntry> removeFeatures, List<ResourceKey<ConfiguredWorldCarver<?>>> addCarvers, List<ResourceKey<ConfiguredWorldCarver<?>>> removeCarvers) {
         public static final Worldgen EMPTY = new Worldgen(List.of(), List.of(), List.of(), List.of());
         private static final Codec<ResourceKey<ConfiguredWorldCarver<?>>> CARVER_CODEC = ResourceKey.codec(Registries.CONFIGURED_CARVER);
+
         public static final Codec<Worldgen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 FeatureEntry.CODEC.listOf().optionalFieldOf("add_features", List.of()).forGetter(Worldgen::addFeatures),
                 FeatureEntry.CODEC.listOf().optionalFieldOf("remove_features", List.of()).forGetter(Worldgen::removeFeatures),
@@ -151,9 +133,9 @@ public final class BiomeModificationsImpl {
         ).apply(instance, Worldgen::new));
     }
 
-    public record Effects(Optional<Integer> waterColor, Optional<Integer> foliageColor,
-                          Optional<Integer> dryFoliageColor, Optional<Integer> grassColor) {
+    public record Effects(Optional<Integer> waterColor, Optional<Integer> foliageColor, Optional<Integer> dryFoliageColor, Optional<Integer> grassColor) {
         public static final Effects EMPTY = new Effects(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+
         public static final Codec<Effects> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.optionalFieldOf("water_color").forGetter(Effects::waterColor),
                 Codec.INT.optionalFieldOf("foliage_color").forGetter(Effects::foliageColor),
@@ -164,6 +146,7 @@ public final class BiomeModificationsImpl {
 
     public record Climate(Optional<Float> temperature, Optional<Float> downfall, Optional<Boolean> hasPrecipitation) {
         public static final Climate EMPTY = new Climate(Optional.empty(), Optional.empty(), Optional.empty());
+
         public static final Codec<Climate> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.FLOAT.optionalFieldOf("temperature").forGetter(Climate::temperature),
                 Codec.FLOAT.optionalFieldOf("downfall").forGetter(Climate::downfall),
@@ -186,10 +169,10 @@ public final class BiomeModificationsImpl {
         ).apply(instance, ChargeEntry::new));
     }
 
-    public record MobSpawns(List<SpawnEntry> addSpawns, List<EntityType<?>> removeSpawns,
-                            List<ChargeEntry> addCharges, List<EntityType<?>> removeCharges) {
+    public record MobSpawns(List<SpawnEntry> addSpawns, List<EntityType<?>> removeSpawns, List<ChargeEntry> addCharges, List<EntityType<?>> removeCharges) {
         public static final MobSpawns EMPTY = new MobSpawns(List.of(), List.of(), List.of(), List.of());
         private static final Codec<EntityType<?>> ENTITY_TYPE_CODEC = BuiltInRegistries.ENTITY_TYPE.byNameCodec();
+
         public static final Codec<MobSpawns> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 SpawnEntry.CODEC.listOf().optionalFieldOf("add_spawns", List.of()).forGetter(MobSpawns::addSpawns),
                 ENTITY_TYPE_CODEC.listOf().optionalFieldOf("remove_spawns", List.of()).forGetter(MobSpawns::removeSpawns),
@@ -197,5 +180,4 @@ public final class BiomeModificationsImpl {
                 ENTITY_TYPE_CODEC.listOf().optionalFieldOf("remove_charges", List.of()).forGetter(MobSpawns::removeCharges)
         ).apply(instance, MobSpawns::new));
     }
-
 }

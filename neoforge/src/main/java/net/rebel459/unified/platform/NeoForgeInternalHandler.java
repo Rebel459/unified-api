@@ -27,7 +27,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 import net.rebel459.unified.util.data.MobVariants;
-import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
+import net.rebel459.unified.util.data.registry.impl.EntityRegistryImpl;
 
 import java.util.HashMap;
 import java.util.function.BiPredicate;

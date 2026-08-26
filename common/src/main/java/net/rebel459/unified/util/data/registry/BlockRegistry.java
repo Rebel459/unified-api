@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.data;
+package net.rebel459.unified.util.data.registry;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -28,7 +28,6 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
-import net.rebel459.unified.registry.UnifiedBlockTypes;
 import net.rebel459.unified.util.codec.CodecUtils;
 import net.rebel459.unified.util.codec.ExtensibleCodec;
 import net.rebel459.unified.util.registry.RegistryResourceListener;

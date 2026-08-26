@@ -18,7 +18,7 @@ import net.rebel459.unified.platform.EventsImpl;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.data.MobVariants;
 import net.rebel459.unified.util.mixin.LivingEntityVariant;
-import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
+import net.rebel459.unified.util.data.registry.impl.EntityRegistryImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

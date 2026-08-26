@@ -10,7 +10,7 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
+import net.rebel459.unified.util.data.registry.impl.EntityRegistryImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -26,6 +26,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.LootEntry;
+import net.rebel459.unified.util.data.BiomeModifiers;
 import net.rebel459.unified.util.event.LootTableProvider;
 import net.rebel459.unified.util.event.QuadConsumer;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -501,5 +502,18 @@ public class UnifiedEvents {
         }
 
         // pass handled in impl
+    }
+
+    public static class Biomes {
+
+        private Biomes() {}
+
+        public static void modify(BiomeModifiers.Entry modifiers) {
+            BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(0, modifiers));
+        }
+        
+        public static void modifyWithPriority(int priority, BiomeModifiers.Entry modifiers) {
+            BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(priority, modifiers));
+        }
     }
 }
