@@ -4,7 +4,10 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -24,13 +27,13 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.platform.UnifiedAttachments;
 import net.rebel459.unified.platform.UnifiedRegistries;
-import net.rebel459.unified.util.codec.ExtensibleCodec;
+import net.rebel459.unified.registry.UnifiedBlockTypes;
 import net.rebel459.unified.util.codec.CodecUtils;
+import net.rebel459.unified.util.codec.ExtensibleCodec;
 import net.rebel459.unified.util.registry.RegistryResourceListener;
 
-import java.util.*;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -38,7 +41,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     public static final ExtensibleCodec<Function<BlockBehaviour.Properties, ? extends Block>> TYPES = new ExtensibleCodec<>("type");
 
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            TYPES.codec(Identifier.withDefaultNamespace("block")).forGetter(Definition::type),
+            TYPES.codec(UnifiedBlockTypes.BLOCK.id()).forGetter(Definition::type),
             Codec.BOOL.optionalFieldOf("register_item", true).forGetter(Definition::registerItem),
             CodecUtils.supplied(Properties.CODEC, () -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), BlockRegistry::createProperties)
                     .optionalFieldOf("properties").xmap(properties -> properties.orElse(BlockBehaviour.Properties::of), Optional::of).forGetter(Definition::properties),
