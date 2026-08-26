@@ -22,6 +22,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
+import java.nio.file.Path;
+import java.util.List;
 
 public interface CommonPlatform {
 
@@ -47,6 +49,9 @@ public interface CommonPlatform {
 
     @ApiStatus.Internal
     interface Internal {
+        List<Path> getModResourceRoots();
+        Path getGameDirectory();
+        void prepareRegistryNamespace(String namespace);
         BlockConversionsImpl.Oxidizables getOxidizables();
         CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);
         <T> UnifiedAttachments.Entity<T> createEntityAttachment(Identifier id, Supplier<T> defaultValue, MapCodec<T> persistenceCodec, StreamCodec<? super RegistryFriendlyByteBuf, T> syncCodec, BiPredicate<Entity, ServerPlayer> syncPredicate, boolean copyOnDeath);

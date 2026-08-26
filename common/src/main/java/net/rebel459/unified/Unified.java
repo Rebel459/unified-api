@@ -15,6 +15,10 @@ public class Unified {
         LootInjections.init();
         ComponentModifiers.init();
         MobVariants.init();
+        UnifiedItemTypes.init();
+        UnifiedBlockTypes.init();
+        new ItemRegistry().init();
+        new BlockRegistry().init();
     }
 
     public static void init() {

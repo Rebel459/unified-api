@@ -40,9 +40,9 @@ public class EntityMixin {
     @WrapOperation(method = "walkingStepSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;playStepSound(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V"))
     private void variantStepSound(Entity entity, BlockPos pos, BlockState blockState, Operation<Void> original) {
         if (entity instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<Holder<SoundEvent>> sound = variant.getVariant().get().value().sounds().stepSound();
+            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().stepSound();
             if (sound.isPresent()) {
-                entity.playSound(sound.get().value(), 0.15F, 1.0F);
+                entity.playSound(sound.get(), 0.15F, 1.0F);
                 return;
             }
         }
@@ -53,8 +53,8 @@ public class EntityMixin {
     private void getVariantLootTable(CallbackInfoReturnable<Optional<ResourceKey<LootTable>>> cir) {
         Entity entity = Entity.class.cast(this);
         if (entity instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<Identifier> lootTable = variant.getVariant().get().value().lootTable();
-            lootTable.ifPresent(identifier -> cir.setReturnValue(Optional.of(ResourceKey.create(Registries.LOOT_TABLE, identifier))));
+            Optional<ResourceKey<LootTable>> lootTable = variant.getVariant().get().value().lootTable();
+            lootTable.ifPresent(_ -> cir.setReturnValue(lootTable));
         }
     }
 }

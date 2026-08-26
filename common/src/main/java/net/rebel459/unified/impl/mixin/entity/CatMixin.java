@@ -18,9 +18,9 @@ public class CatMixin {
     private void variantEatSound(CallbackInfo ci) {
         Cat cat = Cat.class.cast(this);
         if (cat instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<Holder<SoundEvent>> sound = variant.getVariant().get().value().sounds().hurtSound();
+            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().hurtSound();
             if (sound.isPresent()) {
-                cat.playSound(sound.get().value());
+                cat.playSound(sound.get());
                 ci.cancel();
             }
         }

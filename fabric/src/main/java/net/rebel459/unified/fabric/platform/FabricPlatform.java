@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -30,6 +31,8 @@ import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.nio.file.Path;
+import java.util.List;
 
 public class FabricPlatform implements CommonPlatform {
 
@@ -108,6 +111,23 @@ public class FabricPlatform implements CommonPlatform {
     }
 
     public static class Internal implements CommonPlatform.Internal {
+
+        @Override
+        public List<Path> getModResourceRoots() {
+            return FabricLoader.getInstance().getAllMods().stream()
+                    .flatMap(container -> container.getRootPaths().stream())
+                    .distinct()
+                    .toList();
+        }
+
+        @Override
+        public Path getGameDirectory() {
+            return FabricLoader.getInstance().getGameDir();
+        }
+
+        @Override
+        public void prepareRegistryNamespace(String namespace) {
+        }
 
         @Override
         public BlockConversionsImpl.Oxidizables getOxidizables() {
