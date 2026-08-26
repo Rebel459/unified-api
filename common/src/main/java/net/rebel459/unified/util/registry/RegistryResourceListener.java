@@ -34,35 +34,35 @@ import java.util.Optional;
 public abstract class RegistryResourceListener<T> {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String JSON_EXTENSION = ".json";
+    private static final Map<Identifier, RegistryResourceListener<?>> LISTENERS = new LinkedHashMap<>();
 
+    private final Identifier id;
     private final String directory;
     private final Codec<T> codec;
-    private boolean initialized;
+    private final List<Identifier> loadAfter;
+    private State state = State.UNREGISTERED;
 
-    protected RegistryResourceListener(Identifier id, Codec<T> codec) {
+    protected RegistryResourceListener(Identifier id, Codec<T> codec, Identifier... loadAfter) {
+        this.id = id;
         this.directory = normalizeDirectory(id.getNamespace() + "/registry/" + id.getPath());
         this.codec = codec;
+        this.loadAfter = List.copyOf(List.of(loadAfter));
     }
 
-    /** Must be called once during registration */
-    public final synchronized void init() {
-        if (initialized) return;
-        initialized = true;
+    /** Adds this registry to the queue. It will load once all dependencies have loaded. */
+    public final void init() {
+        synchronized (RegistryResourceListener.class) {
+            if (state != State.UNREGISTERED) return;
 
-        List<PackResources> packs = openPacks();
-        try (MultiPackResourceManager resources = new MultiPackResourceManager(PackType.SERVER_DATA, packs)) {
-            Map<Identifier, Resource> declarations = resources.listResources(directory,
-                    id -> id.getPath().endsWith(JSON_EXTENSION));
+            RegistryResourceListener<?> existing = LISTENERS.putIfAbsent(id, this);
+            if (existing != null && existing != this) throw new IllegalStateException("Duplicate registry resource listener: " + id);
 
-            declarations.entrySet().stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .forEach(entry -> decodeAndRegister(entry.getKey(), entry.getValue()));
-
-            LOGGER.info("Loaded {} static registry declarations from {}", declarations.size(), directory);
+            state = State.QUEUED;
+            processQueue();
         }
     }
 
-    /** Run code for registration of each data-driven registry entry */
+    /** Run code for registration of each data-driven registry entry. */
     protected abstract void register(Identifier id, T declaration);
 
     protected Identifier registryId(Identifier resourceId) {
@@ -71,15 +71,56 @@ public abstract class RegistryResourceListener<T> {
         if (!path.startsWith(prefix) || !path.endsWith(JSON_EXTENSION)) {
             throw new IllegalArgumentException("Resource is outside " + directory + ": " + resourceId);
         }
-        return Identifier.fromNamespaceAndPath(resourceId.getNamespace(),
-                path.substring(prefix.length(), path.length() - JSON_EXTENSION.length()));
+        return Identifier.fromNamespaceAndPath(resourceId.getNamespace(), path.substring(prefix.length(), path.length() - JSON_EXTENSION.length()));
+    }
+
+    private static void processQueue() {
+        while (true) {
+            RegistryResourceListener<?> next = null;
+
+            for (RegistryResourceListener<?> listener : LISTENERS.values()) {
+                if (listener.state == State.QUEUED && listener.dependenciesLoaded()) {
+                    next = listener;
+                    break;
+                }
+            }
+
+            if (next == null) return;
+
+            next.state = State.LOADING;
+            try {
+                next.load();
+                next.state = State.LOADED;
+            } catch (RuntimeException | Error exception) {
+                next.state = State.FAILED;
+                throw exception;
+            }
+        }
+    }
+
+    private boolean dependenciesLoaded() {
+        for (Identifier dependencyId : loadAfter) {
+            RegistryResourceListener<?> dependency = LISTENERS.get(dependencyId);
+            if (dependency == null || dependency.state != State.LOADED) return false;
+        }
+        return true;
+    }
+
+    private void load() {
+        List<PackResources> packs = openPacks();
+        try (MultiPackResourceManager resources = new MultiPackResourceManager(PackType.SERVER_DATA, packs)) {
+            Map<Identifier, Resource> declarations = resources.listResources(directory, id -> id.getPath().endsWith(JSON_EXTENSION));
+
+            declarations.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> decodeAndRegister(entry.getKey(), entry.getValue()));
+
+            LOGGER.info("Loaded {} static registry declarations from {}", declarations.size(), directory);
+        }
     }
 
     private void decodeAndRegister(Identifier resourceId, Resource resource) {
         try (Reader reader = resource.openAsReader()) {
             JsonElement json = JsonParser.parseReader(reader);
-            T declaration = codec.parse(JsonOps.INSTANCE, json)
-                    .getOrThrow(error -> new IllegalArgumentException(resourceId + ": " + error));
+            T declaration = codec.parse(JsonOps.INSTANCE, json).getOrThrow(error -> new IllegalArgumentException(resourceId + ": " + error));
             Identifier registryId = registryId(resourceId);
             InternalHandlerImpl.INSTANCE.impl().prepareRegistryNamespace(registryId.getNamespace());
             register(registryId, declaration);
@@ -91,18 +132,14 @@ public abstract class RegistryResourceListener<T> {
     private List<PackResources> openPacks() {
         List<PackResources> packs = new ArrayList<>();
         int index = 0;
-        for (Path root : InternalHandlerImpl.INSTANCE.impl().getModResourceRoots()) {
-            addPack(packs, root, "mod-" + index++);
-        }
+        for (Path root : InternalHandlerImpl.INSTANCE.impl().getModResourceRoots()) addPack(packs, root, "mod-" + index++);
 
         Path gameDirectory = InternalHandlerImpl.INSTANCE.impl().getGameDirectory();
         if (UnifiedPlatform.isModLoaded("simpleresourceloader")) {
             index = addPackDirectory(packs, gameDirectory.resolve("resources/common/required"), "srl-common-", index);
             addPackDirectory(packs, gameDirectory.resolve("resources/datapack/required"), "srl-data-", index);
         }
-        if (UnifiedPlatform.isModLoaded("paxi")) {
-            addPaxiPacks(packs, gameDirectory);
-        }
+        if (UnifiedPlatform.isModLoaded("paxi")) addPaxiPacks(packs, gameDirectory);
         return packs;
     }
 
@@ -148,10 +185,9 @@ public abstract class RegistryResourceListener<T> {
         if (!Files.isRegularFile(orderFile)) return List.of();
         try (Reader reader = Files.newBufferedReader(orderFile)) {
             JsonElement root = JsonParser.parseReader(reader);
-            JsonElement values = root.isJsonArray() ? root
-                    : root.isJsonObject() && root.getAsJsonObject().has("loadOrder")
-                    ? root.getAsJsonObject().get("loadOrder") : null;
+            JsonElement values = root.isJsonArray() ? root : root.isJsonObject() && root.getAsJsonObject().has("loadOrder") ? root.getAsJsonObject().get("loadOrder") : null;
             if (values == null || !values.isJsonArray()) return List.of();
+
             List<String> result = new ArrayList<>();
             values.getAsJsonArray().forEach(value -> result.add(value.getAsString()));
             return result;
@@ -161,8 +197,7 @@ public abstract class RegistryResourceListener<T> {
     }
 
     private static boolean isPack(Path path) {
-        return Files.isDirectory(path)
-                || Files.isRegularFile(path) && path.getFileName().toString().endsWith(".zip");
+        return Files.isDirectory(path) || Files.isRegularFile(path) && path.getFileName().toString().endsWith(".zip");
     }
 
     private static void addPack(List<PackResources> packs, Path path, String id) {
@@ -180,5 +215,13 @@ public abstract class RegistryResourceListener<T> {
         while (normalized.endsWith("/")) normalized = normalized.substring(0, normalized.length() - 1);
         if (normalized.isEmpty()) throw new IllegalArgumentException("Registry resource path cannot be empty");
         return normalized;
+    }
+
+    private enum State {
+        UNREGISTERED,
+        QUEUED,
+        LOADING,
+        LOADED,
+        FAILED
     }
 }

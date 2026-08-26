@@ -12,14 +12,16 @@ import net.rebel459.unified.platform.InternalHandlerImpl;
 import net.rebel459.unified.util.data.MobVariants;
 import net.rebel459.unified.util.registry.RegistryResourceListener;
 
-public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Definition> {
+public class EntityTypeRegistry extends RegistryResourceListener<EntityTypeRegistry.Definition> {
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.ENTITY_TYPE).fieldOf("base").forGetter(Definition::base),
             Codec.either(Identifier.CODEC, MobVariants.Variant.CODEC).fieldOf("default_variant").forGetter(Definition::defaultVariant)
     ).apply(instance, Definition::new));
 
-    public EntityRegistry() {
-        super(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "entities"), CODEC);
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "entity_types");
+
+    public EntityTypeRegistry() {
+        super(ID, CODEC, SoundEventRegistry.ID);
     }
 
     @Override

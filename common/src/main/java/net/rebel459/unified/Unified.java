@@ -26,8 +26,8 @@ public class Unified {
         new BlockSetTypeRegistry().init();
         new WoodTypeRegistry().init();
         new BlockRegistry().init();
+        new EntityTypeRegistry().init();
         new ItemRegistry().init();
-        new EntityRegistry().init();
     }
 
     public static void init() {
