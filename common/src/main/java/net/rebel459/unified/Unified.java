@@ -1,9 +1,7 @@
 package net.rebel459.unified;
 
 import net.rebel459.unified.platform.UnifiedPlatform;
-import net.rebel459.unified.util.data.registry.BlockRegistry;
-import net.rebel459.unified.util.data.registry.EntityRegistry;
-import net.rebel459.unified.util.data.registry.ItemRegistry;
+import net.rebel459.unified.util.data.registry.*;
 import net.rebel459.unified.util.data.BiomeModifiers;
 import net.rebel459.unified.registry.UnifiedBlockTypes;
 import net.rebel459.unified.registry.UnifiedDataComponents;
@@ -24,8 +22,11 @@ public class Unified {
         BiomeModifiers.init();
         UnifiedItemTypes.init();
         UnifiedBlockTypes.init();
-        new ItemRegistry().init();
+        new SoundEventRegistry().init();
+        new BlockSetTypeRegistry().init();
+        new WoodTypeRegistry().init();
         new BlockRegistry().init();
+        new ItemRegistry().init();
         new EntityRegistry().init();
     }
 

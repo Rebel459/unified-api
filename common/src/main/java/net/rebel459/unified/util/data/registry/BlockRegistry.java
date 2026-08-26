@@ -18,6 +18,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -138,7 +139,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                         Codec.FLOAT.optionalFieldOf("friction").forGetter(First::friction),
                         Codec.FLOAT.optionalFieldOf("speed_multiplier").forGetter(First::speedMultiplier),
                         Codec.FLOAT.optionalFieldOf("jump_multiplier").forGetter(First::jumpMultiplier),
-                        SoundType.CODEC.optionalFieldOf("sounds").forGetter(First::sounds),
+                        SoundType.CODEC.optionalFieldOf("sound_type").forGetter(First::sounds),
                         Codec.INT.optionalFieldOf("light_level").forGetter(First::lightLevel),
                         Codec.INT.optionalFieldOf("destroy_time").forGetter(First::destroyTime),
                         Codec.INT.optionalFieldOf("explosion_resistance").forGetter(First::explosionResistance),
@@ -300,7 +301,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     }
 
     public record SoundType(float volume, float pitch, SoundEvent breakSound, SoundEvent stepSound, SoundEvent placeSound, SoundEvent hitSound, SoundEvent fallSound) {
-        private static final Codec<SoundType> CODEC =
+        public static final Codec<SoundType> CODEC =
                 RecordCodecBuilder.create(instance -> instance.group(
                         ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("volume", 1F).forGetter(SoundType::volume),
                         ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("pitch", 1F).forGetter(SoundType::pitch),
@@ -310,6 +311,14 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                         BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("hit_sound").forGetter(SoundType::hitSound),
                         BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("fall_sound").forGetter(SoundType::fallSound)
                 ).apply(instance, SoundType::new));
+
+        public net.minecraft.world.level.block.SoundType convert() {
+            return new net.minecraft.world.level.block.SoundType(volume, pitch, breakSound, stepSound, placeSound, hitSound, fallSound);
+        }
+
+        public static SoundType create(net.minecraft.world.level.block.SoundType sounds) {
+            return new SoundType(sounds.volume, sounds.pitch, sounds.getBreakSound(), sounds.getStepSound(), sounds.getPlaceSound(), sounds.getHitSound(), sounds.getFallSound());
+        }
     }
 
     private static BlockBehaviour.Properties createProperties(Properties properties) {
@@ -333,8 +342,8 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             actual.jumpFactor(properties.jumpMultiplier.get());
         }
         if (properties.sounds.isPresent()) {
-            SoundType sounds = properties.sounds.get();
-            actual.sound(new net.minecraft.world.level.block.SoundType(sounds.volume, sounds.pitch, sounds.breakSound, sounds.stepSound, sounds.placeSound, sounds.hitSound, sounds.fallSound));
+            SoundType soundType = properties.sounds.get();
+            actual.sound(sounds.convert());
         }
         if (properties.lightLevel.isPresent()) {
             actual.lightLevel(_ -> properties.lightLevel.get());

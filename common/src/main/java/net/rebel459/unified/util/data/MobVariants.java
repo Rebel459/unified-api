@@ -65,7 +65,7 @@ public class MobVariants {
                 Identifier.CODEC.optionalFieldOf("target").forGetter(Variant::target),
                 TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Variant::texture),
                 TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),
-                SoundVariants.CODEC.optionalFieldOf("sounds", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds),
+                SoundVariants.CODEC.optionalFieldOf("sound_type", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds),
                 SpawnPrioritySelectors.CODEC.optionalFieldOf("spawn_conditions", SpawnPrioritySelectors.EMPTY).forGetter(Variant::spawnConditions),
                 ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("spawn_chance", 1F).forGetter(Variant::spawnChance),
                 AttributeEntry.CODEC.listOf().optionalFieldOf("attributes", List.of()).forGetter(Variant::attributes),

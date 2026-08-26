@@ -526,7 +526,7 @@ public class UnifiedBlockTypes {
         ).apply(instance, WeightedPlate::new));
     }
 
-    private static String getSetName(Identifier id) {
+    public static String getSetName(Identifier id) {
         if (id.getNamespace().equals("minecraft")) return id.getPath();
         else return id.toString();
     }
