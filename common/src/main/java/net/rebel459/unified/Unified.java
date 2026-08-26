@@ -18,8 +18,11 @@ public class Unified {
         BiomeModifiers.init();
         UnifiedItemTypes.init();
         UnifiedBlockTypes.init();
-        new ItemRegistry().init();
+        new SoundEventRegistry().init();
+        new BlockSetTypeRegistry().init();
+        new WoodTypeRegistry().init();
         new BlockRegistry().init();
+        new ItemRegistry().init();
         new EntityRegistry().init();
     }
 

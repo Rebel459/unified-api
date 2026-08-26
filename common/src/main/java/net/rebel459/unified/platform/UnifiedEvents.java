@@ -511,7 +511,7 @@ public class UnifiedEvents {
         public static void modify(BiomeModifiers.Entry modifiers) {
             BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(0, modifiers));
         }
-        
+
         public static void modifyWithPriority(int priority, BiomeModifiers.Entry modifiers) {
             BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(priority, modifiers));
         }
