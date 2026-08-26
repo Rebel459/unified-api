@@ -41,7 +41,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     public static final ExtensibleCodec<Function<BlockBehaviour.Properties, ? extends Block>> TYPES = new ExtensibleCodec<>("type");
 
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            TYPES.codec(UnifiedBlockTypes.BLOCK.id()).forGetter(Definition::type),
+            TYPES.codec(Identifier.withDefaultNamespace("block")).forGetter(Definition::type),
             Codec.BOOL.optionalFieldOf("register_item", true).forGetter(Definition::registerItem),
             CodecUtils.supplied(Properties.CODEC, () -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), BlockRegistry::createProperties)
                     .optionalFieldOf("properties").xmap(properties -> properties.orElse(BlockBehaviour.Properties::of), Optional::of).forGetter(Definition::properties),

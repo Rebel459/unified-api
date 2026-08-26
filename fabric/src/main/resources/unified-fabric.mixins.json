@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "block.ComposterBlockInputContainerMixin",
-    "block.FabricComposterBlockMixin"
+    "block.FabricComposterBlockMixin",
+    "server.MinecraftServerMixin"
   ],
   "client": [
     "client.FabricGuiMixin",

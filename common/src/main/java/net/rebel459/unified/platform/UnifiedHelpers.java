@@ -11,7 +11,7 @@ public class UnifiedHelpers {
     public static HelpersImpl.Networking NETWORKING = InternalHandlerImpl.INSTANCE.getNetworking();
     public static BlockConversions BLOCK_CONVERSIONS = new BlockConversions() {};
     public static DataComponents DATA_COMPONENTS = new DataComponents() {};
-    public static HelpersImpl.BiomeModifications BIOME_MODIFICATIONS = InternalHandlerImpl.INSTANCE.getBiomeModifications();
+    public static HelpersImpl.BiomeModifications BIOME_MODIFICATIONS = new HelpersImpl.BiomeModifications() {};
     public static StructureMusic STRUCTURE_MUSIC = new StructureMusic() {};
     public static HelpersImpl.ReloadListeners RELOAD_LISTENERS = InternalHandlerImpl.INSTANCE.getReloadListeners();
     public static HelpersImpl.DataRegistries DATA_REGISTRIES = InternalHandlerImpl.INSTANCE.getDataRegistries();

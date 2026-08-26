@@ -9,8 +9,7 @@
     "item.DataComponentInitializersMixin",
     "item.DataComponentInitializersPendingComponentsMixin",
     "server.PlayerListMixin",
-    "server.ServerLifecycleHooksMixin",
-    "worldgen.BiomeAccessor"
+    "server.ServerLifecycleHooksMixin"
   ],
   "client": [
     "client.AttributeUtilMixin",

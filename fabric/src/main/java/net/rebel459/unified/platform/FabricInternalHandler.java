@@ -96,11 +96,6 @@ public class FabricInternalHandler implements InternalHandler {
     }
 
     @Override
-    public HelpersImpl.BiomeModifications getBiomeModifications() {
-        return new FabricHelpersImpl.BiomeModifications();
-    }
-
-    @Override
     public HelpersImpl.ReloadListeners getReloadListeners() {
         return new FabricHelpersImpl.ReloadListeners();
     }

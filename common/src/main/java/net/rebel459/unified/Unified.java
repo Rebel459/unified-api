@@ -1,6 +1,7 @@
 package net.rebel459.unified;
 
 import net.rebel459.unified.platform.UnifiedPlatform;
+import net.rebel459.unified.util.event.BiomeModificationsImpl;
 import net.rebel459.unified.registry.UnifiedBlockTypes;
 import net.rebel459.unified.registry.UnifiedDataComponents;
 import net.rebel459.unified.registry.UnifiedItemTypes;
@@ -17,6 +18,7 @@ public class Unified {
         LootInjections.init();
         ComponentModifiers.init();
         MobVariants.init();
+        BiomeModificationsImpl.init();
         UnifiedItemTypes.init();
         UnifiedBlockTypes.init();
         new ItemRegistry().init();

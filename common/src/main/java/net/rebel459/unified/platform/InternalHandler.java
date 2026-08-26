@@ -40,7 +40,6 @@ public interface InternalHandler {
     HelpersImpl.Packs getPacks();
     HelpersImpl.Networking getNetworking();
     HelpersImpl.Platform getPlatform();
-    HelpersImpl.BiomeModifications getBiomeModifications();
     HelpersImpl.ReloadListeners getReloadListeners();
     HelpersImpl.DataRegistries getDataRegistries();
     HelpersImpl.EntityData getEntityData();

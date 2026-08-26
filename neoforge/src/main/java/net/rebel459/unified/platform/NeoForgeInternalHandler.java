@@ -99,11 +99,6 @@ public class NeoForgeInternalHandler implements InternalHandler {
     }
 
     @Override
-    public HelpersImpl.BiomeModifications getBiomeModifications() {
-        return new NeoForgeHelpersImpl.BiomeModifications();
-    }
-
-    @Override
     public HelpersImpl.ReloadListeners getReloadListeners() {
         return new NeoForgeHelpersImpl.ReloadListeners();
     }

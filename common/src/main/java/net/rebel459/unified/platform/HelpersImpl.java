@@ -12,19 +12,15 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.attribute.EnvironmentAttribute;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.MobSpawnSettings;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
-import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.util.PackType;
 import net.rebel459.unified.util.LoaderType;
+import net.rebel459.unified.util.event.BiomeModificationContext;
+import net.rebel459.unified.util.event.BiomeModificationsImpl;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -82,79 +78,23 @@ public class HelpersImpl {
         void send(CustomPacketPayload payload, ServerPlayer player);
     }
 
+    @Deprecated
     public interface BiomeModifications {
-
-        interface Worldgen {
-            void addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step);
-            void removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step);
-            void addCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey);
-            void removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carverKey);
+        final class Context extends BiomeModificationContext {
+            private Context() {}
         }
 
-        interface Effects {
-            void setWaterColor(int color);
-            void setFoliageColor(int color);
-            void setDryFoliageColor(int color);
-            void setGrassColor(int color);
+        default void register(ResourceKey<Biome> biome, Consumer<Context> modifier) {
+            BiomeModificationsImpl.register(biome, context -> modifier.accept(new Context()));
         }
 
-        interface Climate {
-            void setTemperature(float temperature);
-            void setDownfall(float downfall);
-            void setPrecipitation(boolean hasPrecipitation);
+        default void register(List<ResourceKey<Biome>> biomes, Consumer<Context> modifier) {
+            BiomeModificationsImpl.register(biomes, context -> modifier.accept(new Context()));
         }
 
-        interface EnvironmentAttributes {
-            <Value> void set(EnvironmentAttribute<Value> attribute, Value value);
+        default void register(TagKey<Biome> biome, Consumer<Context> modifier) {
+            BiomeModificationsImpl.register(biome, context -> modifier.accept(new Context()));
         }
-
-        interface MobSpawns {
-            void addSpawn(MobSpawnSettings.SpawnerData data, int weight);
-            void removeSpawn(EntityType<?> entityType);
-
-            void addCharge(EntityType<?> entityType, double charge, double energyBudget);
-            void removeCharge(EntityType<?> entityType);
-        }
-
-        final class Context {
-            private final Worldgen worldgen;
-            private final Effects effects;
-            private final Climate climate;
-            private final EnvironmentAttributes environmentAttributes;
-            private final MobSpawns mobSpawns;
-
-            Context(Worldgen worldgen, Effects effects, Climate climate, EnvironmentAttributes environmentAttributes, MobSpawns mobSpawns) {
-                this.worldgen = worldgen;
-                this.effects = effects;
-                this.climate = climate;
-                this.environmentAttributes = environmentAttributes;
-                this.mobSpawns = mobSpawns;
-            }
-
-            public Worldgen getFeatures() {
-                return worldgen;
-            }
-
-            public Effects getEffects() {
-                return effects;
-            }
-
-            public Climate getClimate() {
-                return climate;
-            }
-
-            public EnvironmentAttributes getEnvironmentAttributes() {
-                return environmentAttributes;
-            }
-
-            public MobSpawns getMobSpawns() {
-                return mobSpawns;
-            }
-        }
-
-        void register(ResourceKey<Biome> biome, Consumer<Context> context);
-        void register(List<ResourceKey<Biome>> biomes, Consumer<Context> context);
-        void register(TagKey<Biome> biome, Consumer<Context> context);
     }
 
     public interface ReloadListeners {
