@@ -15,6 +15,7 @@ public class Unified {
         LootInjections.init();
         ComponentModifiers.init();
         MobVariants.init();
+        BiomeModificationsImpl.init();
         UnifiedItemTypes.init();
         UnifiedBlockTypes.init();
         new ItemRegistry().init();
