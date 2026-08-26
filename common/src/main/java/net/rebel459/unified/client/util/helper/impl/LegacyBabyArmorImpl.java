@@ -343,7 +343,7 @@ public final class LegacyBabyArmorImpl {
         try {
             return constructor.newInstance(root);
         } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("Failed to create legacy baby armor model via " + constructor.getDeclaringClass().getName(), exception);
+            throw new IllegalStateException("Failed to supplied legacy baby armor model via " + constructor.getDeclaringClass().getName(), exception);
         }
     }
 }

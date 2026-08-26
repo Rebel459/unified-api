@@ -1,13 +1,13 @@
 package net.rebel459.unified;
 
 import net.rebel459.unified.platform.UnifiedPlatform;
+import net.rebel459.unified.registry.UnifiedBlockTypes;
 import net.rebel459.unified.registry.UnifiedDataComponents;
+import net.rebel459.unified.registry.UnifiedItemTypes;
 import net.rebel459.unified.util.LoaderType;
 import net.rebel459.unified.util.builder.*;
 import net.rebel459.unified.util.builder.impl.*;
-import net.rebel459.unified.util.data.ComponentModifiers;
-import net.rebel459.unified.util.data.LootInjections;
-import net.rebel459.unified.util.data.MobVariants;
+import net.rebel459.unified.util.data.*;
 import net.rebel459.unified.util.helper.impl.StructureMusicImpl;
 
 public class Unified {
@@ -17,6 +17,10 @@ public class Unified {
         LootInjections.init();
         ComponentModifiers.init();
         MobVariants.init();
+        UnifiedItemTypes.init();
+        UnifiedBlockTypes.init();
+        new ItemRegistry().init();
+        new BlockRegistry().init();
     }
 
     public static void init() {

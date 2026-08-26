@@ -49,8 +49,8 @@ public abstract class MobMixin {
     @WrapOperation(method = "playAmbientSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;getAmbientSound()Lnet/minecraft/sounds/SoundEvent;"))
     private SoundEvent variantAmbientSound(Mob mob, Operation<SoundEvent> original) {
         if (mob instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<Holder<SoundEvent>> sound = variant.getVariant().get().value().sounds().ambientSound();
-            if (sound.isPresent()) return sound.get().value();
+            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().ambientSound();
+            if (sound.isPresent()) return sound.get();
         }
         return original.call(mob);
     }

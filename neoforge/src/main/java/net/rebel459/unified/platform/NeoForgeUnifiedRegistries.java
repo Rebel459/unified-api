@@ -49,9 +49,20 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister.Items> ITEMS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister.Blocks> BLOCKS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister.DataComponents> DATA_COMPONENTS = new ConcurrentHashMap<>();
+    private static final Set<String> REGISTERED_NAMESPACES = ConcurrentHashMap.newKeySet();
+    private static IEventBus unifiedModBus;
 
     public static void registerBus(String modId, IEventBus modEventBus) {
+        if (unifiedModBus == null) unifiedModBus = modEventBus;
+        if (!REGISTERED_NAMESPACES.add(modId)) return;
         registerBus(modId, modEventBus, List.of());
+    }
+
+    public static void prepareNamespace(String namespace) {
+        if (unifiedModBus == null) {
+            throw new IllegalStateException("Unified's NeoForge mod event bus is not initialized");
+        }
+        registerBus(namespace, unifiedModBus);
     }
 
     @SafeVarargs

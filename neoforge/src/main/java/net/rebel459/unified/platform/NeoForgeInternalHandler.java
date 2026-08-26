@@ -18,12 +18,16 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLPaths;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 
 import java.util.HashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.nio.file.Path;
+import java.util.List;
 
 public class NeoForgeInternalHandler implements InternalHandler {
 
@@ -113,6 +117,24 @@ public class NeoForgeInternalHandler implements InternalHandler {
     }
 
     public static class Impl implements InternalHandler.Impl {
+
+        @Override
+        public List<Path> getModResourceRoots() {
+            return ModList.get().getModFiles().stream()
+                    .flatMap(fileInfo -> fileInfo.getFile().getContents().getContentRoots().stream())
+                    .distinct()
+                    .toList();
+        }
+
+        @Override
+        public Path getGameDirectory() {
+            return FMLPaths.GAMEDIR.get();
+        }
+
+        @Override
+        public void prepareRegistryNamespace(String namespace) {
+            NeoForgeUnifiedRegistries.prepareNamespace(namespace);
+        }
 
         public static HashMap<Block, Block> OXIDIZABLES = new HashMap<>();
 

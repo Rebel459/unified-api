@@ -5,6 +5,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.variant.PriorityProvider;
 import net.minecraft.world.entity.variant.SpawnCondition;
 import net.minecraft.world.entity.variant.SpawnContext;
 import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedAttachments;
 import net.rebel459.unified.platform.UnifiedHelpers;
@@ -55,7 +58,7 @@ public class MobVariants {
             List<AttributeEntry> attributes,
             List<MobEffectInstance> attackEffects,
             Optional<Boolean> burnInDaylight,
-            Optional<Identifier> lootTable
+            Optional<ResourceKey<LootTable>> lootTable
     ) implements PriorityProvider<SpawnContext, SpawnCondition> {
 
         public static final Codec<Variant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -68,7 +71,7 @@ public class MobVariants {
                 AttributeEntry.CODEC.listOf().optionalFieldOf("attributes", List.of()).forGetter(Variant::attributes),
                 MobEffectInstance.CODEC.listOf().optionalFieldOf("attack_effects", List.of()).forGetter(Variant::attackEffects),
                 Codec.BOOL.optionalFieldOf("burn_in_daylight").forGetter(Variant::burnInDaylight),
-                Identifier.CODEC.optionalFieldOf("loot_table").forGetter(Variant::lootTable)
+                ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(Variant::lootTable)
         ).apply(instance, Variant::new));
 
         private Variant(Identifier target, Optional<TextureReplacement> texture, Optional<TextureReplacement> babyTexture, SoundVariants sounds) {
@@ -111,13 +114,13 @@ public class MobVariants {
         );
     }
 
-    public record SoundVariants(Optional<Holder<SoundEvent>> ambientSound, Optional<Holder<SoundEvent>> hurtSound, Optional<Holder<SoundEvent>> eatSound, Optional<Holder<SoundEvent>> deathSound, Optional<Holder<SoundEvent>> stepSound) {
+    public record SoundVariants(Optional<SoundEvent> ambientSound, Optional<SoundEvent> hurtSound, Optional<SoundEvent> eatSound, Optional<SoundEvent> deathSound, Optional<SoundEvent> stepSound) {
         public static final Codec<SoundVariants> CODEC =  RecordCodecBuilder.create(instance -> instance.group(
-                        SoundEvent.CODEC.optionalFieldOf("ambient_sound").forGetter(SoundVariants::ambientSound),
-                        SoundEvent.CODEC.optionalFieldOf("hurt_sound").forGetter(SoundVariants::hurtSound),
-                        SoundEvent.CODEC.optionalFieldOf("eat_sound").forGetter(SoundVariants::eatSound),
-                        SoundEvent.CODEC.optionalFieldOf("death_sound").forGetter(SoundVariants::deathSound),
-                        SoundEvent.CODEC.optionalFieldOf("step_sound").forGetter(SoundVariants::stepSound))
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("ambient_sound").forGetter(SoundVariants::ambientSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("hurt_sound").forGetter(SoundVariants::hurtSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("eat_sound").forGetter(SoundVariants::eatSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("death_sound").forGetter(SoundVariants::deathSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("step_sound").forGetter(SoundVariants::stepSound))
                 .apply(instance, SoundVariants::new)
         );
     }

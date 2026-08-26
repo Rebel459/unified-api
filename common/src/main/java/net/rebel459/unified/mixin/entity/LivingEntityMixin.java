@@ -44,8 +44,8 @@ public class LivingEntityMixin implements LivingEntityVariant {
     @WrapOperation(method = "handleEntityEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getDeathSound()Lnet/minecraft/sounds/SoundEvent;"))
     private SoundEvent variantDeathSoundEvent(LivingEntity entity, Operation<SoundEvent> original) {
         if (entity instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<Holder<SoundEvent>> sound = variant.getVariant().get().value().sounds().deathSound();
-            if (sound.isPresent()) return sound.get().value();
+            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().deathSound();
+            if (sound.isPresent()) return sound.get();
         }
         return original.call(entity);
     }
@@ -53,8 +53,8 @@ public class LivingEntityMixin implements LivingEntityVariant {
     @WrapOperation(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getDeathSound()Lnet/minecraft/sounds/SoundEvent;"))
     private SoundEvent variantDeathSoundServer(LivingEntity entity, Operation<SoundEvent> original) {
         if (entity instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<Holder<SoundEvent>> sound = variant.getVariant().get().value().sounds().deathSound();
-            if (sound.isPresent()) return sound.get().value();
+            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().deathSound();
+            if (sound.isPresent()) return sound.get();
         }
         return original.call(entity);
     }
@@ -62,8 +62,8 @@ public class LivingEntityMixin implements LivingEntityVariant {
     @WrapOperation(method = "playHurtSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent;"))
     private SoundEvent variantHurtSound(LivingEntity entity, DamageSource source, Operation<SoundEvent> original) {
         if (entity instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<Holder<SoundEvent>> sound = variant.getVariant().get().value().sounds().hurtSound();
-            if (sound.isPresent()) return sound.get().value();
+            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().hurtSound();
+            if (sound.isPresent()) return sound.get();
         }
         return original.call(entity, source);
     }
