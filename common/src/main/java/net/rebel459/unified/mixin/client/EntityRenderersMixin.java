@@ -3,7 +3,7 @@ package net.rebel459.unified.mixin.client;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.entity.EntityType;
-import net.rebel459.unified.util.registry.EntityTypeCopies;
+import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +28,7 @@ public class EntityRenderersMixin {
     }
 
     private static void copyProviders() {
-        EntityTypeCopies.templates().forEach((copy, template) -> {
+        EntityRegistryImpl.templates().forEach((copy, template) -> {
             EntityRendererProvider<?> provider = PROVIDERS.get(template);
             if (provider != null) PROVIDERS.putIfAbsent(copy, provider);
         });

@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.registry;
+package net.rebel459.unified.util.data.impl;
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,7 +13,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.util.data.MobVariants;
 
 import java.util.LinkedHashMap;
@@ -21,13 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public final class EntityTypeCopies {
+public final class EntityRegistryImpl {
     private static final Map<ResourceKey<EntityType<?>>, Declaration> DECLARATIONS = new LinkedHashMap<>();
     private static final Map<EntityType<?>, EntityType<?>> TEMPLATES = new LinkedHashMap<>();
     private static final Map<EntityType<?>, ResourceKey<MobVariants.Variant>> DEFAULT_VARIANTS = new LinkedHashMap<>();
     private static final Map<EntityType<?>, MobVariants.Variant> INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
 
-    private EntityTypeCopies() {}
+    private EntityRegistryImpl() {}
 
     public static EntityType<?> create(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base, Identifier defaultVariant) {
         EntityType<?> entityType = create(key, base);

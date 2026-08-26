@@ -18,7 +18,7 @@ import net.rebel459.unified.platform.EventsImpl;
 import net.rebel459.unified.util.EventType;
 import net.rebel459.unified.util.data.MobVariants;
 import net.rebel459.unified.util.mixin.LivingEntityVariant;
-import net.rebel459.unified.util.registry.EntityTypeCopies;
+import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -106,8 +106,8 @@ public class LivingEntityMixin implements LivingEntityVariant {
         RandomSource random = level.getRandom();
 
         var variants = level.registryAccess().lookupOrThrow(MobVariants.KEY);
-        var defaultVariantKey = EntityTypeCopies.defaultVariant(entity.getType());
-        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityTypeCopies.resolveDefaultVariant(entity.getType(), variants);
+        var defaultVariantKey = EntityRegistryImpl.defaultVariant(entity.getType());
+        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityRegistryImpl.resolveDefaultVariant(entity.getType(), variants);
         if (defaultVariant.isEmpty()) {
             defaultVariantKey.ifPresent(key -> {
                 throw new IllegalStateException("Missing default mob variant " + key.identifier() + " for " + entityType);

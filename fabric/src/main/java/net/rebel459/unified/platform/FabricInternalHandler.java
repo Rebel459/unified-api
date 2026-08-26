@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 import net.rebel459.unified.util.data.MobVariants;
-import net.rebel459.unified.util.registry.EntityTypeCopies;
+import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
 
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -143,8 +143,8 @@ public class FabricInternalHandler implements InternalHandler {
         public void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant) {
             ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
             EntityType<?> entityType = defaultVariant.map(
-                    variant -> EntityTypeCopies.create(key, base, variant),
-                    variant -> EntityTypeCopies.create(key, base, variant)
+                    variant -> EntityRegistryImpl.create(key, base, variant),
+                    variant -> EntityRegistryImpl.create(key, base, variant)
             );
             Registry.register(BuiltInRegistries.ENTITY_TYPE, key, entityType);
         }

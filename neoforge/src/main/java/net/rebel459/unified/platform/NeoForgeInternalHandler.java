@@ -27,7 +27,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.rebel459.unified.util.helper.impl.BlockConversionsImpl;
 import net.rebel459.unified.util.data.MobVariants;
-import net.rebel459.unified.util.registry.EntityTypeCopies;
+import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
 
 import java.util.HashMap;
 import java.util.function.BiPredicate;
@@ -151,8 +151,8 @@ public class NeoForgeInternalHandler implements InternalHandler {
                     com.mojang.datafixers.util.Pair.of(id.getNamespace(), BuiltInRegistries.ENTITY_TYPE)
             );
             registry.register(id.getPath(), () -> defaultVariant.map(
-                    variant -> EntityTypeCopies.create(key, base, variant),
-                    variant -> EntityTypeCopies.create(key, base, variant)
+                    variant -> EntityRegistryImpl.create(key, base, variant),
+                    variant -> EntityRegistryImpl.create(key, base, variant)
             ));
         }
 

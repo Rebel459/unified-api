@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 import net.rebel459.unified.util.data.MobVariants;
 import net.rebel459.unified.util.mixin.LivingEntityVariant;
-import net.rebel459.unified.util.registry.EntityTypeCopies;
+import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,7 +40,7 @@ public class AnimalMixin {
     }
 
     private static boolean appliesTo(Holder<MobVariants.Variant> variant, EntityType<?> entityType, Identifier entityTypeId) {
-        return variant.value().target().map(entityTypeId::equals).orElseGet(() -> EntityTypeCopies.isDefaultVariant(entityType, variant));
+        return variant.value().target().map(entityTypeId::equals).orElseGet(() -> EntityRegistryImpl.isDefaultVariant(entityType, variant));
     }
 
     @WrapOperation(
