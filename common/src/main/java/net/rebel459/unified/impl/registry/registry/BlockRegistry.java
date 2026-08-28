@@ -48,8 +48,10 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             ResourceKey.codec(Registries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity").forGetter(Definition::blockEntity)
             ).apply(instance, Definition::new));
 
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "blocks");
+
     public BlockRegistry() {
-        super(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "blocks"), CODEC);
+        super(ID, CODEC, WoodTypeRegistry.ID);
     }
 
     @Override

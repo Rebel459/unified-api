@@ -32,8 +32,10 @@ public class BlockSetTypeRegistry extends RegistryResourceListener<BlockSetTypeR
             BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("button_click_on", SoundEvents.WOODEN_BUTTON_CLICK_ON).forGetter(Definition::buttonClickOn)
     ).apply(instance, Definition::new));
 
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "block_set_types");
+
     public BlockSetTypeRegistry() {
-        super(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "block_set_types"), CODEC);
+        super(ID, CODEC, SoundEventRegistry.ID);
     }
 
     @Override

@@ -28,8 +28,10 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
                     .optionalFieldOf("properties").xmap(properties -> properties.orElse(Item.Properties::new), Optional::of).forGetter(Definition::properties)
     ).apply(instance, Definition::new));
 
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "items");
+
     public ItemRegistry() {
-        super(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "items"), CODEC);
+        super(ID, CODEC, BlockRegistry.ID, EntityTypeRegistry.ID);
     }
 
     @Override
