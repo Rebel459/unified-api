@@ -82,7 +82,7 @@ public class MobVariants {
                 Identifier.CODEC.optionalFieldOf("target").forGetter(Variant::target),
                 TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Variant::texture),
                 TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),
-                SoundVariants.CODEC.optionalFieldOf("sounds", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds)
+                SoundVariants.CODEC.optionalFieldOf("soundType", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds)
         ).apply(instance, Variant::new));
         public static final Codec<Holder<Variant>> REGISTRY_CODEC = RegistryFileCodec.create(KEY, CODEC);
         public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Variant>>> STREAM_CODEC = ByteBufCodecs.optional(

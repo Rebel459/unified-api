@@ -52,6 +52,7 @@ public interface InternalHandler {
         List<Path> getModResourceRoots();
         Path getGameDirectory();
         void prepareRegistryNamespace(String namespace);
+        default void finishStaticRegistryBootstrap() {}
         void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant);
         BlockConversionsImpl.Oxidizables getOxidizables();
         CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);

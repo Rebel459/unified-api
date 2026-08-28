@@ -13,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.platform.UnifiedPlatform;
+import net.rebel459.unified.platform.UnifiedDataRegistries;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.LoaderType;
 import net.rebel459.unified.util.builder.impl.ColoredItemSetImpl;
@@ -33,7 +34,8 @@ public class ColoredItemSet {
 
     private final Identifier id;
 
-    private final UnifiedRegistries.Items itemRegistry;
+    private final UnifiedDataRegistries.Items items;
+    @Deprecated private final UnifiedRegistries.Items itemRegistry;
 
     private SuppliedItem white;
     private SuppliedItem lightGray;
@@ -76,10 +78,11 @@ public class ColoredItemSet {
         pink = create("pink");
     }
 
-    public ColoredItemSet(Identifier id, Settings settings, UnifiedRegistries.Items itemRegistry){
+    public ColoredItemSet(Identifier id, Settings settings, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry){
         this.settings = settings;
         this.id = id;
         this.itemRegistry = itemRegistry;
+        this.items = items;
         registerItems();
         COLORED_ITEM_SETS.add(this);
         ColoredItemSetImpl.COMPONENTS.put(id, settings.components);
@@ -220,7 +223,8 @@ public class ColoredItemSet {
 
         private final Identifier id;
 
-        private final UnifiedRegistries.Items itemRegistry;
+        private final UnifiedDataRegistries.Items items;
+        @Deprecated private final UnifiedRegistries.Items itemRegistry;
 
         public RegistryBuilder createForBlocks(ColoredBlockSet coloredBlockSet) {
             settings.coloredBlockSet = coloredBlockSet;
@@ -228,14 +232,15 @@ public class ColoredItemSet {
         }
 
         public ColoredItemSet build() {
-            return new ColoredItemSet(id, settings, itemRegistry);
+            return new ColoredItemSet(id, settings, items, itemRegistry);
         }
 
-        public RegistryBuilder(Identifier id, ColoredItemPreset preset, UnifiedRegistries.Items itemRegistry) {
+        public RegistryBuilder(Identifier id, ColoredItemPreset preset, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry) {
             super(preset.settings.copy());
 
             this.id = id;
             this.itemRegistry = itemRegistry;
+            this.items = items;
         }
     }
 

@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.registry.UnifiedBlockTypes;
+import net.rebel459.unified.registry.VanillaBlockTypes;
 import net.rebel459.unified.util.registry.RegistryResourceListener;
 
 public class WoodTypeRegistry extends RegistryResourceListener<WoodTypeRegistry.Definition> {
@@ -32,7 +32,7 @@ public class WoodTypeRegistry extends RegistryResourceListener<WoodTypeRegistry.
     protected void register(Identifier id, WoodTypeRegistry.Definition type) {
         WoodType.register(new WoodType(
                 id.toString(),
-                BlockSetType.TYPES.get(UnifiedBlockTypes.getSetName(id)),
+                BlockSetType.TYPES.get(id.toString()),
                 type.soundType.convert(),
                 type.hangingSignSoundType.convert(),
                 type.fenceGateClose,

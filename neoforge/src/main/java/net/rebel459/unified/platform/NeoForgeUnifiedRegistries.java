@@ -33,6 +33,7 @@ import net.rebel459.unified.util.BlockLike;
 import net.rebel459.unified.util.registry.Supplied;
 import net.rebel459.unified.util.registry.SuppliedBlock;
 import net.rebel459.unified.util.registry.SuppliedItem;
+import net.rebel459.unified.util.registry.DataRegistryClaims;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
@@ -126,6 +127,9 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedItem existing = DataRegistryClaims.item(id);
+            if (existing != null) return existing;
             var registry = ITEMS.get(modId);
             var item = ITEMS.get(modId).registerItem(path, function, properties);
             return new SuppliedItem(registry.getRegistry(), item.getKey(), item);
@@ -133,11 +137,13 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block.identifier().getPath(), block, function, properties);
+            return registerBlockItem(block.key().identifier().getPath(), block, function, properties);
         }
 
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            SuppliedItem existing = DataRegistryClaims.item(Identifier.fromNamespaceAndPath(modId, path));
+            if (existing != null) return existing;
             var registry = ITEMS.get(modId);
             var item = registry.registerItem(path, settings -> function.apply(block.get(), settings), () -> properties.get().useBlockDescriptionPrefix().requiredFeatures(block.get().requiredFeatures()));
             return new SuppliedItem(registry.getRegistry(), item.getKey(), item);
@@ -167,12 +173,16 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
             var blockRegistry = BLOCKS.get(modId);
             var itemRegistry = ITEMS.get(modId);
             var block = blockRegistry.registerBlock(path, function, blockProperties);
             var item = itemRegistry.registerSimpleBlockItem(path, block);
             var suppliedItem = new SuppliedItem(itemRegistry.getRegistry(), item.getKey(), item);
-            return new SuppliedBlock(blockRegistry.getRegistry(), block.getKey(), block, suppliedItem);
+            SuppliedBlock registered = new SuppliedBlock(blockRegistry.getRegistry(), block.getKey(), block, suppliedItem);
+            return registered;
         }
 
         @Override
@@ -182,6 +192,8 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
+            SuppliedBlock existing = DataRegistryClaims.block(Identifier.fromNamespaceAndPath(modId, path));
+            if (existing != null) return existing;
             var block = register(path, function, blockProperties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
@@ -189,6 +201,9 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
             var registry = BLOCKS.get(modId);
             var block = registry.registerBlock(path, function, properties);
             return new SuppliedBlock(registry.getRegistry(), block.getKey(), block, null);
@@ -201,6 +216,8 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
+            SuppliedBlock existing = DataRegistryClaims.block(Identifier.fromNamespaceAndPath(modId, path));
+            if (existing != null) return existing;
             var block = registerWithoutItem(path, function, properties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
@@ -213,6 +230,9 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
             var item = new Items(modId).register(path, itemFunction, itemProperties);
             var block = BLOCKS.get(modId).registerBlock(path, blockFunction, blockProperties);
             var blockRegistry = BLOCKS.get(modId);

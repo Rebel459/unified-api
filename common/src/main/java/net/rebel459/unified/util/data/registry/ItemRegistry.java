@@ -12,7 +12,9 @@ import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.codec.ExtensibleCodec;
 import net.rebel459.unified.util.codec.CodecUtils;
+import net.rebel459.unified.util.codec.ExtensibleCodecs;
 import net.rebel459.unified.util.registry.RegistryResourceListener;
+import net.rebel459.unified.util.registry.DataRegistryClaims;
 
 import java.util.Map;
 import java.util.Optional;
@@ -20,10 +22,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definition> {
-    public static final ExtensibleCodec<Function<Item.Properties, Item>> TYPES = new ExtensibleCodec<>("type");
-
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            TYPES.codec(Identifier.withDefaultNamespace("item")).forGetter(Definition::type),
+            ExtensibleCodecs.ITEM_TYPES.mapCodec(Identifier.withDefaultNamespace("item")).forGetter(Definition::type),
             CodecUtils.supplied(DataComponentType.VALUE_MAP_CODEC, () -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), ItemRegistry::createProperties)
                     .optionalFieldOf("properties").xmap(properties -> properties.orElse(Item.Properties::new), Optional::of).forGetter(Definition::properties)
     ).apply(instance, Definition::new));
@@ -41,7 +41,9 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
         if (definition.factory() instanceof BlockItem) {
             properties = () -> copied.get().useBlockDescriptionPrefix();
         }
-        UnifiedRegistries.Items.create(id.getNamespace()).register(id.getPath(), definition.factory(), properties);
+        Supplier<Item.Properties> finalProperties = properties;
+        DataRegistryClaims.registerItem(id, () -> UnifiedRegistries.Items.create(id.getNamespace())
+                .register(id.getPath(), definition.factory(), finalProperties));
     }
 
     public record Definition(ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Supplier<Item.Properties> properties) {
@@ -51,7 +53,7 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Item.Properties createProperties(Map<DataComponentType<?>, Object> components) {
+    public static <T> Item.Properties createProperties(Map<DataComponentType<?>, Object> components) {
         Item.Properties properties = new Item.Properties();
         components.forEach((type, value) -> properties.component((DataComponentType<T>) type, (T) value));
         return properties;

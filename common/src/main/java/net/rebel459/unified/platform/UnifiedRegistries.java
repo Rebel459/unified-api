@@ -78,11 +78,11 @@ public class UnifiedRegistries {
             }
 
             public EquipmentSet.RegistryBuilder equipmentSet(String name, EquipmentPreset preset) {
-                return new EquipmentSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, this.itemRegistry);
+                return new EquipmentSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, null, this.itemRegistry);
             }
 
             public ColoredItemSet.RegistryBuilder coloredItemSet(String name, ColoredItemPreset preset) {
-                return new ColoredItemSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, this.itemRegistry);
+                return new ColoredItemSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, null, this.itemRegistry);
             }
         }
 
@@ -124,15 +124,15 @@ public class UnifiedRegistries {
             }
 
             public WoodSet.RegistryBuilder woodSet(String name, WoodPreset preset, MapColor barkColor, MapColor plankColor) {
-                return new WoodSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), barkColor, plankColor, preset, this.itemRegistry, this.blockRegistry, this.entityRegistry);
+                return new WoodSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), barkColor, plankColor, preset, null, this.itemRegistry, this.blockRegistry, this.entityRegistry);
             }
 
             public BlockSet.RegistryBuilder blockSet(String name, BlockPreset preset, MapColor color) {
-                return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, preset, this.blockRegistry);
+                return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, preset, null, this.blockRegistry);
             }
 
             public ColoredBlockSet.RegistryBuilder coloredBlockSet(String name, ColoredBlockPreset preset) {
-                return new ColoredBlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, this.blockRegistry);
+                return new ColoredBlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, null, this.blockRegistry);
             }
 
             @Deprecated

@@ -37,7 +37,7 @@ public class FabricInternalHandler implements InternalHandler {
 
     @Override
     public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
-        return new FabricUnifiedRegistries.DeferredRegistry<>(modId, registry);
+        return new FabricDeferredRegistry<>(modId, registry);
     }
 
     @Override
@@ -132,6 +132,11 @@ public class FabricInternalHandler implements InternalHandler {
 
         @Override
         public void prepareRegistryNamespace(String namespace) {
+        }
+
+        @Override
+        public void finishStaticRegistryBootstrap() {
+            FabricRegistryBootstrap.finish();
         }
 
         @Override

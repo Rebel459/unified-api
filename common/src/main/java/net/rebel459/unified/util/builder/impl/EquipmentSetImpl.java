@@ -66,7 +66,7 @@ public class EquipmentSetImpl {
                 for (EquipmentSet.Target target : entry.getLeft().getTargets()) {
                     SuppliedItem targetItem = getItem(equipment, target);
                     if (targetItem != null) {
-                        if (entry.getMiddle() == DataComponents.ATTRIBUTE_MODIFIERS) SKIPPED_ATTRIBUTE_ITEMS.add(targetItem);
+                        if (entry.getMiddle() == DataComponents.ATTRIBUTE_MODIFIERS) SKIPPED_ATTRIBUTE_ITEMS.add(targetItem.key());
                         UnifiedHelpers.DATA_COMPONENTS.add(targetItem, (DataComponentType<T>) entry.getMiddle().get(), (T) entry.getRight());
                     }
                 }

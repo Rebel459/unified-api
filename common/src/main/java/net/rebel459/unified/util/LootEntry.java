@@ -45,7 +45,7 @@ public record LootEntry(Type type, Optional<LootPoolEntryContainer.Builder<?>> e
         return new LootEntry(type, Optional.of(LootTableProvider.entryBuilder(entry)));
     }
 
-    private static final MapCodec<LootPoolEntryContainer> ENTRY_CODEC = BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.byNameCodec().dispatch(LootPoolEntryContainer::codec, Function.identity()).fieldOf("entry");
+    private static final MapCodec<LootPoolEntryContainer> ENTRY_CODEC = BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.byNameCodec().dispatch(LootPoolEntryContainer::codec, Function.identity()).fieldOf("create");
 
     private static final MapCodec<LootEntry> INSERT_CODEC = ENTRY_CODEC.xmap(container -> createForCodec(Type.INSERT, container), entry -> entry.entry().orElseThrow().build());
 

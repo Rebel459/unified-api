@@ -9,6 +9,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.platform.UnifiedPlatform;
+import net.rebel459.unified.platform.UnifiedDataRegistries;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.LoaderType;
 import net.rebel459.unified.util.builder.impl.ColoredBlockSetImpl;
@@ -29,7 +30,8 @@ public class ColoredBlockSet {
 
     private final Identifier id;
 
-    private final UnifiedRegistries.Blocks blockRegistry;
+    private final UnifiedDataRegistries.Blocks blocks;
+    @Deprecated private final UnifiedRegistries.Blocks blockRegistry;
 
     private SuppliedBlock white;
     private SuppliedBlock lightGray;
@@ -72,10 +74,11 @@ public class ColoredBlockSet {
         pink = create("pink");
     }
 
-    public ColoredBlockSet(Identifier id, Settings settings, UnifiedRegistries.Blocks blockRegistry){
+    public ColoredBlockSet(Identifier id, Settings settings, UnifiedDataRegistries.Blocks blocks, UnifiedRegistries.Blocks blockRegistry){
         this.settings = settings;
         this.id = id;
         this.blockRegistry = blockRegistry;
+        this.blocks = blocks;
         registerBlocks();
         COLORED_BLOCK_SETS.add(this);
         ColoredBlockSetImpl.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
@@ -212,7 +215,8 @@ public class ColoredBlockSet {
 
         private final Identifier id;
 
-        private final UnifiedRegistries.Blocks blockRegistry;
+        private final UnifiedDataRegistries.Blocks blocks;
+        @Deprecated private final UnifiedRegistries.Blocks blockRegistry;
 
         public RegistryBuilder createWithoutItems() {
             settings.createWithoutItems = true;
@@ -220,14 +224,15 @@ public class ColoredBlockSet {
         }
 
         public ColoredBlockSet build() {
-            return new ColoredBlockSet(id, settings, blockRegistry);
+            return new ColoredBlockSet(id, settings, blocks, blockRegistry);
         }
 
-        public RegistryBuilder(Identifier id, ColoredBlockPreset preset, UnifiedRegistries.Blocks blockRegistry) {
+        public RegistryBuilder(Identifier id, ColoredBlockPreset preset, UnifiedDataRegistries.Blocks blocks, UnifiedRegistries.Blocks blockRegistry) {
             super(preset.settings.copy());
 
             this.id = id;
             this.blockRegistry = blockRegistry;
+            this.blocks = blocks;
         }
     }
 

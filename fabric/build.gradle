@@ -2,10 +2,24 @@ plugins {
     id 'multiloader-loader'
     id 'net.fabricmc.fabric-loom'
 }
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${fabric_loader}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api}"
+}
+
+sourceSets {
+    testmod {
+        compileClasspath += main.output + main.compileClasspath
+        runtimeClasspath += main.output + main.runtimeClasspath
+        resources.srcDir 'src/testmod/generated'
+    }
+}
+
+configurations {
+    testmodImplementation.extendsFrom implementation
+    testmodRuntimeOnly.extendsFrom runtimeOnly
 }
 
 loom {
@@ -15,6 +29,14 @@ loom {
     }
     mixin {
         defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    mods {
+        unified {
+            sourceSet sourceSets.main
+        }
+        unified_testmod {
+            sourceSet sourceSets.testmod
+        }
     }
     runs {
         client {
@@ -29,7 +51,45 @@ loom {
             ideConfigGenerated(true)
             runDir('runs/server')
         }
+        testmodClient {
+            client()
+            source sourceSets.testmod
+            setConfigName('Unified Testmod Client')
+            ideConfigGenerated(true)
+            runDir('runs/testmodClient')
+        }
+        testmodServer {
+            server()
+            source sourceSets.testmod
+            setConfigName('Unified Testmod Server')
+            ideConfigGenerated(true)
+            runDir('runs/testmodServer')
+        }
+        datagen {
+            client()
+            source sourceSets.testmod
+            setConfigName('Unified Testmod Datagen')
+            ideConfigGenerated(true)
+            runDir('runs/datagen')
+            vmArg '-Dfabric-api.datagen'
+            vmArg "-Dfabric-api.datagen.output-dir=${file('src/testmod/generated')}"
+            vmArg '-Dfabric-api.datagen.modid=unified_testmod'
+        }
     }
+}
+
+def cleanDatagenOutput = tasks.register('cleanDatagenOutput', Delete) {
+    delete(file('src/testmod/generated'))
+}
+
+tasks.named('processTestmodResources') {
+    mustRunAfter(cleanDatagenOutput)
+}
+
+tasks.named('runDatagen') {
+    group = 'fabric'
+    description = 'Generates the isolated Unified API testmod definitions, models, loot tables, and tags.'
+    dependsOn(cleanDatagenOutput)
 }
 
 // Implement mcgradleconventions loader attribute

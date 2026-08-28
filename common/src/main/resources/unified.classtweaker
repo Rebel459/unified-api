@@ -1,5 +1,54 @@
 classTweaker v1 official
 
+transitive-accessible field net/minecraft/world/item/Item$Properties componentInitializer Lnet/minecraft/core/component/DataComponentInitializers$Initializer;
+
+transitive-accessible field net/minecraft/data/recipes/RecipeProvider output Lnet/minecraft/data/recipes/RecipeOutput;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider oreCooking (Lnet/minecraft/world/item/crafting/AbstractCookingRecipe$Factory;Ljava/util/List;Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/item/crafting/CookingBookCategory;Lnet/minecraft/world/level/ItemLike;FILjava/lang/String;Ljava/lang/String;)V
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider buttonBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider fenceBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider fenceGateBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider pressurePlateBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider signBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider wallBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider bricksBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider tilesBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider polishedBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider cutBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/ShapedRecipeBuilder;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider smeltingResultFromBase (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/level/ItemLike;)V
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider nineBlockStorageRecipes (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider simpleCookingRecipe (Ljava/lang/String;Lnet/minecraft/world/item/crafting/AbstractCookingRecipe$Factory;ILnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/level/ItemLike;F)V
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider generateCraftingRecipe (Lnet/minecraft/data/BlockFamily;Lnet/minecraft/data/BlockFamily$Variant;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/ItemLike;)V
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider generateStonecutterRecipe (Lnet/minecraft/data/BlockFamily;Lnet/minecraft/data/BlockFamily$Variant;Lnet/minecraft/world/level/block/Block;)V
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider getBaseBlockForCrafting (Lnet/minecraft/data/BlockFamily;Lnet/minecraft/data/BlockFamily$Variant;)Lnet/minecraft/world/level/block/Block;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider insideOf (Lnet/minecraft/world/level/block/Block;)Lnet/minecraft/advancements/Criterion;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider has (Lnet/minecraft/advancements/criterion/MinMaxBounds$Ints;Lnet/minecraft/world/level/ItemLike;)Lnet/minecraft/advancements/Criterion;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider inventoryTrigger ([Lnet/minecraft/advancements/criterion/ItemPredicate$Builder;)Lnet/minecraft/advancements/Criterion;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider inventoryTrigger ([Lnet/minecraft/advancements/criterion/ItemPredicate;)Lnet/minecraft/advancements/Criterion;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider getHasName (Lnet/minecraft/world/level/ItemLike;)Ljava/lang/String;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider getItemName (Lnet/minecraft/world/level/ItemLike;)Ljava/lang/String;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider getSimpleRecipeName (Lnet/minecraft/world/level/ItemLike;)Ljava/lang/String;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider getConversionRecipeName (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/level/ItemLike;)Ljava/lang/String;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider getSmeltingRecipeName (Lnet/minecraft/world/level/ItemLike;)Ljava/lang/String;
+transitive-accessible method net/minecraft/data/recipes/RecipeProvider getBlastingRecipeName (Lnet/minecraft/world/level/ItemLike;)Ljava/lang/String;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider oreCooking (Lnet/minecraft/world/item/crafting/AbstractCookingRecipe$Factory;Ljava/util/List;Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/item/crafting/CookingBookCategory;Lnet/minecraft/world/level/ItemLike;FILjava/lang/String;Ljava/lang/String;)V
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider buttonBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider fenceBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider fenceGateBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider pressurePlateBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider signBuilder (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider wallBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider bricksBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider tilesBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider polishedBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/RecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider cutBuilder (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/item/crafting/Ingredient;)Lnet/minecraft/data/recipes/ShapedRecipeBuilder;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider smeltingResultFromBase (Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/level/ItemLike;)V
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider nineBlockStorageRecipes (Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Lnet/minecraft/data/recipes/RecipeCategory;Lnet/minecraft/world/level/ItemLike;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider simpleCookingRecipe (Ljava/lang/String;Lnet/minecraft/world/item/crafting/AbstractCookingRecipe$Factory;ILnet/minecraft/world/level/ItemLike;Lnet/minecraft/world/level/ItemLike;F)V
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider generateCraftingRecipe (Lnet/minecraft/data/BlockFamily;Lnet/minecraft/data/BlockFamily$Variant;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/ItemLike;)V
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider generateStonecutterRecipe (Lnet/minecraft/data/BlockFamily;Lnet/minecraft/data/BlockFamily$Variant;Lnet/minecraft/world/level/block/Block;)V
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider getBaseBlockForCrafting (Lnet/minecraft/data/BlockFamily;Lnet/minecraft/data/BlockFamily$Variant;)Lnet/minecraft/world/level/block/Block;
+transitive-extendable method net/minecraft/data/recipes/RecipeProvider has (Lnet/minecraft/advancements/criterion/MinMaxBounds$Ints;Lnet/minecraft/world/level/ItemLike;)Lnet/minecraft/advancements/Criterion;
+
 accessible field net/minecraft/core/MappedRegistry registrationInfos Ljava/util/Map;
 
 accessible field net/minecraft/world/level/biome/Biome climateSettings Lnet/minecraft/world/level/biome/Biome$ClimateSettings;
@@ -73,6 +122,7 @@ accessible field net/minecraft/world/level/block/state/BlockBehaviour$Properties
 accessible field net/minecraft/world/level/block/state/BlockBehaviour$Properties spawnTerrainParticles Z
 accessible field net/minecraft/world/level/block/state/BlockBehaviour$Properties replaceable Z
 accessible field net/minecraft/world/level/block/state/BlockBehaviour$Properties dynamicShape Z
+accessible field net/minecraft/world/level/block/state/BlockBehaviour$Properties requiredFeatures Lnet/minecraft/world/flag/FeatureFlagSet;
 accessible field net/minecraft/world/level/block/Blocks NOT_CLOSED_SHULKER Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;
 accessible field net/minecraft/world/level/block/Blocks NOT_EXTENDED_PISTON Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;
 accessible field net/minecraft/world/level/block/state/properties/WoodType TYPES Ljava/util/Map;
