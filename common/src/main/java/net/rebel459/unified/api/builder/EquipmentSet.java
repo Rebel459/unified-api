@@ -45,6 +45,9 @@ public class EquipmentSet {
 
     private final Identifier id;
 
+    private final UnifiedDataRegistries.Items items;
+
+    @Deprecated
     private final UnifiedRegistries.Items itemRegistry;
 
     private @Nullable SuppliedItem sword;
@@ -117,10 +120,10 @@ public class EquipmentSet {
             nautilusArmor = createNautilusArmor();
         }
     }
-
-    public EquipmentSet(Identifier id, Settings settings, UnifiedRegistries.Items itemRegistry) {
+    public EquipmentSet(Identifier id, Settings settings, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry) {
         this.settings = settings;
         this.id = id;
+        this.items = items;
         this.itemRegistry = itemRegistry;
         registerItems();
         EQUIPMENT_SETS.add(this);
@@ -444,6 +447,9 @@ public class EquipmentSet {
 
         private final Identifier id;
 
+        private final UnifiedDataRegistries.Items items;
+
+        @Deprecated
         private final UnifiedRegistries.Items itemRegistry;
 
         public RegistryBuilder createTools() {
@@ -458,13 +464,14 @@ public class EquipmentSet {
         }
 
         public EquipmentSet build() {
-            return new EquipmentSet(id, settings, itemRegistry);
+            return new EquipmentSet(id, settings, items, itemRegistry);
         }
 
-        public RegistryBuilder(Identifier id, EquipmentPreset preset, UnifiedRegistries.Items itemRegistry) {
+        public RegistryBuilder(Identifier id, EquipmentPreset preset, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry) {
             super(preset.settings.copy());
 
             this.id = id;
+            this.items = items;
             this.itemRegistry = itemRegistry;
         }
     }

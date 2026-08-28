@@ -12,18 +12,30 @@ import net.rebel459.unified.impl.registry.MobVariants;
 public class Unified {
 
     public static void initRegistries() {
+        ExtensibleCodecs.init();
+        UnifiedDataComponents.init();
         LootInjections.init();
         ComponentModifiers.init();
         MobVariants.init();
         BiomeModifiers.init();
-        UnifiedItemTypes.init();
-        UnifiedBlockTypes.init();
+        VanillaItemTypes.init();
+        VanillaBlockTypes.init();
+        VanillaStatePredicateTypes.init();
+        VanillaMapColorTypes.init();
+        VanillaLightEmissionTypes.init();
+        VanillaPostProcessTypes.init();
+        UnifiedStatePredicateTypes.init();
+        UnifiedPostProcessTypes.init();
         new SoundEventRegistry().init();
         new BlockSetTypeRegistry().init();
         new WoodTypeRegistry().init();
         new BlockRegistry().init();
         new EntityTypeRegistry().init();
         new ItemRegistry().init();
+        ServiceLoader.load(RegistryResourceInitializer.class, Unified.class.getClassLoader())
+                .forEach(RegistryResourceInitializer::initializeRegistryResources);
+        RegistryResourceListener.completeRegistration();
+        InternalHandlerImpl.INSTANCE.impl().finishStaticRegistryBootstrap();
     }
 
     public static void init() {

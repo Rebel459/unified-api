@@ -16,7 +16,7 @@ public final class LootTableProvider {
     private LootTableProvider() {}
 
     public static LootPoolEntryContainer.Builder<?> entryBuilder(LootPoolEntryContainer entry) {
-        return new BuiltEntryBuilder(Objects.requireNonNull(entry, "entry"));
+        return new BuiltEntryBuilder(Objects.requireNonNull(entry, "create"));
     }
 
     public static LootPool.Builder poolBuilder(LootPool pool) {

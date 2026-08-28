@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "unified_testmod",
+  "version": "1.0.0",
+  "name": "Unified API Test Mod",
+  "description": "Development and datagen fixtures for Unified API",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.rebel459.unified.testmod.UnifiedTestMod"
+    ],
+    "fabric-datagen": [
+      "net.rebel459.unified.testmod.UnifiedTestModDatagen"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19",
+    "fabric-api": "*",
+    "minecraft": ">=26.1 <26.2",
+    "unified": "*"
+  }
+}

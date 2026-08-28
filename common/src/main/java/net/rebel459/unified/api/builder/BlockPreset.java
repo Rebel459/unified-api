@@ -1,5 +1,6 @@
 package net.rebel459.unified.api.builder;
 
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 
@@ -88,6 +89,7 @@ public final class BlockPreset {
 
     public static final BlockPreset NETHER_BRICKS = create()
             .setSoundType(() -> SoundType.NETHER_BRICKS)
+            .alternateFenceRecipe(() -> Items.NETHER_BRICK, 6)
             .hasLegacySlab(true)
             .hasCracked(true)
             .hasFence(true)

@@ -19,6 +19,9 @@
     ],
     "client": [
       "net.rebel459.unified.UnifiedFabricClient"
+    ],
+    "fabric-datagen": [
+      "net.rebel459.unified.datagen.FabricUnifiedDatagen"
     ]
   },
   "mixins": [

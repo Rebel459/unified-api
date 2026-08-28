@@ -6,12 +6,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.WoodType;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.registry.UnifiedBlockTypes;
 import net.rebel459.unified.util.codec.CodecUtils;
 import net.rebel459.unified.util.registry.RegistryResourceListener;
 

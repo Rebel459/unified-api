@@ -68,7 +68,11 @@ public class FabricUnifiedRegistries {
 
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            var resourceKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedItem existing = DataRegistryClaims.item(id);
+            if (existing != null) return existing;
+            if (FabricRegistryBootstrap.isStaging()) return FabricRegistryBootstrap.stageItem(id, function, properties);
+            var resourceKey = ResourceKey.create(Registries.ITEM, id);
             var item = net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
             Supplier<Item> supplied = () -> item;
             return new SuppliedItem(() -> BuiltInRegistries.ITEM, resourceKey, supplied);
@@ -76,13 +80,17 @@ public class FabricUnifiedRegistries {
 
         @Override
         public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block.identifier().getPath(), block, function, properties);
+            return registerBlockItem(block.key().identifier().getPath(), block, function, properties);
         }
 
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            var itemId = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
-            Item item = net.minecraft.world.item.Items.registerBlock(new BlockItemId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path)), itemId), block.get(), function, properties.get());
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedItem existing = DataRegistryClaims.item(id);
+            if (existing != null) return existing;
+            if (FabricRegistryBootstrap.isStaging()) return FabricRegistryBootstrap.stageBlockItem(id, block, function, properties);
+            var itemId = ResourceKey.create(Registries.ITEM, id);
+            Item item = net.minecraft.world.item.Items.registerBlock(new BlockItemId(ResourceKey.create(Registries.BLOCK, id), itemId), block.get(), function, properties.get());
             Supplier<Item> supplied = () -> item;
             return new SuppliedItem(() -> BuiltInRegistries.ITEM, itemId, supplied);
         }
@@ -97,6 +105,10 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
+            if (FabricRegistryBootstrap.isStaging()) return FabricRegistryBootstrap.stageBlock(id, function, blockProperties, true);
             Identifier blockId = Identifier.fromNamespaceAndPath(modId, path);
             BlockItemId blockItemId = BlockItemId.create(blockId, blockId);
 
@@ -106,19 +118,34 @@ public class FabricUnifiedRegistries {
             Supplier<Block> suppliedBlock = () -> block;
             Supplier<Item> suppliedItem = () -> item;
             
-            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, blockItemId.block(), suppliedBlock, new SuppliedItem(() -> BuiltInRegistries.ITEM, blockItemId.item(), suppliedItem));
+            SuppliedItem registeredItem = new SuppliedItem(() -> BuiltInRegistries.ITEM, ResourceKey.create(Registries.ITEM, id), suppliedItem);
+            SuppliedBlock registeredBlock = new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, suppliedBlock, registeredItem);
+            return registeredBlock;
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, BlockEntityType<Y> type) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
+            SuppliedBlock block = register(path, function, blockProperties);
+            FabricRegistryBootstrap.afterBlockRegistration(id, type::addValidBlock);
+            return block;
         }
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
-            SuppliedBlock block = register(path, function, blockProperties);
-            type.get().addValidBlock(block.get());
-            return block;
+            SuppliedBlock existing = DataRegistryClaims.block(Identifier.fromNamespaceAndPath(modId, path));
+            if (existing != null) return existing;
+            return register(path, function, blockProperties, type.get());
         }
 
         @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
+            if (FabricRegistryBootstrap.isStaging()) return FabricRegistryBootstrap.stageBlock(id, function, properties, false);
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
             Block block = Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key)));
             Supplier<Block> supplied = () -> block;
@@ -126,9 +153,51 @@ public class FabricUnifiedRegistries {
         }
 
         @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, BlockEntityType<Y> type) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
             SuppliedBlock block = registerWithoutItem(path, function, properties);
-            type.get().addValidBlock(block.get());
+            FabricRegistryBootstrap.afterBlockRegistration(id, type::addValidBlock);
+            return block;
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
+            SuppliedBlock existing = DataRegistryClaims.block(Identifier.fromNamespaceAndPath(modId, path));
+            if (existing != null) return existing;
+            return registerWithoutItem(path, function, properties, type.get());
+        }
+
+        @Override
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction) {
+            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new);
+        }
+
+        @Override
+        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
+            if (existing != null) return existing;
+            if (FabricRegistryBootstrap.isStaging()) {
+                return FabricRegistryBootstrap.stageCustomBlock(id, blockFunction, blockProperties, itemFunction, itemProperties);
+            }
+            var item = new Items(modId).register(path, itemFunction, itemProperties);
+            ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
+            Block block = Registry.register(BuiltInRegistries.BLOCK, key, blockFunction.apply(blockProperties.get().setId(key)));
+            Supplier<Block> supplied = () -> block;
+            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, key, supplied, (SuppliedItem) item);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
+            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
+            var block = register(path, blockFunction, blockProperties, itemFunction, itemProperties);
+            type.addValidBlock(block.get());
             return block;
         }
 

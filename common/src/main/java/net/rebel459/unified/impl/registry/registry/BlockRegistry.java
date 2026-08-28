@@ -4,10 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -15,10 +12,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -31,17 +27,18 @@ import net.rebel459.unified.Unified;
 import net.rebel459.unified.platform.UnifiedRegistries;
 import net.rebel459.unified.util.codec.CodecUtils;
 import net.rebel459.unified.util.codec.ExtensibleCodec;
+import net.rebel459.unified.util.codec.ExtensibleCodecs;
 import net.rebel459.unified.util.registry.RegistryResourceListener;
+import net.rebel459.unified.util.registry.DataRegistryClaims;
 
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 
 public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Definition> {
-    public static final ExtensibleCodec<Function<BlockBehaviour.Properties, ? extends Block>> TYPES = new ExtensibleCodec<>("type");
-
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            TYPES.codec(Identifier.withDefaultNamespace("block")).forGetter(Definition::type),
+            ExtensibleCodecs.BLOCK_TYPES.mapCodec(Identifier.withDefaultNamespace("block")).forGetter(Definition::type),
             Codec.BOOL.optionalFieldOf("register_item", true).forGetter(Definition::registerItem),
             CodecUtils.supplied(Properties.CODEC, () -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), BlockRegistry::createProperties)
                     .optionalFieldOf("properties").xmap(properties -> properties.orElse(BlockBehaviour.Properties::of), Optional::of).forGetter(Definition::properties),
@@ -56,37 +53,17 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
 
     @Override
     protected void register(Identifier id, Definition definition) {
-        if (definition.registerItem) {
+        DataRegistryClaims.registerBlock(id, () -> {
+            UnifiedRegistries.Blocks blocks = UnifiedRegistries.Blocks.create(id.getNamespace());
+            Supplier<BlockBehaviour.Properties> properties = definition.properties();
             if (definition.blockEntity.isPresent()) {
-                UnifiedRegistries.Blocks.create(id.getNamespace()).register(
-                        id.getPath(),
-                        definition.factory(),
-                        definition.properties(),
-                        () -> BuiltInRegistries.BLOCK_ENTITY_TYPE.getValueOrThrow(definition.blockEntity().orElseThrow())
-                );
-            } else {
-                UnifiedRegistries.Blocks.create(id.getNamespace()).register(
-                        id.getPath(),
-                        definition.factory(),
-                        definition.properties()
-                );
+                Supplier<BlockEntityType<BlockEntity>> blockEntity = () -> (BlockEntityType<BlockEntity>) BuiltInRegistries.BLOCK_ENTITY_TYPE.getValueOrThrow(definition.blockEntity.orElseThrow());
+                if (definition.registerItem) return blocks.register(id.getPath(), definition.factory(), properties, blockEntity);
+                return blocks.registerWithoutItem(id.getPath(), definition.factory(), properties, blockEntity);
             }
-        } else {
-            if (definition.blockEntity.isPresent()) {
-                UnifiedRegistries.Blocks.create(id.getNamespace()).registerWithoutItem(
-                        id.getPath(),
-                        definition.factory(),
-                        definition.properties(),
-                        () -> BuiltInRegistries.BLOCK_ENTITY_TYPE.getValueOrThrow(definition.blockEntity().orElseThrow())
-                );
-            } else {
-                UnifiedRegistries.Blocks.create(id.getNamespace()).registerWithoutItem(
-                        id.getPath(),
-                        definition.factory(),
-                        definition.properties()
-                );
-            }
-        }
+            if (definition.registerItem) return blocks.register(id.getPath(), definition.factory(), properties);
+            return blocks.registerWithoutItem(id.getPath(), definition.factory(), properties);
+        });
     }
 
     public record Definition(
@@ -102,16 +79,16 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
 
     public record Properties(
             Optional<Identifier> copyFrom,
-            Optional<MapColor> mapColor,
+            Optional<Either<MapColor, ExtensibleCodec.Entry<Function<BlockState, MapColor>>>> mapColor,
             Optional<Boolean> collision,
             Optional<Boolean> occlusion,
             Optional<Float> friction,
             Optional<Float> speedMultiplier,
             Optional<Float> jumpMultiplier,
-            Optional<SoundType> sounds,
-            Optional<Integer> lightLevel,
-            Optional<Integer> destroyTime,
-            Optional<Integer> explosionResistance,
+            Optional<SoundType> soundType,
+            Optional<Either<Integer, ExtensibleCodec.Entry<ToIntFunction<BlockState>>>> lightLevel,
+            Optional<Float> destroyTime,
+            Optional<Float> explosionResistance,
             Optional<Boolean> randomTicks,
             Optional<Boolean> dynamicShape,
             Optional<ResourceKey<LootTable>> lootTable,
@@ -120,31 +97,34 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             Optional<Boolean> solid,
             Optional<PushReaction> pushReaction,
             Optional<Boolean> air,
-            Optional<Either<BlockRegistry.Predicate, HolderSet<EntityType<?>>>> validSpawn,
-            Optional<BlockRegistry.Predicate> redstoneConductor,
-            Optional<BlockRegistry.Predicate> viewBlocking,
-            Optional<Position> postProcess,
-            Optional<BlockRegistry.Predicate> emissiveRendering,
+            Optional<ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> validSpawn,
+            Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> redstoneConductor,
+            Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> suffocating,
+            Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> viewBlocking,
+            Optional<ExtensibleCodec.Entry<BlockBehaviour.PostProcess>> postProcess,
+            Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> emissiveRendering,
             Optional<Boolean> requiresCorrectToolForDrops,
             Optional<BlockBehaviour.OffsetType> offset,
             Optional<Boolean> spawnTerrainParticles,
             Optional<NoteBlockInstrument> instrument,
             Optional<Boolean> replaceable,
-            Optional<String> descriptionOverride
+            Optional<String> descriptionOverride,
+            Optional<FeatureFlagSet> requiredFeatures,
+            Optional<Boolean> noLootTable
     ) {
 
         private static final MapCodec<First> FIRST_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                         Identifier.CODEC.optionalFieldOf("copy_from").forGetter(First::copyFrom),
-                        CodecUtils.named(MapColor.class).optionalFieldOf("map_color").forGetter(First::mapColor),
+                        Codec.either(CodecUtils.named(MapColor.class), ExtensibleCodecs.MAP_COLOR_TYPES.codec()).optionalFieldOf("map_color").forGetter(First::mapColor),
                         Codec.BOOL.optionalFieldOf("collision").forGetter(First::collision),
                         Codec.BOOL.optionalFieldOf("occlusion").forGetter(First::occlusion),
                         Codec.FLOAT.optionalFieldOf("friction").forGetter(First::friction),
                         Codec.FLOAT.optionalFieldOf("speed_multiplier").forGetter(First::speedMultiplier),
                         Codec.FLOAT.optionalFieldOf("jump_multiplier").forGetter(First::jumpMultiplier),
-                        SoundType.CODEC.optionalFieldOf("sound_type").forGetter(First::sounds),
-                        Codec.INT.optionalFieldOf("light_level").forGetter(First::lightLevel),
-                        Codec.INT.optionalFieldOf("destroy_time").forGetter(First::destroyTime),
-                        Codec.INT.optionalFieldOf("explosion_resistance").forGetter(First::explosionResistance),
+                        SoundType.CODEC.optionalFieldOf("sound_type").forGetter(First::soundType),
+                        Codec.either(ExtraCodecs.NON_NEGATIVE_INT, ExtensibleCodecs.LIGHT_EMISSION_TYPES.codec()).optionalFieldOf("light_level").forGetter(First::lightLevel),
+                        Codec.FLOAT.optionalFieldOf("destroy_time").forGetter(First::destroyTime),
+                        Codec.FLOAT.optionalFieldOf("explosion_resistance").forGetter(First::explosionResistance),
                         Codec.BOOL.optionalFieldOf("random_ticks").forGetter(First::randomTicks),
                         Codec.BOOL.optionalFieldOf("dynamic_shape").forGetter(First::dynamicShape),
                         ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(First::lootTable),
@@ -156,11 +136,12 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                         Codec.BOOL.optionalFieldOf("solid").forGetter(Second::solid),
                         CodecUtils.named(PushReaction.class).optionalFieldOf("push_reaction").forGetter(Second::pushReaction),
                         Codec.BOOL.optionalFieldOf("air").forGetter(Second::air),
-                        Codec.either(BlockRegistry.Predicate.CODEC, RegistryCodecs.homogeneousList(Registries.ENTITY_TYPE)).optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
-                        predicateCodec("redstone_conductor").forGetter(Second::redstoneConductor),
-                        predicateCodec("view_blocking").forGetter(Second::viewBlocking),
-                        positionCodec("post_process").forGetter(Second::postProcess),
-                        predicateCodec("emissive_rendering").forGetter(Second::emissiveRendering),
+                        ExtensibleCodecs.ENTITY_STATE_PREDICATE_TYPES.codec().optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
+                        ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("redstone_conductor").forGetter(Second::redstoneConductor),
+                        ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("suffocating").forGetter(Second::suffocating),
+                        ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
+                        ExtensibleCodecs.POST_PROCESS_TYPES.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
+                        ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
                         Codec.BOOL.optionalFieldOf("requires_correct_tool_for_drops").forGetter(Second::requiresCorrectToolForDrops),
                         CodecUtils.named(BlockBehaviour.OffsetType.class).optionalFieldOf("offset").forGetter(Second::offset),
                         Codec.BOOL.optionalFieldOf("spawn_terrain_particles").forGetter(Second::spawnTerrainParticles),
@@ -169,28 +150,20 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                         Codec.STRING.optionalFieldOf("description_override").forGetter(Second::descriptionOverride)
                 ).apply(instance, Second::new));
 
-        private static MapCodec<Optional<BlockRegistry.Predicate>> predicateCodec(String name) {
-            return Codec.STRING.optionalFieldOf(name).xmap(
-                    value -> value.map(BlockRegistry.Predicate::new),
-                    value -> value.map(BlockRegistry.Predicate::predicate)
-            );
-        }
-
-        private static MapCodec<Optional<BlockRegistry.Position>> positionCodec(String name) {
-            return Codec.STRING.optionalFieldOf(name).xmap(
-                    value -> value.map(BlockRegistry.Position::new),
-                    value -> value.map(BlockRegistry.Position::position)
-            );
-        }
+        private static final MapCodec<Third> THIRD_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                        FeatureFlags.CODEC.optionalFieldOf("required_features").forGetter(Third::requiredFeatures),
+                        Codec.BOOL.optionalFieldOf("no_loot_table").forGetter(Third::noLootTable)
+                ).apply(instance, Third::new));
 
         public static final MapCodec<Properties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                         FIRST_CODEC.forGetter(Properties::first),
-                        SECOND_CODEC.forGetter(Properties::second)
+                        SECOND_CODEC.forGetter(Properties::second),
+                        THIRD_CODEC.forGetter(Properties::third)
                 ).apply(instance, Properties::new));
 
         public static final Codec<Properties> CODEC = MAP_CODEC.codec();
 
-        private Properties(First first, Second second) {
+        private Properties(First first, Second second, Third third) {
             this(
                     first.copyFrom(),
                     first.mapColor(),
@@ -199,7 +172,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                     first.friction(),
                     first.speedMultiplier(),
                     first.jumpMultiplier(),
-                    first.sounds(),
+                    first.soundType(),
                     first.lightLevel(),
                     first.destroyTime(),
                     first.explosionResistance(),
@@ -213,6 +186,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                     second.air(),
                     second.validSpawn(),
                     second.redstoneConductor(),
+                    second.suffocating(),
                     second.viewBlocking(),
                     second.postProcess(),
                     second.emissiveRendering(),
@@ -221,7 +195,9 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                     second.spawnTerrainParticles(),
                     second.instrument(),
                     second.replaceable(),
-                    second.descriptionOverride()
+                    second.descriptionOverride(),
+                    third.requiredFeatures(),
+                    third.noLootTable()
             );
         }
 
@@ -234,7 +210,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                     friction,
                     speedMultiplier,
                     jumpMultiplier,
-                    sounds,
+                    soundType,
                     lightLevel,
                     destroyTime,
                     explosionResistance,
@@ -253,6 +229,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                     air,
                     validSpawn,
                     redstoneConductor,
+                    suffocating,
                     viewBlocking,
                     postProcess,
                     emissiveRendering,
@@ -265,18 +242,22 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             );
         }
 
+        private Third third() {
+            return new Third(requiredFeatures, noLootTable);
+        }
+
         private record First(
                 Optional<Identifier> copyFrom,
-                Optional<MapColor> mapColor,
+                Optional<Either<MapColor, ExtensibleCodec.Entry<Function<BlockState, MapColor>>>> mapColor,
                 Optional<Boolean> collision,
                 Optional<Boolean> occlusion,
                 Optional<Float> friction,
                 Optional<Float> speedMultiplier,
                 Optional<Float> jumpMultiplier,
-                Optional<SoundType> sounds,
-                Optional<Integer> lightLevel,
-                Optional<Integer> destroyTime,
-                Optional<Integer> explosionResistance,
+                Optional<SoundType> soundType,
+                Optional<Either<Integer, ExtensibleCodec.Entry<ToIntFunction<BlockState>>>> lightLevel,
+                Optional<Float> destroyTime,
+                Optional<Float> explosionResistance,
                 Optional<Boolean> randomTicks,
                 Optional<Boolean> dynamicShape,
                 Optional<ResourceKey<LootTable>> lootTable,
@@ -288,17 +269,23 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 Optional<Boolean> solid,
                 Optional<PushReaction> pushReaction,
                 Optional<Boolean> air,
-                Optional<Either<BlockRegistry.Predicate, HolderSet<EntityType<?>>>> validSpawn,
-                Optional<BlockRegistry.Predicate> redstoneConductor,
-                Optional<BlockRegistry.Predicate> viewBlocking,
-                Optional<Position> postProcess,
-                Optional<BlockRegistry.Predicate> emissiveRendering,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> validSpawn,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> redstoneConductor,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> suffocating,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> viewBlocking,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.PostProcess>> postProcess,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> emissiveRendering,
                 Optional<Boolean> requiresCorrectToolForDrops,
                 Optional<BlockBehaviour.OffsetType> offset,
                 Optional<Boolean> spawnTerrainParticles,
                 Optional<NoteBlockInstrument> instrument,
                 Optional<Boolean> replaceable,
                 Optional<String> descriptionOverride
+        ) {}
+
+        private record Third(
+                Optional<FeatureFlagSet> requiredFeatures,
+                Optional<Boolean> noLootTable
         ) {}
     }
 
@@ -318,15 +305,16 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             return new net.minecraft.world.level.block.SoundType(volume, pitch, breakSound, stepSound, placeSound, hitSound, fallSound);
         }
 
-        public static SoundType create(net.minecraft.world.level.block.SoundType sounds) {
-            return new SoundType(sounds.volume, sounds.pitch, sounds.getBreakSound(), sounds.getStepSound(), sounds.getPlaceSound(), sounds.getHitSound(), sounds.getFallSound());
+        public static SoundType create(net.minecraft.world.level.block.SoundType soundType) {
+            return new SoundType(soundType.volume, soundType.pitch, soundType.getBreakSound(), soundType.getStepSound(), soundType.getPlaceSound(), soundType.getHitSound(), soundType.getFallSound());
         }
     }
 
-    private static BlockBehaviour.Properties createProperties(Properties properties) {
+    public static BlockBehaviour.Properties createProperties(Properties properties) {
         BlockBehaviour.Properties actual = properties.copyFrom.map(identifier -> BlockBehaviour.Properties.ofFullCopy(BuiltInRegistries.BLOCK.getValue(identifier))).orElseGet(BlockBehaviour.Properties::of);
         if (properties.mapColor.isPresent()) {
-            actual.mapColor(properties.mapColor.get());
+            if (properties.mapColor.get().left().isPresent()) actual.mapColor(properties.mapColor.get().left().get());
+            else if (properties.mapColor.get().right().isPresent()) actual.mapColor(properties.mapColor.get().right().get().value());
         }
         if (properties.collision.isPresent()) {
             actual.hasCollision = properties.collision.get();
@@ -343,12 +331,13 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         if (properties.jumpMultiplier.isPresent()) {
             actual.jumpFactor(properties.jumpMultiplier.get());
         }
-        if (properties.sounds.isPresent()) {
-            SoundType soundType = properties.sounds.get();
-            actual.sound(sounds.convert());
+        if (properties.soundType.isPresent()) {
+            SoundType soundType = properties.soundType.get();
+            actual.sound(soundType.convert());
         }
         if (properties.lightLevel.isPresent()) {
-            actual.lightLevel(_ -> properties.lightLevel.get());
+            if (properties.lightLevel.get().left().isPresent()) actual.lightLevel(_ -> properties.lightLevel.get().left().get());
+            else if (properties.lightLevel.get().right().isPresent()) actual.lightLevel(properties.lightLevel.get().right().get().value());
         }
         if (properties.destroyTime.isPresent()) {
             actual.destroyTime(properties.destroyTime.get());
@@ -364,6 +353,9 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         }
         if (properties.lootTable.isPresent()) {
             actual.overrideLootTable(properties.lootTable);
+        }
+        if (properties.noLootTable.orElse(false)) {
+            actual.noLootTable();
         }
         if (properties.ignitedByLava.isPresent()) {
             actual.ignitedByLava = properties.ignitedByLava.get();
@@ -387,25 +379,22 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             actual.isAir = properties.air.get();
         }
         if (properties.validSpawn.isPresent()) {
-            Optional<Predicate> left = properties.validSpawn.get().left();
-            Optional<HolderSet<EntityType<?>>> right = properties.validSpawn.get().right();
-            if (left.isPresent()) {
-                actual.isValidSpawn((state, getter, pos, _) -> left.get().validate(state, getter, pos));
-            } else if (right.isPresent()) {
-                actual.isValidSpawn((_, _, _, entity) -> right.get().stream().anyMatch(holder -> holder.value() == entity));
-            }
+            actual.isValidSpawn(properties.validSpawn.get().value());
         }
         if (properties.redstoneConductor.isPresent()) {
-            actual.isRedstoneConductor((state, getter, pos) -> properties.redstoneConductor.get().validate(state, getter, pos));
+            actual.isRedstoneConductor(properties.redstoneConductor.get().value());
+        }
+        if (properties.suffocating.isPresent()) {
+            actual.isSuffocating(properties.suffocating.get().value());
         }
         if (properties.viewBlocking.isPresent()) {
-            actual.isViewBlocking((state, getter, pos) -> properties.viewBlocking.get().validate(state, getter, pos));
+            actual.isViewBlocking(properties.viewBlocking.get().value());
         }
         if (properties.postProcess.isPresent()) {
-            actual.postProcess((state, getter, pos) -> properties.postProcess.get().validate(state, getter, pos));
+            actual.postProcess(properties.postProcess.get().value());
         }
         if (properties.emissiveRendering.isPresent()) {
-            actual.emissiveRendering((state, getter, pos) -> properties.emissiveRendering.get().validate(state, getter, pos));
+            actual.emissiveRendering(properties.emissiveRendering.get().value());
         }
         if (properties.requiresCorrectToolForDrops.isPresent()) {
             actual.requiresCorrectToolForDrops = properties.requiresCorrectToolForDrops.get();
@@ -425,35 +414,9 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         if (properties.descriptionOverride.isPresent()) {
             actual.overrideDescription(properties.descriptionOverride.get());
         }
+        if (properties.requiredFeatures.isPresent()) {
+            actual.requiredFeatures = properties.requiredFeatures.get();
+        }
         return actual;
-    }
-
-    private record Predicate(String predicate) {
-        private static final Codec<BlockRegistry.Predicate> CODEC = Codec.STRING.xmap(BlockRegistry.Predicate::new, BlockRegistry.Predicate::predicate);
-
-        private boolean validate(BlockState state, BlockGetter getter, BlockPos pos) {
-            return switch (predicate) {
-                case "never" -> false;
-                case "always" -> true;
-                case "not_closed_shulker" -> Blocks.NOT_CLOSED_SHULKER.test(state, getter, pos);
-                case "not_extended_piston" -> Blocks.NOT_EXTENDED_PISTON.test(state, getter, pos);
-                default -> throw new IllegalStateException("Unknown predicate: " + predicate);
-            };
-        }
-    }
-
-    private record Position(String position) {
-        private BlockPos validate(BlockState state, BlockGetter getter, BlockPos pos) {
-            return switch (position) {
-                case "self" -> pos;
-                case "above" -> pos.above();
-                case "below" -> pos.below();
-                case "north" -> pos.north();
-                case "east" -> pos.east();
-                case "south" -> pos.south();
-                case "west" -> pos.west();
-                default -> throw new IllegalStateException("Unknown post process: " + position);
-            };
-        }
     }
 }
