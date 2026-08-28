@@ -105,8 +105,8 @@ public class LivingEntityMixin implements LivingEntityVariant {
         RandomSource random = level.getRandom();
 
         var variants = level.registryAccess().lookupOrThrow(MobVariants.KEY);
-        var defaultVariantKey = EntityTypeCopies.defaultVariant(entity.getType());
-        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityTypeCopies.resolveDefaultVariant(entity.getType(), variants);
+        var defaultVariantKey = EntityRegistryImpl.defaultVariant(entity.getType());
+        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityRegistryImpl.resolveDefaultVariant(entity.getType(), variants);
         if (defaultVariant.isEmpty()) {
             defaultVariantKey.ifPresent(key -> {
                 throw new IllegalStateException("Missing default mob variant " + key.identifier() + " for " + entityType);

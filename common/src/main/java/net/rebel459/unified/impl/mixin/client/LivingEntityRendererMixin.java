@@ -30,7 +30,7 @@ public abstract class LivingEntityRendererMixin {
         return ((LivingEntityRenderStateVariant) state).getVariant()
                 .filter(variant -> variant.value().target()
                         .map(EntityType.getKey(state.entityType)::equals)
-                        .orElseGet(() -> EntityTypeCopies.isDefaultVariant(state.entityType, variant)))
+                        .orElseGet(() -> EntityRegistryImpl.isDefaultVariant(state.entityType, variant)))
                 .flatMap(variant -> state.isBaby ? variant.value().babyTexture() : variant.value().texture())
                 .filter(texture -> texture.original().map(originalId -> getTexture(originalId).equals(originalTexture)).orElse(true))
                 .map(texture -> getTexture(texture.replacement()))

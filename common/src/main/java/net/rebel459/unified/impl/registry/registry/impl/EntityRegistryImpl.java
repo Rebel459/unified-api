@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:common/src/main/java/net/rebel459/unified/api/core/EntityTypeCopies.java
 package net.rebel459.unified.util.registry;
+========
+package net.rebel459.unified.util.data.registry.impl;
+>>>>>>>> de6e326 (data-driven biome modifiers):common/src/main/java/net/rebel459/unified/impl/registry/registry/impl/EntityRegistryImpl.java
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.registries.BuiltInRegistries;

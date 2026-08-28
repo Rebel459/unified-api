@@ -12,17 +12,23 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.util.PackType;
 import net.rebel459.unified.util.LoaderType;
+import net.rebel459.unified.util.data.BiomeModifiers;
 import net.rebel459.unified.util.event.BiomeModificationContext;
-import net.rebel459.unified.util.event.BiomeModificationsImpl;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -80,20 +86,143 @@ public class HelpersImpl {
 
     @Deprecated
     public interface BiomeModifications {
-        final class Context extends BiomeModificationContext {
-            private Context() {}
+
+        private static BiomeModificationContext context(Object helper) {
+            if (helper instanceof Context.Bound bound) return bound.biomeContext();
+            throw new IllegalStateException("Biome modification helper used outside its Context");
+        }
+
+        final class Context {
+            private final BiomeModificationContext context;
+            private final Adapter adapter = new Adapter();
+
+            private Context(BiomeModificationContext context) {
+                this.context = context;
+            }
+
+            public Worldgen getFeatures() { return adapter; }
+            public Effects getEffects() { return adapter; }
+            public Climate getClimate() { return adapter; }
+            public EnvironmentAttributes getEnvironmentAttributes() { return adapter; }
+            public MobSpawns getMobSpawns() { return adapter; }
+
+            private interface Bound {
+                BiomeModificationContext biomeContext();
+            }
+
+            private final class Adapter implements Bound, Worldgen, Effects, Climate, EnvironmentAttributes, MobSpawns {
+                @Override
+                public BiomeModificationContext biomeContext() { return context; }
+            }
+        }
+
+        interface Worldgen {
+            default void addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getFeatures().addFeature(feature, step);
+            }
+
+            default void removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getFeatures().removeFeature(feature, step);
+            }
+
+            default void addCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getFeatures().addCarver(carver);
+            }
+
+            default void removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getFeatures().removeCarver(carver);
+            }
+        }
+
+        interface Effects {
+            default void setWaterColor(int color) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getEffects().setWaterColor(color);
+            }
+
+            default void setFoliageColor(int color) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getEffects().setFoliageColor(color);
+            }
+
+            default void setDryFoliageColor(int color) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getEffects().setDryFoliageColor(color);
+            }
+
+            default void setGrassColor(int color) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getEffects().setGrassColor(color);
+            }
+        }
+
+        interface Climate {
+            default void setTemperature(float temperature) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getClimate().setTemperature(temperature);
+            }
+
+            default void setDownfall(float downfall) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getClimate().setDownfall(downfall);
+            }
+
+            default void setPrecipitation(boolean hasPrecipitation) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getClimate().setPrecipitation(hasPrecipitation);
+            }
+        }
+
+        interface EnvironmentAttributes {
+            default <Value> void set(EnvironmentAttribute<Value> attribute, Value value) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getEnvironmentAttributes().set(attribute, value);
+            }
+        }
+
+        interface MobSpawns {
+            default void addSpawn(MobSpawnSettings.SpawnerData data, int weight) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getMobSpawns().addSpawn(data, weight);
+            }
+
+            default void removeSpawn(EntityType<?> entityType) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getMobSpawns().removeSpawn(entityType);
+            }
+
+            default void addCharge(EntityType<?> entityType, double charge, double energyBudget) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getMobSpawns().addCharge(entityType, charge, energyBudget);
+            }
+
+            default void removeCharge(EntityType<?> entityType) {
+                BiomeModificationContext context = HelpersImpl.BiomeModifications.context(this);
+                context.getMobSpawns().removeCharge(entityType);
+            }
         }
 
         default void register(ResourceKey<Biome> biome, Consumer<Context> modifier) {
-            BiomeModificationsImpl.register(biome, context -> modifier.accept(new Context()));
+            BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(0, (reference, context) -> {
+                if (reference.is(biome)) modifier.accept(new Context(context));
+            }));
         }
 
         default void register(List<ResourceKey<Biome>> biomes, Consumer<Context> modifier) {
-            BiomeModificationsImpl.register(biomes, context -> modifier.accept(new Context()));
+            List<ResourceKey<Biome>> targets = List.copyOf(biomes);
+            BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(0, (reference, context) -> {
+                if (targets.contains(reference.key())) modifier.accept(new Context(context));
+            }));
         }
 
-        default void register(TagKey<Biome> biome, Consumer<Context> modifier) {
-            BiomeModificationsImpl.register(biome, context -> modifier.accept(new Context()));
+        default void register(TagKey<Biome> biomes, Consumer<Context> modifier) {
+            BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(0, (reference, context) -> {
+                if (reference.is(biomes)) modifier.accept(new Context(context));
+            }));
         }
     }
 

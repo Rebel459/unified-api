@@ -19,7 +19,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.rebel459.unified.util.codec.ExtensibleCodec;
-import net.rebel459.unified.util.data.ItemRegistry;
+import net.rebel459.unified.util.data.registry.ItemRegistry;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;

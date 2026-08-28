@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.data;
+package net.rebel459.unified.util.data.registry;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
