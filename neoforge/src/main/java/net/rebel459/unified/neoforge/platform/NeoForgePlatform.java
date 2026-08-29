@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -27,8 +29,10 @@ import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
+import net.rebel459.unified.impl.data.MobVariants;
 import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
+import net.rebel459.unified.impl.registry.EntityTypeCopier;
 import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
 import net.rebel459.unified.neoforge.core.NeoForgeInstance;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedRegistries;
@@ -93,11 +97,6 @@ public class NeoForgePlatform implements CommonPlatform {
     }
 
     @Override
-    public CommonHelpers.BiomeModifications getBiomeModifications() {
-        return new NeoForgeHelpers.BiomeModifications();
-    }
-
-    @Override
     public CommonHelpers.ReloadListeners getReloadListeners() {
         return new NeoForgeHelpers.ReloadListeners();
     }
@@ -144,8 +143,8 @@ public class NeoForgePlatform implements CommonPlatform {
                     com.mojang.datafixers.util.Pair.of(id.getNamespace(), BuiltInRegistries.ENTITY_TYPE)
             );
             registry.register(id.getPath(), () -> defaultVariant.map(
-                    variant -> EntityTypeCopies.create(key, base, variant),
-                    variant -> EntityTypeCopies.create(key, base, variant)
+                    variant -> EntityTypeCopier.create(key, base, variant),
+                    variant -> EntityTypeCopier.create(key, base, variant)
             ));
         }
 

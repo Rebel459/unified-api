@@ -8,15 +8,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.MapColor;
-import net.rebel459.unified.platform.UnifiedDataRegistries;
-import net.rebel459.unified.registry.VanillaBlockTypes;
-import net.rebel459.unified.registry.VanillaItemTypes;
-import net.rebel459.unified.util.builder.BlockPreset;
-import net.rebel459.unified.util.builder.BlockSet;
-import net.rebel459.unified.util.datagen.BlockAssets;
-import net.rebel459.unified.util.datagen.ItemAssets;
-import net.rebel459.unified.util.registry.SuppliedBlock;
-import net.rebel459.unified.util.registry.SuppliedItem;
+import net.rebel459.unified.api.builder.BlockPreset;
+import net.rebel459.unified.api.builder.BlockSet;
+import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.SuppliedItem;
+import net.rebel459.unified.api.core.UnifiedDataRegistries;
+import net.rebel459.unified.api.registry.VanillaBlockTypes;
+import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.datagen.BlockAssets;
+import net.rebel459.unified.api.datagen.ItemAssets;
+import net.rebel459.unified.fabric.FabricUnifiedInitializer;
 
 public final class UnifiedTestMod implements ModInitializer {
     public static final String MOD_ID = "unified_testmod";
@@ -68,6 +69,11 @@ public final class UnifiedTestMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        // Static initialization registers fixtures before Fabric invokes datagen providers.
+        FabricUnifiedInitializer.register(this::onInitializeCommon);
+    }
+
+    private void onInitializeCommon() {
+        TEST_BLOCK.get();
+        TEST_ITEM.get();
     }
 }

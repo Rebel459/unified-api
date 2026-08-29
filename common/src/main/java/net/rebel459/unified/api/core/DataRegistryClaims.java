@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.registry;
+package net.rebel459.unified.api.core;
 
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;

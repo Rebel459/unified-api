@@ -22,7 +22,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.BlockTransformerMappings;
+import net.minecraft.world.item.component.BlockTransformers;
 import net.minecraft.world.item.component.Compostable;
 import net.minecraft.world.item.component.CookingFuel;
 import net.minecraft.world.item.context.UseOnContext;
@@ -40,7 +40,7 @@ import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
-import net.rebel459.unified.impl.helper.StructureMusicImpl;
+import net.rebel459.unified.impl.network.StructurePacketImpl;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -159,7 +159,7 @@ public class CommonHelpers {
 
         private boolean hasAxeTransforming(ItemStack stack) {
             if (!stack.has(net.minecraft.core.component.DataComponents.BLOCK_TRANSFORMER)) return false;
-            return stack.get(net.minecraft.core.component.DataComponents.BLOCK_TRANSFORMER) == BlockTransformerMappings.AXE;
+            return stack.get(net.minecraft.core.component.DataComponents.BLOCK_TRANSFORMER).is(BlockTransformers.AXE);
         }
 
         private void spawnSoundAndParticle(final Level level, final BlockPos pos, final @Nullable Player player, final BlockState oldState, final Holder<SoundEvent> soundEvent, final int particle) {
@@ -210,29 +210,6 @@ public class CommonHelpers {
         void register(ResourceKey<Biome> biome, Consumer<BiomeModificationContext> context);
         void register(List<ResourceKey<Biome>> biomes, Consumer<BiomeModificationContext> context);
         void register(TagKey<Biome> biome, Consumer<BiomeModificationContext> context);
-    }
-
-    public interface StructureMusic {
-
-        default void add(Identifier structure, Music music) {
-            add(structure, music, false);
-        }
-        default void add(ResourceKey<Structure> structure, Music music) {
-            add(structure, music, false);
-        }
-        default void add(TagKey<Structure> structure, Music music) {
-            add(structure, music, false);
-        }
-
-        default void add(Identifier structure, Music music, boolean fullBox) {
-            StructureMusicImpl.addStructure(structure, music, fullBox);
-        }
-        default void add(ResourceKey<Structure> structure, Music music, boolean fullBox) {
-            add(structure.identifier(), music, fullBox);
-        }
-        default void add(TagKey<Structure> structure, Music music, boolean fullBox) {
-            StructureMusicImpl.addStructureTag(structure, music, fullBox);
-        }
     }
 
     public interface ReloadListeners {

@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.registry;
+package net.rebel459.unified.api.core;
 
 /**
  * Service-provider bootstrap hook for registering custom {@link RegistryResourceListener}s.

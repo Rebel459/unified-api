@@ -10,7 +10,7 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.rebel459.unified.util.data.registry.impl.EntityRegistryImpl;
+import net.rebel459.unified.impl.registry.EntityTypeCopier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,23 +20,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class SpawnPlacementsMixin {
     @Inject(method = "getPlacementType", at = @At("HEAD"), cancellable = true)
     private static void copiedPlacement(EntityType<?> type, CallbackInfoReturnable<SpawnPlacementType> cir) {
-        EntityRegistryImpl.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getPlacementType(template)));
+        EntityTypeCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getPlacementType(template)));
     }
 
     @Inject(method = "isSpawnPositionOk", at = @At("HEAD"), cancellable = true)
     private static void copiedPosition(EntityType<?> type, LevelReader level, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        EntityRegistryImpl.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.isSpawnPositionOk(template, level, pos)));
+        EntityTypeCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.isSpawnPositionOk(template, level, pos)));
     }
 
     @Inject(method = "getHeightmapType", at = @At("HEAD"), cancellable = true)
     private static void copiedHeightmap(EntityType<?> type, CallbackInfoReturnable<Heightmap.Types> cir) {
-        EntityRegistryImpl.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getHeightmapType(template)));
+        EntityTypeCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getHeightmapType(template)));
     }
 
     @Inject(method = "checkSpawnRules", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T extends Entity> void copiedRules(EntityType<T> type, ServerLevelAccessor level, EntitySpawnReason reason, BlockPos pos, RandomSource random, CallbackInfoReturnable<Boolean> cir) {
-        EntityRegistryImpl.template(type).ifPresent(template -> cir.setReturnValue(
+        EntityTypeCopier.template(type).ifPresent(template -> cir.setReturnValue(
                 SpawnPlacements.checkSpawnRules((EntityType) template, level, reason, pos, random)
         ));
     }

@@ -14,14 +14,20 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.sounds.Music;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.rebel459.unified.impl.client.helper.SimpleBabyArmorImpl;
+import net.rebel459.unified.impl.client.helper.StructureMusicImpl;
 import net.rebel459.unified.impl.client.platform.ClientPlatformHandler;
+import net.rebel459.unified.impl.network.StructurePacketImpl;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -97,5 +103,24 @@ public class CommonClientHelpers {
 
         void addListener(Identifier id, PreparableReloadListener listener);
         void addOrdering(Identifier first, Identifier second);
+    }
+
+    public interface StructureMusic {
+
+        default void add(ResourceKey<Structure> structure, BackgroundMusic music) {
+            StructureMusicImpl.STRUCTURE_MUSIC.put(structure, new StructureMusicImpl.MusicAndRequirement(music, false));
+        }
+
+        default void add(TagKey<Structure> structures, BackgroundMusic music) {
+            StructureMusicImpl.STRUCTURE_TAG_MUSIC.put(structures, new StructureMusicImpl.MusicAndRequirement(music, false));
+        }
+
+        default void addFullBox(ResourceKey<Structure> structure, BackgroundMusic music) {
+            StructureMusicImpl.STRUCTURE_MUSIC.put(structure, new StructureMusicImpl.MusicAndRequirement(music, true));
+        }
+
+        default void addFullBox(TagKey<Structure> structures, BackgroundMusic music) {
+            StructureMusicImpl.STRUCTURE_TAG_MUSIC.put(structures, new StructureMusicImpl.MusicAndRequirement(music, true));
+        }
     }
 }

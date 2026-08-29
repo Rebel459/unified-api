@@ -20,6 +20,7 @@ import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
+import net.rebel459.unified.impl.data.MobVariants;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -42,7 +43,6 @@ public interface CommonPlatform {
     CommonHelpers.CreativeEntries getCreativeEntries();
     CommonHelpers.DataPacks getDataPacks();
     CommonHelpers.Networking getNetworking();
-    CommonHelpers.BiomeModifications getBiomeModifications();
     CommonHelpers.ReloadListeners getReloadListeners();
     CommonHelpers.DataRegistries getDataRegistries();
     CommonHelpers.EntityData getEntityData();

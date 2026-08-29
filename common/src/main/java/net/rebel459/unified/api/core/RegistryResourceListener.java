@@ -1,4 +1,4 @@
-package net.rebel459.unified.util.registry;
+package net.rebel459.unified.api.core;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,10 +13,12 @@ import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
-import net.rebel459.unified.platform.InternalHandlerImpl;
-import net.rebel459.unified.platform.UnifiedPlatform;
-import net.rebel459.unified.util.datagen.impl.DataRegistry;
+import net.minecraft.world.flag.FeatureFlags;
+import net.rebel459.unified.impl.datagen.DataRegistry;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -139,14 +141,14 @@ public abstract class RegistryResourceListener<T> {
     private void decodeAndRegister(Identifier resourceId, Candidate candidate) {
         try {
             for (String dependency : candidate.dependencies()) {
-                if (!UnifiedPlatform.isModLoaded(dependency)) {
+                if (!UnifiedInstance.isModLoaded(dependency)) {
                     LOGGER.debug("Skipping {} because required mod {} is not loaded", resourceId, dependency);
                     return;
                 }
             }
             T declaration = codec.parse(JsonOps.INSTANCE, candidate.definition()).getOrThrow(error -> new IllegalArgumentException(resourceId + " from " + candidate.source() + ": " + error));
             Identifier registryId = registryId(resourceId);
-            InternalHandlerImpl.INSTANCE.impl().prepareRegistryNamespace(registryId.getNamespace());
+            PlatformHandler.INSTANCE.internal().prepareRegistryNamespace(registryId.getNamespace());
             register(registryId, declaration);
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to init static registry declaration " + resourceId + " from " + candidate.source(), exception);
@@ -156,14 +158,14 @@ public abstract class RegistryResourceListener<T> {
     private static List<PackEntry> openPacks() {
         List<PackEntry> packs = new ArrayList<>();
         int index = 0;
-        for (Path root : InternalHandlerImpl.INSTANCE.impl().getModResourceRoots()) addPack(packs, root, "mod-" + index++, false);
+        for (Path root : PlatformHandler.INSTANCE.internal().getModResourceRoots()) addPack(packs, root, "mod-" + index++, false);
 
-        Path gameDirectory = InternalHandlerImpl.INSTANCE.impl().getGameDirectory();
-        if (UnifiedPlatform.isModLoaded("simpleresourceloader")) {
+        Path gameDirectory = PlatformHandler.INSTANCE.internal().getGameDirectory();
+        if (UnifiedInstance.isModLoaded("simpleresourceloader")) {
             index = addPackDirectory(packs, gameDirectory.resolve("resources/common/required"), "srl-common-", index);
             addPackDirectory(packs, gameDirectory.resolve("resources/datapack/required"), "srl-data-", index);
         }
-        if (UnifiedPlatform.isModLoaded("paxi")) addPaxiPacks(packs, gameDirectory);
+        if (UnifiedInstance.isModLoaded("paxi")) addPaxiPacks(packs, gameDirectory);
         return packs;
     }
 
@@ -229,7 +231,18 @@ public abstract class RegistryResourceListener<T> {
         if (Files.isDirectory(path)) {
             packs.add(new PackEntry(new PathPackResources(info, path), external));
         } else if (Files.isRegularFile(path)) {
-            packs.add(new PackEntry(new FilePackResources.FileResourcesSupplier(path).openPrimary(info), external));
+            packs.add(new PackEntry(
+                    new FilePackResources.FileResourcesSupplier(path)
+                            .openResources(info, new Pack.Metadata(
+                                    Component.literal(id),
+                                    PackCompatibility.COMPATIBLE,
+                                    FeatureFlags.DEFAULT_FLAGS,
+                                    List.of()
+                            ))
+                            .findFirst()
+                            .orElseThrow(),
+                    external
+            ));
         }
     }
 

@@ -1,10 +1,10 @@
-package net.rebel459.unified.mixin.entity;
+package net.rebel459.unified.impl.mixin.entity;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
-import net.rebel459.unified.util.data.impl.EntityRegistryImpl;
+import net.rebel459.unified.impl.registry.EntityTypeCopier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,13 +15,13 @@ public class DefaultAttributesMixin {
     @Inject(method = "getSupplier", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("unchecked")
     private static void copiedSupplier(EntityType<? extends LivingEntity> type, CallbackInfoReturnable<AttributeSupplier> cir) {
-        EntityRegistryImpl.template(type).ifPresent(template ->
+        EntityTypeCopier.template(type).ifPresent(template ->
                 cir.setReturnValue(DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) template))
         );
     }
 
     @Inject(method = "hasSupplier", at = @At("HEAD"), cancellable = true)
     private static void copiedHasSupplier(EntityType<?> type, CallbackInfoReturnable<Boolean> cir) {
-        EntityRegistryImpl.template(type).ifPresent(template -> cir.setReturnValue(DefaultAttributes.hasSupplier(template)));
+        EntityTypeCopier.template(type).ifPresent(template -> cir.setReturnValue(DefaultAttributes.hasSupplier(template)));
     }
 }

@@ -4,6 +4,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.rebel459.unified.neoforge.NeoForgeUnifiedBus;
 import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedEvents;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedRegistries;
@@ -13,7 +14,7 @@ public class UnifiedNeoForge {
 
     public UnifiedNeoForge(IEventBus modEventBus) {
         NeoForgeUnifiedEvents.init(modEventBus);
-        NeoForgeUnifiedRegistries.registerBus(Unified.MOD_ID, modEventBus);
+        NeoForgeUnifiedBus.register(Unified.MOD_ID, modEventBus);
         Unified.initRegistries();
         modEventBus.addListener(UnifiedNeoForge::commonSetup);
         modEventBus.addListener(NeoForgeHelpers.CreativeEntries::buildContents);

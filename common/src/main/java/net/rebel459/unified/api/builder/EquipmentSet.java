@@ -21,6 +21,7 @@ import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.api.core.SuppliedItem;
+import net.rebel459.unified.api.core.UnifiedDataRegistries;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.platform.ModLoader;

@@ -1,17 +1,18 @@
-package net.rebel459.unified.platform;
+package net.rebel459.unified.fabric.core;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.rebel459.unified.util.registry.DataRegistryClaims;
-import net.rebel459.unified.util.registry.Supplied;
-import net.rebel459.unified.util.registry.SuppliedBlock;
-import net.rebel459.unified.util.registry.SuppliedItem;
+import net.rebel459.unified.api.core.DataRegistryClaims;
+import net.rebel459.unified.api.core.Supplied;
+import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.SuppliedItem;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-final class FabricRegistryBootstrap {
+public final class FabricRegistryBootstrap {
     private static final Object LOCK = new Object();
 
     private static final DeferredQueue<Block, SuppliedBlock> BLOCKS = new DeferredQueue<Block, SuppliedBlock>(
@@ -43,7 +44,7 @@ final class FabricRegistryBootstrap {
         return staging;
     }
 
-    static void finish() {
+    public static void finish() {
         synchronized (LOCK) {
             if (!staging) return;
 
@@ -63,38 +64,46 @@ final class FabricRegistryBootstrap {
         }
     }
 
-    static SuppliedItem stageBlockItem(Identifier id, Supplier<? extends Block> block,
-                                       BiFunction<Block, Item.Properties, Item> function,
-                                       Supplier<Item.Properties> properties) {
+    static SuppliedItem stageBlockItem(Identifier id, Supplier<? extends Block> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
         synchronized (LOCK) {
             ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
             boolean replace = DataRegistryClaims.isRegisteringItem(id) || DataRegistryClaims.isRegisteringBlock(id);
             return ITEMS.stage(key,
-                    () -> net.minecraft.world.item.Items.registerBlock(block.get(), function, properties.get()),
+                    () -> net.minecraft.world.item.Items.registerBlock(new BlockItemId(ResourceKey.create(Registries.BLOCK, id), key), block.get(), function, properties.get()),
                     replace, "item");
         }
     }
 
-    static SuppliedBlock stageBlock(Identifier id, Function<BlockBehaviour.Properties, ? extends Block> function,
-                                    Supplier<BlockBehaviour.Properties> properties, boolean registerItem) {
+    static SuppliedBlock stageBlock(
+            Identifier id, Function<BlockBehaviour.Properties, ? extends Block> function,
+            Supplier<BlockBehaviour.Properties> properties,
+            BiFunction<Block, Item.Properties, Item> itemFunction,
+            Supplier<Item.Properties> itemProperties
+    ) {
         synchronized (LOCK) {
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
             SuppliedBlock block = BLOCKS.stage(key,
                     () -> Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key))),
                     DataRegistryClaims.isRegisteringBlock(id), "block");
-            configureBlockItem(id, block, registerItem);
+            SuppliedItem current = DataRegistryClaims.blockItem(block);
+            if (itemFunction == null) {
+                if (current != null) ITEMS.remove(id, current);
+                DataRegistryClaims.setBlockItem(block, null);
+            } else {
+                SuppliedItem item = stageBlockItem(id, block, itemFunction, itemProperties);
+                DataRegistryClaims.setBlockItem(block, item);
+            }
             return block;
         }
     }
 
-    static SuppliedBlock stageCustomBlock(Identifier id, Function<BlockBehaviour.Properties, ? extends Block> function,
-                                          Supplier<BlockBehaviour.Properties> blockProperties,
-                                          Function<Item.Properties, Item> itemFunction,
-                                          Supplier<Item.Properties> itemProperties) {
-        SuppliedBlock block = stageBlock(id, function, blockProperties, false);
-        SuppliedItem item = stageBlockItem(id, block, (_, properties) -> itemFunction.apply(properties), itemProperties);
-        DataRegistryClaims.setBlockItem(block, item);
-        return block;
+    static SuppliedBlock stageCustomBlock(
+            Identifier id, Function<BlockBehaviour.Properties, ? extends Block> function,
+            Supplier<BlockBehaviour.Properties> blockProperties,
+            Function<Item.Properties, Item> itemFunction,
+            Supplier<Item.Properties> itemProperties
+    ) {
+        return stageBlock(id, function, blockProperties, (_, properties) -> itemFunction.apply(properties), itemProperties);
     }
 
     static void afterBlockRegistration(Identifier id, Consumer<Block> action) {
@@ -102,21 +111,6 @@ final class FabricRegistryBootstrap {
             if (staging && BLOCKS.afterCommit(id, action)) return;
             action.accept(BuiltInRegistries.BLOCK.getValueOrThrow(ResourceKey.create(Registries.BLOCK, id)));
         }
-    }
-
-    private static void configureBlockItem(Identifier id, SuppliedBlock block, boolean registerItem) {
-        SuppliedItem current = DataRegistryClaims.blockItem(block);
-        if (!registerItem) {
-            if (current != null) ITEMS.remove(id, current);
-            DataRegistryClaims.setBlockItem(block, null);
-            return;
-        }
-
-        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
-        SuppliedItem item = ITEMS.stage(key,
-                () -> net.minecraft.world.item.Items.registerBlock(block.get(), new Item.Properties()),
-                DataRegistryClaims.isRegisteringBlock(id), "item");
-        DataRegistryClaims.setBlockItem(block, item);
     }
 
     @FunctionalInterface

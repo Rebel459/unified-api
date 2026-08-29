@@ -2,8 +2,7 @@ package net.rebel459.unified.neoforge.mixin.server;
 
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
-import net.rebel459.unified.neoforge.util.BiomeBuilderEvent;
+import net.rebel459.unified.neoforge.core.NeoForgeBiomeModifications;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;

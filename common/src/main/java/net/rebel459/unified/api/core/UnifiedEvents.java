@@ -23,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.api.util.QuadConsumer;
 import net.rebel459.unified.impl.core.CommonEvents;
+import net.rebel459.unified.impl.data.BiomeModifiers;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.function.BiConsumer;
@@ -189,6 +190,19 @@ public class UnifiedEvents {
 
         public static void onTick(EventTiming type, Consumer<Level> listener) {
             CommonEvents.Levels.LEVEL_TICK_LISTENERS.get(type).add(listener);
+        }
+    }
+
+    public static class Biomes {
+
+        private Biomes() {}
+
+        public static void modify(BiomeModifiers.Entry modifiers) {
+            BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(0, modifiers));
+        }
+
+        public static void modifyWithPriority(int priority, BiomeModifiers.Entry modifiers) {
+            BiomeModifiers.EVENT_ENTRIES.add(new BiomeModifiers.EventEntry(priority, modifiers));
         }
     }
 }

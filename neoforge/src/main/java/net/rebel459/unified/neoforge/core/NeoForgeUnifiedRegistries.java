@@ -23,17 +23,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.rebel459.unified.api.core.Supplied;
-import net.rebel459.unified.api.core.SuppliedBlock;
-import net.rebel459.unified.api.core.SuppliedItem;
-import net.rebel459.unified.api.core.UnifiedRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.util.BlockLike;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -47,27 +42,19 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister.Blocks> BLOCKS = new ConcurrentHashMap<>();
     public static final Map<String, DeferredRegister.DataComponents> DATA_COMPONENTS = new ConcurrentHashMap<>();
     private static final Set<String> REGISTERED_NAMESPACES = ConcurrentHashMap.newKeySet();
-    private static IEventBus unifiedModBus;
-
-    public static void registerBus(String modId, IEventBus modEventBus) {
-        if (unifiedModBus == null) unifiedModBus = modEventBus;
-        if (!REGISTERED_NAMESPACES.add(modId)) return;
-        registerBus(modId, modEventBus, List.of());
-    }
+    private static IEventBus modBus;
 
     public static void prepareNamespace(String namespace) {
-        if (unifiedModBus == null) {
+        if (modBus == null) {
             throw new IllegalStateException("Unified's NeoForge mod event bus is not initialized");
         }
-        registerBus(namespace, unifiedModBus);
+        registerBus(namespace, modBus, List.of());
     }
 
-    @SafeVarargs
-    public static <T extends Registry<?>> void registerBus(String modId, IEventBus modEventBus, T... registries) {
-        registerBus(modId, modEventBus, Arrays.stream(registries).toList());
-    }
+    public static <T extends Registry<?>> void registerBus(String modId, IEventBus modEventBus, List<T> registries) {
+        if (modBus == null) modBus = modEventBus;
+        if (!REGISTERED_NAMESPACES.add(modId)) return;
 
-    private static <T extends Registry<?>> void registerBus(String modId, IEventBus modEventBus, List<T> registries) {
         DeferredRegister.Items items = ITEMS.computeIfAbsent(modId, string -> DeferredRegister.createItems(modId));
         DeferredRegister.Blocks blocks = BLOCKS.computeIfAbsent(modId, string -> DeferredRegister.createBlocks(modId));
         DeferredRegister.DataComponents dataComponents = DATA_COMPONENTS.computeIfAbsent(modId, string -> DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, modId));
@@ -189,34 +176,6 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             var block = registerWithoutItem(path, function, properties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
-            return block;
-        }
-
-        @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction) {
-            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new);
-        }
-
-        @Override
-        public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedBlock existing = DataRegistryClaims.block(id);
-            if (existing != null) return existing;
-            var item = new Items(modId).register(path, itemFunction, itemProperties);
-            var block = BLOCKS.get(modId).registerBlock(path, blockFunction, blockProperties);
-            var blockRegistry = BLOCKS.get(modId);
-            return new SuppliedBlock(blockRegistry.getRegistry(), block.getKey(), block, (SuppliedItem) item);
-        }
-
-        @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, BlockEntityType<Y> type) {
-            return register(path, blockFunction, blockProperties, itemFunction, Item.Properties::new, type);
-        }
-
-        @Override
-        public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> blockFunction, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.Properties, Item> itemFunction, Supplier<Item.Properties> itemProperties, BlockEntityType<Y> type) {
-            var block = register(path, blockFunction, blockProperties, itemFunction, itemProperties);
-            BLOCK_ENTITIES.add(Pair.of(() -> type, block));
             return block;
         }
 

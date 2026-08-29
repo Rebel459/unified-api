@@ -2,6 +2,7 @@ package net.rebel459.unified.api.builder;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -15,11 +16,19 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.MapColor;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.core.UnifiedDataRegistries;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.datagen.BlockAsset;
+import net.rebel459.unified.api.datagen.BlockAssets;
 import net.rebel459.unified.api.platform.ModLoader;
+import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.impl.builder.BlockSetProperties;
+import net.rebel459.unified.impl.datagen.DataRegistry;
+import net.rebel459.unified.impl.registry.BlockRegistry;
+import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -207,7 +216,6 @@ public class BlockSet {
                                 .unlockedBy(RecipeProvider.getHasName(getBase()), provider.has(getBase()))
                                 .save(provider.output))
                         .tag(BlockTags.STAIRS)
-                        .itemTag(ItemTags.STAIRS)
                 )
         );
         return createBlockWithItem(this.getFormattedName() + "_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
@@ -228,7 +236,6 @@ public class BlockSet {
                                 .unlockedBy(RecipeProvider.getHasName(getBase()), provider.has(getBase()))
                                 .save(provider.output))
                         .tag(BlockTags.SLABS)
-                        .itemTag(ItemTags.SLABS)
                 )
         );
         return createBlockWithItem(this.getFormattedName() + "_slab", SlabBlock::new, blockProperties);
@@ -244,7 +251,6 @@ public class BlockSet {
                                 .unlockedBy(RecipeProvider.getHasName(getBase()), provider.has(getBase()))
                                 .save(provider.output))
                         .tag(BlockTags.FENCES)
-                        .itemTag(ItemTags.FENCES)
                 )
         );
         return createBlockWithItem(this.getFormattedName() + "_fence", FenceBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
@@ -275,7 +281,6 @@ public class BlockSet {
                                 .unlockedBy(RecipeProvider.getHasName(getBase()), provider.has(getBase()))
                                 .save(provider.output))
                         .tag(BlockTags.BUTTONS)
-                        .itemTag(ItemTags.BUTTONS)
                 )
         );
         return createBlockWithItem(this.getFormattedName() + "_button", settings -> new ButtonBlock(this.getBlockSetType().get(), 30, settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));

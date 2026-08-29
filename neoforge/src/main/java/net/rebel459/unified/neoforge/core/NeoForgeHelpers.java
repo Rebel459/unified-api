@@ -448,7 +448,7 @@ public class NeoForgeHelpers {
         }
     }
 
-    public static class ReloadListeners implements HelpersImpl.ReloadListeners {
+    public static class ReloadListeners implements CommonHelpers.ReloadListeners {
 
         private static List<Pair<Identifier, PreparableReloadListener>> LISTENERS = new ArrayList<>();
         private static List<Pair<Identifier, Identifier>> ORDERING = new ArrayList<>();

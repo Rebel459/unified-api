@@ -1,4 +1,4 @@
-package net.rebel459.unified.platform;
+package net.rebel459.unified.fabric.core;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.MappedRegistry;
@@ -8,8 +8,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.biome.Biome;
-import net.rebel459.unified.util.data.BiomeModifiers;
-import net.rebel459.unified.util.event.impl.BiomeModificationContextImpl;
+import net.rebel459.unified.impl.event.BiomeModifier;
+import net.rebel459.unified.impl.data.BiomeModifiers;
 
 import java.util.Optional;
 
@@ -22,12 +22,11 @@ public final class FabricBiomeModifications {
         for (BiomeModifiers.PreparedModification modification : BiomeModifiers.prepare(provider)) {
             biomes.listElements().filter(modification.targets()).forEach(holder -> {
                 Biome biome = holder.value();
-                BiomeModificationContextImpl editor = new BiomeModificationContextImpl(provider, biome.climateSettings, biome.generationSettings, biome.mobSettings, biome.attributes, biome.specialEffects);
+                BiomeModifier editor = new BiomeModifier(provider, biome.climateSettings, biome.generationSettings, biome.attributes, biome.specialEffects);
                 editor.apply(modification, holder);
                 if (!editor.changed()) return;
                 biome.climateSettings = editor.climate();
                 biome.generationSettings = editor.generation();
-                biome.mobSettings = editor.mobSpawns();
                 biome.attributes = editor.attributes();
                 biome.specialEffects = editor.effects();
                 markForNetworkSync(holder.key(), biomes);
