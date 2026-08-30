@@ -25,17 +25,7 @@ public class SuppliedItem extends Supplied<Item> implements ItemLike {
     }
 
     @Override
-    public Holder<Item> holder() {
-        return super.holder();
-    }
-
-    @Override
     public Item asItem() {
         return this.get();
-    }
-
-    @Override
-    public Item get() {
-        return super.get();
     }
 }

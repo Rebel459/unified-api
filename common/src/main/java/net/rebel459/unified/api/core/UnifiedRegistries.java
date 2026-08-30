@@ -3,6 +3,7 @@ package net.rebel459.unified.api.core;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.builder.*;
+import net.rebel459.unified.impl.core.StaticRegistryBootstrap;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 
 import java.util.function.BiFunction;
@@ -39,6 +41,7 @@ public class UnifiedRegistries {
         }
     }
 
+    /** UnifiedRegistries.Items should not be used by mods. You can still use it, however UnifiedDataRegistries.Items makes it redundant for mod developers */
     public interface Items {
         String modId();
 
@@ -47,7 +50,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
-        <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
+        <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
 
         default Builders builders() {
             return new Builders(modId());
@@ -73,10 +76,11 @@ public class UnifiedRegistries {
         }
 
         static Items create(String modId) {
-            return PlatformHandler.INSTANCE.createItems(modId);
+            return StaticRegistryBootstrap.items(modId);
         }
     }
 
+    /** UnifiedRegistries.Blocks should not be used by mods. You can still use it, however UnifiedDataRegistries.Blocks makes it redundant for mod developers */
     public interface Blocks {
         String modId();
 
@@ -85,6 +89,9 @@ public class UnifiedRegistries {
 
         <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties);
         <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type);
+
+        <T extends Block> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties);
+        <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type);
 
         default Builders builders() {
             return new Builders(modId());
@@ -120,7 +127,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static Blocks create(String modId) {
-            return PlatformHandler.INSTANCE.createBlocks(modId);
+            return StaticRegistryBootstrap.blocks(modId);
         }
     }
 

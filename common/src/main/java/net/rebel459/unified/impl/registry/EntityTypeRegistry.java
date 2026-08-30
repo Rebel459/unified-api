@@ -25,7 +25,8 @@ public class EntityTypeRegistry extends RegistryResourceListener<EntityTypeRegis
     }
 
     @Override
-    protected void register(Identifier id, Definition definition) {
+    protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
+        Definition definition = declaration.get();
         PlatformHandler.INSTANCE.internal().registerEntityCopy(id, definition.base(), definition.defaultVariant());
     }
 

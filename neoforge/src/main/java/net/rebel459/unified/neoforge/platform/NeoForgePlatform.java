@@ -136,6 +136,11 @@ public class NeoForgePlatform implements CommonPlatform {
         }
 
         @Override
+        public void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
+            NeoForgeUnifiedRegistries.afterRegistry(registry, action);
+        }
+
+        @Override
         @SuppressWarnings({"rawtypes", "unchecked"})
         public void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant) {
             ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);

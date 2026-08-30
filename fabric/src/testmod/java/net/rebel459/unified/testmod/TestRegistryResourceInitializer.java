@@ -9,13 +9,14 @@ import net.rebel459.unified.impl.registry.ItemRegistry;
 public final class TestRegistryResourceInitializer implements RegistryResourceInitializer {
     @Override
     public void initializeRegistryResources() {
-        new RegistryResourceListener<String>(
+        UnifiedTestMod.initRegistryResources();
+        new RegistryResourceListener<>(
                 Identifier.fromNamespaceAndPath(UnifiedTestMod.MOD_ID, "bootstrap_test"),
                 Codec.STRING,
                 ItemRegistry.ID
         ) {
             @Override
-            protected void register(Identifier id, String declaration) {
+            protected void register(Identifier id, DeferredDeclaration<String> declaration) {
             }
         }.init();
     }

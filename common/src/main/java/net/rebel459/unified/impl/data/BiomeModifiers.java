@@ -18,6 +18,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.Unified;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.impl.event.BiomeModifier;
@@ -38,7 +39,15 @@ public final class BiomeModifiers {
     private BiomeModifiers() {}
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, Definition.CODEC);
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(
+                HolderSet.direct(List.of()),
+                0,
+                Worldgen.EMPTY,
+                Effects.EMPTY,
+                Climate.EMPTY,
+                EnvironmentAttributeMap.EMPTY,
+                MobSpawns.EMPTY
+        )));
     }
 
     public static List<PreparedModification> prepare(HolderLookup.Provider provider) {

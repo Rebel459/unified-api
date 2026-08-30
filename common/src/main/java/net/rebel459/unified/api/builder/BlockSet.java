@@ -127,12 +127,6 @@ public class BlockSet {
         return block;
     }
 
-    private SuppliedBlock createBlock(String path, Supplier<ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>> type, Consumer<UnifiedDataRegistries.Blocks.Builder> builder){
-        SuppliedBlock block = blocks.register(path, type, builder);
-        registeredBlocks.add(block);
-        return block;
-    }
-
     public Settings getSettings() {
         return settings;
     }
@@ -190,7 +184,7 @@ public class BlockSet {
         if (getSettings().baseBlockSuffix.isPresent()) name = name + "_" + getSettings().baseBlockSuffix.get();
         if (blocks != null) return createBlock(name, getSettings().baseBlockType, builder -> builder
                 .properties(properties -> properties
-                        .copyFrom(Blocks.STONE.builtInRegistryHolder().key())
+                        .copyFrom(() -> Blocks.STONE)
                         .soundType(getSettings().soundType.get())
                         .mapColor(color)
                         .strength(getSettings().destroyTime, getSettings().explosionResistance)
@@ -206,8 +200,8 @@ public class BlockSet {
         return createBlockWithItem(name, getSettings().baseBlockFunction, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).sound(getSettings().getSoundType().get()).mapColor(color).strength(getSettings().destroyTime, getSettings().explosionResistance));
     }
     private SuppliedBlock createStairs() {
-        if (blocks != null) return createBlock(this.getFormattedName() + "_stairs", () -> VanillaBlockTypes.STAIRS.create(getBase().key()), builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock(this.getFormattedName() + "_stairs", VanillaBlockTypes.STAIRS.create(getBase()::get), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.STAIRS, getBase().get()))
                 .data(data -> data
                         .dropSelf()
@@ -223,9 +217,9 @@ public class BlockSet {
     private SuppliedBlock createSlab(){
         Supplier<BlockBehaviour.Properties> blockProperties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get());
         if (getSettings().hasLegacySlab) blockProperties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()).strength(2F, 6F);
-        if (blocks != null) return createBlock(this.getFormattedName() + "_slab", VanillaBlockTypes.SLAB::create, builder -> builder
+        if (blocks != null) return createBlock(this.getFormattedName() + "_slab", VanillaBlockTypes.SLAB.create(), builder -> builder
                 .properties(properties -> {
-                    properties.copyFrom(getBase().key());
+                    properties.copyFrom(getBase());
                     if (getSettings().hasLegacySlab) properties.strength(2F, 6F);
                 })
                 .assets(assets -> assets.model(BlockAssets.SLAB, getBase().get()))
@@ -241,8 +235,8 @@ public class BlockSet {
         return createBlockWithItem(this.getFormattedName() + "_slab", SlabBlock::new, blockProperties);
     }
     private SuppliedBlock createFence(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_fence", VanillaBlockTypes.FENCE::create, builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock(this.getFormattedName() + "_fence", VanillaBlockTypes.FENCE.create(), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.FENCE, getBase().get()))
                 .data(data -> data
                         .dropSelf()
@@ -256,8 +250,8 @@ public class BlockSet {
         return createBlockWithItem(this.getFormattedName() + "_fence", FenceBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createPressurePlate(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_pressure_plate", () -> VanillaBlockTypes.PRESSURE_PLATE.create(this.getBlockSetType().get()), builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock(this.getFormattedName() + "_pressure_plate", VanillaBlockTypes.PRESSURE_PLATE.create(() -> this.getBlockSetType().get()), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.PRESSURE_PLATE, getBase().get()))
                 .data(data -> data
                         .dropSelf()
@@ -271,8 +265,8 @@ public class BlockSet {
         return createBlockWithItem(this.getFormattedName() + "_pressure_plate", settings -> new PressurePlateBlock(this.getBlockSetType().get(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createButton(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_button", () -> VanillaBlockTypes.BUTTON.create(new VanillaBlockTypes.Button(this.getBlockSetType().get(), 30)), builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock(this.getFormattedName() + "_button", VanillaBlockTypes.BUTTON.create(() -> new VanillaBlockTypes.Button(this.getBlockSetType().get(), 30)), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.BUTTON, getBase().get()))
                 .data(data -> data
                         .dropSelf()
@@ -286,8 +280,8 @@ public class BlockSet {
         return createBlockWithItem(this.getFormattedName() + "_button", settings -> new ButtonBlock(this.getBlockSetType().get(), 30, settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createChiseled(){
-        if (blocks != null) return createBlock("chiseled_" + this.getId().getPath(), VanillaBlockTypes.BLOCK::create, builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock("chiseled_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.SIMPLE_CUBE))
                 .data(data -> data
                         .dropSelf()
@@ -300,8 +294,8 @@ public class BlockSet {
         return createBlockWithItem("chiseled_" + this.getId().getPath(), () -> BlockBehaviour.Properties.ofFullCopy(this.getBase().get()));
     }
     private SuppliedBlock createCracked(){
-        if (blocks != null) return createBlock("cracked_" + this.getId().getPath(), VanillaBlockTypes.BLOCK::create, builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock("cracked_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.SIMPLE_CUBE))
                 .data(data -> data
                         .dropSelf()
@@ -312,8 +306,8 @@ public class BlockSet {
         return createBlockWithItem("cracked_" + this.getId().getPath(), () -> BlockBehaviour.Properties.ofFullCopy(this.getBase().get()));
     }
     private SuppliedBlock createPillar(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_pillar", VanillaBlockTypes.ROTATED_PILLAR_BLOCK::create, builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock(this.getFormattedName() + "_pillar", VanillaBlockTypes.ROTATED_PILLAR_BLOCK.create(), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.ROTATED_PILLAR))
                 .data(data -> data
                         .dropSelf()
@@ -332,8 +326,8 @@ public class BlockSet {
         return createBlockWithItem(this.getFormattedName() + "_pillar", RotatedPillarBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(this.getBase().get()));
     }
     private SuppliedBlock createWall(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_wall", VanillaBlockTypes.WALL::create, builder -> builder
-                .properties(properties -> properties.copyFrom(getBase().key()))
+        if (blocks != null) return createBlock(this.getFormattedName() + "_wall", VanillaBlockTypes.WALL.create(), builder -> builder
+                .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.WALL, getBase().get()))
                 .data(data -> data
                         .dropSelf()

@@ -4,6 +4,7 @@ import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.RegistryResourceInitializer;
 import net.rebel459.unified.api.core.RegistryResourceListener;
+import net.rebel459.unified.impl.core.StaticRegistryBootstrap;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
@@ -13,7 +14,6 @@ import net.rebel459.unified.impl.data.BiomeModifiers;
 import net.rebel459.unified.impl.data.ComponentModifiers;
 import net.rebel459.unified.impl.data.LootInjections;
 import net.rebel459.unified.impl.data.MobVariants;
-import net.rebel459.unified.impl.platform.PlatformHandler;
 import net.rebel459.unified.impl.registry.*;
 
 import java.util.ServiceLoader;
@@ -34,6 +34,7 @@ public class Unified {
         VanillaPostProcessTypes.init();
         UnifiedBlockPredicateTypes.init();
         UnifiedPostProcessTypes.init();
+        UnifiedRequirementTypes.init();
         new SoundEventRegistry().init();
         new BlockSetTypeRegistry().init();
         new WoodTypeRegistry().init();
@@ -42,7 +43,7 @@ public class Unified {
         new ItemRegistry().init();
         ServiceLoader.load(RegistryResourceInitializer.class, Unified.class.getClassLoader()).forEach(RegistryResourceInitializer::initializeRegistryResources);
         RegistryResourceListener.completeRegistration();
-        PlatformHandler.INSTANCE.internal().finishStaticRegistryBootstrap();
+        StaticRegistryBootstrap.finish();
     }
 
     public static void init() {

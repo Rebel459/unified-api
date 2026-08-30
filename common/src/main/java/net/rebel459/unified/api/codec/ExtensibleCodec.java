@@ -1,5 +1,6 @@
 package net.rebel459.unified.api.codec;
 
+import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -19,6 +20,10 @@ public class ExtensibleCodec<R> {
 
     public ExtensibleCodec(String typeField) {
         this.typeField = typeField;
+    }
+
+    public boolean contains(Identifier id) {
+        return types.containsKey(id);
     }
 
     public synchronized <T> Complex<R, T> register(
@@ -82,7 +87,7 @@ public class ExtensibleCodec<R> {
         if (!type.compact) {
             return DataResult.error(() -> "Extensible codec type " + id + " requires an object value");
         }
-        return DataResult.success(new Entry<>(type, Unit.INSTANCE));
+        return DataResult.success(new Entry<>(type, () -> Unit.INSTANCE));
     }
 
     private MapCodec<InternalType<R>> typeCodec() {
@@ -117,26 +122,27 @@ public class ExtensibleCodec<R> {
 
     private MapCodec<Entry<R>> entryCodec(InternalType<R> type) {
         return type.codec.xmap(
-                data -> new Entry<>(type, data),
+                data -> new Entry<>(type, () -> data),
                 entry -> entry.data(type)
         );
     }
 
-    public static final class Entry<R> {
+    public static final class Entry<R> implements Supplier<R> {
         private final InternalType<R> type;
-        private final Object data;
+        private final Supplier<?> data;
 
-        private Entry(InternalType<R> type, Object data) {
+        private Entry(InternalType<R> type, Supplier<?> data) {
             this.type = type;
-            this.data = data;
+            this.data = Suppliers.memoize(data::get);
         }
 
         public Identifier id() {
             return type.id();
         }
 
-        public R value() {
-            return type.instantiate(data);
+        @Override
+        public R get() {
+            return type.instantiate(data.get());
         }
 
         private InternalType<R> type() {
@@ -147,7 +153,7 @@ public class ExtensibleCodec<R> {
             if (type != expectedType) {
                 throw new IllegalStateException("Entry was encoded with the wrong extensible codec type");
             }
-            return data;
+            return data.get();
         }
     }
 
@@ -180,7 +186,7 @@ public class ExtensibleCodec<R> {
         }
 
         public Entry<R> create() {
-            return new Entry<>(this, Unit.INSTANCE);
+            return new Entry<>(this, () -> Unit.INSTANCE);
         }
     }
 
@@ -189,7 +195,7 @@ public class ExtensibleCodec<R> {
             super(id, codec, factory, false);
         }
 
-        public Entry<R> create(T data) {
+        public Entry<R> create(Supplier<? extends T> data) {
             return new Entry<>(this, data);
         }
     }

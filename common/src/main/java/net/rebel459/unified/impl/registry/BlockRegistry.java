@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -15,7 +14,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,10 +23,11 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.api.codec.CodecUtils;
+import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
-import net.rebel459.unified.api.core.DataRegistryClaims;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
+import net.rebel459.unified.impl.core.DataRegistryClaims;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 
@@ -39,12 +38,13 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
 public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Definition> {
+    private static final MapCodec<Optional<Supplier<BlockEntityType<?>>>> BLOCK_ENTITY_CODEC =
+            UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity");
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ExtensibleCodecs.BLOCK_TYPES.mapCodec(Identifier.withDefaultNamespace("block")).forGetter(Definition::type),
-            Codec.BOOL.optionalFieldOf("register_item", true).forGetter(Definition::registerItem),
-            CodecUtils.supplied(Properties.CODEC, () -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), BlockRegistry::createProperties)
-                    .optionalFieldOf("properties").xmap(properties -> properties.orElse(BlockBehaviour.Properties::of), Optional::of).forGetter(Definition::properties),
-            ResourceKey.codec(Registries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity").forGetter(Definition::blockEntity)
+            Properties.CODEC.optionalFieldOf("properties")
+                    .xmap(properties -> properties.orElseGet(Properties::new), Optional::of).forGetter(Definition::properties),
+            UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity").forGetter(Definition::blockEntity)
             ).apply(instance, Definition::new));
 
     public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "blocks");
@@ -54,33 +54,40 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     }
 
     @Override
-    protected void register(Identifier id, Definition definition) {
+    protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
+        Optional<Supplier<BlockEntityType<?>>> blockEntity = declaration.decode(BLOCK_ENTITY_CODEC);
         DataRegistryClaims.registerBlock(id, () -> {
             UnifiedRegistries.Blocks blocks = UnifiedRegistries.Blocks.create(id.getNamespace());
-            Supplier<BlockBehaviour.Properties> properties = definition.properties();
-            if (definition.blockEntity.isPresent()) {
-                Supplier<BlockEntityType<BlockEntity>> blockEntity = () -> (BlockEntityType<BlockEntity>) BuiltInRegistries.BLOCK_ENTITY_TYPE.getValueOrThrow(definition.blockEntity.orElseThrow());
-                if (definition.registerItem) return blocks.register(id.getPath(), definition.factory(), properties, blockEntity);
-                return blocks.registerWithoutItem(id.getPath(), definition.factory(), properties, blockEntity);
+            Function<BlockBehaviour.Properties, ? extends Block> factory = properties -> declaration.get().factory().apply(properties);
+            Supplier<BlockBehaviour.Properties> properties = () -> createProperties(declaration.get().properties());
+            if (blockEntity.isPresent()) {
+                return register(blocks, id.getPath(), factory, properties, blockEntity.orElseThrow());
             }
-            if (definition.registerItem) return blocks.register(id.getPath(), definition.factory(), properties);
-            return blocks.registerWithoutItem(id.getPath(), definition.factory(), properties);
+            return blocks.registerWithoutItem(id.getPath(), factory, properties);
         });
     }
 
     public record Definition(
             ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type,
-            boolean registerItem,
-            Supplier<BlockBehaviour.Properties> properties,
-            Optional<ResourceKey<BlockEntityType<? extends BlockEntity>>> blockEntity
+            Properties properties,
+            Optional<Supplier<BlockEntityType<?>>> blockEntity
     ) {
         public Function<BlockBehaviour.Properties, ? extends Block> factory() {
-            return type.value();
+            return type.get();
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static SuppliedBlock register(UnifiedRegistries.Blocks blocks, String path,
+                                          Function<BlockBehaviour.Properties, ? extends Block> factory,
+                                          Supplier<BlockBehaviour.Properties> properties,
+                                          Supplier<BlockEntityType<?>> blockEntity) {
+        Supplier type = blockEntity;
+        return blocks.registerWithoutItem(path, factory, properties, type);
+    }
+
     public static final class Properties {
-        public Optional<Identifier> copyFrom = Optional.empty();
+        public Optional<Supplier<Block>> copyFrom = Optional.empty();
         public Optional<Either<MapColor, ExtensibleCodec.Entry<Function<BlockState, MapColor>>>> mapColor = Optional.empty();
         public Optional<Boolean> collision = Optional.empty();
         public Optional<Boolean> occlusion = Optional.empty();
@@ -117,8 +124,8 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public Properties() {}
 
         private static final MapCodec<First> FIRST_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                        Identifier.CODEC.optionalFieldOf("copy_from").forGetter(First::copyFrom),
-                        Codec.either(CodecUtils.named(MapColor.class), ExtensibleCodecs.MAP_COLOR_TYPES.codec()).optionalFieldOf("map_color").forGetter(First::mapColor),
+                        UnifiedCodecs.supplied(BuiltInRegistries.BLOCK).optionalFieldOf("copy_from").forGetter(First::copyFrom),
+                        Codec.either(UnifiedCodecs.named(MapColor.class), ExtensibleCodecs.MAP_COLOR_TYPES.codec()).optionalFieldOf("map_color").forGetter(First::mapColor),
                         Codec.BOOL.optionalFieldOf("collision").forGetter(First::collision),
                         Codec.BOOL.optionalFieldOf("occlusion").forGetter(First::occlusion),
                         Codec.FLOAT.optionalFieldOf("friction").forGetter(First::friction),
@@ -137,7 +144,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         private static final MapCodec<Second> SECOND_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                         Codec.BOOL.optionalFieldOf("liquid").forGetter(Second::liquid),
                         Codec.BOOL.optionalFieldOf("solid").forGetter(Second::solid),
-                        CodecUtils.named(PushReaction.class).optionalFieldOf("push_reaction").forGetter(Second::pushReaction),
+                        UnifiedCodecs.named(PushReaction.class).optionalFieldOf("push_reaction").forGetter(Second::pushReaction),
                         Codec.BOOL.optionalFieldOf("air").forGetter(Second::air),
                         ExtensibleCodecs.ENTITY_PREDICATE_TYPES.codec().optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
                         ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("redstone_conductor").forGetter(Second::redstoneConductor),
@@ -146,9 +153,9 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                         ExtensibleCodecs.POST_PROCESS_TYPES.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
                         ExtensibleCodecs.PREDICATE_TYPES.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
                         Codec.BOOL.optionalFieldOf("requires_correct_tool_for_drops").forGetter(Second::requiresCorrectToolForDrops),
-                        CodecUtils.named(BlockBehaviour.OffsetType.class).optionalFieldOf("offset").forGetter(Second::offset),
+                        UnifiedCodecs.named(BlockBehaviour.OffsetType.class).optionalFieldOf("offset").forGetter(Second::offset),
                         Codec.BOOL.optionalFieldOf("spawn_terrain_particles").forGetter(Second::spawnTerrainParticles),
-                        CodecUtils.named(NoteBlockInstrument.class).optionalFieldOf("instrument").forGetter(Second::instrument),
+                        UnifiedCodecs.named(NoteBlockInstrument.class).optionalFieldOf("instrument").forGetter(Second::instrument),
                         Codec.BOOL.optionalFieldOf("replaceable").forGetter(Second::replaceable),
                         Codec.STRING.optionalFieldOf("description_override").forGetter(Second::descriptionOverride)
                 ).apply(instance, Second::new));
@@ -248,7 +255,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         }
 
         private record First(
-                Optional<Identifier> copyFrom,
+                Optional<Supplier<Block>> copyFrom,
                 Optional<Either<MapColor, ExtensibleCodec.Entry<Function<BlockState, MapColor>>>> mapColor,
                 Optional<Boolean> collision,
                 Optional<Boolean> occlusion,
@@ -312,10 +319,10 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     }
 
     public static BlockBehaviour.Properties createProperties(Properties properties) {
-        BlockBehaviour.Properties actual = properties.copyFrom.map(identifier -> BlockBehaviour.Properties.ofFullCopy(BuiltInRegistries.BLOCK.getValue(identifier))).orElseGet(BlockBehaviour.Properties::of);
+        BlockBehaviour.Properties actual = properties.copyFrom.map(block -> BlockBehaviour.Properties.ofFullCopy(block.get())).orElseGet(BlockBehaviour.Properties::of);
         if (properties.mapColor.isPresent()) {
             if (properties.mapColor.get().left().isPresent()) actual.mapColor(properties.mapColor.get().left().get());
-            else if (properties.mapColor.get().right().isPresent()) actual.mapColor(properties.mapColor.get().right().get().value());
+            else if (properties.mapColor.get().right().isPresent()) actual.mapColor(properties.mapColor.get().right().get().get());
         }
         if (properties.collision.isPresent()) {
             actual.hasCollision = properties.collision.get();
@@ -338,7 +345,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         }
         if (properties.lightLevel.isPresent()) {
             if (properties.lightLevel.get().left().isPresent()) actual.lightLevel(_ -> properties.lightLevel.get().left().get());
-            else if (properties.lightLevel.get().right().isPresent()) actual.lightLevel(properties.lightLevel.get().right().get().value());
+            else if (properties.lightLevel.get().right().isPresent()) actual.lightLevel(properties.lightLevel.get().right().get().get());
         }
         if (properties.destroyTime.isPresent()) {
             actual.destroyTime(properties.destroyTime.get());
@@ -380,22 +387,22 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             actual.isAir = properties.air.get();
         }
         if (properties.validSpawn.isPresent()) {
-            actual.isValidSpawn(properties.validSpawn.get().value());
+            actual.isValidSpawn(properties.validSpawn.get().get());
         }
         if (properties.redstoneConductor.isPresent()) {
-            actual.isRedstoneConductor(properties.redstoneConductor.get().value());
+            actual.isRedstoneConductor(properties.redstoneConductor.get().get());
         }
         if (properties.suffocating.isPresent()) {
-            actual.isSuffocating(properties.suffocating.get().value());
+            actual.isSuffocating(properties.suffocating.get().get());
         }
         if (properties.viewBlocking.isPresent()) {
-            actual.isViewBlocking(properties.viewBlocking.get().value());
+            actual.isViewBlocking(properties.viewBlocking.get().get());
         }
         if (properties.postProcess.isPresent()) {
-            actual.postProcess(properties.postProcess.get().value());
+            actual.postProcess(properties.postProcess.get().get());
         }
         if (properties.emissiveRendering.isPresent()) {
-            actual.emissiveRendering(properties.emissiveRendering.get().value());
+            actual.emissiveRendering(properties.emissiveRendering.get().get());
         }
         if (properties.requiresCorrectToolForDrops.isPresent()) {
             actual.requiresCorrectToolForDrops = properties.requiresCorrectToolForDrops.get();

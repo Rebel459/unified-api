@@ -15,7 +15,6 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,14 +26,15 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
-import net.rebel459.unified.api.codec.CodecUtils;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.api.datagen.BlockAsset;
 import net.rebel459.unified.api.datagen.BlockAssets;
 import net.rebel459.unified.api.datagen.ItemAsset;
 import net.rebel459.unified.api.datagen.ItemAssets;
 import net.rebel459.unified.impl.registry.ItemRegistry;
+import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.impl.util.RecipeProvider;
 import net.rebel459.unified.impl.datagen.BlockAssetRequest;
 import net.rebel459.unified.impl.datagen.DataRegistry;
@@ -43,6 +43,7 @@ import net.rebel459.unified.impl.datagen.ItemAssetRequest;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -54,7 +55,7 @@ public final class UnifiedDataRegistries {
     
     private UnifiedDataRegistries(String modId, DataRegistry.GenerationSettings settings) {
         this.items = new Items(modId, UnifiedRegistries.Items.create(modId));
-        this.blocks = new Blocks(modId, UnifiedRegistries.Blocks.create(modId));
+        this.blocks = new Blocks(modId, UnifiedRegistries.Blocks.create(modId), this.items);
         DataRegistry.settings(modId, settings);
     }
 
@@ -71,7 +72,7 @@ public final class UnifiedDataRegistries {
     public static final class Builder {
         private final String modId;
         private int priority;
-        private final List<String> dependencies = new ArrayList<>();
+        private Optional<ExtensibleCodec.Entry<Boolean>> requirement = Optional.empty();
         private boolean autoName;
         private String language = "en_us";
         private Optional<String> injectedTranslations = Optional.empty();
@@ -83,8 +84,15 @@ public final class UnifiedDataRegistries {
         public Builder priority(int value) {
             priority = value; return this;
         }
-        public Builder dependency(String modId) {
-            dependencies.add(modId); return this;
+        public Builder requirement(String path, Supplier<Boolean> value) {
+            requirement = Optional.of(ExtensibleCodecs.REQUIREMENT_TYPES
+                    .register(Identifier.fromNamespaceAndPath(modId, path), value)
+                    .create());
+            return this;
+        }
+        public Builder requirement(ExtensibleCodec.Entry<Boolean> requirement) {
+            this.requirement = Optional.of(requirement);
+            return this;
         }
         public Builder autoName() {
             autoName = true; injectedTranslations = Optional.empty(); return this;
@@ -100,7 +108,7 @@ public final class UnifiedDataRegistries {
 
         public UnifiedDataRegistries build() {
             return new UnifiedDataRegistries(modId, new DataRegistry.GenerationSettings(
-                    new DataRegistry.PriorityAndDependencies(priority, dependencies),
+                    new DataRegistry.PriorityAndRequirement(priority, requirement),
                     autoName,
                     language,
                     injectedTranslations
@@ -118,11 +126,11 @@ public final class UnifiedDataRegistries {
             this.items = runtime;
         }
 
-        public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> configure) {
-            return register(path, () -> type, configure);
+        public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> configure) {
+            return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(modId, path), () -> type).create(), configure);
         }
 
-        public SuppliedItem register(String path, Supplier<ExtensibleCodec.Entry<Function<Item.Properties, Item>>> type, Consumer<Builder> configure) {
+        public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> configure) {
             Builder builder = new Builder();
             configure.accept(builder);
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
@@ -131,14 +139,35 @@ public final class UnifiedDataRegistries {
                 builder.properties.accept(createProperties);
                 return createProperties;
             };
-            SuppliedItem registered = items.register(path, itemProperties -> type.get().value().apply(itemProperties), runtimeProperties);
+            SuppliedItem registered = items.register(path, itemProperties -> type.get().apply(itemProperties), runtimeProperties);
             DataRegistry.add(id, new DataRegistry.GeneratedItem(
-                    () -> new ItemRegistry.Definition(type.get(), CodecUtils.suppliedValue(
-                            DataComponentType.VALUE_MAP_CODEC,
-                            componentValues(builder.properties, ResourceKey.create(Registries.ITEM, id)),
-                            () -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY),
-                            ItemRegistry::createProperties
-                    )),
+                    () -> ItemRegistry.Definition.item(type,
+                            componentValues(builder.properties, ResourceKey.create(Registries.ITEM, id))),
+                    builder::buildAssets,
+                    builder::buildData
+            ));
+            return registered;
+        }
+
+        public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> type, Consumer<Builder> configure) {
+            Identifier id = block.blockItemId().item().identifier();
+            return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM_TYPES.register(id, () -> type).create(), configure);
+        }
+
+        public SuppliedItem registerBlockItem(SuppliedBlock block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type, Consumer<Builder> configure) {
+            Builder builder = new Builder();
+            configure.accept(builder);
+            Identifier id = block.blockItemId().item().identifier();
+            Supplier<Item.Properties> runtimeProperties = () -> {
+                Item.Properties properties = new Item.Properties();
+                builder.properties.accept(properties);
+                return properties;
+            };
+            SuppliedItem registered = items.registerBlockItem(
+                    block.blockItemId(), block, type.get(), runtimeProperties);
+            DataRegistry.add(id, new DataRegistry.GeneratedItem(
+                    () -> ItemRegistry.Definition.blockItem(block, type,
+                            componentValues(builder.properties, block.blockItemId().item())),
                     builder::buildAssets,
                     builder::buildData
             ));
@@ -250,41 +279,69 @@ public final class UnifiedDataRegistries {
 
         private final String modId;
         private final UnifiedRegistries.Blocks blocks;
+        private final Items items;
 
-        private Blocks(String modId, UnifiedRegistries.Blocks blocks) {
+        private Blocks(String modId, UnifiedRegistries.Blocks blocks, Items items) {
             this.modId = modId;
             this.blocks = blocks;
+            this.items = items;
+        }
+
+        public SuppliedBlock register(String path, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> configure) {
+            return register(path, path, type, configure);
+        }
+
+        public SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> configure) {
+            return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(modId, blockPath), () -> type).create(), configure);
         }
 
         public SuppliedBlock register(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> configure) {
-            return register(path, () -> type, configure);
+            return register(path, path, type, configure);
         }
 
-        public SuppliedBlock register(String path, Supplier<ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>> type, Consumer<Builder> configure) {
-            Builder builder = new Builder();
+        public SuppliedBlock register(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> configure) {
+            Builder builder = new Builder(modId, blockPath);
             configure.accept(builder);
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            Supplier<BlockBehaviour.Properties> properties = builder.properties.buildSupplier();
+            Identifier id = Identifier.fromNamespaceAndPath(modId, blockPath);
+            Supplier<BlockBehaviour.Properties> properties =
+                    () -> BlockRegistry.createProperties(builder.properties.definition);
+            SuppliedBlock block;
+            if (builder.blockEntity.isPresent()) {
+                block = register(blocks, blockPath, itemPath,
+                        blockProperties -> type.get().apply(blockProperties), properties,
+                        builder.blockEntity.orElseThrow());
+            } else {
+                block = blocks.registerWithoutItem(blockPath, itemPath,
+                        blockProperties -> type.get().apply(blockProperties), properties);
+            }
             DataRegistry.add(id, new DataRegistry.GeneratedBlock(
-                    () -> new BlockRegistry.Definition(type.get(), builder.registerItem, properties, builder.blockEntity),
+                    block.blockItemId(),
+                    () -> new BlockRegistry.Definition(type, builder.properties.definition, builder.blockEntity),
                     builder::buildAssets,
                     builder::buildData
             ));
-
-            if (builder.blockEntity.isPresent()) {
-                Supplier<BlockEntityType<BlockEntity>> blockEntity = () -> (BlockEntityType<BlockEntity>) BuiltInRegistries.BLOCK_ENTITY_TYPE.getValueOrThrow(builder.blockEntity.orElseThrow());
-                if (!builder.registerItem) return blocks.registerWithoutItem(path, blockProperties -> type.get().value().apply(blockProperties), properties, blockEntity);
-                return blocks.register(path, blockProperties -> type.get().value().apply(blockProperties), properties, blockEntity);
+            if (builder.generateItem) {
+                items.registerBlockItem(block, VanillaItemTypes.BLOCK_ITEM.create(), _ -> {});
             }
-            if (!builder.registerItem) return blocks.registerWithoutItem(path, blockProperties -> type.get().value().apply(blockProperties), properties);
-            return blocks.register(path, blockProperties -> type.get().value().apply(blockProperties), properties);
+            return block;
         }
 
         public static final class Properties {
+            private final String modId;
+            private final String path;
             private final BlockRegistry.Properties definition = new BlockRegistry.Properties();
 
-            public Properties copyFrom(ResourceKey<Block> copyFrom) {
-                definition.copyFrom = Optional.of(copyFrom.identifier());
+            private Properties(String modId, String path) {
+                this.modId = modId;
+                this.path = path;
+            }
+
+            private <R> ExtensibleCodec.Entry<R> register(ExtensibleCodec<R> codec, R value) {
+                return codec.register(Identifier.fromNamespaceAndPath(modId, path), () -> value).create();
+            }
+
+            public Properties copyFrom(Supplier<? extends Block> copyFrom) {
+                definition.copyFrom = Optional.of(widen(copyFrom));
                 return this;
             }
 
@@ -295,6 +352,9 @@ public final class UnifiedDataRegistries {
             public Properties mapColor(ExtensibleCodec.Entry<Function<BlockState, MapColor>> mapColor) {
                 definition.mapColor = Optional.of(Either.right(mapColor));
                 return this;
+            }
+            public Properties mapColor(Function<BlockState, MapColor> mapColor) {
+                return mapColor(register(ExtensibleCodecs.MAP_COLOR_TYPES, mapColor));
             }
 
             public Properties collision(boolean collision) {
@@ -334,6 +394,9 @@ public final class UnifiedDataRegistries {
             public Properties lightLevel(ExtensibleCodec.Entry<ToIntFunction<BlockState>> lightLevel) {
                 definition.lightLevel = Optional.of(Either.right(lightLevel));
                 return this;
+            }
+            public Properties lightLevel(ToIntFunction<BlockState> lightLevel) {
+                return lightLevel(register(ExtensibleCodecs.LIGHT_EMISSION_TYPES, lightLevel));
             }
 
             public Properties strength(float strength) {
@@ -404,30 +467,48 @@ public final class UnifiedDataRegistries {
                 definition.validSpawn = Optional.of(validSpawn);
                 return this;
             }
+            public Properties validSpawn(BlockBehaviour.StateArgumentPredicate<EntityType<?>> validSpawn) {
+                return validSpawn(register(ExtensibleCodecs.ENTITY_PREDICATE_TYPES, validSpawn));
+            }
 
             public Properties redstoneConductor(ExtensibleCodec.Entry<BlockBehaviour.StatePredicate> redstoneConductor) {
                 definition.redstoneConductor = Optional.of(redstoneConductor);
                 return this;
+            }
+            public Properties redstoneConductor(BlockBehaviour.StatePredicate redstoneConductor) {
+                return redstoneConductor(register(ExtensibleCodecs.STATE_PREDICATE_TYPES, redstoneConductor));
             }
 
             public Properties suffocating(ExtensibleCodec.Entry<BlockBehaviour.StatePredicate> suffocating) {
                 definition.suffocating = Optional.of(suffocating);
                 return this;
             }
+            public Properties suffocating(BlockBehaviour.StatePredicate suffocating) {
+                return suffocating(register(ExtensibleCodecs.STATE_PREDICATE_TYPES, suffocating));
+            }
 
             public Properties viewBlocking(ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<AABB>> viewBlocking) {
                 definition.viewBlocking = Optional.of(viewBlocking);
                 return this;
+            }
+            public Properties viewBlocking(BlockBehaviour.StateArgumentPredicate<AABB> viewBlocking) {
+                return viewBlocking(register(ExtensibleCodecs.COLLISION_PREDICATE_TYPES, viewBlocking));
             }
 
             public Properties postProcess(ExtensibleCodec.Entry<BlockBehaviour.PostProcess> postProcess) {
                 definition.postProcess = Optional.of(postProcess);
                 return this;
             }
+            public Properties postProcess(BlockBehaviour.PostProcess postProcess) {
+                return postProcess(register(ExtensibleCodecs.POST_PROCESS_TYPES, postProcess));
+            }
 
             public Properties emissiveRendering(ExtensibleCodec.Entry<Predicate<BlockState>> emissiveRendering) {
                 definition.emissiveRendering = Optional.of(emissiveRendering);
                 return this;
+            }
+            public Properties emissiveRendering(Predicate<BlockState> emissiveRendering) {
+                return emissiveRendering(register(ExtensibleCodecs.PREDICATE_TYPES, emissiveRendering));
             }
 
             public Properties requiresCorrectToolForDrops(boolean requiresCorrectToolForDrops) {
@@ -465,14 +546,6 @@ public final class UnifiedDataRegistries {
                 return this;
             }
 
-            private Supplier<BlockBehaviour.Properties> buildSupplier() {
-                return CodecUtils.suppliedValue(
-                        BlockRegistry.Properties.CODEC,
-                        definition,
-                        () -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY),
-                        BlockRegistry::createProperties
-                );
-            }
         }
 
         public static final class Assets {
@@ -553,17 +626,24 @@ public final class UnifiedDataRegistries {
         }
 
         public static final class Builder {
-            private final Properties properties = new Properties();
+            private final Properties properties;
             private final List<Consumer<Assets>> assetConfigurations = new ArrayList<>();
             private final List<Consumer<Data>> dataConfigurations = new ArrayList<>();
-            private boolean registerItem = true;
-            private Optional<ResourceKey<BlockEntityType<? extends BlockEntity>>> blockEntity = Optional.empty();
+            private boolean generateItem = true;
+            private Optional<Supplier<BlockEntityType<?>>> blockEntity = Optional.empty();
+
+            private Builder(String modId, String path) {
+                properties = new Properties(modId, path);
+            }
 
             public Builder properties(Consumer<Properties> configure) { configure.accept(properties); return this; }
             public Builder assets(Consumer<Assets> configure) { assetConfigurations.add(configure); return this; }
             public Builder data(Consumer<Data> configure) { dataConfigurations.add(configure); return this; }
-            public Builder withoutItem() { registerItem = false; return this; }
-            public Builder blockEntity(ResourceKey<BlockEntityType<? extends BlockEntity>> type) { blockEntity = Optional.of(type); return this; }
+            public Builder withoutItem() { generateItem = false; return this; }
+            public Builder blockEntity(Supplier<? extends BlockEntityType<?>> type) {
+                blockEntity = Optional.of(widen(type));
+                return this;
+            }
 
             private DataRegistry.BlockAssets buildAssets() {
                 Assets assets = new Assets();
@@ -576,6 +656,20 @@ public final class UnifiedDataRegistries {
                 dataConfigurations.forEach(configure -> configure.accept(data));
                 return data.build();
             }
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private static SuppliedBlock register(UnifiedRegistries.Blocks blocks, String blockPath, String itemPath,
+                Function<BlockBehaviour.Properties, ? extends Block> factory,
+                Supplier<BlockBehaviour.Properties> properties,
+                Supplier<BlockEntityType<?>> blockEntity) {
+            Supplier type = blockEntity;
+            return blocks.registerWithoutItem(blockPath, itemPath, factory, properties, type);
+        }
+
+        @SuppressWarnings("unchecked")
+        private static <T> Supplier<T> widen(Supplier<? extends T> supplier) {
+            return (Supplier<T>) supplier;
         }
     }
 }

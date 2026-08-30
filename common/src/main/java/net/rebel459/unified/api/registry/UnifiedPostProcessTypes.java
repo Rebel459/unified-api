@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 
@@ -14,11 +15,11 @@ import java.util.function.Function;
 public class UnifiedPostProcessTypes {
 
     private static ExtensibleCodec.Simple<BlockBehaviour.PostProcess> simple(String path, BlockBehaviour.PostProcess predicate) {
-        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Identifier.withDefaultNamespace(path), () -> predicate);
+        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path), () -> predicate);
     }
 
     private static <T> ExtensibleCodec.Complex<BlockBehaviour.PostProcess, T> complex(String path, MapCodec<T> codec, Function<T, BlockBehaviour.PostProcess> predicate) {
-        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Identifier.withDefaultNamespace(path), codec, predicate);
+        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path), codec, predicate);
     }
 
     public static final ExtensibleCodec.Complex<BlockBehaviour.PostProcess, Offset> OFFSET = complex(

@@ -1,10 +1,10 @@
 package net.rebel459.unified.fabric.datagen;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.DynamicOps;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -21,6 +21,8 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
@@ -28,9 +30,13 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Block;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import net.rebel459.unified.api.datagen.BlockAsset;
@@ -191,8 +197,10 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
 
         @Override public CompletableFuture<?> run(CachedOutput cache) {
             List<CompletableFuture<?>> writes = new ArrayList<>();
-            DataRegistry.blocks().forEach((id, generated) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, BlockRegistry.CODEC.encodeStart(JsonOps.INSTANCE, generated.definition().get()).getOrThrow(), definitionPath(output, id, "blocks"), modId)); });
-            DataRegistry.items().forEach((id, generated) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, ItemRegistry.CODEC.encodeStart(JsonOps.INSTANCE, generated.definition().get()).getOrThrow(), definitionPath(output, id, "items"), modId)); });
+            DynamicOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE,
+                    RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+            DataRegistry.blocks().forEach((id, generated) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, BlockRegistry.CODEC.encodeStart(registryOps, generated.definition().get()).getOrThrow(), definitionPath(output, id, "blocks"), modId)); });
+            DataRegistry.items().forEach((id, generated) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, ItemRegistry.CODEC.encodeStart(registryOps, generated.definition().get()).getOrThrow(), definitionPath(output, id, "items"), modId)); });
             DataRegistry.blockSetTypes().forEach((id, definition) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, BlockSetTypeRegistry.CODEC.encodeStart(JsonOps.INSTANCE, definition.get()).getOrThrow(), definitionPath(output, id, "block_set_types"), modId)); });
             return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
         }
@@ -226,7 +234,8 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                 }
             });
             DataRegistry.blocks().forEach((id, generated) -> addTranslation(translations, settings, id, "block", generated.assets().get().name().orElse(null)));
-            DataRegistry.items().forEach((id, generated) -> addTranslation(translations, settings, id, "item", generated.assets().get().name().orElse(null)));
+            DataRegistry.items().forEach((id, generated) ->
+                    addItemTranslation(translations, settings, id, generated.assets().get().name().orElse(null)));
             Path path = output.getOutputFolder().resolve("assets").resolve(modId).resolve("lang").resolve(settings.language() + ".json");
             return DataProvider.saveStable(cache, translations, path);
         }
@@ -236,6 +245,21 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         private void addTranslation(JsonObject translations, DataRegistry.GenerationSettings settings, Identifier id, String kind, String explicitName) {
             if (!owns(id, modId) || explicitName == null && !settings.autoName()) return;
             translations.addProperty(kind + "." + id.getNamespace() + "." + id.getPath(), explicitName != null ? explicitName : autoName(id.getPath()));
+        }
+
+        private void addItemTranslation(JsonObject translations, DataRegistry.GenerationSettings settings,
+                Identifier id, String explicitName) {
+            if (!owns(id, modId) || explicitName == null && !settings.autoName()) return;
+            Component name = BuiltInRegistries.ITEM.getValueOrThrow(ResourceKey.create(Registries.ITEM, id))
+                    .components().get(DataComponents.ITEM_NAME);
+            if (name == null || !(name.getContents() instanceof TranslatableContents translation)) return;
+            String key = translation.getKey();
+            String itemPrefix = "item." + id.getNamespace() + ".";
+            String blockPrefix = "block." + id.getNamespace() + ".";
+            String path = key.startsWith(itemPrefix) ? key.substring(itemPrefix.length())
+                    : key.startsWith(blockPrefix) ? key.substring(blockPrefix.length())
+                    : id.getPath();
+            translations.addProperty(key, explicitName != null ? explicitName : autoName(path));
         }
 
     }
@@ -318,7 +342,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                     };
                     DataRegistry.blocks().forEach((id, generated) -> {
                         if (!owns(id, modId)) return;
-                        Item item = BuiltInRegistries.ITEM.getValue(id);
+                        Item item = BuiltInRegistries.ITEM.getValue(generated.blockItemId().item().identifier());
                         generated.data().get().recipe().ifPresent(factory -> factory.accept(item, recipeProvider));
                     });
                     DataRegistry.items().forEach((id, generated) -> {
@@ -369,7 +393,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             });
             DataRegistry.blocks().forEach((id, generated) -> {
                 if (!owns(id, modId)) return;
-                ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
+                ResourceKey<Item> key = generated.blockItemId().item();
                 generated.data().get().itemTags().forEach(tag -> tag(tag).add(key));
                 generated.data().get().optionalItemTags().forEach(tag -> tag(tag).addOptional(key));
             });
@@ -393,11 +417,12 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         JsonObject definition = encoded.getAsJsonObject();
         var metadata = DataRegistry.settings(modId).metadata();
         if (metadata.priority() != 0) definition.addProperty("priority", metadata.priority());
-        if (!metadata.dependencies().isEmpty()) {
-            JsonArray dependencies = new JsonArray();
-            metadata.dependencies().forEach(dependencies::add);
-            definition.add("dependencies", dependencies);
-        }
+        metadata.requirement().ifPresent(requirement -> definition.add(
+                "load_requirements",
+                ExtensibleCodecs.REQUIREMENT_TYPES.codec()
+                        .encodeStart(JsonOps.INSTANCE, requirement)
+                        .getOrThrow(error -> new IllegalStateException("Failed to encode load requirement: " + error))
+        ));
         return DataProvider.saveStable(cache, definition, path);
     }
 

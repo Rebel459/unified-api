@@ -13,15 +13,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
-import net.rebel459.unified.api.codec.CodecUtils;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 
 import java.util.function.Function;
 
 public class VanillaMapColorTypes {
 
-    private static final MapCodec<MapColor> COLOR = CodecUtils.named(MapColor.class).fieldOf("color");
+    private static final MapCodec<MapColor> COLOR = UnifiedCodecs.named(MapColor.class).fieldOf("color");
 
     private static ExtensibleCodec.Simple<Function<BlockState, MapColor>> simple(String path, Function<BlockState, MapColor> predicate) {
         return ExtensibleCodecs.MAP_COLOR_TYPES.register(Identifier.withDefaultNamespace(path), () -> predicate);
@@ -41,7 +41,7 @@ public class VanillaMapColorTypes {
 
     public static final ExtensibleCodec.Complex<Function<BlockState, MapColor>, DyeColor> BED = complex(
             "bed",
-            CodecUtils.named(DyeColor.class).fieldOf("dye_color"),
+            UnifiedCodecs.named(DyeColor.class).fieldOf("dye_color"),
             definition -> state -> state.getValue(BedBlock.PART) == BedPart.FOOT ? definition.getMapColor() : MapColor.WOOL
     );
 
@@ -67,8 +67,8 @@ public class VanillaMapColorTypes {
     public record MultiColored(MapColor primary, MapColor secondary){
         public static MapCodec<MultiColored> codec(String primaryField, String secondaryField) {
             return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    CodecUtils.named(MapColor.class).fieldOf(primaryField).forGetter(MultiColored::primary),
-                    CodecUtils.named(MapColor.class).fieldOf(secondaryField).forGetter(MultiColored::secondary)
+                    UnifiedCodecs.named(MapColor.class).fieldOf(primaryField).forGetter(MultiColored::primary),
+                    UnifiedCodecs.named(MapColor.class).fieldOf(secondaryField).forGetter(MultiColored::secondary)
             ).apply(instance, MultiColored::new));
         }
     }

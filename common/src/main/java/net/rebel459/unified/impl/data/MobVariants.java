@@ -24,6 +24,7 @@ import net.minecraft.world.entity.variant.SpawnContext;
 import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 
@@ -35,7 +36,21 @@ public class MobVariants {
     public static final ResourceKey<Registry<Variant>> KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "mob_variants"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.registerSynced(KEY, Variant.CODEC, Variant.NETWORK_CODEC);
+        UnifiedHelpers.DATA_REGISTRIES.registerSynced(
+                KEY,
+                UnifiedCodecs.loadRequirements(Variant.CODEC, () -> new Variant(
+                        Optional.empty(),
+                        Optional.empty(),
+                        Optional.empty(),
+                        new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())
+                )),
+                UnifiedCodecs.loadRequirements(Variant.NETWORK_CODEC, () -> new Variant(
+                        Optional.empty(),
+                        Optional.empty(),
+                        Optional.empty(),
+                        new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())
+                ))
+        );
     }
 
     public static UnifiedAttachments.Entity<Optional<Holder<Variant>>> MOB_VARIANT = UnifiedAttachments.Entity.builder(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "mob_variant"), Optional::<Holder<Variant>>empty)

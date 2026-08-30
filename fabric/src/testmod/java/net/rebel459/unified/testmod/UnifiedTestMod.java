@@ -2,17 +2,24 @@ package net.rebel459.unified.testmod;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.builder.BlockPreset;
 import net.rebel459.unified.api.builder.BlockSet;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedDataRegistries;
+import net.rebel459.unified.api.core.UnifiedRegistries;
+import net.rebel459.unified.api.core.Supplied;
+import net.rebel459.unified.api.codec.BlockType;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.api.datagen.BlockAssets;
@@ -25,6 +32,13 @@ public final class UnifiedTestMod implements ModInitializer {
     public static final UnifiedDataRegistries DATA = UnifiedDataRegistries.create(MOD_ID).autoName().build();
     public static final UnifiedDataRegistries.Blocks BLOCKS = DATA.blocks();
     public static final UnifiedDataRegistries.Items ITEMS = DATA.items();
+    public static final UnifiedRegistries.SoundEvents SOUNDS = UnifiedRegistries.SoundEvents.create(MOD_ID);
+    public static final Supplied<SoundEvent> TEST_SOUND = SOUNDS.register("test_sound");
+    public static final BlockType.Complex<SoundEvent> SOUND_BLOCK_TYPE = ExtensibleCodecs.BLOCK_TYPES.register(
+            id("sound_block"),
+            BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("sound"),
+            sound -> properties -> new Block(properties.sound(new SoundType(1, 1, sound, sound, sound, sound, sound)))
+    );
 
     public static final TagKey<Block> TEST_BLOCKS = TagKey.create(Registries.BLOCK, id("test_blocks"));
     public static final TagKey<Item> TEST_ITEMS = TagKey.create(Registries.ITEM, id("test_items"));
@@ -63,8 +77,24 @@ public final class UnifiedTestMod implements ModInitializer {
                     .data(data -> data.tag(TEST_ITEMS))
     );
 
+    public static final SuppliedBlock TEST_STAIRS = BLOCKS.register(
+            "test_stairs",
+            VanillaBlockTypes.STAIRS.create(TEST_BLOCK::get),
+            block -> block.properties(properties -> properties.copyFrom(TEST_BLOCK))
+    );
+
+    public static final SuppliedBlock TEST_SOUND_BLOCK = BLOCKS.register(
+            "test_sound_block",
+            SOUND_BLOCK_TYPE.create(TEST_SOUND::get),
+            block -> block.properties(properties -> properties.strength(2.0F))
+    );
+
     private static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    static void initRegistryResources() {
+        // Forces custom extensible-codec types and their staged declarations to exist before JSON indexing completes.
     }
 
     @Override
@@ -75,5 +105,7 @@ public final class UnifiedTestMod implements ModInitializer {
     private void onInitializeCommon() {
         TEST_BLOCK.get();
         TEST_ITEM.get();
+        TEST_STAIRS.get();
+        TEST_SOUND_BLOCK.get();
     }
 }

@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.rebel459.unified.Unified;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.event.LootEntry;
@@ -24,7 +25,7 @@ public class LootInjections {
     public static final ResourceKey<Registry<Injection>> KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "loot_injections"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, Injection.CODEC);
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Injection.CODEC, () -> new Injection(Identifier.withDefaultNamespace("empty"), List.of(), List.of())));
         UnifiedEvents.LootTables.modify((table, key, provider) -> {
             provider.lookup(KEY).ifPresent(injections ->
                     injections.listElements().forEach(holder -> {

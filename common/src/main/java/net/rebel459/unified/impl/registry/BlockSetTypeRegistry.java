@@ -3,21 +3,23 @@ package net.rebel459.unified.impl.registry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.api.codec.CodecUtils;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.RegistryResourceListener;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 
 public class BlockSetTypeRegistry extends RegistryResourceListener<BlockSetTypeRegistry.Definition> {
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("can_open_by_hand", true).forGetter(Definition::canOpenByHand),
             Codec.BOOL.optionalFieldOf("can_open_by_wind_charge", true).forGetter(Definition::canOpenByWindCharge),
             Codec.BOOL.optionalFieldOf("can_button_be_activated_by_arrows", true).forGetter(Definition::canButtonBeActivatedByArrows),
-            CodecUtils.named(BlockSetType.PressurePlateSensitivity.class).optionalFieldOf("pressure_plate_sensitivity", BlockSetType.PressurePlateSensitivity.EVERYTHING).forGetter(Definition::pressurePlateSensitivity),
+            UnifiedCodecs.named(BlockSetType.PressurePlateSensitivity.class).optionalFieldOf("pressure_plate_sensitivity", BlockSetType.PressurePlateSensitivity.EVERYTHING).forGetter(Definition::pressurePlateSensitivity),
             BlockRegistry.SoundType.CODEC.optionalFieldOf("sound_type", BlockRegistry.SoundType.create(SoundType.WOOD)).forGetter(Definition::soundType),
             BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("door_close", SoundEvents.WOODEN_DOOR_CLOSE).forGetter(Definition::doorClose),
             BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("door_open", SoundEvents.WOODEN_DOOR_OPEN).forGetter(Definition::doorOpen),
@@ -36,7 +38,11 @@ public class BlockSetTypeRegistry extends RegistryResourceListener<BlockSetTypeR
     }
 
     @Override
-    protected void register(Identifier id, BlockSetTypeRegistry.Definition type) {
+    protected void register(Identifier id, DeferredDeclaration<BlockSetTypeRegistry.Definition> declaration) {
+        PlatformHandler.INSTANCE.internal().afterRegistry(Registries.SOUND_EVENT, () -> registerNow(id, declaration.get()));
+    }
+
+    private static void registerNow(Identifier id, BlockSetTypeRegistry.Definition type) {
         BlockSetType.register(new BlockSetType(
                 id.toString(),
                 type.canOpenByHand,

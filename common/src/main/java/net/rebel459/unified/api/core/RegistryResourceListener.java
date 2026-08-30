@@ -3,11 +3,15 @@ package net.rebel459.unified.api.core;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.common.base.Suppliers;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
@@ -17,6 +21,7 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.flag.FeatureFlags;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.impl.datagen.DataRegistry;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.slf4j.Logger;
@@ -88,8 +93,44 @@ public abstract class RegistryResourceListener<T> {
         }
     }
 
-    /** Runs the registration code for each data-driven registry entry. */
-    protected abstract void register(Identifier id, T declaration);
+    /** Queues the registration code for a data-driven registry entry. */
+    protected abstract void register(Identifier id, DeferredDeclaration<T> declaration);
+
+    /** A declaration whose complete codec is evaluated only when its registry factory needs it. */
+    public static final class DeferredDeclaration<T> implements java.util.function.Supplier<T> {
+        private final Identifier resourceId;
+        private final String source;
+        private final JsonObject definition;
+        private final java.util.function.Supplier<T> value;
+
+        private DeferredDeclaration(Identifier resourceId, String source, JsonObject definition, Codec<T> codec) {
+            this.resourceId = resourceId;
+            this.source = source;
+            this.definition = definition.deepCopy();
+            this.value = Suppliers.memoize(() -> decodeFull(codec));
+        }
+
+        @Override
+        public T get() {
+            return value.get();
+        }
+
+        /** Decodes only bootstrap metadata which must be known before registry factories are queued. */
+        public <R> R decode(com.mojang.serialization.MapCodec<R> codec) {
+            return decodeMetadata(codec.codec());
+        }
+
+        private <R> R decodeMetadata(Codec<R> codec) {
+            return codec.parse(JsonOps.INSTANCE, definition)
+                    .getOrThrow(error -> new IllegalArgumentException(resourceId + " from " + source + ": " + error));
+        }
+
+        private <R> R decodeFull(Codec<R> codec) {
+            RegistryAccess registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+            return codec.parse(RegistryOps.create(JsonOps.INSTANCE, registries), definition)
+                    .getOrThrow(error -> new IllegalArgumentException(resourceId + " from " + source + ": " + error));
+        }
+    }
 
     protected Identifier registryId(Identifier resourceId) {
         String path = resourceId.getPath();
@@ -140,16 +181,13 @@ public abstract class RegistryResourceListener<T> {
 
     private void decodeAndRegister(Identifier resourceId, Candidate candidate) {
         try {
-            for (String dependency : candidate.dependencies()) {
-                if (!UnifiedInstance.isModLoaded(dependency)) {
-                    LOGGER.debug("Skipping {} because required mod {} is not loaded", resourceId, dependency);
-                    return;
-                }
+            if (candidate.requirement().isPresent() && !candidate.requirement().get().get()) {
+                LOGGER.debug("Skipping {} because its load requirement was not met", resourceId);
+                return;
             }
-            T declaration = codec.parse(JsonOps.INSTANCE, candidate.definition()).getOrThrow(error -> new IllegalArgumentException(resourceId + " from " + candidate.source() + ": " + error));
             Identifier registryId = registryId(resourceId);
             PlatformHandler.INSTANCE.internal().prepareRegistryNamespace(registryId.getNamespace());
-            register(registryId, declaration);
+            register(registryId, new DeferredDeclaration<>(resourceId, candidate.source(), candidate.definition(), codec));
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to init static registry declaration " + resourceId + " from " + candidate.source(), exception);
         }
@@ -248,7 +286,7 @@ public abstract class RegistryResourceListener<T> {
 
     private record PackEntry(PackResources resources, boolean external) {}
 
-    private record Candidate(JsonObject definition, int priority, List<String> dependencies, boolean external, long sequence, String source) {
+    private record Candidate(JsonObject definition, int priority, Optional<ExtensibleCodec.Entry<Boolean>> requirement, boolean external, long sequence, String source) {
         private boolean supersedes(Candidate other) {
             if (priority != other.priority) return priority > other.priority;
             if (external != other.external) return external;
@@ -283,11 +321,11 @@ public abstract class RegistryResourceListener<T> {
                             JsonElement parsed = JsonParser.parseReader(reader);
                             if (!parsed.isJsonObject()) throw new IllegalArgumentException("Root must be a JSON object");
                             JsonObject definition = parsed.getAsJsonObject().deepCopy();
-                            DataRegistry.PriorityAndDependencies metadata = DataRegistry.PriorityAndDependencies.CODEC.parse(JsonOps.INSTANCE, definition)
+                            DataRegistry.PriorityAndRequirement metadata = DataRegistry.PriorityAndRequirement.CODEC.parse(JsonOps.INSTANCE, definition)
                                     .getOrThrow(error -> new IllegalArgumentException(resourceId + ": " + error));
                             definition.remove("priority");
-                            definition.remove("dependencies");
-                            Candidate candidate = new Candidate(definition, metadata.priority(), metadata.dependencies(), pack.external(), sequence[0]++, pack.resources().packId());
+                            definition.remove("load_requirements");
+                            Candidate candidate = new Candidate(definition, metadata.priority(), metadata.requirement(), pack.external(), sequence[0]++, pack.resources().packId());
                             Candidate previous = indexed.get(resourceId);
                             if (previous == null || candidate.supersedes(previous)) indexed.put(resourceId, candidate);
                         } catch (Exception exception) {

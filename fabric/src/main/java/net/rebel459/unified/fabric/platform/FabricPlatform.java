@@ -27,7 +27,6 @@ import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.fabric.core.FabricHelpers;
 import net.rebel459.unified.fabric.core.FabricInstance;
-import net.rebel459.unified.fabric.core.FabricRegistryBootstrap;
 import net.rebel459.unified.fabric.core.FabricUnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
@@ -133,8 +132,8 @@ public class FabricPlatform implements CommonPlatform {
         }
 
         @Override
-        public void finishStaticRegistryBootstrap() {
-            FabricRegistryBootstrap.finish();
+        public void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
+            action.run();
         }
 
         @Override

@@ -38,6 +38,7 @@ import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.IntProviders;
 import net.rebel459.unified.api.codec.BlockType;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -47,39 +48,33 @@ public class VanillaBlockTypes {
 
     // Common Codecs
 
-    public static final Codec<FlowingFluid> FLOWING_FLUID_CODEC = BuiltInRegistries.FLUID.byNameCodec().flatXmap(
+    private static final Codec<FlowingFluid> FLOWING_FLUID_CODEC = BuiltInRegistries.FLUID.byNameCodec().flatXmap(
             fluid -> fluid instanceof FlowingFluid flowing ? DataResult.success(flowing) : DataResult.error(() -> "Fluid is not a flowing fluid: " + BuiltInRegistries.FLUID.getKey(fluid)),
             DataResult::success
     );
-    public static final Codec<SimpleParticleType> SIMPLE_PARTICLE_CODEC = ParticleTypes.CODEC.flatXmap(
+    private static final Codec<SimpleParticleType> SIMPLE_PARTICLE_CODEC = ParticleTypes.CODEC.flatXmap(
             particle -> particle instanceof SimpleParticleType simple ? DataResult.success(simple) : DataResult.error(() -> "Particle is not a simple particle type: " + particle),
             DataResult::success
     );
 
-    public static final MapCodec<ResourceKey<Block>> BASE_BLOCK_CODEC = ResourceKey.codec(Registries.BLOCK).fieldOf("base_block");
-    public static final MapCodec<BlockSetType> BLOCK_SET_TYPE_CODEC = Identifier.CODEC.xmap(
-            id -> BlockSetType.TYPES.get(id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) ? id.getPath() : id.toString()),
-            type -> Identifier.parse(type.name())
-            ).fieldOf("block_set_type");
-    public static final MapCodec<ResourceKey<Block>> DEAD_BLOCK_CODEC = ResourceKey.codec(Registries.BLOCK).fieldOf("dead_block");
-    public static final MapCodec<DyeColor> DYE_COLOR_CODEC = DyeColor.CODEC.fieldOf("color");
-    public static final MapCodec<ResourceKey<Feature>> FEATURE_CODEC = ResourceKey.codec(Registries.FEATURE).fieldOf("feature");
-    public static final MapCodec<ResourceKey<Block>> FRUIT_CODEC = ResourceKey.codec(Registries.BLOCK).fieldOf("fruit");
-    public static final MapCodec<ResourceKey<Block>> HOST_BLOCK_CODEC = ResourceKey.codec(Registries.BLOCK).fieldOf("host_block");
-    public static final MapCodec<Float> LEAF_PARTICLE_CHANCE_CODEC = ExtraCodecs.floatRange(0.0F, 1.0F).fieldOf("leaf_particle_chance");
-    public static final MapCodec<SoundEvent> OPEN_SOUND_CODEC = BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("open_sound");
-    public static final MapCodec<SoundEvent> CLOSE_SOUND_CODEC = BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("close_sound");
-    public static final MapCodec<ResourceKey<Item>> SEED_CODEC = ResourceKey.codec(Registries.ITEM).fieldOf("seed");
-    public static final MapCodec<SimpleParticleType> FLAME_PARTICLE_CODEC = SIMPLE_PARTICLE_CODEC.fieldOf("flame_particle");
-    public static final MapCodec<SkullBlock.Type> SKULL_TYPE_CODEC = SkullBlock.Type.CODEC.fieldOf("kind");
-    public static final MapCodec<TagKey<Block>> SUPPORT_BLOCKS_CODEC = TagKey.codec(Registries.BLOCK).fieldOf("support_blocks");
-    public static final MapCodec<SuspiciousStewEffects> SUSPICIOUS_STEW_EFFECTS_CODEC = SuspiciousStewEffects.CODEC.fieldOf("suspicious_stew_effects");
-    public static final MapCodec<TreeGrower> TREE_CODEC = TreeGrower.CODEC.fieldOf("tree");
-    public static final MapCodec<WeatheringCopper.WeatherState> WEATHERING_STATE_CODEC = WeatheringCopper.WeatherState.CODEC.fieldOf("weathering_state");
-    public static final MapCodec<WoodType> WOOD_TYPE_CODEC = Identifier.CODEC.xmap(
-            id -> WoodType.TYPES.get(id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) ? id.getPath() : id.toString()),
-            type -> Identifier.parse(type.name())
-    ).fieldOf("wood_type");
+    private static final MapCodec<Block> BASE_BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("base_block");
+    private static final MapCodec<BlockSetType> BLOCK_SET_TYPE_CODEC = UnifiedCodecs.BLOCK_SET_TYPE.fieldOf("block_set_type");
+    private static final MapCodec<Block> DEAD_BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("dead_block");
+    private static final MapCodec<DyeColor> DYE_COLOR_CODEC = DyeColor.CODEC.fieldOf("color");
+    private static final MapCodec<ResourceKey<Feature>> FEATURE_CODEC = ResourceKey.codec(Registries.FEATURE).fieldOf("feature");
+    private static final MapCodec<Block> FRUIT_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("fruit");
+    private static final MapCodec<Block> HOST_BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("host_block");
+    private static final MapCodec<Float> LEAF_PARTICLE_CHANCE_CODEC = ExtraCodecs.floatRange(0.0F, 1.0F).fieldOf("leaf_particle_chance");
+    private static final MapCodec<SoundEvent> OPEN_SOUND_CODEC = BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("open_sound");
+    private static final MapCodec<SoundEvent> CLOSE_SOUND_CODEC = BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("close_sound");
+    private static final MapCodec<Item> SEED_CODEC = BuiltInRegistries.ITEM.byNameCodec().fieldOf("seed");
+    private static final MapCodec<SimpleParticleType> FLAME_PARTICLE_CODEC = SIMPLE_PARTICLE_CODEC.fieldOf("flame_particle");
+    private static final MapCodec<SkullBlock.Type> SKULL_TYPE_CODEC = SkullBlock.Type.CODEC.fieldOf("kind");
+    private static final MapCodec<TagKey<Block>> SUPPORT_BLOCKS_CODEC = TagKey.codec(Registries.BLOCK).fieldOf("support_blocks");
+    private static final MapCodec<SuspiciousStewEffects> SUSPICIOUS_STEW_EFFECTS_CODEC = SuspiciousStewEffects.CODEC.fieldOf("suspicious_stew_effects");
+    private static final MapCodec<TreeGrower> TREE_CODEC = TreeGrower.CODEC.fieldOf("tree");
+    private static final MapCodec<WeatheringCopper.WeatherState> WEATHERING_STATE_CODEC = WeatheringCopper.WeatherState.CODEC.fieldOf("weathering_state");
+    private static final MapCodec<WoodType> WOOD_TYPE_CODEC = UnifiedCodecs.WOOD_TYPE.fieldOf("wood_type");
 
     // Registration Helpers
 
@@ -286,7 +281,9 @@ public class VanillaBlockTypes {
     public static final BlockType.Complex<Dimensions> AMETHYST_CLUSTER = complex(
             "amethyst_cluster", Dimensions.CODEC, (definition, properties) -> new AmethystClusterBlock(definition.height, definition.width, properties));
     public static final BlockType.Complex<AttachedStem> ATTACHED_STEM = complex(
-            "attached_stem", AttachedStem.CODEC, (definition, properties) -> new AttachedStemBlock(definition.stem, definition.fruit, definition.seed, definition.supportBlocks, properties));
+            "attached_stem", AttachedStem.CODEC, (definition, properties) -> new AttachedStemBlock(
+                    definition.stem.builtInRegistryHolder().key(), definition.fruit.builtInRegistryHolder().key(),
+                    definition.seed.builtInRegistryHolder().key(), definition.supportBlocks, properties));
     public static final BlockType.Complex<DyeColor> BANNER = complex(
             "banner", DYE_COLOR_CODEC, BannerBlock::new);
     public static final BlockType.Complex<DyeColor> BED = complex(
@@ -299,8 +296,8 @@ public class VanillaBlockTypes {
             "button", Button.CODEC, (definition, properties) -> new ButtonBlock(definition.blockSetType, definition.ticksToStayPressed, properties));
     public static final BlockType.Complex<Campfire> CAMPFIRE = complex(
             "campfire", Campfire.CODEC, (definition, properties) -> new CampfireBlock(definition.spawnParticles, definition.fireDamage, properties));
-    public static final BlockType.Complex<ResourceKey<Block>> CANDLE_CAKE = complex(
-            "candle_cake", BASE_BLOCK_CODEC, (key, properties) -> new CandleCakeBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key), properties));
+    public static final BlockType.Complex<Block> CANDLE_CAKE = complex(
+            "candle_cake", BASE_BLOCK_CODEC, CandleCakeBlock::new);
     public static final BlockType.Complex<WoodType> CEILING_HANGING_SIGN = complex(
             "ceiling_hanging_sign", WOOD_TYPE_CODEC, CeilingHangingSignBlock::new);
     public static final BlockType.Complex<Chest> CHEST = complex(
@@ -315,22 +312,17 @@ public class VanillaBlockTypes {
             "copper_chest", WeatheringChest.CODEC, (definition, properties) -> new CopperChestBlock(definition.weatherState, definition.openSound, definition.closeSound, properties));
     public static final BlockType.Complex<WeatheringCopper.WeatherState> COPPER_GOLEM_STATUE = complex(
             "copper_golem_statue", WEATHERING_STATE_CODEC, CopperGolemStatueBlock::new);
-    public static final BlockType.Complex<ResourceKey<Block>> CORAL = complex(
-            "coral", DEAD_BLOCK_CODEC, (key, properties) -> new CoralBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key), properties));
-    public static final BlockType.Complex<ResourceKey<Block>> CORAL_FAN = complex(
-            "coral_fan", DEAD_BLOCK_CODEC, (key, properties) -> new CoralFanBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key), properties));
-    public static final BlockType.Complex<ResourceKey<Block>> CORAL_PLANT = complex(
-            "coral_plant", DEAD_BLOCK_CODEC, (key, properties) -> new CoralPlantBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key), properties));
-    public static final BlockType.Complex<ResourceKey<Block>> CORAL_WALL_FAN = complex(
-            "coral_wall_fan", DEAD_BLOCK_CODEC, (key, properties) -> new CoralWallFanBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key), properties));
+    public static final BlockType.Complex<Block> CORAL = complex("coral", DEAD_BLOCK_CODEC, CoralBlock::new);
+    public static final BlockType.Complex<Block> CORAL_FAN = complex("coral_fan", DEAD_BLOCK_CODEC, CoralFanBlock::new);
+    public static final BlockType.Complex<Block> CORAL_PLANT = complex("coral_plant", DEAD_BLOCK_CODEC, CoralPlantBlock::new);
+    public static final BlockType.Complex<Block> CORAL_WALL_FAN = complex("coral_wall_fan", DEAD_BLOCK_CODEC, CoralWallFanBlock::new);
     public static final BlockType.Complex<BlockSetType> DOOR = complex(
             "door", BLOCK_SET_TYPE_CODEC, DoorBlock::new);
     public static final BlockType.Complex<IntProvider> DROP_EXPERIENCE_BLOCK = complex(
             "drop_experience_block", IntProviders.codec(0, 10).fieldOf("experience"), DropExperienceBlock::new);
     public static final BlockType.Complex<Boolean> EYEBLOSSOM = complex(
             "eyeblossom", Codec.BOOL.fieldOf("open"), EyeblossomBlock::new);
-    public static final BlockType.Complex<ResourceKey<Block>> FARMLAND = complex(
-            "farmland", BASE_BLOCK_CODEC, (definition, properties) -> new FarmlandBlock(BuiltInRegistries.BLOCK.getValueOrThrow(definition), properties));
+    public static final BlockType.Complex<Block> FARMLAND = complex("farmland", BASE_BLOCK_CODEC, FarmlandBlock::new);
     public static final BlockType.Complex<WoodType> FENCE_GATE = complex(
             "fence_gate", WOOD_TYPE_CODEC, FenceGateBlock::new);
     public static final BlockType.Complex<SuspiciousStewEffects> FLOWER = complex(
@@ -339,10 +331,8 @@ public class VanillaBlockTypes {
             "flower_bed", ExtraCodecs.NON_NEGATIVE_INT.fieldOf("height"), (definition, properties) -> new FlowerBedBlock(properties, definition));
     public static final BlockType.Complex<Block> FLOWER_POT = complex(
             "flower_pot", BuiltInRegistries.BLOCK.byNameCodec().fieldOf("potted"), FlowerPotBlock::new);
-    public static final BlockType.Complex<ResourceKey<Block>> INFESTED_BLOCK = complex(
-            "infested_block", HOST_BLOCK_CODEC, (key, properties) -> new InfestedBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key), properties));
-    public static final BlockType.Complex<ResourceKey<Block>> INFESTED_ROTATED_PILLAR = complex(
-            "infested_rotated_pillar", HOST_BLOCK_CODEC, (key, properties) -> new InfestedRotatedPillarBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key), properties));
+    public static final BlockType.Complex<Block> INFESTED_BLOCK = complex("infested_block", HOST_BLOCK_CODEC, InfestedBlock::new);
+    public static final BlockType.Complex<Block> INFESTED_ROTATED_PILLAR = complex("infested_rotated_pillar", HOST_BLOCK_CODEC, InfestedRotatedPillarBlock::new);
     public static final BlockType.Complex<LayeredCauldron> LAYERED_CAULDRON = complex(
             "layered_cauldron", LayeredCauldron.CODEC, (definition, properties) -> new LayeredCauldronBlock(definition.precipitation, definition.interactions, properties));
     public static final BlockType.Complex<FlowingFluid> LIQUID = complex(
@@ -357,12 +347,11 @@ public class VanillaBlockTypes {
             "nether_fungus", NetherFungus.CODEC, (definition, properties) -> new NetherFungusBlock(definition.feature, definition.requiredBlock, definition.supportBlocks, properties));
     public static final BlockType.Complex<TagKey<Block>> NETHER_ROOTS = complex(
             "nether_roots", SUPPORT_BLOCKS_CODEC, NetherRootsBlock::new);
-    public static final BlockType.Complex<ResourceKey<Block>> PATH_BLOCK = complex(
-            "path_block", BASE_BLOCK_CODEC, (definition, properties) -> new PathBlock(BuiltInRegistries.BLOCK.getValueOrThrow(definition), properties));
+    public static final BlockType.Complex<Block> PATH_BLOCK = complex("path_block", BASE_BLOCK_CODEC, PathBlock::new);
     public static final BlockType.Complex<Boolean> PISTON_BASE = complex(
             "piston_base", Codec.BOOL.fieldOf("sticky"), PistonBaseBlock::new);
-    public static final BlockType.Complex<ResourceKey<Block>> POINTED_DRIPSTONE = complex(
-            "pointed_dripstone", BASE_BLOCK_CODEC, (definition, properties) -> new PointedDripstoneBlock(BuiltInRegistries.BLOCK.getValueOrThrow(definition).defaultBlockState(), properties));
+    public static final BlockType.Complex<Block> POINTED_DRIPSTONE = complex(
+            "pointed_dripstone", BASE_BLOCK_CODEC, (definition, properties) -> new PointedDripstoneBlock(definition.defaultBlockState(), properties));
     public static final BlockType.Complex<BlockSetType> PRESSURE_PLATE = complex(
             "pressure_plate", BLOCK_SET_TYPE_CODEC, PressurePlateBlock::new);
     public static final BlockType.Complex<ColorRGBA> SAND = complex(
@@ -377,12 +366,15 @@ public class VanillaBlockTypes {
             "stained_glass", DYE_COLOR_CODEC, StainedGlassBlock::new);
     public static final BlockType.Complex<DyeColor> STAINED_GLASS_PANE = complex(
             "stained_glass_pane", DYE_COLOR_CODEC, StainedGlassPaneBlock::new);
-    public static final BlockType.Complex<ResourceKey<Block>> STAIRS = complex(
-            "stairs", BASE_BLOCK_CODEC, (key, properties) -> new StairBlock(BuiltInRegistries.BLOCK.getValueOrThrow(key).defaultBlockState(), properties));
+    public static final BlockType.Complex<Block> STAIRS = complex(
+            "stairs", BASE_BLOCK_CODEC, (block, properties) -> new StairBlock(block.defaultBlockState(), properties));
     public static final BlockType.Complex<WoodType> STANDING_SIGN = complex(
             "standing_sign", WOOD_TYPE_CODEC, StandingSignBlock::new);
     public static final BlockType.Complex<Stem> STEM = complex(
-            "stem", Stem.CODEC, (definition, properties) -> new StemBlock(definition.fruit, definition.attachedStem, definition.seed, definition.stemSupportBlocks, definition.fruitSupportBlocks, properties));
+            "stem", Stem.CODEC, (definition, properties) -> new StemBlock(
+                    definition.fruit.builtInRegistryHolder().key(), definition.attachedStem.builtInRegistryHolder().key(),
+                    definition.seed.builtInRegistryHolder().key(), definition.stemSupportBlocks,
+                    definition.fruitSupportBlocks, properties));
     public static final BlockType.Complex<Float> TINTED_PARTICLE_LEAVES = complex(
             "tinted_particle_leaves", LEAF_PARTICLE_CHANCE_CODEC, TintedParticleLeavesBlock::new);
     public static final BlockType.Complex<SimpleParticleType> TORCH = complex(
@@ -465,9 +457,9 @@ public class VanillaBlockTypes {
         ).apply(instance, Dimensions::new));
     }
 
-    public record AttachedStem(ResourceKey<Block> stem, ResourceKey<Block> fruit, ResourceKey<Item> seed, TagKey<Block> supportBlocks) {
+    public record AttachedStem(Block stem, Block fruit, Item seed, TagKey<Block> supportBlocks) {
         public static final MapCodec<AttachedStem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResourceKey.codec(Registries.BLOCK).fieldOf("stem").forGetter(AttachedStem::stem),
+                BuiltInRegistries.BLOCK.byNameCodec().fieldOf("stem").forGetter(AttachedStem::stem),
                 FRUIT_CODEC.forGetter(AttachedStem::fruit),
                 SEED_CODEC.forGetter(AttachedStem::seed),
                 SUPPORT_BLOCKS_CODEC.forGetter(AttachedStem::supportBlocks)
@@ -497,11 +489,11 @@ public class VanillaBlockTypes {
         ).apply(instance, NetherFungus::new));
     }
 
-    public record Stem(ResourceKey<Block> fruit, ResourceKey<Block> attachedStem, ResourceKey<Item> seed,
+    public record Stem(Block fruit, Block attachedStem, Item seed,
                        TagKey<Block> stemSupportBlocks, TagKey<Block> fruitSupportBlocks) {
         public static final MapCodec<Stem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 FRUIT_CODEC.forGetter(Stem::fruit),
-                ResourceKey.codec(Registries.BLOCK).fieldOf("attached_stem").forGetter(Stem::attachedStem),
+                BuiltInRegistries.BLOCK.byNameCodec().fieldOf("attached_stem").forGetter(Stem::attachedStem),
                 SEED_CODEC.forGetter(Stem::seed),
                 TagKey.codec(Registries.BLOCK).fieldOf("stem_support_blocks").forGetter(Stem::stemSupportBlocks),
                 TagKey.codec(Registries.BLOCK).fieldOf("fruit_support_blocks").forGetter(Stem::fruitSupportBlocks)

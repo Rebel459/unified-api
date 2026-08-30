@@ -55,7 +55,7 @@ public interface CommonPlatform {
         List<Path> getModResourceRoots();
         Path getGameDirectory();
         void prepareRegistryNamespace(String namespace);
-        default void finishStaticRegistryBootstrap() {}
+        void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action);
         void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant);
         BlockConversionsImpl.Oxidizables getOxidizables();
         CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);

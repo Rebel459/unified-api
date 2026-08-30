@@ -10,9 +10,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.codec.RegistryCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.Unified;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 
@@ -25,7 +27,7 @@ public class ComponentModifiers {
     public static final ResourceKey<Registry<Modifier>> KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "component_modifiers"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, Modifier.CODEC);
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Modifier.CODEC, () -> new Modifier(List.of(), Map.of())));
         UnifiedEvents.DefaultDataComponents.modify((item, builder, provider) -> {
                     provider.lookup(KEY).ifPresent(modifiers -> modifiers.listElements().forEach(modifier -> {
                                         ItemStack defaultStack = item.getDefaultInstance();

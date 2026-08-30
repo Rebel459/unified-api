@@ -2,24 +2,25 @@ package net.rebel459.unified.api.core;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.rebel459.unified.api.util.BlockLike;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
 
 public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLike {
 
-    @Nullable SuppliedItem item;
+    private final BlockItemId blockItemId;
 
-    public <T extends Block> SuppliedBlock(Supplier<Registry<Block>> registry, ResourceKey<Block> key, Supplier<T> block, @Nullable SuppliedItem item) {
-        super(registry, key, block);
-        this.item = item;
+    public <T extends Block> SuppliedBlock(Supplier<Registry<Block>> registry, BlockItemId id, Supplier<T> block) {
+        super(registry, id.block(), block);
+        this.blockItemId = id;
     }
 
     public BlockState defaultBlockState() {
@@ -30,9 +31,8 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
         return new ItemStackTemplate(this.asItem());
     }
 
-    @Override
-    public Holder<Block> holder() {
-        return super.holder();
+    public BlockItemId blockItemId() {
+        return this.blockItemId;
     }
 
     @Override
@@ -41,12 +41,7 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
     }
 
     @Override
-    public Item asItem() {
-        return this.item != null ? this.item.get() : this.get().asItem();
-    }
-
-    @Override
-    public Block get() {
-        return super.get();
+    public @NonNull Item asItem() {
+        return Item.BY_BLOCK.getOrDefault(get(), Items.AIR);
     }
 }

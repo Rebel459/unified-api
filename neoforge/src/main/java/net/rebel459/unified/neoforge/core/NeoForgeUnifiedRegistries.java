@@ -6,6 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -19,13 +20,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.util.BlockLike;
+import net.rebel459.unified.impl.core.DataRegistryClaims;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -43,6 +47,8 @@ public class NeoForgeUnifiedRegistries {
     public static final Map<String, DeferredRegister.DataComponents> DATA_COMPONENTS = new ConcurrentHashMap<>();
     private static final Set<String> REGISTERED_NAMESPACES = ConcurrentHashMap.newKeySet();
     private static IEventBus modBus;
+    private static final Map<ResourceKey<? extends Registry<?>>, List<Runnable>> AFTER_REGISTRY = new LinkedHashMap<>();
+    private static boolean registryPhaseListenerRegistered;
 
     public static void prepareNamespace(String namespace) {
         if (modBus == null) {
@@ -77,6 +83,19 @@ public class NeoForgeUnifiedRegistries {
         items.register(modEventBus);
         blocks.register(modEventBus);
         dataComponents.register(modEventBus);
+        if (!registryPhaseListenerRegistered) {
+            registryPhaseListenerRegistered = true;
+            modEventBus.addListener(EventPriority.LOWEST, NeoForgeUnifiedRegistries::onRegistryCompleted);
+        }
+    }
+
+    public static synchronized void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
+        AFTER_REGISTRY.computeIfAbsent(registry, ignored -> new ArrayList<>()).add(action);
+    }
+
+    private static synchronized void onRegistryCompleted(RegisterEvent event) {
+        List<Runnable> actions = AFTER_REGISTRY.remove(event.getRegistryKey());
+        if (actions != null) actions.forEach(Runnable::run);
     }
 
     public record DeferredRegistry<Y>(String modId, Registry<?> registry) implements UnifiedRegistries.DeferredRegistry<Y> {
@@ -115,15 +134,15 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            return registerBlockItem(block.key().identifier().getPath(), block, function, properties);
+            return registerBlockItem(block.blockItemId(), block, function, properties);
         }
 
         @Override
-        public <T extends Block> SuppliedItem registerBlockItem(String path, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            SuppliedItem existing = DataRegistryClaims.item(Identifier.fromNamespaceAndPath(modId, path));
+        public <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
+            SuppliedItem existing = DataRegistryClaims.item(id.item().identifier());
             if (existing != null) return existing;
             var registry = ITEMS.get(modId);
-            var item = registry.registerItem(path, settings -> function.apply(block.get(), settings), () -> properties.get().useBlockDescriptionPrefix().requiredFeatures(block.get().requiredFeatures()));
+            var item = registry.registerItem(id.item().identifier().getPath(), settings -> function.apply(block.get(), settings), () -> properties.get().useBlockDescriptionPrefix().requiredFeatures(block.get().requiredFeatures()));
             return new SuppliedItem(registry.getRegistry(), item.getKey(), item);
         }
 
@@ -145,10 +164,9 @@ public class NeoForgeUnifiedRegistries {
             var blockRegistry = BLOCKS.get(modId);
             var itemRegistry = ITEMS.get(modId);
             var block = blockRegistry.registerBlock(path, function, blockProperties);
-            var item = itemRegistry.registerSimpleBlockItem(path, block);
-            var suppliedItem = new SuppliedItem(itemRegistry.getRegistry(), item.getKey(), item);
-            SuppliedBlock registered = new SuppliedBlock(blockRegistry.getRegistry(), block.getKey(), block, suppliedItem);
-            return registered;
+            itemRegistry.registerSimpleBlockItem(path, block);
+            Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
+            return new SuppliedBlock(blockRegistry.getRegistry(), BlockItemId.create(identifier, identifier), block);
         }
 
         @Override
@@ -162,19 +180,28 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedBlock existing = DataRegistryClaims.block(id);
-            if (existing != null) return existing;
-            var registry = BLOCKS.get(modId);
-            var block = registry.registerBlock(path, function, properties);
-            return new SuppliedBlock(registry.getRegistry(), block.getKey(), block, null);
+            return registerWithoutItem(path, path, function, properties);
         }
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
-            SuppliedBlock existing = DataRegistryClaims.block(Identifier.fromNamespaceAndPath(modId, path));
+            return registerWithoutItem(path, path, function, properties, type);
+        }
+
+        @Override
+        public <T extends Block> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, blockPath);
+            SuppliedBlock existing = DataRegistryClaims.block(id);
             if (existing != null) return existing;
-            var block = registerWithoutItem(path, function, properties);
+            var registry = BLOCKS.get(modId);
+            var block = registry.registerBlock(blockPath, function, properties);
+            return new SuppliedBlock(registry.getRegistry(), BlockItemId.create(
+                    id, Identifier.fromNamespaceAndPath(modId, itemPath)), block);
+        }
+
+        @Override
+        public <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type) {
+            var block = registerWithoutItem(blockPath, itemPath, function, properties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
             return block;
         }

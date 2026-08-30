@@ -3,11 +3,13 @@ package net.rebel459.unified.impl.datagen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import net.rebel459.unified.impl.registry.ItemRegistry;
@@ -58,35 +60,34 @@ public final class DataRegistry {
         return SETTINGS.getOrDefault(modId, GenerationSettings.DEFAULT);
     }
 
-    public record GeneratedBlock(Supplier<BlockRegistry.Definition> definition, Supplier<BlockAssets> assets, Supplier<BlockData> data) {}
+    public record GeneratedBlock(BlockItemId blockItemId, Supplier<BlockRegistry.Definition> definition,
+                                 Supplier<BlockAssets> assets, Supplier<BlockData> data) {}
     public record GeneratedItem(Supplier<ItemRegistry.Definition> definition, Supplier<ItemAssets> assets, Supplier<ItemData> data) {}
 
     public record BlockAssets(Optional<String> name, List<BlockAssetRequest<?>> models) {}
     public record ItemAssets(Optional<String> name, List<ItemAssetRequest<?>> models) {}
     public record BlockData(List<TagKey<Block>> tags, List<TagKey<Block>> optionalTags, List<TagKey<Item>> itemTags, List<TagKey<Item>> optionalItemTags, Optional<Function<Block, LootTable.Builder>> loot, Optional<BiConsumer<Item, RecipeProvider>> recipe) {}
     public record ItemData(List<TagKey<Item>> tags, List<TagKey<Item>> optionalTags, Optional<BiConsumer<Item, RecipeProvider>> recipe) {}
-    public record GenerationSettings(PriorityAndDependencies metadata, boolean autoName, String language, Optional<String> injectedTranslations) {
-        public static final GenerationSettings DEFAULT = new GenerationSettings(PriorityAndDependencies.DEFAULT, false, "en_us", Optional.empty());
+    public record GenerationSettings(PriorityAndRequirement metadata, boolean autoName, String language, Optional<String> injectedTranslations) {
+        public static final GenerationSettings DEFAULT = new GenerationSettings(PriorityAndRequirement.DEFAULT, false, "en_us", Optional.empty());
     }
 
-    public record PriorityAndDependencies(int priority, List<String> dependencies) {
-        public static final DataRegistry.PriorityAndDependencies DEFAULT = new DataRegistry.PriorityAndDependencies(0, List.of());
+    public record PriorityAndRequirement(int priority, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        public static final PriorityAndRequirement DEFAULT =
+                new PriorityAndRequirement(0, Optional.empty());
 
-        public static MapCodec<Integer> PRIORITY_CODEC = Codec.INT.optionalFieldOf("priority", 0);
-        public static MapCodec<List<String>> DEPENDENCIES_CODEC = Codec.STRING.listOf().optionalFieldOf("dependencies", List.of());
+        public static final MapCodec<Integer> PRIORITY_CODEC = Codec.INT.optionalFieldOf("priority", 0);
 
-        public static final Codec<DataRegistry.PriorityAndDependencies> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                PRIORITY_CODEC.forGetter(DataRegistry.PriorityAndDependencies::priority),
-                DEPENDENCIES_CODEC.forGetter(DataRegistry.PriorityAndDependencies::dependencies)
-        ).apply(instance, DataRegistry.PriorityAndDependencies::new));
+        public static final Codec<PriorityAndRequirement> CODEC =
+                RecordCodecBuilder.create(instance -> instance.group(
+                        PRIORITY_CODEC.forGetter(PriorityAndRequirement::priority),
+                        LoadRequirements.CODEC.forGetter(PriorityAndRequirement::requirement)
+                ).apply(instance, PriorityAndRequirement::new));
 
-        public static final MapCodec<DataRegistry.PriorityAndDependencies> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                PRIORITY_CODEC.forGetter(DataRegistry.PriorityAndDependencies::priority),
-                DEPENDENCIES_CODEC.forGetter(DataRegistry.PriorityAndDependencies::dependencies)
-        ).apply(instance, DataRegistry.PriorityAndDependencies::new));
-
-        public PriorityAndDependencies {
-            dependencies = List.copyOf(dependencies);
-        }
+        public static final MapCodec<PriorityAndRequirement> MAP_CODEC =
+                RecordCodecBuilder.mapCodec(instance -> instance.group(
+                        PRIORITY_CODEC.forGetter(PriorityAndRequirement::priority),
+                        LoadRequirements.CODEC.forGetter(PriorityAndRequirement::requirement)
+                ).apply(instance, PriorityAndRequirement::new));
     }
 }
