@@ -15,11 +15,11 @@ import java.util.function.Function;
 public class UnifiedPostProcessTypes {
 
     private static ExtensibleCodec.Simple<BlockBehaviour.PostProcess> simple(String path, BlockBehaviour.PostProcess predicate) {
-        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path), () -> predicate);
+        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Unified.id(path), () -> predicate);
     }
 
     private static <T> ExtensibleCodec.Complex<BlockBehaviour.PostProcess, T> complex(String path, MapCodec<T> codec, Function<T, BlockBehaviour.PostProcess> predicate) {
-        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path), codec, predicate);
+        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Unified.id(path), codec, predicate);
     }
 
     public static final ExtensibleCodec.Complex<BlockBehaviour.PostProcess, Offset> OFFSET = complex(

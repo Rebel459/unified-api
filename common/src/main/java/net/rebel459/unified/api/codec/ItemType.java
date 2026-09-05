@@ -8,8 +8,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class ItemType extends ExtensibleCodec<Function<Item.Properties, Item>> {
-    public ItemType(String typeField) {
-        super(typeField);
+    public ItemType() {
+        super();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package net.rebel459.unified.mixin.entity;
+package net.rebel459.unified.impl.mixin.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;

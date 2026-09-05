@@ -24,7 +24,7 @@ public class WoodTypeRegistry extends RegistryResourceListener<WoodTypeRegistry.
             BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("fence_gate_open", SoundEvents.FENCE_GATE_OPEN).forGetter(Definition::fenceGateOpen)
     ).apply(instance, Definition::new));
 
-    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "wood_types");
+    public static final Identifier ID = Unified.id("wood_types");
 
     public WoodTypeRegistry() {
         super(ID, CODEC, BlockSetTypeRegistry.ID);

@@ -16,7 +16,7 @@ import java.util.Set;
 
 public record StructurePacket(Set<ResourceKey<Structure>> pieceStructures, Set<TagKey<Structure>> pieceStructureTags, Set<ResourceKey<Structure>> boxStructures, Set<TagKey<Structure>> boxStructureTags) implements CustomPacketPayload {
 
-        public static final Type<StructurePacket> TYPE = new Type<>(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "structure"));
+        public static final Type<StructurePacket> TYPE = new Type<>(Unified.id("structure"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, StructurePacket> CODEC =
             StreamCodec.composite(

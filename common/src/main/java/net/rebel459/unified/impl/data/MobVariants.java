@@ -33,7 +33,7 @@ import java.util.Optional;
 
 public class MobVariants {
 
-    public static final ResourceKey<Registry<Variant>> KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "mob_variants"));
+    public static final ResourceKey<Registry<Variant>> KEY = ResourceKey.createRegistryKey(Unified.id("mob_variants"));
 
     public static void init() {
         UnifiedHelpers.DATA_REGISTRIES.registerSynced(
@@ -53,13 +53,13 @@ public class MobVariants {
         );
     }
 
-    public static UnifiedAttachments.Entity<Optional<Holder<Variant>>> MOB_VARIANT = UnifiedAttachments.Entity.builder(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "mob_variant"), Optional::<Holder<Variant>>empty)
+    public static UnifiedAttachments.Entity<Optional<Holder<Variant>>> MOB_VARIANT = UnifiedAttachments.Entity.builder(Unified.id("mob_variant"), Optional::<Holder<Variant>>empty)
             .persistent(Variant.REGISTRY_CODEC.optionalFieldOf("mob_variant"))
             .synced(Variant.STREAM_CODEC)
             .copyOnDeath()
             .build();
 
-    public static final UnifiedAttachments.Entity<Boolean> MOB_VARIANT_ATTEMPTED = UnifiedAttachments.Entity.builder(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "mob_variant_attempted"), () -> false)
+    public static final UnifiedAttachments.Entity<Boolean> MOB_VARIANT_ATTEMPTED = UnifiedAttachments.Entity.builder(Unified.id("mob_variant_attempted"), () -> false)
             .persistent(Codec.BOOL.fieldOf("mob_variant_attempted"))
             .build();
 

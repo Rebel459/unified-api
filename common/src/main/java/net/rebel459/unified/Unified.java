@@ -1,19 +1,18 @@
 package net.rebel459.unified;
 
+import net.minecraft.resources.Identifier;
 import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.RegistryResourceInitializer;
 import net.rebel459.unified.api.core.RegistryResourceListener;
+import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.impl.core.StaticRegistryBootstrap;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
 import net.rebel459.unified.impl.builder.*;
+import net.rebel459.unified.impl.data.*;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
-import net.rebel459.unified.impl.data.BiomeModifiers;
-import net.rebel459.unified.impl.data.ComponentModifiers;
-import net.rebel459.unified.impl.data.LootInjections;
-import net.rebel459.unified.impl.data.MobVariants;
 import net.rebel459.unified.impl.registry.*;
 
 import java.util.ServiceLoader;
@@ -35,6 +34,8 @@ public class Unified {
         UnifiedBlockPredicateTypes.init();
         UnifiedPostProcessTypes.init();
         UnifiedRequirementTypes.init();
+        UnifiedItemPredicateTypes.init();
+        UnifiedUseContextTypes.init();
         new SoundEventRegistry().init();
         new BlockSetTypeRegistry().init();
         new WoodTypeRegistry().init();
@@ -44,6 +45,7 @@ public class Unified {
         ServiceLoader.load(RegistryResourceInitializer.class, Unified.class.getClassLoader()).forEach(RegistryResourceInitializer::initializeRegistryResources);
         RegistryResourceListener.completeRegistration();
         StaticRegistryBootstrap.finish();
+        UnifiedHelpers.RELOAD_LISTENERS.addListener(BlockConversions.ID, new BlockConversions());
     }
 
     public static void init() {
@@ -58,4 +60,8 @@ public class Unified {
     }
 
     public static final String MOD_ID = "unified";
+
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    }
 }

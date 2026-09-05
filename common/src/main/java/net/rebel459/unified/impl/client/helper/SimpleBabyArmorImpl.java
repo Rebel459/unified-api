@@ -33,7 +33,7 @@ import java.util.*;
 
 public final class SimpleBabyArmorImpl {
 
-    private static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "legacy_baby_armor");
+    private static final Identifier ID = Unified.id("legacy_baby_armor");
 
     public static HashMap<ResourceKey<EquipmentAsset>, Pair<Boolean, Integer>> LEGACY_BABY_ARMOR_EQUIPMENT = new HashMap<>();
 

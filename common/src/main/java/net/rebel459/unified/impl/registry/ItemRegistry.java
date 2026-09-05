@@ -34,13 +34,13 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
                     .xmap(properties -> properties.orElse(Map.of()),
                             properties -> properties.isEmpty() ? Optional.empty() : Optional.of(properties));
     private static final Codec<Definition> ITEM_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtensibleCodecs.ITEM_TYPES.mapCodec(Identifier.withDefaultNamespace("item")).forGetter(Definition::type),
+            ExtensibleCodecs.ITEM_TYPES.mapCodec().forGetter(Definition::type),
             PROPERTIES_CODEC.forGetter(Definition::properties)
     ).apply(instance, Definition::item));
     private static final Codec<Definition> BLOCK_ITEM_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UnifiedCodecs.supplied(BuiltInRegistries.BLOCK).fieldOf("block")
                     .forGetter(definition -> definition.blockItem().orElseThrow().block()),
-            ExtensibleCodecs.BLOCK_ITEM_TYPES.mapCodec(Identifier.withDefaultNamespace("block_item"))
+            ExtensibleCodecs.BLOCK_ITEM_TYPES.mapCodec()
                     .forGetter(definition -> definition.blockItem().orElseThrow().type()),
             PROPERTIES_CODEC.forGetter(Definition::properties)
     ).apply(instance, Definition::blockItem));
@@ -49,7 +49,7 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
             definition -> definition.isBlockItem() ? Either.left(definition) : Either.right(definition)
     );
 
-    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "items");
+    public static final Identifier ID = Unified.id("items");
 
     public ItemRegistry() {
         super(ID, CODEC, BlockRegistry.ID, EntityTypeRegistry.ID);

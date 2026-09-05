@@ -15,12 +15,7 @@ import java.util.function.Supplier;
 
 /** Used to create codecs which other mods can append to */
 public class ExtensibleCodec<R> {
-    private final String typeField;
     private final Map<Identifier, InternalType<R>> types = new ConcurrentHashMap<>();
-
-    public ExtensibleCodec(String typeField) {
-        this.typeField = typeField;
-    }
 
     public boolean contains(Identifier id) {
         return types.containsKey(id);
@@ -69,7 +64,11 @@ public class ExtensibleCodec<R> {
      * }
      */
     public Codec<Entry<R>> codec() {
-        MapCodec<Entry<R>> objectCodec = typeCodec().dispatchMap(Entry::type, this::entryCodec);
+        return codec("type");
+    }
+
+    public Codec<Entry<R>> codec(String name) {
+        MapCodec<Entry<R>> objectCodec = typeCodec(name).dispatchMap(Entry::type, this::entryCodec);
 
         return Codec.either(Identifier.CODEC, objectCodec.codec()).flatXmap(
                 value -> value.map(this::compactEntry, DataResult::success),
@@ -90,8 +89,8 @@ public class ExtensibleCodec<R> {
         return DataResult.success(new Entry<>(type, () -> Unit.INSTANCE));
     }
 
-    private MapCodec<InternalType<R>> typeCodec() {
-        return Identifier.CODEC.fieldOf(typeField).flatXmap(
+    private MapCodec<InternalType<R>> typeCodec(String name) {
+        return Identifier.CODEC.fieldOf(name).flatXmap(
                 id -> {
                     InternalType<R> type = types.get(id);
                     return type == null
@@ -103,8 +102,12 @@ public class ExtensibleCodec<R> {
     }
 
     /** Gets a flat-level codec */
-    public MapCodec<Entry<R>> mapCodec(Identifier defaultTypeId) {
-        MapCodec<InternalType<R>> typeCodec = Identifier.CODEC.optionalFieldOf(typeField, defaultTypeId).flatXmap(
+    public MapCodec<Entry<R>> mapCodec() {
+        return mapCodec("type");
+    }
+
+    public MapCodec<Entry<R>> mapCodec(String name) {
+        MapCodec<InternalType<R>> typeCodec = Identifier.CODEC.fieldOf(name).flatXmap(
                 id -> {
                     InternalType<R> type = types.get(id);
                     return type == null

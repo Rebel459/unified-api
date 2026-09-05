@@ -16,7 +16,7 @@ public class SoundEventRegistry extends RegistryResourceListener<SoundEventRegis
             Codec.FLOAT.optionalFieldOf("fixed_range").forGetter(Definition::fixedRange)
     ).apply(instance, Definition::new));
 
-    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "sound_events");
+    public static final Identifier ID = Unified.id("sound_events");
 
     public SoundEventRegistry() {
         super(ID, CODEC);

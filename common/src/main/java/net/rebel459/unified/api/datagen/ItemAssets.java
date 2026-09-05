@@ -13,6 +13,6 @@ public final class ItemAssets {
     private ItemAssets() {}
 
     private static <T> ItemAsset<T> create(String path) {
-        return new ItemAsset<>(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path));
+        return new ItemAsset<>(Unified.id(path));
     }
 }

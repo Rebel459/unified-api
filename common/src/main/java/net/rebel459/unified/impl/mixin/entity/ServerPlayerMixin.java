@@ -33,7 +33,7 @@ public class ServerPlayerMixin {
                 .toList();
 
         output.store(
-                Identifier.fromNamespaceAndPath(Unified.MOD_ID, "persistent_cooldowns").toString(),
+                Unified.id("persistent_cooldowns").toString(),
                 PersistentCooldowns.CODEC,
                 list
         );
@@ -44,7 +44,7 @@ public class ServerPlayerMixin {
         ServerPlayer player = ServerPlayer.class.cast(this);
 
         input.read(
-                Identifier.fromNamespaceAndPath(Unified.MOD_ID, "persistent_cooldowns").toString(),
+                Unified.id("persistent_cooldowns").toString(),
                 PersistentCooldowns.CODEC
         ).ifPresent(list -> PersistentCooldowns.PENDING_COOLDOWNS.put(player, list));
     }

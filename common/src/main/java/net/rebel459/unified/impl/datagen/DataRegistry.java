@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import net.rebel459.unified.impl.registry.ItemRegistry;
@@ -81,13 +82,13 @@ public final class DataRegistry {
         public static final Codec<PriorityAndRequirement> CODEC =
                 RecordCodecBuilder.create(instance -> instance.group(
                         PRIORITY_CODEC.forGetter(PriorityAndRequirement::priority),
-                        LoadRequirements.CODEC.forGetter(PriorityAndRequirement::requirement)
+                        UnifiedCodecs.LOAD_REQUIREMENTS.forGetter(PriorityAndRequirement::requirement)
                 ).apply(instance, PriorityAndRequirement::new));
 
         public static final MapCodec<PriorityAndRequirement> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(instance -> instance.group(
                         PRIORITY_CODEC.forGetter(PriorityAndRequirement::priority),
-                        LoadRequirements.CODEC.forGetter(PriorityAndRequirement::requirement)
+                        UnifiedCodecs.LOAD_REQUIREMENTS.forGetter(PriorityAndRequirement::requirement)
                 ).apply(instance, PriorityAndRequirement::new));
     }
 }

@@ -14,7 +14,6 @@ import net.rebel459.unified.api.registry.UnifiedRequirementTypes;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class UnifiedCodecs {
@@ -66,7 +65,7 @@ public final class UnifiedCodecs {
                     try {
                         T value = supplier.get();
                         Identifier id = registry.getKey(value);
-                        return id != null ? DataResult.success(id) : DataResult.error(() -> "Value supplied for " + registry.key().identifier() + " is not registered");
+                        return id != null ? DataResult.success(id) : DataResult.error(() -> "Value supplied for " + registry.key().identifier() + " is not type");
                     } catch (RuntimeException exception) {
                         return DataResult.error(() -> "Could not resolve value supplied for " + registry.key().identifier() + ": " + exception.getMessage());
                     }
@@ -82,21 +81,22 @@ public final class UnifiedCodecs {
     }
 
     public static final Codec<BlockSetType> BLOCK_SET_TYPE = Identifier.CODEC.flatXmap(
-            id -> registered(BlockSetType.TYPES, id, "block set type"),
+            id -> type(BlockSetType.TYPES, id, "block set type"),
             type -> DataResult.success(Identifier.parse(type.name()))
     );
 
     public static final Codec<WoodType> WOOD_TYPE = Identifier.CODEC.flatXmap(
-            id -> registered(WoodType.TYPES, id, "wood type"),
+            id -> type(WoodType.TYPES, id, "wood type"),
             type -> DataResult.success(Identifier.parse(type.name()))
     );
 
-    private static <T> DataResult<T> registered(Map<String, T> values, Identifier id, String type) {
+    private static <T> DataResult<T> type(Map<String, T> values, Identifier id, String type) {
         String name = id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) ? id.getPath() : id.toString();
         T value = values.get(name);
         return value != null ? DataResult.success(value) : DataResult.error(() -> "Unknown " + type + ": " + id);
     }
 
+    /** Converts static objects in a class to JSON values. Useful for adapting hardcoded classes such as MapColor */
     public static <T> Codec<T> named(Class<T> type) {
         Map<String, T> valuesByName = new LinkedHashMap<>();
         Map<T, String> namesByValue = new IdentityHashMap<>();
@@ -127,4 +127,5 @@ public final class UnifiedCodecs {
                 }
         );
     }
+
 }

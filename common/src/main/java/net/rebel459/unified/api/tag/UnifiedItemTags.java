@@ -13,6 +13,6 @@ public class UnifiedItemTags {
 
     @NotNull
     private static TagKey<Item> create(@NotNull String path) {
-        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Unified.MOD_ID, path));
+        return TagKey.create(Registries.ITEM, Unified.id(path));
     }
 }

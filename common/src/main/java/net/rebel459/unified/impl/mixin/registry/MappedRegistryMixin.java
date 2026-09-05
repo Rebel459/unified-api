@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.codec;
+package net.rebel459.unified.impl.mixin.registry;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;

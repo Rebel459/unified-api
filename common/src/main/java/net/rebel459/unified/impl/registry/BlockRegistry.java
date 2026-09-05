@@ -41,13 +41,13 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     private static final MapCodec<Optional<Supplier<BlockEntityType<?>>>> BLOCK_ENTITY_CODEC =
             UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity");
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtensibleCodecs.BLOCK_TYPES.mapCodec(Identifier.withDefaultNamespace("block")).forGetter(Definition::type),
+            ExtensibleCodecs.BLOCK_TYPES.mapCodec().forGetter(Definition::type),
             Properties.CODEC.optionalFieldOf("properties")
                     .xmap(properties -> properties.orElseGet(Properties::new), Optional::of).forGetter(Definition::properties),
             UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity").forGetter(Definition::blockEntity)
             ).apply(instance, Definition::new));
 
-    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "blocks");
+    public static final Identifier ID = Unified.id("blocks");
 
     public BlockRegistry() {
         super(ID, CODEC, WoodTypeRegistry.ID);

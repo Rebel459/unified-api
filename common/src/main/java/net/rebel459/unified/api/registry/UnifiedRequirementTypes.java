@@ -15,11 +15,11 @@ import java.util.function.Function;
 public class UnifiedRequirementTypes {
 
     private static ExtensibleCodec.Simple<Boolean> simple(String path, boolean predicate) {
-        return ExtensibleCodecs.REQUIREMENT_TYPES.register(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path), () -> predicate);
+        return ExtensibleCodecs.REQUIREMENT_TYPES.register(Unified.id(path), () -> predicate);
     }
 
     private static <T> ExtensibleCodec.Complex<Boolean, T> complex(String path, MapCodec<T> codec, Function<T, Boolean> predicate) {
-        return ExtensibleCodecs.REQUIREMENT_TYPES.register(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path), codec, predicate);
+        return ExtensibleCodecs.REQUIREMENT_TYPES.register(Unified.id(path), codec, predicate);
     }
 
     public static final ExtensibleCodec.Simple<Boolean> NEVER = simple("never", false);

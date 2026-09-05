@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class BlockType extends ExtensibleCodec<Function<BlockBehaviour.Properties, ? extends Block>> {
-    public BlockType(String typeField) { super(typeField); }
+    public BlockType() { super(); }
 
     @Override
     public Simple register(Identifier id, Supplier<? extends Function<BlockBehaviour.Properties, ? extends Block>> factory) {

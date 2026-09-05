@@ -22,7 +22,7 @@ import java.util.List;
 
 public class LootInjections {
 
-    public static final ResourceKey<Registry<Injection>> KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "loot_injections"));
+    public static final ResourceKey<Registry<Injection>> KEY = ResourceKey.createRegistryKey(Unified.id("loot_injections"));
 
     public static void init() {
         UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Injection.CODEC, () -> new Injection(Identifier.withDefaultNamespace("empty"), List.of(), List.of())));

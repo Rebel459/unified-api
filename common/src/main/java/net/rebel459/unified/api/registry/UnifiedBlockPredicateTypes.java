@@ -13,7 +13,7 @@ import java.util.Optional;
 public class UnifiedBlockPredicateTypes {
 
     public static final BlockPredicateType.Complex<HolderSet<EntityType<?>>> ENTITY_MATCHES = BlockPredicateType.register(
-            Identifier.fromNamespaceAndPath(Unified.MOD_ID, "entity_matches"),
+            Unified.id("entity_matches"),
             RegistryCodecs.holderSet(Registries.ENTITY_TYPE).fieldOf("entities"),
             Optional.empty(),
             Optional.empty(),

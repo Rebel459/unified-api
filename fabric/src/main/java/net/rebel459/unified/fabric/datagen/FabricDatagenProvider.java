@@ -37,6 +37,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.fabric.FabricUnifiedDatagen;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import net.rebel459.unified.api.datagen.BlockAsset;
@@ -48,6 +49,7 @@ import net.rebel459.unified.impl.util.RecipeProvider;
 import net.rebel459.unified.impl.datagen.BlockAssetRequest;
 import net.rebel459.unified.impl.datagen.DataRegistry;
 import net.rebel459.unified.impl.datagen.ItemAssetRequest;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,8 +59,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -68,43 +68,43 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     public static final Map<ItemAsset<?>, ItemAssetAdapter<?>> ITEM_ASSET_ADAPTERS = new LinkedHashMap<>();
 
     static {
-        registerBlockAsset(BlockAssets.SIMPLE_CUBE, context -> {
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SIMPLE_CUBE, context -> {
             if (context.familyBases().contains(context.block())) context.family(context.block());
             else context.generator().createTrivialCube(context.block());
         });
-        registerBlockAsset(BlockAssets.LEAVES, context -> context.generator().createTrivialBlock(context.block, TexturedModel.LEAVES));
-        registerBlockAsset(BlockAssets.LOG, context -> context.generator().woodProvider(context.block).logWithHorizontal(context.block));
-        registerBlockAsset(BlockAssets.LOG_UV_LOCKED, context -> context.generator().woodProvider(context.block).logUVLocked(context.block));
-        registerBlockAsset(BlockAssets.LANTERN, context -> context.generator().createLantern(context.block));
-        registerBlockAsset(BlockAssets.DOOR, context -> context.generator().createDoor(context.block));
-        registerBlockAsset(BlockAssets.TRAPDOOR, context -> context.generator().createTrapdoor(context.block));
-        registerBlockAsset(BlockAssets.CHAIN, context -> context.generator().createAxisAlignedPillarBlockCustomModel(context.block(), BlockModelGenerators.plainVariant(TexturedModel.CHAIN.create(context.block(), context.generator().modelOutput))));
-        registerBlockAsset(BlockAssets.TINTED_DOUBLE_PLANT, context -> context.generator().createTintedDoublePlant(context.block));
-        registerBlockAsset(BlockAssets.PARTICLE_ONLY, context -> context.generator().createParticleOnlyBlock(context.block));
-        registerBlockAsset(BlockAssets.ROTATED_PILLAR, context -> context.generator().createRotatedPillarWithHorizontalVariant(context.block, TexturedModel.COLUMN_ALT, TexturedModel.COLUMN_HORIZONTAL_ALT));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.LEAVES, context -> context.generator().createTrivialBlock(context.block, TexturedModel.LEAVES));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.LOG, context -> context.generator().woodProvider(context.block).logWithHorizontal(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.LOG_UV_LOCKED, context -> context.generator().woodProvider(context.block).logUVLocked(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.LANTERN, context -> context.generator().createLantern(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.DOOR, context -> context.generator().createDoor(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.TRAPDOOR, context -> context.generator().createTrapdoor(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.CHAIN, context -> context.generator().createAxisAlignedPillarBlockCustomModel(context.block(), BlockModelGenerators.plainVariant(TexturedModel.CHAIN.create(context.block(), context.generator().modelOutput))));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.TINTED_DOUBLE_PLANT, context -> context.generator().createTintedDoublePlant(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PARTICLE_ONLY, context -> context.generator().createParticleOnlyBlock(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.ROTATED_PILLAR, context -> context.generator().createRotatedPillarWithHorizontalVariant(context.block, TexturedModel.COLUMN_ALT, TexturedModel.COLUMN_HORIZONTAL_ALT));
 
-        registerBlockAsset(BlockAssets.TINTED_LEAVES, (definition, context) -> context.generator().createTintedLeaves(context.block, TexturedModel.LEAVES, definition));
-        registerBlockAsset(BlockAssets.SLAB, (definition, context) -> context.family(definition).slab(context.block));
-        registerBlockAsset(BlockAssets.STAIRS, (definition, context) -> context.family(definition).stairs(context.block));
-        registerBlockAsset(BlockAssets.WALL, (definition, context) -> context.family(definition).wall(context.block));
-        registerBlockAsset(BlockAssets.PLANT, (definition, context) -> context.generator.createCrossBlockWithDefaultItem(context.block, convertPlantType(definition)));
-        registerBlockAsset(BlockAssets.DOUBLE_PLANT, (definition, context) -> context.generator().createDoublePlant(context.block, convertPlantType(definition)));
-        registerBlockAsset(BlockAssets.POTTED_PLANT, (definition, context) -> context.generator().createPlant(context.block, definition.potted(), convertPlantType(definition.type())));
-        registerBlockAsset(BlockAssets.CROP, (definition, context) -> context.generator().createCropBlock(context.block, definition.property(), IntStream.range(0, definition.stages()).toArray()));
-        registerBlockAsset(BlockAssets.COPIED_PARTICLE_ONLY, (definition, context) -> context.generator().createParticleOnlyBlock(context.block, definition));
-        registerBlockAsset(BlockAssets.WOOD, (definition, context) -> context.generator().woodProvider(definition).wood(context.block));
-        registerBlockAsset(BlockAssets.HANGING_SIGN, FabricDatagenProvider::createHangingSignModels);
-        registerBlockAsset(BlockAssets.SHELF, (definition, context) -> context.generator().createShelf(context.block, definition));
-        registerBlockAsset(BlockAssets.BUTTON, (definition, context) -> context.family(definition).button(context.block));
-        registerBlockAsset(BlockAssets.FENCE, (definition, context) -> context.family(definition).fence(context.block));
-        registerBlockAsset(BlockAssets.FENCE_GATE, (definition, context) -> context.family(definition).fenceGate(context.block));
-        registerBlockAsset(BlockAssets.PRESSURE_PLATE, (definition, context) -> context.family(definition).pressurePlate(context.block));
-        registerBlockAsset(BlockAssets.SIGN, (definition, context) -> context.family(definition).sign(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.TINTED_LEAVES, (definition, context) -> context.generator().createTintedLeaves(context.block, TexturedModel.LEAVES, definition));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SLAB, (definition, context) -> context.family(definition).slab(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.STAIRS, (definition, context) -> context.family(definition).stairs(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.WALL, (definition, context) -> context.family(definition).wall(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PLANT, (definition, context) -> context.generator.createCrossBlockWithDefaultItem(context.block, convertPlantType(definition)));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.DOUBLE_PLANT, (definition, context) -> context.generator().createDoublePlant(context.block, convertPlantType(definition)));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.POTTED_PLANT, (definition, context) -> context.generator().createPlant(context.block, definition.potted(), convertPlantType(definition.type())));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.CROP, (definition, context) -> context.generator().createCropBlock(context.block, definition.property(), IntStream.range(0, definition.stages()).toArray()));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.COPIED_PARTICLE_ONLY, (definition, context) -> context.generator().createParticleOnlyBlock(context.block, definition));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.WOOD, (definition, context) -> context.generator().woodProvider(definition).wood(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.HANGING_SIGN, FabricDatagenProvider::createHangingSignModels);
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SHELF, (definition, context) -> context.generator().createShelf(context.block, definition));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.BUTTON, (definition, context) -> context.family(definition).button(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE, (definition, context) -> context.family(definition).fence(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE_GATE, (definition, context) -> context.family(definition).fenceGate(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PRESSURE_PLATE, (definition, context) -> context.family(definition).pressurePlate(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SIGN, (definition, context) -> context.family(definition).sign(context.block));
 
-        registerItemAsset(ItemAssets.GENERATED, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_ITEM));
-        registerItemAsset(ItemAssets.HANDHELD, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_ITEM));
-        registerItemAsset(ItemAssets.MACE, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_MACE_ITEM));
-        registerItemAsset(ItemAssets.SPEAR, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.SPEAR_IN_HAND));
+        FabricUnifiedDatagen.registerItemAsset(ItemAssets.GENERATED, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_ITEM));
+        FabricUnifiedDatagen.registerItemAsset(ItemAssets.HANDHELD, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_ITEM));
+        FabricUnifiedDatagen.registerItemAsset(ItemAssets.MACE, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_MACE_ITEM));
+        FabricUnifiedDatagen.registerItemAsset(ItemAssets.SPEAR, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.SPEAR_IN_HAND));
     }
 
     private static BlockModelGenerators.PlantType convertPlantType(BlockAssets.PlantType type) {
@@ -136,35 +136,8 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     }
 
     @Override
-    public void onInitializeDataGenerator(FabricDataGenerator generator) {
-        registerGenerator(generator);
-    }
-
-    public static void registerGenerator(FabricDataGenerator generator) {
-        String modId = generator.getModId();
-        FabricDataGenerator.Pack pack = generator.createPack();
-        pack.addProvider((FabricDataGenerator.Pack.Factory<DefinitionProvider>) output -> new DefinitionProvider(output, modId));
-        pack.addProvider((FabricDataGenerator.Pack.Factory<LanguageProvider>) output -> new LanguageProvider(output, modId));
-        pack.addProvider((FabricDataGenerator.Pack.Factory<ModelsProvider>) output -> new ModelsProvider(output, modId));
-        pack.addProvider((output, registries) -> new BlockLootProvider(output, registries, modId));
-        pack.addProvider((output, registries) -> new RecipesProvider(output, registries, modId));
-        BlockTagsProvider blockTags = pack.addProvider((output, registries) -> new BlockTagsProvider(output, registries, modId));
-        pack.addProvider((output, registries) -> new ItemTagsProvider(output, registries, modId, blockTags));
-    }
-
-    public static synchronized void registerBlockAsset(BlockAsset<Void> type, Consumer<BlockModelContext> generator) {
-        registerBlockAsset(type, (_, context) -> generator.accept(context));
-    }
-    public static synchronized <T> void registerBlockAsset(BlockAsset<T> type, BiConsumer<T, BlockModelContext> generator) {
-        BlockAssetAdapter<T> adapter = generator::accept;
-        if (BLOCK_ASSET_ADAPTERS.putIfAbsent(type, adapter) != null) throw new IllegalArgumentException("Duplicate Fabric block asset binding for " + type.id());
-    }
-    public static synchronized void registerItemAsset(ItemAsset<Void> type, Consumer<ItemModelContext> generator) {
-        registerItemAsset(type, (_, context) -> generator.accept(context));
-    }
-    public static synchronized <T> void registerItemAsset(ItemAsset<T> type, BiConsumer<T, ItemModelContext> generator) {
-        ItemAssetAdapter<T> adapter = generator::accept;
-        if (ITEM_ASSET_ADAPTERS.putIfAbsent(type, adapter) != null) throw new IllegalArgumentException("Duplicate Fabric item asset binding for " + type.id());
+    public void onInitializeDataGenerator(@NonNull FabricDataGenerator generator) {
+        FabricUnifiedDatagen.register(generator);
     }
 
     @FunctionalInterface public interface BlockAssetAdapter<T> {
@@ -197,8 +170,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
 
         @Override public CompletableFuture<?> run(CachedOutput cache) {
             List<CompletableFuture<?>> writes = new ArrayList<>();
-            DynamicOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE,
-                    RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+            DynamicOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
             DataRegistry.blocks().forEach((id, generated) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, BlockRegistry.CODEC.encodeStart(registryOps, generated.definition().get()).getOrThrow(), definitionPath(output, id, "blocks"), modId)); });
             DataRegistry.items().forEach((id, generated) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, ItemRegistry.CODEC.encodeStart(registryOps, generated.definition().get()).getOrThrow(), definitionPath(output, id, "items"), modId)); });
             DataRegistry.blockSetTypes().forEach((id, definition) -> { if (owns(id, modId)) writes.add(saveDefinition(cache, BlockSetTypeRegistry.CODEC.encodeStart(JsonOps.INSTANCE, definition.get()).getOrThrow(), definitionPath(output, id, "block_set_types"), modId)); });

@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 
 public final class BiomeModifiers {
 
-    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Unified.MOD_ID, "biome_modifiers"));
+    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("biome_modifiers"));
 
     public static final List<EventEntry> EVENT_ENTRIES = new CopyOnWriteArrayList<>();
 

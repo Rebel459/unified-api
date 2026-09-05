@@ -1,0 +1,16 @@
+{
+  "load_requirements": {
+    "type": "unified:mods_loaded",
+    "mods": [
+      "unified"
+    ]
+  },
+  "entries": [
+    {
+      "tab": "minecraft:combat",
+      "type": "insert_after",
+      "target": "minecraft:netherite_sword",
+      "items": "minecraft:nether_star"
+    }
+  ]
+}

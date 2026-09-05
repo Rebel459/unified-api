@@ -18,7 +18,7 @@ public class EntityTypeRegistry extends RegistryResourceListener<EntityTypeRegis
             Codec.either(Identifier.CODEC, MobVariants.Variant.CODEC).fieldOf("default_variant").forGetter(Definition::defaultVariant)
     ).apply(instance, Definition::new));
 
-    public static final Identifier ID = Identifier.fromNamespaceAndPath(Unified.MOD_ID, "entity_types");
+    public static final Identifier ID = Unified.id("entity_types");
 
     public EntityTypeRegistry() {
         super(ID, CODEC, SoundEventRegistry.ID);

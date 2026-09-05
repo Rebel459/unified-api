@@ -52,6 +52,6 @@ public final class BlockAssets {
     private BlockAssets() {}
 
     private static <T> BlockAsset<T> create(String path) {
-        return new BlockAsset<>(Identifier.fromNamespaceAndPath(Unified.MOD_ID, path));
+        return new BlockAsset<>(Unified.id(path));
     }
 }
