@@ -73,6 +73,7 @@ public class VanillaItemTypes {
     public static final ItemType.Simple BUNDLE = simple("bundle", BundleItem::new);
     public static final ItemType.Simple COMPASS = simple("compass", CompassItem::new);
     public static final ItemType.Simple CROSSBOW = simple("crossbow", CrossbowItem::new);
+    public static final ItemType.Simple CUSHION = simple("cushion", CushionItem::new);
     public static final ItemType.Simple DISC_FRAGMENT = simple("disc_fragment", DiscFragmentItem::new);
     public static final ItemType.Simple DYE = simple("dye", DyeItem::new);
     public static final ItemType.Simple EGG = simple("egg", EggItem::new);
@@ -126,6 +127,7 @@ public class VanillaItemTypes {
             "minecart", ENTITY_TYPE_CODEC, (definition, properties) -> new MinecartItem((EntityType<? extends AbstractMinecart>) definition, properties));
     public static final ItemType.Complex<MobBucket> MOB_BUCKET = complex(
             "mob_bucket", MobBucket.CODEC, (definition, properties) -> new MobBucketItem((EntityType<? extends net.minecraft.world.entity.Mob>) definition.entityType, definition.fluid, definition.emptySound, properties));
+
     // Simple Block Items
 
     public static final BlockItemType.Simple BLOCK_ITEM = simpleBlock("block_item", BlockItem::new);

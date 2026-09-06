@@ -144,7 +144,6 @@ public class VanillaBlockTypes {
     public static final BlockType.Simple DAYLIGHT_DETECTOR = simple("daylight_detector", DaylightDetectorBlock::new);
     public static final BlockType.Simple DECORATED_POT = simple("decorated_pot", DecoratedPotBlock::new);
     public static final BlockType.Simple DETECTOR_RAIL = simple("detector_rail", DetectorRailBlock::new);
-
     public static final BlockType.Simple DISPENSER = simple("dispenser", DispenserBlock::new);
     public static final BlockType.Simple DOUBLE_PLANT = simple("double_plant", DoublePlantBlock::new);
     public static final BlockType.Simple DRAGON_EGG = simple("dragon_egg", DragonEggBlock::new);
@@ -210,6 +209,7 @@ public class VanillaBlockTypes {
     public static final BlockType.Simple PLAYER_HEAD = simple("player_head", PlayerHeadBlock::new);
     public static final BlockType.Simple PLAYER_WALL_HEAD = simple("player_wall_head", PlayerWallHeadBlock::new);
     public static final BlockType.Simple POTATO = simple("potato", PotatoBlock::new);
+    public static final BlockType.Simple POTENT_SULFUR = simple("potent_sulfur", PotentSulfurBlock::new);
     public static final BlockType.Simple POWDER_SNOW = simple("powder_snow", PowderSnowBlock::new);
     public static final BlockType.Simple POWERED_BLOCK = simple("powered_block", PoweredBlock::new);
     public static final BlockType.Simple POWERED_RAIL = simple("powered_rail", PoweredRailBlock::new);
@@ -233,6 +233,8 @@ public class VanillaBlockTypes {
     public static final BlockType.Simple SEAGRASS = simple("seagrass", SeagrassBlock::new);
     public static final BlockType.Simple SEA_PICKLE = simple("sea_pickle", SeaPickleBlock::new);
     public static final BlockType.Simple SHELF = simple("shelf", ShelfBlock::new);
+    public static final BlockType.Simple SHELF_MUSHROOM = simple("shelf_mushroom", ShelfMushroomBlock::new);
+    public static final BlockType.Simple STRAW_BED = simple("straw_bed", StrawBedBlock::new);
     public static final BlockType.Simple SHORT_DRY_GRASS = simple("short_dry_grass", ShortDryGrassBlock::new);
     public static final BlockType.Simple SLAB = simple("slab", SlabBlock::new);
     public static final BlockType.Simple SLIME_BLOCK = simple("slime_block", SlimeBlock::new);
@@ -375,6 +377,8 @@ public class VanillaBlockTypes {
                     definition.fruit.builtInRegistryHolder().key(), definition.attachedStem.builtInRegistryHolder().key(),
                     definition.seed.builtInRegistryHolder().key(), definition.stemSupportBlocks,
                     definition.fruitSupportBlocks, properties));
+    public static final BlockType.Complex<BlockState> SULFUR_SPIKE = complex(
+            "sulfur_spike", BlockState.CODEC.fieldOf("block_state_to_grow_on"), SulfurSpikeBlock::new);
     public static final BlockType.Complex<Float> TINTED_PARTICLE_LEAVES = complex(
             "tinted_particle_leaves", LEAF_PARTICLE_CHANCE_CODEC, TintedParticleLeavesBlock::new);
     public static final BlockType.Complex<SimpleParticleType> TORCH = complex(
