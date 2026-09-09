@@ -14,7 +14,7 @@ import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import net.rebel459.unified.impl.registry.ItemRegistry;
-import net.rebel459.unified.impl.util.RecipeProvider;
+import net.rebel459.unified.api.util.RecipeProvider;
 
 import java.util.*;
 import java.util.function.Function;

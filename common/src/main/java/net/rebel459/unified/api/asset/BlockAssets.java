@@ -1,6 +1,5 @@
-package net.rebel459.unified.api.datagen;
+package net.rebel459.unified.api.asset;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.rebel459.unified.Unified;

@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.datagen;
+package net.rebel459.unified.api.asset;
 
 import net.minecraft.resources.Identifier;
 

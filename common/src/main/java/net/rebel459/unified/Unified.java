@@ -52,7 +52,7 @@ public class Unified {
         StructurePacketImpl.init();
         if (UnifiedInstance.getModLoader() == ModLoader.NEOFORGE) {
             WoodSetProperties.init(WoodSet.WOOD_SETS);
-            BlockSetProperties.init(BlockSet.BLOCK_SETS);
+            StoneSetProperties.init(StoneSet.BLOCK_SETS);
             EquipmentSetProperties.init(EquipmentSet.EQUIPMENT_SETS);
             ColoredBlockSetProperties.init(ColoredBlockSet.COLORED_BLOCK_SETS);
             ColoredItemSetProperties.init(ColoredItemSet.COLORED_ITEM_SETS);

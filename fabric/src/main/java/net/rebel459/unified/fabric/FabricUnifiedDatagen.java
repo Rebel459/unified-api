@@ -1,8 +1,8 @@
 package net.rebel459.unified.fabric;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.rebel459.unified.api.datagen.BlockAsset;
-import net.rebel459.unified.api.datagen.ItemAsset;
+import net.rebel459.unified.api.asset.BlockAsset;
+import net.rebel459.unified.api.asset.ItemAsset;
 import net.rebel459.unified.fabric.datagen.FabricDatagenProvider;
 
 import java.util.function.BiConsumer;

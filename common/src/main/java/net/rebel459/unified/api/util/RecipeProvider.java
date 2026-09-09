@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.util;
+package net.rebel459.unified.api.util;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.predicates.ItemPredicate;
@@ -7,7 +7,6 @@ import net.minecraft.advancements.triggers.BredAnimalsTrigger;
 import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.advancements.triggers.EnterBlockTrigger;
 import net.minecraft.advancements.triggers.InventoryChangeTrigger;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.data.recipes.*;
 import net.minecraft.data.worldgen.BootstrapContext;

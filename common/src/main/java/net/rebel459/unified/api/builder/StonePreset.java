@@ -6,88 +6,88 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 
 import java.util.Optional;
 
-public final class BlockPreset {
+public final class StonePreset {
 
-    final BlockSet.Settings settings;
+    final StoneSet.Settings settings;
 
-    BlockPreset(BlockSet.Settings settings) {
+    StonePreset(StoneSet.Settings settings) {
         this.settings = settings;
     }
 
-    public static final BlockPreset DEFAULT = new BlockSet.PresetBuilder()
+    public static final StonePreset DEFAULT = new StoneSet.PresetBuilder()
             .build();
 
-    public static final BlockPreset BASIC = create()
+    public static final StonePreset BASIC = create()
             .hasWall(false)
             .build();
 
-    public static final BlockPreset LEGACY = create()
+    public static final StonePreset LEGACY = create()
             .hasLegacySlab(true)
             .setDestroyTime(2F)
             .build();
 
-    public static final BlockPreset STONE = createFrom(BlockSetType.STONE)
+    public static final StonePreset STONE = createFrom(BlockSetType.STONE)
             .hasLegacySlab(true)
             .hasButton(true)
             .hasPressurePlate(true)
             .hasWall(false)
             .build();
 
-    public static final BlockPreset STONE_BRICKS = create()
+    public static final StonePreset STONE_BRICKS = create()
             .hasLegacySlab(true)
             .hasCracked(true)
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset COBBLED_DEEPSLATE = create()
+    public static final StonePreset COBBLED_DEEPSLATE = create()
             .setDestroyTime(3.5F)
             .setExplosionResistance(6F)
             .setSoundType(() -> SoundType.DEEPSLATE)
             .build();
 
-    public static final BlockPreset POLISHED_DEEPSLATE = createFrom(COBBLED_DEEPSLATE)
+    public static final StonePreset POLISHED_DEEPSLATE = createFrom(COBBLED_DEEPSLATE)
             .setSoundType(() -> SoundType.POLISHED_DEEPSLATE)
             .build();
 
-    public static final BlockPreset DEEPSLATE_BRICKS = createFrom(COBBLED_DEEPSLATE)
+    public static final StonePreset DEEPSLATE_BRICKS = createFrom(COBBLED_DEEPSLATE)
             .setSoundType(() -> SoundType.DEEPSLATE_BRICKS)
             .hasCracked(true)
             .build();
 
-    public static final BlockPreset DEEPSLATE_TILES = createFrom(DEEPSLATE_BRICKS)
+    public static final StonePreset DEEPSLATE_TILES = createFrom(DEEPSLATE_BRICKS)
             .setSoundType(() -> SoundType.DEEPSLATE_TILES)
             .build();
 
-    public static final BlockPreset TUFF = create()
+    public static final StonePreset TUFF = create()
             .setSoundType(() -> SoundType.TUFF)
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset POLISHED_TUFF = create()
+    public static final StonePreset POLISHED_TUFF = create()
             .setSoundType(() -> SoundType.POLISHED_TUFF)
             .build();
 
-    public static final BlockPreset TUFF_BRICKS = create()
+    public static final StonePreset TUFF_BRICKS = create()
             .setSoundType(() -> SoundType.TUFF_BRICKS)
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset MUD_BRICKS = create()
+    public static final StonePreset MUD_BRICKS = create()
             .setSoundType(() -> SoundType.MUD_BRICKS)
             .setExplosionResistance(3F)
             .build();
 
-    public static final BlockPreset RESIN_BRICKS = create()
+    public static final StonePreset RESIN_BRICKS = create()
             .setSoundType(() -> SoundType.RESIN_BRICKS)
             .build();
 
-    public static final BlockPreset SANDSTONE = create()
+    public static final StonePreset SANDSTONE = create()
             .hasLegacySlab(true)
             .setDestroyTime(0.8F)
             .setExplosionResistance(0.8F)
             .build();
 
-    public static final BlockPreset NETHER_BRICKS = create()
+    public static final StonePreset NETHER_BRICKS = create()
             .setSoundType(() -> SoundType.NETHER_BRICKS)
             .alternateFenceRecipe(() -> Items.NETHER_BRICK, 6)
             .hasLegacySlab(true)
@@ -96,51 +96,51 @@ public final class BlockPreset {
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset POLISHED_BLACKSTONE = createFrom(BlockSetType.POLISHED_BLACKSTONE)
+    public static final StonePreset POLISHED_BLACKSTONE = createFrom(BlockSetType.POLISHED_BLACKSTONE)
             .hasLegacySlab(true)
             .hasButton(true)
             .hasPressurePlate(true)
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset END_STONE_BRICKS = create()
+    public static final StonePreset END_STONE_BRICKS = create()
             .setDestroyTime(3F)
             .setExplosionResistance(9F)
             .build();
 
-    public static final BlockPreset PURPUR = createFrom(BlockPreset.BASIC)
+    public static final StonePreset PURPUR = createFrom(StonePreset.BASIC)
             .hasLegacySlab(true)
             .hasPillar(true)
             .baseBlockSuffix(Optional.of("block"))
             .build();
 
-    public static final BlockPreset SULFUR = create()
+    public static final StonePreset SULFUR = create()
             .setSoundType(() -> SoundType.SULFUR)
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset POLISHED_SULFUR = createFrom(SULFUR)
+    public static final StonePreset POLISHED_SULFUR = createFrom(SULFUR)
             .hasChiseled(false)
             .build();
 
-    public static final BlockPreset CINNABAR = create()
+    public static final StonePreset CINNABAR = create()
             .setSoundType(() -> SoundType.CINNABAR)
             .hasChiseled(true)
             .build();
 
-    public static final BlockPreset POLISHED_CINNABAR = createFrom(CINNABAR)
+    public static final StonePreset POLISHED_CINNABAR = createFrom(CINNABAR)
             .hasChiseled(false)
             .build();
 
-    public static BlockSet.PresetBuilder create() {
+    public static StoneSet.PresetBuilder create() {
         return createFrom(DEFAULT);
     }
 
-    public static BlockSet.PresetBuilder createFrom(BlockPreset preset) {
-        return new BlockSet.PresetBuilder(preset.settings.copy());
+    public static StoneSet.PresetBuilder createFrom(StonePreset preset) {
+        return new StoneSet.PresetBuilder(preset.settings.copy());
     }
 
-    public static BlockSet.PresetBuilder createFrom(BlockSetType blockSetType) {
+    public static StoneSet.PresetBuilder createFrom(BlockSetType blockSetType) {
         return create()
                 .setButtonSounds(blockSetType::buttonClickOn, blockSetType::buttonClickOff)
                 .setPressurePlateSounds(blockSetType::pressurePlateClickOn, blockSetType::pressurePlateClickOff)

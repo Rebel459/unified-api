@@ -19,13 +19,12 @@ import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.core.UnifiedDataRegistries;
 import net.rebel459.unified.api.core.UnifiedInstance;
-import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.core.SuppliedBlock;
-import net.rebel459.unified.api.datagen.BlockAsset;
-import net.rebel459.unified.api.datagen.BlockAssets;
+import net.rebel459.unified.api.asset.BlockAsset;
+import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockTypes;
-import net.rebel459.unified.impl.builder.BlockSetProperties;
+import net.rebel459.unified.impl.builder.StoneSetProperties;
 import net.rebel459.unified.impl.datagen.DataRegistry;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
@@ -39,9 +38,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class BlockSet {
+public class StoneSet {
 
-    public static final List<BlockSet> BLOCK_SETS = new CopyOnWriteArrayList<>();
+    public static final List<StoneSet> BLOCK_SETS = new CopyOnWriteArrayList<>();
 
     private final List<SuppliedBlock> registeredBlocks = new ArrayList<>();
 
@@ -49,7 +48,6 @@ public class BlockSet {
     private final MapColor color;
 
     private final UnifiedDataRegistries.Blocks blocks;
-    @Deprecated private final UnifiedRegistries.Blocks blockRegistry;
 
     private SuppliedBlock base;
     private @Nullable SuppliedBlock stairs;
@@ -79,17 +77,16 @@ public class BlockSet {
         if (hasButton()) button = createButton();
     }
 
-    public BlockSet(Identifier id, MapColor color, Settings settings, UnifiedDataRegistries.Blocks blocks, UnifiedRegistries.Blocks blockRegistry){
+    public StoneSet(Identifier id, MapColor color, Settings settings, UnifiedDataRegistries.Blocks blocks){
         this.settings = settings;
         this.id = id;
         this.color = color;
-        this.blockRegistry = blockRegistry;
         this.blocks = blocks;
-        if (blocks != null) registerBlockSetTypeDefinition();
+        registerBlockSetTypeDefinition();
         registerBlocks();
         BLOCK_SETS.add(this);
-        BlockSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) BlockSetProperties.init(List.of(this));
+        StoneSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
+        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) StoneSetProperties.init(List.of(this));
     }
 
     private void registerBlockSetTypeDefinition() {
@@ -108,17 +105,6 @@ public class BlockSet {
                 settings.buttonSounds.getSecond().get(),
                 settings.buttonSounds.getFirst().get()
         ));
-    }
-
-    @Deprecated
-    private SuppliedBlock createBlockWithItem(String blockID, Supplier<BlockBehaviour.Properties> settings){
-        return createBlockWithItem(blockID, Block::new, settings);
-    }
-    @Deprecated
-    private SuppliedBlock createBlockWithItem(String blockID, Function<BlockBehaviour.Properties, Block> factory, Supplier<BlockBehaviour.Properties> settings){
-        SuppliedBlock block = blockRegistry.register(blockID, factory, settings);
-        registeredBlocks.add(block);
-        return block;
     }
 
     private SuppliedBlock createBlock(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<UnifiedDataRegistries.Blocks.Builder> builder){
@@ -182,7 +168,7 @@ public class BlockSet {
     private SuppliedBlock createBase(){
         String name = this.getId().getPath();
         if (getSettings().baseBlockSuffix.isPresent()) name = name + "_" + getSettings().baseBlockSuffix.get();
-        if (blocks != null) return createBlock(name, getSettings().baseBlockType, builder -> builder
+        return createBlock(name, getSettings().baseBlockType, builder -> builder
                 .properties(properties -> properties
                         .copyFrom(() -> Blocks.STONE)
                         .soundType(getSettings().soundType.get())
@@ -197,10 +183,9 @@ public class BlockSet {
                         }
                 )
         );
-        return createBlockWithItem(name, getSettings().baseBlockFunction, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).sound(getSettings().getSoundType().get()).mapColor(color).strength(getSettings().destroyTime, getSettings().explosionResistance));
     }
     private SuppliedBlock createStairs() {
-        if (blocks != null) return createBlock(this.getFormattedName() + "_stairs", VanillaBlockTypes.STAIRS.create(getBase()::get), builder -> builder
+        return createBlock(this.getFormattedName() + "_stairs", VanillaBlockTypes.STAIRS.create(getBase()::get), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.STAIRS, getBase().get()))
                 .data(data -> data
@@ -212,12 +197,11 @@ public class BlockSet {
                         .tag(BlockTags.STAIRS)
                 )
         );
-        return createBlockWithItem(this.getFormattedName() + "_stairs", settings -> new StairBlock(getBase().defaultBlockState(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createSlab(){
         Supplier<BlockBehaviour.Properties> blockProperties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get());
         if (getSettings().hasLegacySlab) blockProperties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()).strength(2F, 6F);
-        if (blocks != null) return createBlock(this.getFormattedName() + "_slab", VanillaBlockTypes.SLAB.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_slab", VanillaBlockTypes.SLAB.create(), builder -> builder
                 .properties(properties -> {
                     properties.copyFrom(getBase());
                     if (getSettings().hasLegacySlab) properties.strength(2F, 6F);
@@ -232,10 +216,9 @@ public class BlockSet {
                         .tag(BlockTags.SLABS)
                 )
         );
-        return createBlockWithItem(this.getFormattedName() + "_slab", SlabBlock::new, blockProperties);
     }
     private SuppliedBlock createFence(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_fence", VanillaBlockTypes.FENCE.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_fence", VanillaBlockTypes.FENCE.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.FENCE, getBase().get()))
                 .data(data -> data
@@ -247,10 +230,9 @@ public class BlockSet {
                         .tag(BlockTags.FENCES)
                 )
         );
-        return createBlockWithItem(this.getFormattedName() + "_fence", FenceBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createPressurePlate(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_pressure_plate", VanillaBlockTypes.PRESSURE_PLATE.create(() -> this.getBlockSetType().get()), builder -> builder
+        return createBlock(this.getFormattedName() + "_pressure_plate", VanillaBlockTypes.PRESSURE_PLATE.create(() -> this.getBlockSetType().get()), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.PRESSURE_PLATE, getBase().get()))
                 .data(data -> data
@@ -262,10 +244,9 @@ public class BlockSet {
                         .tag(BlockTags.PRESSURE_PLATES)
                 )
         );
-        return createBlockWithItem(this.getFormattedName() + "_pressure_plate", settings -> new PressurePlateBlock(this.getBlockSetType().get(), settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createButton(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_button", VanillaBlockTypes.BUTTON.create(() -> new VanillaBlockTypes.Button(this.getBlockSetType().get(), 30)), builder -> builder
+        return createBlock(this.getFormattedName() + "_button", VanillaBlockTypes.BUTTON.create(() -> new VanillaBlockTypes.Button(this.getBlockSetType().get(), 30)), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.BUTTON, getBase().get()))
                 .data(data -> data
@@ -277,10 +258,9 @@ public class BlockSet {
                         .tag(BlockTags.BUTTONS)
                 )
         );
-        return createBlockWithItem(this.getFormattedName() + "_button", settings -> new ButtonBlock(this.getBlockSetType().get(), 30, settings), () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
     private SuppliedBlock createChiseled(){
-        if (blocks != null) return createBlock("chiseled_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
+        return createBlock("chiseled_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.SIMPLE_CUBE))
                 .data(data -> data
@@ -291,10 +271,9 @@ public class BlockSet {
                                 .save(provider.output))
                 )
         );
-        return createBlockWithItem("chiseled_" + this.getId().getPath(), () -> BlockBehaviour.Properties.ofFullCopy(this.getBase().get()));
     }
     private SuppliedBlock createCracked(){
-        if (blocks != null) return createBlock("cracked_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
+        return createBlock("cracked_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.SIMPLE_CUBE))
                 .data(data -> data
@@ -303,10 +282,9 @@ public class BlockSet {
                         .recipes((item, provider) -> provider.smeltingResultFromBase(item, getBase()))
                 )
         );
-        return createBlockWithItem("cracked_" + this.getId().getPath(), () -> BlockBehaviour.Properties.ofFullCopy(this.getBase().get()));
     }
     private SuppliedBlock createPillar(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_pillar", VanillaBlockTypes.ROTATED_PILLAR_BLOCK.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_pillar", VanillaBlockTypes.ROTATED_PILLAR_BLOCK.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.ROTATED_PILLAR))
                 .data(data -> data
@@ -323,10 +301,9 @@ public class BlockSet {
                         })
                 )
         );
-        return createBlockWithItem(this.getFormattedName() + "_pillar", RotatedPillarBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(this.getBase().get()));
     }
     private SuppliedBlock createWall(){
-        if (blocks != null) return createBlock(this.getFormattedName() + "_wall", VanillaBlockTypes.WALL.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_wall", VanillaBlockTypes.WALL.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.WALL, getBase().get()))
                 .data(data -> data
@@ -337,7 +314,6 @@ public class BlockSet {
                         .itemTag(ItemTags.WALLS)
                 )
         );
-        return createBlockWithItem(this.getFormattedName() + "_wall", WallBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()));
     }
 
     public boolean hasStairs(){
@@ -474,22 +450,20 @@ public class BlockSet {
         private final MapColor color;
 
         private final UnifiedDataRegistries.Blocks blocks;
-        @Deprecated private final UnifiedRegistries.Blocks blockRegistry;
 
-        public BlockSet build() {
-            return new BlockSet(id, color, settings, blocks, blockRegistry);
+        public StoneSet build() {
+            return new StoneSet(id, color, settings, blocks);
         }
 
-        public RegistryBuilder(Identifier id, MapColor color, BlockPreset preset, UnifiedDataRegistries.Blocks blocks, UnifiedRegistries.Blocks blockRegistry) {
+        public RegistryBuilder(Identifier id, MapColor color, StonePreset preset, UnifiedDataRegistries.Blocks blocks) {
             super(preset.settings.copy());
 
             this.id = id;
             this.color = color;
-            this.blockRegistry = blockRegistry;
             this.blocks = blocks;
         }
 
-        public RegistryBuilder(Identifier id, MapColor color, float hardness, float blastResistance, BlockPreset preset, UnifiedRegistries.Blocks blockRegistry) {
+        public RegistryBuilder(Identifier id, MapColor color, float hardness, float blastResistance, StonePreset preset) {
             Settings settings = preset.settings.copy();
             settings.destroyTime = hardness;
             settings.explosionResistance = blastResistance;
@@ -497,12 +471,11 @@ public class BlockSet {
 
             this.id = id;
             this.color = color;
-            this.blockRegistry = blockRegistry;
             this.blocks = null;
         }
     }
 
-    public static class PresetBuilder extends BlockSet.Builder<PresetBuilder> {
+    public static class PresetBuilder extends StoneSet.Builder<PresetBuilder> {
 
         public PresetBuilder() {
             super();
@@ -512,8 +485,8 @@ public class BlockSet {
             super(settings);
         }
 
-        public BlockPreset build() {
-            return new BlockPreset(settings.copy());
+        public StonePreset build() {
+            return new StonePreset(settings.copy());
         }
     }
 

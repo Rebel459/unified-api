@@ -14,6 +14,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,14 +40,13 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
 public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Definition> {
-    private static final MapCodec<Optional<Supplier<BlockEntityType<?>>>> BLOCK_ENTITY_CODEC =
-            UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity");
+    private static final MapCodec<Optional<Supplier<BlockEntityType<?>>>> BLOCK_ENTITY_CODEC = UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity");
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ExtensibleCodecs.BLOCK_TYPES.mapCodec().forGetter(Definition::type),
             Properties.CODEC.optionalFieldOf("properties")
                     .xmap(properties -> properties.orElseGet(Properties::new), Optional::of).forGetter(Definition::properties),
             UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity").forGetter(Definition::blockEntity)
-            ).apply(instance, Definition::new));
+    ).apply(instance, Definition::new));
 
     public static final Identifier ID = Unified.id("blocks");
 
@@ -58,12 +59,15 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         Optional<Supplier<BlockEntityType<?>>> blockEntity = declaration.decode(BLOCK_ENTITY_CODEC);
         DataRegistryClaims.registerBlock(id, () -> {
             UnifiedRegistries.Blocks blocks = UnifiedRegistries.Blocks.create(id.getNamespace());
-            Function<BlockBehaviour.Properties, ? extends Block> factory = properties -> declaration.get().factory().apply(properties);
+            Function<BlockBehaviour.Properties, ? extends Block> factory = properties -> {
+                Definition definition = declaration.get();
+                Block block = definition.factory().apply(properties);
+                createLateProperties(block, definition.properties);
+                return block;
+            };
             Supplier<BlockBehaviour.Properties> properties = () -> createProperties(declaration.get().properties());
-            if (blockEntity.isPresent()) {
-                return register(blocks, id.getPath(), factory, properties, blockEntity.orElseThrow());
-            }
-            return blocks.registerWithoutItem(id.getPath(), factory, properties);
+            if (blockEntity.isPresent()) return blocks.registerWithoutItem(id.getPath(), factory, properties, (Supplier) blockEntity.orElseThrow());
+            else return blocks.registerWithoutItem(id.getPath(), factory, properties);
         });
     }
 
@@ -75,15 +79,6 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public Function<BlockBehaviour.Properties, ? extends Block> factory() {
             return type.get();
         }
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static SuppliedBlock register(UnifiedRegistries.Blocks blocks, String path,
-                                          Function<BlockBehaviour.Properties, ? extends Block> factory,
-                                          Supplier<BlockBehaviour.Properties> properties,
-                                          Supplier<BlockEntityType<?>> blockEntity) {
-        Supplier type = blockEntity;
-        return blocks.registerWithoutItem(path, factory, properties, type);
     }
 
     public static final class Properties {
@@ -120,56 +115,58 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public Optional<String> descriptionOverride = Optional.empty();
         public Optional<FeatureFlagSet> requiredFeatures = Optional.empty();
         public Optional<Boolean> noLootTable = Optional.empty();
+        public Optional<Flammability> flammability = Optional.empty();
 
         public Properties() {}
 
         private static final MapCodec<First> FIRST_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                        UnifiedCodecs.supplied(BuiltInRegistries.BLOCK).optionalFieldOf("copy_from").forGetter(First::copyFrom),
-                        Codec.either(UnifiedCodecs.named(MapColor.class), ExtensibleCodecs.MAP_COLOR_TYPES.codec()).optionalFieldOf("map_color").forGetter(First::mapColor),
-                        Codec.BOOL.optionalFieldOf("collision").forGetter(First::collision),
-                        Codec.BOOL.optionalFieldOf("occlusion").forGetter(First::occlusion),
-                        Codec.FLOAT.optionalFieldOf("friction").forGetter(First::friction),
-                        Codec.FLOAT.optionalFieldOf("speed_multiplier").forGetter(First::speedMultiplier),
-                        Codec.FLOAT.optionalFieldOf("jump_multiplier").forGetter(First::jumpMultiplier),
-                        SoundType.CODEC.optionalFieldOf("sound_type").forGetter(First::soundType),
-                        Codec.either(ExtraCodecs.NON_NEGATIVE_INT, ExtensibleCodecs.LIGHT_EMISSION_TYPES.codec()).optionalFieldOf("light_level").forGetter(First::lightLevel),
-                        Codec.FLOAT.optionalFieldOf("destroy_time").forGetter(First::destroyTime),
-                        Codec.FLOAT.optionalFieldOf("explosion_resistance").forGetter(First::explosionResistance),
-                        Codec.BOOL.optionalFieldOf("random_ticks").forGetter(First::randomTicks),
-                        Codec.BOOL.optionalFieldOf("dynamic_shape").forGetter(First::dynamicShape),
-                        ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(First::lootTable),
-                        Codec.BOOL.optionalFieldOf("ignited_by_lava").forGetter(First::ignitedByLava)
-                ).apply(instance, First::new));
+                UnifiedCodecs.supplied(BuiltInRegistries.BLOCK).optionalFieldOf("copy_from").forGetter(First::copyFrom),
+                Codec.either(UnifiedCodecs.named(MapColor.class), ExtensibleCodecs.MAP_COLOR_TYPES.codec()).optionalFieldOf("map_color").forGetter(First::mapColor),
+                Codec.BOOL.optionalFieldOf("collision").forGetter(First::collision),
+                Codec.BOOL.optionalFieldOf("occlusion").forGetter(First::occlusion),
+                Codec.FLOAT.optionalFieldOf("friction").forGetter(First::friction),
+                Codec.FLOAT.optionalFieldOf("speed_multiplier").forGetter(First::speedMultiplier),
+                Codec.FLOAT.optionalFieldOf("jump_multiplier").forGetter(First::jumpMultiplier),
+                SoundType.CODEC.optionalFieldOf("sound_type").forGetter(First::soundType),
+                Codec.either(ExtraCodecs.NON_NEGATIVE_INT, ExtensibleCodecs.LIGHT_EMISSION_TYPES.codec()).optionalFieldOf("light_level").forGetter(First::lightLevel),
+                Codec.FLOAT.optionalFieldOf("destroy_time").forGetter(First::destroyTime),
+                Codec.FLOAT.optionalFieldOf("explosion_resistance").forGetter(First::explosionResistance),
+                Codec.BOOL.optionalFieldOf("random_ticks").forGetter(First::randomTicks),
+                Codec.BOOL.optionalFieldOf("dynamic_shape").forGetter(First::dynamicShape),
+                ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(First::lootTable),
+                Codec.BOOL.optionalFieldOf("ignited_by_lava").forGetter(First::ignitedByLava)
+        ).apply(instance, First::new));
 
         private static final MapCodec<Second> SECOND_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                        Codec.BOOL.optionalFieldOf("liquid").forGetter(Second::liquid),
-                        Codec.BOOL.optionalFieldOf("solid").forGetter(Second::solid),
-                        UnifiedCodecs.named(PushReaction.class).optionalFieldOf("push_reaction").forGetter(Second::pushReaction),
-                        Codec.BOOL.optionalFieldOf("air").forGetter(Second::air),
-                        ExtensibleCodecs.ENTITY_PREDICATE_TYPES.codec().optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
-                        ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("redstone_conductor").forGetter(Second::redstoneConductor),
-                        ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("suffocating").forGetter(Second::suffocating),
-                        ExtensibleCodecs.COLLISION_PREDICATE_TYPES.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
-                        ExtensibleCodecs.POST_PROCESS_TYPES.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
-                        ExtensibleCodecs.PREDICATE_TYPES.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
-                        Codec.BOOL.optionalFieldOf("requires_correct_tool_for_drops").forGetter(Second::requiresCorrectToolForDrops),
-                        UnifiedCodecs.named(BlockBehaviour.OffsetType.class).optionalFieldOf("offset").forGetter(Second::offset),
-                        Codec.BOOL.optionalFieldOf("spawn_terrain_particles").forGetter(Second::spawnTerrainParticles),
-                        UnifiedCodecs.named(NoteBlockInstrument.class).optionalFieldOf("instrument").forGetter(Second::instrument),
-                        Codec.BOOL.optionalFieldOf("replaceable").forGetter(Second::replaceable),
-                        Codec.STRING.optionalFieldOf("description_override").forGetter(Second::descriptionOverride)
-                ).apply(instance, Second::new));
+                Codec.BOOL.optionalFieldOf("liquid").forGetter(Second::liquid),
+                Codec.BOOL.optionalFieldOf("solid").forGetter(Second::solid),
+                UnifiedCodecs.named(PushReaction.class).optionalFieldOf("push_reaction").forGetter(Second::pushReaction),
+                Codec.BOOL.optionalFieldOf("air").forGetter(Second::air),
+                ExtensibleCodecs.ENTITY_PREDICATE_TYPES.codec().optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
+                ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("redstone_conductor").forGetter(Second::redstoneConductor),
+                ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("suffocating").forGetter(Second::suffocating),
+                ExtensibleCodecs.COLLISION_PREDICATE_TYPES.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
+                ExtensibleCodecs.POST_PROCESS_TYPES.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
+                ExtensibleCodecs.PREDICATE_TYPES.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
+                Codec.BOOL.optionalFieldOf("requires_correct_tool_for_drops").forGetter(Second::requiresCorrectToolForDrops),
+                UnifiedCodecs.named(BlockBehaviour.OffsetType.class).optionalFieldOf("offset").forGetter(Second::offset),
+                Codec.BOOL.optionalFieldOf("spawn_terrain_particles").forGetter(Second::spawnTerrainParticles),
+                UnifiedCodecs.named(NoteBlockInstrument.class).optionalFieldOf("instrument").forGetter(Second::instrument),
+                Codec.BOOL.optionalFieldOf("replaceable").forGetter(Second::replaceable),
+                Codec.STRING.optionalFieldOf("description_override").forGetter(Second::descriptionOverride)
+        ).apply(instance, Second::new));
 
         private static final MapCodec<Third> THIRD_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                        FeatureFlags.CODEC.optionalFieldOf("required_features").forGetter(Third::requiredFeatures),
-                        Codec.BOOL.optionalFieldOf("no_loot_table").forGetter(Third::noLootTable)
-                ).apply(instance, Third::new));
+                FeatureFlags.CODEC.optionalFieldOf("required_features").forGetter(Third::requiredFeatures),
+                Codec.BOOL.optionalFieldOf("no_loot_table").forGetter(Third::noLootTable),
+                Flammability.CODEC.optionalFieldOf("flammability").forGetter(Third::flammability)
+        ).apply(instance, Third::new));
 
         public static final MapCodec<Properties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                        FIRST_CODEC.forGetter(Properties::first),
-                        SECOND_CODEC.forGetter(Properties::second),
-                        THIRD_CODEC.forGetter(Properties::third)
-                ).apply(instance, Properties::new));
+                FIRST_CODEC.forGetter(Properties::first),
+                SECOND_CODEC.forGetter(Properties::second),
+                THIRD_CODEC.forGetter(Properties::third)
+        ).apply(instance, Properties::new));
 
         public static final Codec<Properties> CODEC = MAP_CODEC.codec();
 
@@ -207,6 +204,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             descriptionOverride = second.descriptionOverride();
             requiredFeatures = third.requiredFeatures();
             noLootTable = third.noLootTable();
+            flammability = third.flammability();
         }
 
         private First first() {
@@ -251,7 +249,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         }
 
         private Third third() {
-            return new Third(requiredFeatures, noLootTable);
+            return new Third(requiredFeatures, noLootTable, flammability);
         }
 
         private record First(
@@ -293,7 +291,8 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
 
         private record Third(
                 Optional<FeatureFlagSet> requiredFeatures,
-                Optional<Boolean> noLootTable
+                Optional<Boolean> noLootTable,
+                Optional<Flammability> flammability
         ) {}
     }
 
@@ -316,6 +315,14 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public static SoundType create(net.minecraft.world.level.block.SoundType soundType) {
             return new SoundType(soundType.volume, soundType.pitch, soundType.getBreakSound(), soundType.getStepSound(), soundType.getPlaceSound(), soundType.getHitSound(), soundType.getFallSound());
         }
+    }
+
+    public record Flammability(int igniteOdds, int burnOdds) {
+        public static final Codec<Flammability> CODEC =
+                RecordCodecBuilder.create(instance -> instance.group(
+                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("ignite_odds").forGetter(Flammability::igniteOdds),
+                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("burn_odds").forGetter(Flammability::burnOdds)
+                ).apply(instance, Flammability::new));
     }
 
     public static BlockBehaviour.Properties createProperties(Properties properties) {
@@ -426,5 +433,11 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             actual.requiredFeatures = properties.requiredFeatures.get();
         }
         return actual;
+    }
+
+    public static void createLateProperties(Block block, Properties properties) {
+        if (properties.flammability.isPresent()) {
+            ((FireBlock) Blocks.FIRE).setFlammable(block, properties.flammability.get().igniteOdds, properties.flammability.get().burnOdds);
+        }
     }
 }

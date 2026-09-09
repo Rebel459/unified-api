@@ -1,6 +1,6 @@
 package net.rebel459.unified.impl.datagen;
 
-import net.rebel459.unified.api.datagen.BlockAsset;
+import net.rebel459.unified.api.asset.BlockAsset;
 
 import java.util.Objects;
 

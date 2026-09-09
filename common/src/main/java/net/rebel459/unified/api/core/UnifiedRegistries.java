@@ -115,8 +115,8 @@ public class UnifiedRegistries {
                 return new WoodSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), barkColor, plankColor, preset, null, this.itemRegistry, this.blockRegistry, this.entityRegistry);
             }
 
-            public BlockSet.RegistryBuilder blockSet(String name, BlockPreset preset, MapColor color) {
-                return new BlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, preset, null, this.blockRegistry);
+            public StoneSet.RegistryBuilder blockSet(String name, StonePreset preset, MapColor color) {
+                return new StoneSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, preset, null, this.blockRegistry);
             }
 
             public ColoredBlockSet.RegistryBuilder coloredBlockSet(String name, ColoredBlockPreset preset) {

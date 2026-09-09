@@ -39,6 +39,10 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 import net.minecraft.world.level.storage.loot.providers.number.ResolvableNumber;
+import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
+import net.minecraft.world.level.storage.loot.providers.number.floats.ResolvableFloat;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ResolvableInt;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.api.util.BlockLike;
@@ -200,7 +204,7 @@ public class CommonHelpers {
         }
 
         default void addFurnaceFuel(ItemLike itemLike, int ticks) {
-            add(itemLike, net.minecraft.core.component.DataComponents.COOKING_FUEL, new CookingFuel(new ResolvableNumber.Constant(ticks), ResolvableNumber.fromKey(NumberProviders.COOKING_DEFAULT_SPEED_MULTIPLIER)));
+            add(itemLike, net.minecraft.core.component.DataComponents.COOKING_FUEL, new CookingFuel(new ResolvableInt.Constant(ticks), ResolvableFloat.fromKey(ContextFloatProviders.COOKING_DEFAULT_SPEED_MULTIPLIER)));
         }
         default void addCompost(ItemLike itemLike, float chance) {
             add(itemLike, net.minecraft.core.component.DataComponents.COMPOSTABLE, new Compostable(new ResolvableNumber.Constant(chance)));

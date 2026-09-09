@@ -24,18 +24,18 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.phys.AABB;
+import net.rebel459.unified.api.asset.BlockAsset;
+import net.rebel459.unified.api.asset.BlockAssets;
+import net.rebel459.unified.api.asset.ItemAsset;
+import net.rebel459.unified.api.asset.ItemAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.impl.registry.BlockRegistry;
-import net.rebel459.unified.api.datagen.BlockAsset;
-import net.rebel459.unified.api.datagen.BlockAssets;
-import net.rebel459.unified.api.datagen.ItemAsset;
-import net.rebel459.unified.api.datagen.ItemAssets;
 import net.rebel459.unified.impl.registry.ItemRegistry;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
-import net.rebel459.unified.impl.util.RecipeProvider;
+import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.datagen.BlockAssetRequest;
 import net.rebel459.unified.impl.datagen.DataRegistry;
 import net.rebel459.unified.impl.datagen.ItemAssetRequest;
@@ -126,59 +126,59 @@ public final class UnifiedDataRegistries {
             this.items = runtime;
         }
 
-        public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> configure) {
-            return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(modId, path), () -> type).create(), configure);
+        public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> builder) {
+            return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(modId, path), () -> type).create(), builder);
         }
 
-        public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> configure) {
-            Builder builder = new Builder();
-            configure.accept(builder);
+        public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> builder) {
+            Builder finalBuilder = new Builder();
+            builder.accept(finalBuilder);
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             Supplier<Item.Properties> runtimeProperties = () -> {
                 Item.Properties createProperties = new Item.Properties();
-                builder.properties.accept(createProperties);
+                finalBuilder.properties.accept(createProperties);
                 return createProperties;
             };
             SuppliedItem registered = items.register(path, itemProperties -> type.get().apply(itemProperties), runtimeProperties);
             DataRegistry.add(id, new DataRegistry.GeneratedItem(
                     () -> ItemRegistry.Definition.item(type,
-                            componentValues(builder.properties, ResourceKey.create(Registries.ITEM, id))),
-                    builder::buildAssets,
-                    builder::buildData
+                            componentValues(finalBuilder.properties, ResourceKey.create(Registries.ITEM, id))),
+                    finalBuilder::buildAssets,
+                    finalBuilder::buildData
             ));
             return registered;
         }
 
-        public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> type, Consumer<Builder> configure) {
+        public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> type, Consumer<Builder> builder) {
             Identifier id = block.blockItemId().item().identifier();
-            return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM_TYPES.register(id, () -> type).create(), configure);
+            return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM_TYPES.register(id, () -> type).create(), builder);
         }
 
-        public SuppliedItem registerBlockItem(SuppliedBlock block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type, Consumer<Builder> configure) {
-            Builder builder = new Builder();
-            configure.accept(builder);
+        public SuppliedItem registerBlockItem(SuppliedBlock block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type, Consumer<Builder> builder) {
+            Builder finalBuilder = new Builder();
+            builder.accept(finalBuilder);
             Identifier id = block.blockItemId().item().identifier();
             Supplier<Item.Properties> runtimeProperties = () -> {
                 Item.Properties properties = new Item.Properties();
-                builder.properties.accept(properties);
+                finalBuilder.properties.accept(properties);
                 return properties;
             };
             SuppliedItem registered = items.registerBlockItem(
                     block.blockItemId(), block, type.get(), runtimeProperties);
             DataRegistry.add(id, new DataRegistry.GeneratedItem(
                     () -> ItemRegistry.Definition.blockItem(block, type,
-                            componentValues(builder.properties, block.blockItemId().item())),
-                    builder::buildAssets,
-                    builder::buildData
+                            componentValues(finalBuilder.properties, block.blockItemId().item())),
+                    finalBuilder::buildAssets,
+                    finalBuilder::buildData
             ));
             return registered;
         }
 
-        private static Map<DataComponentType<?>, Object> componentValues(Consumer<Item.Properties> configure, ResourceKey<Item> key) {
-            Item.Properties properties = new Item.Properties();
-            configure.accept(properties);
+        private static Map<DataComponentType<?>, Object> componentValues(Consumer<Item.Properties> properties, ResourceKey<Item> key) {
+            Item.Properties finalProperties = new Item.Properties();
+            properties.accept(finalProperties);
             DataComponentMap.Builder componentBuilder = DataComponentMap.builder();
-            properties.componentInitializer.run(
+            finalProperties.componentInitializer.run(
                     componentBuilder,
                     RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY),
                     key
@@ -193,15 +193,15 @@ public final class UnifiedDataRegistries {
             private final List<Consumer<Assets>> assetConfigurations = new ArrayList<>();
             private final List<Consumer<Data>> dataConfigurations = new ArrayList<>();
 
-            public Builder properties(Consumer<Item.Properties> configure) {
-                properties = configure;
+            public Builder properties(Consumer<Item.Properties> properties) {
+                this.properties = properties;
                 return this;
             }
-            public Builder assets(Consumer<Assets> configure) {
-                assetConfigurations.add(configure); return this;
+            public Builder assets(Consumer<Assets> assets) {
+                assetConfigurations.add(assets); return this;
             }
-            public Builder data(Consumer<Data> configure) {
-                dataConfigurations.add(configure); return this;
+            public Builder data(Consumer<Data> data) {
+                dataConfigurations.add(data); return this;
             }
 
             private DataRegistry.ItemAssets buildAssets() {
@@ -287,42 +287,57 @@ public final class UnifiedDataRegistries {
             this.items = items;
         }
 
-        public SuppliedBlock register(String path, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> configure) {
-            return register(path, path, type, configure);
+        public SuppliedBlock register(String path, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
+            return register(path, path, type, builder);
         }
 
-        public SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> configure) {
-            return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(modId, blockPath), () -> type).create(), configure);
+        public SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
+            return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(modId, blockPath), () -> type).create(), builder);
         }
 
-        public SuppliedBlock register(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> configure) {
-            return register(path, path, type, configure);
+        public SuppliedBlock register(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
+            return register(path, path, type, builder);
         }
 
-        public SuppliedBlock register(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> configure) {
-            Builder builder = new Builder(modId, blockPath);
-            configure.accept(builder);
+        public SuppliedBlock register(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
+            SuppliedBlock block = registerWithoutItem(blockPath, itemPath, type, builder);
+            items.registerBlockItem(block, VanillaItemTypes.BLOCK_ITEM.create(), _ -> {});
+            return block;
+        }
+
+        public SuppliedBlock registerWithoutItem(String path, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
+            return registerWithoutItem(path, path, type, builder);
+        }
+
+        public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
+            return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(modId, blockPath), () -> type).create(), builder);
+        }
+
+        public SuppliedBlock registerWithoutItem(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
+            return registerWithoutItem(path, path, type, builder);
+        }
+
+        public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
+            Builder finalBuilder = new Builder(modId, blockPath);
+            builder.accept(finalBuilder);
             Identifier id = Identifier.fromNamespaceAndPath(modId, blockPath);
             Supplier<BlockBehaviour.Properties> properties =
-                    () -> BlockRegistry.createProperties(builder.properties.definition);
+                    () -> BlockRegistry.createProperties(finalBuilder.properties.definition);
             SuppliedBlock block;
-            if (builder.blockEntity.isPresent()) {
+            if (finalBuilder.blockEntity.isPresent()) {
                 block = register(blocks, blockPath, itemPath,
                         blockProperties -> type.get().apply(blockProperties), properties,
-                        builder.blockEntity.orElseThrow());
+                        finalBuilder.blockEntity.orElseThrow());
             } else {
                 block = blocks.registerWithoutItem(blockPath, itemPath,
                         blockProperties -> type.get().apply(blockProperties), properties);
             }
             DataRegistry.add(id, new DataRegistry.GeneratedBlock(
                     block.blockItemId(),
-                    () -> new BlockRegistry.Definition(type, builder.properties.definition, builder.blockEntity),
-                    builder::buildAssets,
-                    builder::buildData
+                    () -> new BlockRegistry.Definition(type, finalBuilder.properties.definition, finalBuilder.blockEntity),
+                    finalBuilder::buildAssets,
+                    finalBuilder::buildData
             ));
-            if (builder.generateItem) {
-                items.registerBlockItem(block, VanillaItemTypes.BLOCK_ITEM.create(), _ -> {});
-            }
             return block;
         }
 
@@ -546,6 +561,10 @@ public final class UnifiedDataRegistries {
                 return this;
             }
 
+            public Properties flammable(int igniteOdds, int burnOdds) {
+                definition.flammability = Optional.of(new BlockRegistry.Flammability(igniteOdds, burnOdds));
+                return this;
+            }
         }
 
         public static final class Assets {
@@ -616,7 +635,7 @@ public final class UnifiedDataRegistries {
 
             public Data dropSelf() {
                 loot = Optional.empty();
-                loot(block -> LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F)).add(LootItem.lootTableItem(block))));
+                loot(block -> LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1)).add(LootItem.lootTableItem(block))));
                 return this;
             }
 
@@ -629,17 +648,15 @@ public final class UnifiedDataRegistries {
             private final Properties properties;
             private final List<Consumer<Assets>> assetConfigurations = new ArrayList<>();
             private final List<Consumer<Data>> dataConfigurations = new ArrayList<>();
-            private boolean generateItem = true;
             private Optional<Supplier<BlockEntityType<?>>> blockEntity = Optional.empty();
 
             private Builder(String modId, String path) {
                 properties = new Properties(modId, path);
             }
 
-            public Builder properties(Consumer<Properties> configure) { configure.accept(properties); return this; }
-            public Builder assets(Consumer<Assets> configure) { assetConfigurations.add(configure); return this; }
-            public Builder data(Consumer<Data> configure) { dataConfigurations.add(configure); return this; }
-            public Builder withoutItem() { generateItem = false; return this; }
+            public Builder properties(Consumer<Properties> properties) { properties.accept(this.properties); return this; }
+            public Builder assets(Consumer<Assets> assets) { assetConfigurations.add(assets); return this; }
+            public Builder data(Consumer<Data> data) { dataConfigurations.add(data); return this; }
             public Builder blockEntity(Supplier<? extends BlockEntityType<?>> type) {
                 blockEntity = Optional.of(widen(type));
                 return this;

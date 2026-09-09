@@ -1,23 +1,30 @@
 package net.rebel459.unified.api.builder;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.platform.ModLoader;
+import net.rebel459.unified.api.registry.VanillaBlockTypes;
+import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.util.QuadConsumer;
 import net.rebel459.unified.impl.builder.ColoredBlockSetProperties;
-import org.apache.commons.lang3.tuple.Triple;
+import net.rebel459.unified.api.util.RecipeProvider;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public class ColoredBlockSet {
 
@@ -28,7 +35,7 @@ public class ColoredBlockSet {
     private final Identifier id;
 
     private final UnifiedDataRegistries.Blocks blocks;
-    @Deprecated private final UnifiedRegistries.Blocks blockRegistry;
+    private final UnifiedDataRegistries.Items items;
 
     private SuppliedBlock white;
     private SuppliedBlock lightGray;
@@ -71,11 +78,11 @@ public class ColoredBlockSet {
         pink = create("pink");
     }
 
-    public ColoredBlockSet(Identifier id, Settings settings, UnifiedDataRegistries.Blocks blocks, UnifiedRegistries.Blocks blockRegistry){
+    public ColoredBlockSet(Identifier id, Settings settings, UnifiedDataRegistries.Blocks blocks, UnifiedDataRegistries.Items items) {
         this.settings = settings;
         this.id = id;
-        this.blockRegistry = blockRegistry;
         this.blocks = blocks;
+        this.items = items;
         registerBlocks();
         COLORED_BLOCK_SETS.add(this);
         ColoredBlockSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
@@ -169,10 +176,23 @@ public class ColoredBlockSet {
     private SuppliedBlock create(String color) {
         String name = color + "_" + id.getPath();
         DyeColor dye = DyeColor.byName(color, null);
-        Supplier<BlockBehaviour.Properties> finalProperties = () -> getSettings().properties.get().mapColor(dye);
         SuppliedBlock block;
-        if (getSettings().createWithoutItems) block = blockRegistry.registerWithoutItem(name, getSettings().function, finalProperties);
-        else block = blockRegistry.register(name, getSettings().function, finalProperties);
+        ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> blockType;
+        if (getSettings().blockType.left().isPresent()) blockType = getSettings().blockType.left().get().apply(dye);
+        else blockType = ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().blockType.right().get().apply(dye)).create();
+        block = blocks.registerWithoutItem(name, blockType, builder -> getSettings().blockBuilder.accept(dye, builder));
+        ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> itemType;
+        if (getSettings().blockType.left().isPresent()) itemType = getSettings().itemType.left().get().apply(dye);
+        else itemType = ExtensibleCodecs.BLOCK_ITEM_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().itemType.right().get().apply(dye)).create();
+        items.registerBlockItem(block, itemType, builder -> {
+            getSettings().itemBuilder.accept(dye, builder);
+            if (getSettings().dyeRecipe != null) builder.data(data -> data.recipe((item, provider) -> {
+                List<SuppliedBlock> otherBlocks = registeredBlocks.stream()
+                        .filter(otherBlock -> otherBlock != block)
+                        .toList();
+                getSettings().dyeRecipe.accept(Items.DYE.pick(dye), otherBlocks, item, provider);
+            }));
+        });
         dyesByBlock.put(block, dye);
         blocksByDye.put(dye, block);
         registeredBlocks.add(block);
@@ -181,21 +201,13 @@ public class ColoredBlockSet {
 
     public static class Settings implements Cloneable {
 
-        private Function<BlockBehaviour.Properties, Block> function = Block::new;
-        private Supplier<BlockBehaviour.Properties> properties = BlockBehaviour.Properties::new;
-        private @Nullable Triple<Integer, Integer, Integer> flammability = null;
-
-        private boolean createWithoutItems = false;
+        private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>>, Function<DyeColor, Function<BlockBehaviour.Properties, ? extends Block>>> blockType = Either.left(_ -> VanillaBlockTypes.BLOCK.create());
+        private Either<Function<DyeColor, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>>>, Function<DyeColor, BiFunction<Block, Item.Properties, Item>>> itemType = Either.left(_ -> VanillaItemTypes.BLOCK_ITEM.create());
+        private BiConsumer<DyeColor, UnifiedDataRegistries.Blocks.Builder> blockBuilder = (color, builder) -> builder.properties(properties -> properties.mapColor(color.getMapColor()));
+        private BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> itemBuilder = (_, _) -> {};
+        private @Nullable QuadConsumer<Item, List<SuppliedBlock>, Item, RecipeProvider> dyeRecipe;
 
         private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;
-
-        public boolean createdWithoutItems() {
-            return createWithoutItems;
-        }
-
-        public @Nullable Triple<Integer, Integer, Integer> getFlammability() {
-            return flammability;
-        }
 
         Settings() {}
 
@@ -213,23 +225,18 @@ public class ColoredBlockSet {
         private final Identifier id;
 
         private final UnifiedDataRegistries.Blocks blocks;
-        @Deprecated private final UnifiedRegistries.Blocks blockRegistry;
-
-        public RegistryBuilder createWithoutItems() {
-            settings.createWithoutItems = true;
-            return self();
-        }
+        private final UnifiedDataRegistries.Items items;
 
         public ColoredBlockSet build() {
-            return new ColoredBlockSet(id, settings, blocks, blockRegistry);
+            return new ColoredBlockSet(id, settings, blocks, items);
         }
 
-        public RegistryBuilder(Identifier id, ColoredBlockPreset preset, UnifiedDataRegistries.Blocks blocks, UnifiedRegistries.Blocks blockRegistry) {
+        public RegistryBuilder(Identifier id, ColoredBlockPreset preset, UnifiedDataRegistries.Blocks blocks, UnifiedDataRegistries.Items items) {
             super(preset.settings.copy());
 
             this.id = id;
-            this.blockRegistry = blockRegistry;
             this.blocks = blocks;
+            this.items = items;
         }
     }
 
@@ -278,21 +285,36 @@ public class ColoredBlockSet {
             return self();
         }
 
-        public T function(Function<BlockBehaviour.Properties, Block> function) {
-            settings.function = function;
+        public T blockTypeFunction(Function<DyeColor, Function<BlockBehaviour.Properties, ? extends Block>> type) {
+            settings.blockType = Either.right(type);
             return self();
         }
-        public T properties(Supplier<BlockBehaviour.Properties> properties) {
-            settings.properties = properties;
+        public T blockTypeCodec(Function<DyeColor, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>> type) {
+            settings.blockType = Either.left(type);
             return self();
         }
 
-        public T setFlammability(int igniteOdds, int burnOdds) {
-            settings.flammability = Triple.of(igniteOdds, burnOdds, 0);
+        public T blockBuilder(BiConsumer<DyeColor, UnifiedDataRegistries.Blocks.Builder> builder) {
+            settings.blockBuilder = settings.blockBuilder.andThen(builder);
             return self();
         }
-        public T setFlammability(int igniteOdds, int burnOdds, int furnaceTicks) {
-            settings.flammability = Triple.of(igniteOdds, burnOdds, furnaceTicks);
+
+        public T itemTypeFunction(Function<DyeColor, BiFunction<Block, Item.Properties, Item>> type) {
+            settings.itemType = Either.right(type);
+            return self();
+        }
+        public T itemTypeCodec(Function<DyeColor, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>>> type) {
+            settings.itemType = Either.left(type);
+            return self();
+        }
+
+        public T itemBuilder(BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> builder) {
+            settings.itemBuilder = settings.itemBuilder.andThen(builder);
+            return self();
+        }
+
+        public T dyeRecipe(QuadConsumer<Item, List<SuppliedBlock>, Item, RecipeProvider> recipe) {
+            settings.dyeRecipe = recipe;
             return self();
         }
     }

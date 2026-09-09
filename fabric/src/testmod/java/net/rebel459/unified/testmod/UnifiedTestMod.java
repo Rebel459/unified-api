@@ -11,8 +11,8 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
-import net.rebel459.unified.api.builder.BlockPreset;
-import net.rebel459.unified.api.builder.BlockSet;
+import net.rebel459.unified.api.builder.StonePreset;
+import net.rebel459.unified.api.builder.StoneSet;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedDataRegistries;
@@ -22,8 +22,8 @@ import net.rebel459.unified.api.codec.BlockType;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
-import net.rebel459.unified.api.datagen.BlockAssets;
-import net.rebel459.unified.api.datagen.ItemAssets;
+import net.rebel459.unified.api.asset.BlockAssets;
+import net.rebel459.unified.api.asset.ItemAssets;
 import net.rebel459.unified.fabric.FabricUnifiedInitializer;
 
 public final class UnifiedTestMod implements ModInitializer {
@@ -43,7 +43,7 @@ public final class UnifiedTestMod implements ModInitializer {
     public static final TagKey<Block> TEST_BLOCKS = TagKey.create(Registries.BLOCK, id("test_blocks"));
     public static final TagKey<Item> TEST_ITEMS = TagKey.create(Registries.ITEM, id("test_items"));
 
-    public static final BlockSet TEST_SET =  new BlockSet.RegistryBuilder(id("test_set"), MapColor.COLOR_GRAY, BlockPreset.STONE, BLOCKS, null).build();
+    public static final StoneSet TEST_SET =  new StoneSet.RegistryBuilder(id("test_set"), MapColor.COLOR_GRAY, StonePreset.STONE, BLOCKS, null).build();
 
     public static final SuppliedBlock TEST_BLOCK = BLOCKS.register(
             "test_block",
