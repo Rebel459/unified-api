@@ -25,11 +25,10 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
-import net.rebel459.unified.impl.core.DataRegistryClaims;
+import net.rebel459.unified.api.core.DataRegistry;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 
@@ -57,7 +56,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     @Override
     protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
         Optional<Supplier<BlockEntityType<?>>> blockEntity = declaration.decode(BLOCK_ENTITY_CODEC);
-        DataRegistryClaims.registerBlock(id, () -> {
+        DataRegistry.register(Registries.BLOCK, id, () -> {
             UnifiedRegistries.Blocks blocks = UnifiedRegistries.Blocks.create(id.getNamespace());
             Function<BlockBehaviour.Properties, ? extends Block> factory = properties -> {
                 Definition definition = declaration.get();

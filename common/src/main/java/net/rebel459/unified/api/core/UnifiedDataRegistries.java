@@ -6,6 +6,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -37,7 +38,7 @@ import net.rebel459.unified.impl.registry.ItemRegistry;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.datagen.BlockAssetRequest;
-import net.rebel459.unified.impl.datagen.DataRegistry;
+import net.rebel459.unified.impl.datagen.DataProvider;
 import net.rebel459.unified.impl.datagen.ItemAssetRequest;
 
 import java.util.*;
@@ -53,10 +54,10 @@ public final class UnifiedDataRegistries {
     private final Items items;
     private final Blocks blocks;
     
-    private UnifiedDataRegistries(String modId, DataRegistry.GenerationSettings settings) {
-        this.items = new Items(modId, UnifiedRegistries.Items.create(modId));
-        this.blocks = new Blocks(modId, UnifiedRegistries.Blocks.create(modId), this.items);
-        DataRegistry.settings(modId, settings);
+    private UnifiedDataRegistries(String modId, String namespace, DataProvider.GenerationSettings settings) {
+        this.items = new Items(modId, namespace, UnifiedRegistries.Items.create(namespace));
+        this.blocks = new Blocks(modId, namespace, UnifiedRegistries.Blocks.create(namespace), this.items);
+        DataProvider.settings(modId, settings);
     }
 
     public static Builder create(String modId) {
@@ -71,6 +72,7 @@ public final class UnifiedDataRegistries {
 
     public static final class Builder {
         private final String modId;
+        private String namespace;
         private int priority;
         private Optional<ExtensibleCodec.Entry<Boolean>> requirement = Optional.empty();
         private boolean autoName;
@@ -79,6 +81,12 @@ public final class UnifiedDataRegistries {
 
         private Builder(String modId) {
             this.modId = modId;
+            this.namespace = modId;
+        }
+
+        public Builder namespace(String namespace) {
+            this.namespace = namespace;
+            return this;
         }
 
         public Builder priority(int value) {
@@ -107,8 +115,8 @@ public final class UnifiedDataRegistries {
         }
 
         public UnifiedDataRegistries build() {
-            return new UnifiedDataRegistries(modId, new DataRegistry.GenerationSettings(
-                    new DataRegistry.PriorityAndRequirement(priority, requirement),
+            return new UnifiedDataRegistries(modId, namespace, new DataProvider.GenerationSettings(
+                    new DataProvider.PriorityAndRequirement(priority, requirement),
                     autoName,
                     language,
                     injectedTranslations
@@ -118,34 +126,41 @@ public final class UnifiedDataRegistries {
 
     public static class Items {
 
-        private final String modId;
+        private final String datagenModId;
+        private final String namespace;
         private final UnifiedRegistries.Items items;
 
-        private Items(String modId, UnifiedRegistries.Items runtime) {
-            this.modId = modId;
+        private Items(String datagenModId, String namespace, UnifiedRegistries.Items runtime) {
+            this.datagenModId = datagenModId;
+            this.namespace = namespace;
             this.items = runtime;
         }
 
+        public String datagenModId() {
+            return datagenModId;
+        }
+
         public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> builder) {
-            return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(modId, path), () -> type).create(), builder);
+            return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(namespace, path), () -> type).create(), builder);
         }
 
         public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> builder) {
             Builder finalBuilder = new Builder();
             builder.accept(finalBuilder);
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
             Supplier<Item.Properties> runtimeProperties = () -> {
                 Item.Properties createProperties = new Item.Properties();
                 finalBuilder.properties.accept(createProperties);
                 return createProperties;
             };
             SuppliedItem registered = items.register(path, itemProperties -> type.get().apply(itemProperties), runtimeProperties);
-            DataRegistry.add(id, new DataRegistry.GeneratedItem(
+            DataProvider.add(datagenModId, new DataProvider.GeneratedItem(
+                    id,
                     () -> ItemRegistry.Definition.item(type,
                             componentValues(finalBuilder.properties, ResourceKey.create(Registries.ITEM, id))),
-                    finalBuilder::buildAssets,
-                    finalBuilder::buildData
+                    finalBuilder::buildAssets
             ));
+            finalBuilder.registerData(datagenModId, ResourceKey.create(Registries.ITEM, id), registered);
             return registered;
         }
 
@@ -165,12 +180,13 @@ public final class UnifiedDataRegistries {
             };
             SuppliedItem registered = items.registerBlockItem(
                     block.blockItemId(), block, type.get(), runtimeProperties);
-            DataRegistry.add(id, new DataRegistry.GeneratedItem(
+            DataProvider.add(datagenModId, new DataProvider.GeneratedItem(
+                    id,
                     () -> ItemRegistry.Definition.blockItem(block, type,
                             componentValues(finalBuilder.properties, block.blockItemId().item())),
-                    finalBuilder::buildAssets,
-                    finalBuilder::buildData
+                    finalBuilder::buildAssets
             ));
+            finalBuilder.registerData(datagenModId, block.blockItemId().item(), registered);
             return registered;
         }
 
@@ -204,16 +220,16 @@ public final class UnifiedDataRegistries {
                 dataConfigurations.add(data); return this;
             }
 
-            private DataRegistry.ItemAssets buildAssets() {
+            private DataProvider.ItemAssets buildAssets() {
                 Assets assets = new Assets();
                 assetConfigurations.forEach(configure -> configure.accept(assets));
                 return assets.build();
             }
 
-            private DataRegistry.ItemData buildData() {
-                Data data = new Data();
+            private void registerData(String modId, ResourceKey<Item> key, Supplier<Item> item) {
+                Data data = new Data(modId, key, item);
                 dataConfigurations.forEach(configure -> configure.accept(data));
-                return data.build();
+                data.register();
             }
         }
 
@@ -244,47 +260,65 @@ public final class UnifiedDataRegistries {
                 return model(ItemAssets.HANDHELD);
             }
 
-            private DataRegistry.ItemAssets build() {
-                return new DataRegistry.ItemAssets(name, List.copyOf(models));
+            private DataProvider.ItemAssets build() {
+                return new DataProvider.ItemAssets(name, List.copyOf(models));
             }
         }
 
         public static final class Data {
-            private final List<TagKey<Item>> tags = new ArrayList<>();
-            private final List<TagKey<Item>> optionalTags = new ArrayList<>();
-            private Optional<BiConsumer<Item, RecipeProvider>> recipe = Optional.empty();
+            private final String modId;
+            private final ResourceKey<Item> key;
+            private final Supplier<Item> item;
+            private Consumer<DataProvider.TagGenerator<Item>> tags = _ -> {};
+            private boolean hasTags;
+            private BiConsumer<Item, RecipeProvider> recipe;
+
+            private Data(String modId, ResourceKey<Item> key, Supplier<Item> item) {
+                this.modId = modId;
+                this.key = key;
+                this.item = item;
+            }
 
             public Data tag(TagKey<Item> tag) {
-                tags.add(tag);
+                tags = tags.andThen(generator -> generator.add(tag, key));
+                hasTags = true;
                 return this;
             }
 
             public Data optionalTag(TagKey<Item> tag) {
-                optionalTags.add(tag);
+                tags = tags.andThen(generator -> generator.addOptional(tag, key));
+                hasTags = true;
                 return this;
             }
 
             public Data recipe(BiConsumer<Item, RecipeProvider> factory) {
-                recipe = Optional.of(factory);
+                recipe = factory;
                 return this;
             }
 
-            private DataRegistry.ItemData build() {
-                return new DataRegistry.ItemData(List.copyOf(tags), List.copyOf(optionalTags), recipe);
+            private void register() {
+                if (hasTags) DataProvider.addItemTags(modId, tags);
+                if (recipe != null) DataProvider.addRecipes(modId, provider -> recipe.accept(item.get(), provider));
             }
         }
     }
 
     public static class Blocks {
 
-        private final String modId;
+        private final String datagenModId;
+        private final String namespace;
         private final UnifiedRegistries.Blocks blocks;
         private final Items items;
 
-        private Blocks(String modId, UnifiedRegistries.Blocks blocks, Items items) {
-            this.modId = modId;
+        private Blocks(String datagenModId, String namespace, UnifiedRegistries.Blocks blocks, Items items) {
+            this.datagenModId = datagenModId;
+            this.namespace = namespace;
             this.blocks = blocks;
             this.items = items;
+        }
+
+        public String datagenModId() {
+            return datagenModId;
         }
 
         public SuppliedBlock register(String path, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
@@ -292,7 +326,7 @@ public final class UnifiedDataRegistries {
         }
 
         public SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-            return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(modId, blockPath), () -> type).create(), builder);
+            return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, blockPath), () -> type).create(), builder);
         }
 
         public SuppliedBlock register(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -310,7 +344,7 @@ public final class UnifiedDataRegistries {
         }
 
         public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-            return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(modId, blockPath), () -> type).create(), builder);
+            return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, blockPath), () -> type).create(), builder);
         }
 
         public SuppliedBlock registerWithoutItem(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -318,9 +352,9 @@ public final class UnifiedDataRegistries {
         }
 
         public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
-            Builder finalBuilder = new Builder(modId, blockPath);
+            Builder finalBuilder = new Builder(namespace, blockPath);
             builder.accept(finalBuilder);
-            Identifier id = Identifier.fromNamespaceAndPath(modId, blockPath);
+            Identifier id = Identifier.fromNamespaceAndPath(namespace, blockPath);
             Supplier<BlockBehaviour.Properties> properties =
                     () -> BlockRegistry.createProperties(finalBuilder.properties.definition);
             SuppliedBlock block;
@@ -332,12 +366,12 @@ public final class UnifiedDataRegistries {
                 block = blocks.registerWithoutItem(blockPath, itemPath,
                         blockProperties -> type.get().apply(blockProperties), properties);
             }
-            DataRegistry.add(id, new DataRegistry.GeneratedBlock(
-                    block.blockItemId(),
+            DataProvider.add(datagenModId, new DataProvider.GeneratedBlock(
+                    id,
                     () -> new BlockRegistry.Definition(type, finalBuilder.properties.definition, finalBuilder.blockEntity),
-                    finalBuilder::buildAssets,
-                    finalBuilder::buildData
+                    finalBuilder::buildAssets
             ));
+            finalBuilder.registerData(datagenModId, block.blockItemId(), block);
             return block;
         }
 
@@ -590,57 +624,75 @@ public final class UnifiedDataRegistries {
                 return model(BlockAssets.SIMPLE_CUBE);
             }
 
-            private DataRegistry.BlockAssets build() {
-                return new DataRegistry.BlockAssets(name, List.copyOf(models));
+            private DataProvider.BlockAssets build() {
+                return new DataProvider.BlockAssets(name, List.copyOf(models));
             }
         }
 
         public static final class Data {
-            private final List<TagKey<Block>> tags = new ArrayList<>();
-            private final List<TagKey<Block>> optionalTags = new ArrayList<>();
-            private final List<TagKey<Item>> itemTags = new ArrayList<>();
-            private final List<TagKey<Item>> optionalItemTags = new ArrayList<>();
-            private Optional<Function<Block, LootTable.Builder>> loot = Optional.empty();
-            private Optional<BiConsumer<Item, RecipeProvider>> recipes = Optional.empty();
+            private final String modId;
+            private final BlockItemId key;
+            private final Supplier<Block> block;
+            private Consumer<DataProvider.TagGenerator<Block>> blockTags = _ -> {};
+            private Consumer<DataProvider.TagGenerator<Item>> itemTags = _ -> {};
+            private boolean hasBlockTags;
+            private boolean hasItemTags;
+            private Function<Block, LootTable.Builder> loot;
+            private BiConsumer<Item, RecipeProvider> recipes;
+
+            private Data(String modId, BlockItemId key, Supplier<Block> block) {
+                this.modId = modId;
+                this.key = key;
+                this.block = block;
+            }
 
             public Data tag(TagKey<Block> tag) {
-                tags.add(tag);
+                blockTags = blockTags.andThen(generator -> generator.add(tag, key.block()));
+                hasBlockTags = true;
                 return this;
             }
 
             public Data optionalTag(TagKey<Block> tag) {
-                optionalTags.add(tag);
+                blockTags = blockTags.andThen(generator -> generator.addOptional(tag, key.block()));
+                hasBlockTags = true;
                 return this;
             }
 
             public Data itemTag(TagKey<Item> tag) {
-                itemTags.add(tag);
+                itemTags = itemTags.andThen(generator -> generator.add(tag, key.item()));
+                hasItemTags = true;
                 return this;
             }
 
             public Data optionalItemTag(TagKey<Item> tag) {
-                optionalItemTags.add(tag);
+                itemTags = itemTags.andThen(generator -> generator.addOptional(tag, key.item()));
+                hasItemTags = true;
                 return this;
             }
 
             public Data loot(Function<Block, LootTable.Builder> factory) {
-                loot = Optional.of(factory);
+                loot = factory;
                 return this;
             }
 
             public Data recipes(BiConsumer<Item, RecipeProvider> factory) {
-                recipes = Optional.of(factory);
+                recipes = factory;
                 return this;
             }
 
             public Data dropSelf() {
-                loot = Optional.empty();
-                loot(block -> LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1)).add(LootItem.lootTableItem(block))));
+                loot(value -> LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1)).add(LootItem.lootTableItem(value))));
                 return this;
             }
 
-            private DataRegistry.BlockData build() {
-                return new DataRegistry.BlockData(List.copyOf(tags), List.copyOf(optionalTags), List.copyOf(itemTags), List.copyOf(optionalItemTags), loot, recipes);
+            private void register() {
+                if (hasBlockTags) DataProvider.addBlockTags(modId, blockTags);
+                if (hasItemTags) DataProvider.addItemTags(modId, itemTags);
+                if (loot != null) DataProvider.addLoot(modId, generator -> {
+                    Block value = block.get();
+                    generator.add(value, loot.apply(value));
+                });
+                if (recipes != null) DataProvider.addRecipes(modId, provider -> recipes.accept(block.get().asItem(), provider));
             }
         }
 
@@ -662,16 +714,16 @@ public final class UnifiedDataRegistries {
                 return this;
             }
 
-            private DataRegistry.BlockAssets buildAssets() {
+            private DataProvider.BlockAssets buildAssets() {
                 Assets assets = new Assets();
                 assetConfigurations.forEach(configure -> configure.accept(assets));
                 return assets.build();
             }
 
-            private DataRegistry.BlockData buildData() {
-                Data data = new Data();
+            private void registerData(String modId, BlockItemId key, Supplier<Block> block) {
+                Data data = new Data(modId, key, block);
                 dataConfigurations.forEach(configure -> configure.accept(data));
-                return data.build();
+                data.register();
             }
         }
 

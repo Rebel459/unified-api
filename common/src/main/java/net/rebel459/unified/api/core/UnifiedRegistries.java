@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.builder.*;
-import net.rebel459.unified.impl.core.StaticRegistryBootstrap;
+import net.rebel459.unified.impl.core.DataRegistries;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 
 import java.util.function.BiFunction;
@@ -76,7 +76,7 @@ public class UnifiedRegistries {
         }
 
         static Items create(String modId) {
-            return StaticRegistryBootstrap.items(modId);
+            return DataRegistries.items(modId);
         }
     }
 
@@ -127,7 +127,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static Blocks create(String modId) {
-            return StaticRegistryBootstrap.blocks(modId);
+            return DataRegistries.blocks(modId);
         }
     }
 

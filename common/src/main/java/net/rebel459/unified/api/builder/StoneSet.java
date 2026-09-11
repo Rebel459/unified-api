@@ -25,7 +25,7 @@ import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.impl.builder.StoneSetProperties;
-import net.rebel459.unified.impl.datagen.DataRegistry;
+import net.rebel459.unified.impl.datagen.DataProvider;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import org.jetbrains.annotations.Nullable;
@@ -90,7 +90,7 @@ public class StoneSet {
     }
 
     private void registerBlockSetTypeDefinition() {
-        DataRegistry.addBlockSetType(id, () -> new BlockSetTypeRegistry.Definition(
+        DataProvider.addBlockSetType(blocks.datagenModId(), new DataProvider.GeneratedBlockSetType(id, () -> new BlockSetTypeRegistry.Definition(
                 true,
                 true,
                 settings.canArrowsActivateButton,
@@ -104,7 +104,7 @@ public class StoneSet {
                 settings.pressurePlateSounds.getFirst().get(),
                 settings.buttonSounds.getSecond().get(),
                 settings.buttonSounds.getFirst().get()
-        ));
+        )));
     }
 
     private SuppliedBlock createBlock(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<UnifiedDataRegistries.Blocks.Builder> builder){

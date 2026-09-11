@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.core.*;
-import net.rebel459.unified.impl.core.DataRegistryClaims;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -56,7 +55,7 @@ public class FabricUnifiedRegistries {
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedItem existing = DataRegistryClaims.item(id);
+            SuppliedItem existing = DataRegistry.getClaimed(Registries.ITEM, id);
             if (existing != null) return existing;
             var resourceKey = ResourceKey.create(Registries.ITEM, id);
             var item = net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
@@ -72,7 +71,7 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             Identifier itemId = id.item().identifier();
-            SuppliedItem existing = DataRegistryClaims.item(itemId);
+            SuppliedItem existing = DataRegistry.getClaimed(Registries.ITEM, itemId);
             if (existing != null) return existing;
             Item item = net.minecraft.world.item.Items.registerBlock(id, block.get(), function, properties.get());
             Supplier<Item> supplied = () -> item;
@@ -90,7 +89,7 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedBlock existing = DataRegistryClaims.block(id);
+            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
             if (existing != null) return existing;
             Identifier blockId = Identifier.fromNamespaceAndPath(modId, path);
             BlockItemId blockItemId = BlockItemId.create(blockId, blockId);
@@ -105,7 +104,7 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedBlock existing = DataRegistryClaims.block(id);
+            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
             if (existing != null) return existing;
             SuppliedBlock block = register(path, function, blockProperties);
             type.get().addValidBlock(block.get());
@@ -125,7 +124,7 @@ public class FabricUnifiedRegistries {
         @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, blockPath);
-            SuppliedBlock existing = DataRegistryClaims.block(id);
+            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
             if (existing != null) return existing;
             ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
             Block block = Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key)));

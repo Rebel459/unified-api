@@ -22,7 +22,7 @@ import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.flag.FeatureFlags;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.impl.datagen.DataRegistry;
+import net.rebel459.unified.impl.datagen.DataProvider;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.slf4j.Logger;
 
@@ -76,7 +76,6 @@ public abstract class RegistryResourceListener<T> {
         }
     }
 
-    /** Seals listener registration, loads every listener in dependency order, and validates the graph. */
     public static void completeRegistration() {
         synchronized (RegistryResourceListener.class) {
             if (!acceptingListeners) throw new IllegalStateException("Registry resource listener bootstrap already completed");
@@ -115,7 +114,7 @@ public abstract class RegistryResourceListener<T> {
             return value.get();
         }
 
-        /** Decodes only bootstrap metadata which must be known before registry factories are queued. */
+        /** Decodes only priority & dependency metadata which must be known before registry factories are queued. */
         public <R> R decode(com.mojang.serialization.MapCodec<R> codec) {
             return decodeMetadata(codec.codec());
         }
@@ -321,7 +320,7 @@ public abstract class RegistryResourceListener<T> {
                             JsonElement parsed = JsonParser.parseReader(reader);
                             if (!parsed.isJsonObject()) throw new IllegalArgumentException("Root must be a JSON object");
                             JsonObject definition = parsed.getAsJsonObject().deepCopy();
-                            DataRegistry.PriorityAndRequirement metadata = DataRegistry.PriorityAndRequirement.CODEC.parse(JsonOps.INSTANCE, definition)
+                            DataProvider.PriorityAndRequirement metadata = DataProvider.PriorityAndRequirement.CODEC.parse(JsonOps.INSTANCE, definition)
                                     .getOrThrow(error -> new IllegalArgumentException(resourceId + ": " + error));
                             definition.remove("priority");
                             definition.remove("load_requirements");

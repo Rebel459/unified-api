@@ -32,10 +32,10 @@ public class WoodTypeRegistry extends RegistryResourceListener<WoodTypeRegistry.
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<WoodTypeRegistry.Definition> declaration) {
-        PlatformHandler.INSTANCE.internal().afterRegistry(Registries.SOUND_EVENT, () -> registerNow(id, declaration.get()));
+        PlatformHandler.INSTANCE.internal().afterRegistry(Registries.SOUND_EVENT, () -> actualRegister(id, declaration.get()));
     }
 
-    private static void registerNow(Identifier id, WoodTypeRegistry.Definition type) {
+    private static void actualRegister(Identifier id, WoodTypeRegistry.Definition type) {
         WoodType.register(new WoodType(
                 id.toString(),
                 type.blockSet,

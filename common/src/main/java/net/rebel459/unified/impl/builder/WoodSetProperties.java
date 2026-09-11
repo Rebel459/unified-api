@@ -40,8 +40,8 @@ public class WoodSetProperties {
             UnifiedHelpers.BLOCK_CONVERSIONS.addStrippable(woodSet.getWood(), woodSet.getStrippedWood());
         }
 
-        if (woodSet.hasAnyLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSet.getLeaves(), 0.3F);
-        if (woodSet.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSet.getSapling(), 0.3F);
+        if (woodSet.hasAnyLeaves()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSet.getLeaves(), 30);
+        if (woodSet.hasSapling()) UnifiedHelpers.DATA_COMPONENTS.addCompost(woodSet.getSapling(), 30);
 
         if (woodSet.getSettings().isFlammable()) {
             addFlammable(woodSet.getLog(), 5, 5);

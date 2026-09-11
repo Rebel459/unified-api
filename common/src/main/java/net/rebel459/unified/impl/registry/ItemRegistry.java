@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
@@ -14,7 +15,7 @@ import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
-import net.rebel459.unified.impl.core.DataRegistryClaims;
+import net.rebel459.unified.api.core.DataRegistry;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 
@@ -58,7 +59,7 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
     @Override
     protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
         Supplier<Item.Properties> properties = () -> createProperties(declaration.get().properties());
-        DataRegistryClaims.registerItem(id, () -> {
+        DataRegistry.register(Registries.ITEM, id, () -> {
             UnifiedRegistries.Items items = UnifiedRegistries.Items.create(id.getNamespace());
             Optional<Identifier> blockId = declaration.decode(BLOCK_ID_CODEC);
             Optional<Identifier> typeId = declaration.decode(TYPE_ID_CODEC);

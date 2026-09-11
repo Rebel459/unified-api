@@ -1,27 +1,30 @@
 package net.rebel459.unified.api.builder;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.rebel459.unified.api.core.SuppliedItem;
-import net.rebel459.unified.api.core.UnifiedDataRegistries;
-import net.rebel459.unified.api.core.UnifiedInstance;
-import net.rebel459.unified.api.core.UnifiedRegistries;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.platform.ModLoader;
+import net.rebel459.unified.api.registry.VanillaBlockTypes;
+import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.util.QuadConsumer;
+import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.builder.ColoredItemSetProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,7 +38,6 @@ public class ColoredItemSet {
     private final Identifier id;
 
     private final UnifiedDataRegistries.Items items;
-    @Deprecated private final UnifiedRegistries.Items itemRegistry;
 
     private SuppliedItem white;
     private SuppliedItem lightGray;
@@ -78,17 +80,12 @@ public class ColoredItemSet {
         pink = create("pink");
     }
 
-    public ColoredItemSet(Identifier id, Settings settings, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry){
+    public ColoredItemSet(Identifier id, Settings settings, UnifiedDataRegistries.Items items){
         this.settings = settings;
         this.id = id;
-        this.itemRegistry = itemRegistry;
         this.items = items;
         registerItems();
         COLORED_ITEM_SETS.add(this);
-        ColoredItemSetProperties.COMPONENTS.put(id, settings.components);
-        ColoredItemSetProperties.DYED_COMPONENTS.put(id, settings.dyedComponents);
-        ColoredItemSetProperties.PROVIDED_COMPONENTS.put(id, settings.providedComponents);
-        ColoredItemSetProperties.KEYED_COMPONENTS.put(id, settings.keyedComponents);
         ColoredItemSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) ColoredItemSetProperties.init(List.of(this));
     }
@@ -180,9 +177,18 @@ public class ColoredItemSet {
     private SuppliedItem create(String color) {
         String name = color + "_" + id.getPath();
         DyeColor dye = DyeColor.byName(color, null);
-        SuppliedItem item;
-        if (getSettings().createdForColoredBlockSet()) item = itemRegistry.registerBlockItem(getSettings().coloredBlockSet.getBlockFromDye(dye), getSettings().blockFunction, getSettings().properties);
-        else item = itemRegistry.register(name, getSettings().function, getSettings().properties);
+        ExtensibleCodec.Entry<Function<Item.Properties, Item>> itemType;
+        if (getSettings().type.left().isPresent()) itemType = getSettings().type.left().get().apply(dye);
+        else itemType = ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().type.right().get().apply(dye)).create();
+        SuppliedItem item = items.register(name, itemType, builder -> {
+            getSettings().builder.accept(dye, builder);
+            if (getSettings().dyeRecipe != null) builder.data(data -> data.recipe((currentItem, provider) -> {
+                List<SuppliedItem> otherItems = registeredItems.stream()
+                        .filter(otherItem -> getDyeFromItem(otherItem) != dye)
+                        .toList();
+                getSettings().dyeRecipe.accept(Items.DYE.pick(dye), otherItems, currentItem, provider);
+            }));
+        });
         dyesByItem.put(item, dye);
         itemsByDye.put(dye, item);
         registeredItems.add(item);
@@ -191,22 +197,12 @@ public class ColoredItemSet {
 
     public static class Settings implements Cloneable {
 
-        private Function<Item.Properties, Item> function = Item::new;
-        private BiFunction<Block, Item.Properties, Item> blockFunction = BlockItem::new;
-        private Supplier<Item.Properties> properties = Item.Properties::new;
+        private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<Item.Properties, Item>>>, Function<DyeColor, Function<Item.Properties, Item>>> type = Either.left(_ -> VanillaItemTypes.ITEM.create());
+        private BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> builder = (_, _) -> {};
 
-        private @Nullable ColoredBlockSet coloredBlockSet = null;
+        private @Nullable QuadConsumer<Item, List<SuppliedItem>, Item, RecipeProvider> dyeRecipe;
 
         private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;
-
-        private List<Pair<Supplier<? extends DataComponentType<?>>, ?>> components = new ArrayList<>();
-        private List<Pair<Supplier<? extends DataComponentType<?>>, Function<DyeColor, ?>>> dyedComponents = new ArrayList<>();
-        private List<Pair<Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>> providedComponents = new ArrayList<>();
-        private List<Pair<Supplier<? extends DataComponentType<?>>, ResourceKey<?>>> keyedComponents = new ArrayList<>();
-
-        public boolean createdForColoredBlockSet() {
-            return coloredBlockSet != null;
-        }
 
         Settings() {}
 
@@ -224,22 +220,15 @@ public class ColoredItemSet {
         private final Identifier id;
 
         private final UnifiedDataRegistries.Items items;
-        @Deprecated private final UnifiedRegistries.Items itemRegistry;
-
-        public RegistryBuilder createForBlocks(ColoredBlockSet coloredBlockSet) {
-            settings.coloredBlockSet = coloredBlockSet;
-            return self();
-        }
 
         public ColoredItemSet build() {
-            return new ColoredItemSet(id, settings, items, itemRegistry);
+            return new ColoredItemSet(id, settings, items);
         }
 
-        public RegistryBuilder(Identifier id, ColoredItemPreset preset, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry) {
+        public RegistryBuilder(Identifier id, ColoredItemPreset preset, UnifiedDataRegistries.Items items) {
             super(preset.settings.copy());
 
             this.id = id;
-            this.itemRegistry = itemRegistry;
             this.items = items;
         }
     }
@@ -285,42 +274,22 @@ public class ColoredItemSet {
             return self();
         }
 
-        public T function(Function<Item.Properties, Item> function) {
-            settings.function = function;
+        public T typeFunction(Function<DyeColor, Function<Item.Properties, Item>> type) {
+            settings.type = Either.right(type);
             return self();
         }
-        public T function(BiFunction<Block, Item.Properties, Item> function) {
-            settings.blockFunction = function;
-            return self();
-        }
-
-        public T properties(Supplier<Item.Properties> properties) {
-            settings.properties = properties;
+        public T typeCodec(Function<DyeColor, ExtensibleCodec.Entry<Function<Item.Properties, Item>>> type) {
+            settings.type = Either.left(type);
             return self();
         }
 
-        public <Y> T setComponent(Supplier<DataComponentType<Y>> type, Y value) {
-            var components = settings.components;
-            components.add(Pair.of(type, value));
-            settings.components = components;
+        public T builder(BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> builder) {
+            settings.builder = settings.builder.andThen(builder);
             return self();
         }
-        public <Y> T setComponentWithDye(Supplier<DataComponentType<Y>> type, Function<DyeColor, Y> dyeValue) {
-            var dyeComponents = settings.dyedComponents;
-            dyeComponents.add(Pair.of(type, dyeValue));
-            settings.dyedComponents = dyeComponents;
-            return self();
-        }
-        public <Y> T setComponentWithProvider(Supplier<DataComponentType<Y>> type, DataComponentInitializers.SingleComponentInitializer<Y> initializer) {
-            var providedComponents = settings.providedComponents;
-            providedComponents.add(Pair.of(type, initializer));
-            settings.providedComponents = providedComponents;
-            return self();
-        }
-        public <Y> T setComponentWithKey(Supplier<DataComponentType<Holder<Y>>> type, ResourceKey<Y> valueKey) {
-            var keyedComponents = settings.keyedComponents;
-            keyedComponents.add(Pair.of(type, valueKey));
-            settings.keyedComponents = keyedComponents;
+
+        public T dyeRecipe(QuadConsumer<Item, List<SuppliedItem>, Item, RecipeProvider> recipe) {
+            settings.dyeRecipe = recipe;
             return self();
         }
     }

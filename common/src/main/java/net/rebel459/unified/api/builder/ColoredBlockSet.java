@@ -182,7 +182,7 @@ public class ColoredBlockSet {
         else blockType = ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().blockType.right().get().apply(dye)).create();
         block = blocks.registerWithoutItem(name, blockType, builder -> getSettings().blockBuilder.accept(dye, builder));
         ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> itemType;
-        if (getSettings().blockType.left().isPresent()) itemType = getSettings().itemType.left().get().apply(dye);
+        if (getSettings().itemType.left().isPresent()) itemType = getSettings().itemType.left().get().apply(dye);
         else itemType = ExtensibleCodecs.BLOCK_ITEM_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().itemType.right().get().apply(dye)).create();
         items.registerBlockItem(block, itemType, builder -> {
             getSettings().itemBuilder.accept(dye, builder);
@@ -205,6 +205,7 @@ public class ColoredBlockSet {
         private Either<Function<DyeColor, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>>>, Function<DyeColor, BiFunction<Block, Item.Properties, Item>>> itemType = Either.left(_ -> VanillaItemTypes.BLOCK_ITEM.create());
         private BiConsumer<DyeColor, UnifiedDataRegistries.Blocks.Builder> blockBuilder = (color, builder) -> builder.properties(properties -> properties.mapColor(color.getMapColor()));
         private BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> itemBuilder = (_, _) -> {};
+
         private @Nullable QuadConsumer<Item, List<SuppliedBlock>, Item, RecipeProvider> dyeRecipe;
 
         private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;

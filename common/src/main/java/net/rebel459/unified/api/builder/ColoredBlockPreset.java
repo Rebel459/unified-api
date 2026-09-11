@@ -23,15 +23,15 @@ public final class ColoredBlockPreset {
             .build();
 
     public static final ColoredBlockPreset WOOL = create()
-            .blockBuilder((_, builder) -> builder.properties(
-                                    properties -> properties
-                                            .copyFrom(Blocks.WOOL::white)
-                                            .flammable(30, 60)
-                            )
-                            .data(data -> data
-                                    .dropSelf()
-                                    .tag(BlockTags.SHEARS_MAJOR_BREAKING_SPEED)
-                            )
+            .blockBuilder((_, builder) -> builder
+                    .properties(properties -> properties
+                            .copyFrom(Blocks.WOOL::white)
+                            .flammable(30, 60)
+                    )
+                    .data(data -> data
+                            .dropSelf()
+                            .tag(BlockTags.SHEARS_MAJOR_BREAKING_SPEED)
+                    )
             )
             .itemBuilder((_, builder) -> builder.properties(
                     properties -> properties
@@ -48,45 +48,41 @@ public final class ColoredBlockPreset {
             .build();
 
     public static final ColoredBlockPreset DYED_TERRACOTTA = create()
-            .blockBuilder((_, builder) -> builder.properties(
-                                    properties -> properties
-                                            .copyFrom(Blocks.DYED_TERRACOTTA::white)
+            .blockBuilder((_, builder) ->
+                    builder.properties(properties -> properties
+                                    .copyFrom(Blocks.DYED_TERRACOTTA::white)
                             )
                             .data(data -> data
                                     .dropSelf()
                                     .tag(BlockTags.MINEABLE_WITH_PICKAXE)
                             )
             )
-            .dyeRecipe((dye, _, item, provider) -> {
-                provider.coloredTerracottaFromTerracottaAndDye(item, dye);
-            })
+            .dyeRecipe((dye, _, item, provider) -> provider.coloredTerracottaFromTerracottaAndDye(item, dye))
             .build();
 
     public static final ColoredBlockPreset CONCRETE = create()
-            .blockBuilder((_, builder) -> builder.properties(
-                                    properties -> properties
-                                            .copyFrom(Blocks.CONCRETE::white)
-                            )
-                            .data(data -> data
-                                    .dropSelf()
-                                    .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                            )
+            .blockBuilder((_, builder) -> builder
+                    .properties(properties -> properties
+                            .copyFrom(Blocks.CONCRETE::white)
+                    )
+                    .data(data -> data
+                            .dropSelf()
+                            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+                    )
             )
             .build();
 
     public static final ColoredBlockPreset CONCRETE_POWDER = create()
-            .blockBuilder((_, builder) -> builder.properties(
-                                    properties -> properties
-                                            .copyFrom(Blocks.CONCRETE_POWDER::white)
-                            )
-                            .data(data -> data
-                                    .dropSelf()
-                                    .tag(BlockTags.MINEABLE_WITH_SHOVEL)
-                            )
+            .blockBuilder((_, builder) -> builder
+                    .properties(properties -> properties
+                            .copyFrom(Blocks.CONCRETE_POWDER::white)
+                    )
+                    .data(data -> data
+                            .dropSelf()
+                            .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+                    )
             )
-            .dyeRecipe((dye, _, item, provider) -> {
-                provider.concretePowder(item, dye);
-            })
+            .dyeRecipe((dye, _, item, provider) -> provider.concretePowder(item, dye))
             .build();
 
     public static ColoredBlockSet.PresetBuilder create() {

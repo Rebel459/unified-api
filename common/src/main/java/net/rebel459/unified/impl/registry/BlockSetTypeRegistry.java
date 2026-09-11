@@ -39,10 +39,10 @@ public class BlockSetTypeRegistry extends RegistryResourceListener<BlockSetTypeR
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<BlockSetTypeRegistry.Definition> declaration) {
-        PlatformHandler.INSTANCE.internal().afterRegistry(Registries.SOUND_EVENT, () -> registerNow(id, declaration.get()));
+        PlatformHandler.INSTANCE.internal().afterRegistry(Registries.SOUND_EVENT, () -> actualRegister(id, declaration.get()));
     }
 
-    private static void registerNow(Identifier id, BlockSetTypeRegistry.Definition type) {
+    private static void actualRegister(Identifier id, BlockSetTypeRegistry.Definition type) {
         BlockSetType.register(new BlockSetType(
                 id.toString(),
                 type.canOpenByHand,

@@ -206,8 +206,8 @@ public class CommonHelpers {
         default void addFurnaceFuel(ItemLike itemLike, int ticks) {
             add(itemLike, net.minecraft.core.component.DataComponents.COOKING_FUEL, new CookingFuel(new ResolvableInt.Constant(ticks), ResolvableFloat.fromKey(ContextFloatProviders.COOKING_DEFAULT_SPEED_MULTIPLIER)));
         }
-        default void addCompost(ItemLike itemLike, float chance) {
-            add(itemLike, net.minecraft.core.component.DataComponents.COMPOSTABLE, new Compostable(new ResolvableNumber.Constant(chance)));
+        default void addCompost(ItemLike itemLike, int chance) {
+            add(itemLike, net.minecraft.core.component.DataComponents.COMPOSTABLE, new Compostable(new ResolvableInt.Constant(chance)));
         }
     }
 
