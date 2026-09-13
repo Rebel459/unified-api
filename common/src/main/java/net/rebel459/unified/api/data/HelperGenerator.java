@@ -43,7 +43,7 @@ public abstract class HelperGenerator {
 
         public CreativeEntries(String name, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(modId, requirement);
-            CodecGenerator.assets(modId, Identifier.fromNamespaceAndPath(modId, "unified/creative_entries/" + name), requirement, ops ->
+            CodecGenerator.assets(modId, Identifier.fromNamespaceAndPath(modId, "unified/creative_entries/" + name), requirement, (_, ops) ->
                     net.rebel459.unified.impl.data.CreativeEntries.Definition.LIST_CODEC.encodeStart(ops, List.copyOf(entries)).getOrThrow());
         }
 
