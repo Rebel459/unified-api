@@ -28,6 +28,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.rebel459.unified.api.core.*;
+import net.rebel459.unified.api.core.DataRegistry;
 import net.rebel459.unified.api.util.BlockLike;
 import org.jetbrains.annotations.NotNull;
 

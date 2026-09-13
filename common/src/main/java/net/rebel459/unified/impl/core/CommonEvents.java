@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.*;
+import net.rebel459.unified.api.event.CreativeEntryContext;
 import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.api.event.LootEntry;
 import net.rebel459.unified.api.event.LootTableContext;
@@ -553,6 +555,19 @@ public class CommonEvents {
         public static void passOnTick(EventTiming type, Level level) {
             for (Consumer<Level> listener : LEVEL_TICK_LISTENERS.get(type)) {
                 listener.accept(level);
+            }
+        }
+    }
+
+    public static class CreativeEntries {
+
+        private CreativeEntries() {}
+
+        public static final List<BiConsumer<ResourceKey<CreativeModeTab>, CreativeEntryContext>> LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void passModify(ResourceKey<CreativeModeTab> tab, CreativeEntryContext context) {
+            for (BiConsumer<ResourceKey<CreativeModeTab>, CreativeEntryContext> listener : LISTENERS) {
+                listener.accept(tab, context);
             }
         }
     }

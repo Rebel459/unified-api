@@ -30,7 +30,7 @@ public class ExtensibleCodecs {
     public static final ExtensibleCodec<ToIntFunction<BlockState>> LIGHT_EMISSION_TYPES = new ExtensibleCodec<>();
     public static final ExtensibleCodec<BlockBehaviour.PostProcess> POST_PROCESS_TYPES = new ExtensibleCodec<>();
     public static final ExtensibleCodec<Consumer<UseOnContext>> USE_CONTEXT_TYPES = new ExtensibleCodec<>();
-    public static final ExtensibleCodec<Boolean> REQUIREMENT_TYPES = new ExtensibleCodec<>();
+    public static final PredicateType<Boolean> REQUIREMENT_TYPES = new PredicateType<>(evaluation -> evaluation.evaluate(Boolean::booleanValue));
 
     public static void init() {}
 }

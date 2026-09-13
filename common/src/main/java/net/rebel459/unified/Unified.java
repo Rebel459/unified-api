@@ -31,6 +31,8 @@ public class Unified {
         VanillaMapColorTypes.init();
         VanillaLightEmissionTypes.init();
         VanillaPostProcessTypes.init();
+        UnifiedMapColorTypes.init();
+        UnifiedLightEmissionTypes.init();
         UnifiedBlockPredicateTypes.init();
         UnifiedPostProcessTypes.init();
         UnifiedRequirementTypes.init();

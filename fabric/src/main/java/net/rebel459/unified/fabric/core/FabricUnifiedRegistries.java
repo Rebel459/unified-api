@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.core.*;
+import net.rebel459.unified.api.core.DataRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;

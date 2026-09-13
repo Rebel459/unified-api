@@ -3,13 +3,13 @@ package net.rebel459.unified.api.codec;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.rebel459.unified.api.core.Supplied;
-import net.rebel459.unified.api.registry.UnifiedRequirementTypes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -18,11 +18,23 @@ import java.util.function.Supplier;
 
 public final class UnifiedCodecs {
 
+    public static <P, V> MapCodec<Conditional<P, V>> conditional(ExtensibleCodec<P> predicates, ExtensibleCodec<V> values) {
+        Codec<ExtensibleCodec.Entry<P>> predicate = Codec.lazyInitialized(predicates::codec);
+        Codec<ExtensibleCodec.Entry<V>> value = Codec.lazyInitialized(values::codec);
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
+                predicate.fieldOf("predicate").forGetter(Conditional::predicate),
+                value.fieldOf("if_true").forGetter(Conditional::ifTrue),
+                value.fieldOf("if_false").forGetter(Conditional::ifFalse)
+        ).apply(instance, Conditional::new));
+    }
+
+    public record Conditional<P, V>(ExtensibleCodec.Entry<P> predicate, ExtensibleCodec.Entry<V> ifTrue, ExtensibleCodec.Entry<V> ifFalse) {}
+
     public static final MapCodec<Optional<ExtensibleCodec.Entry<Boolean>>> LOAD_REQUIREMENTS = Codec.either(
             Codec.BOOL,
             ExtensibleCodecs.REQUIREMENT_TYPES.codec()
     ).xmap(either -> either.map(
-            value -> (value ? UnifiedRequirementTypes.ALWAYS : UnifiedRequirementTypes.NEVER).create(),
+            value -> (value ? ExtensibleCodecs.REQUIREMENT_TYPES.always : ExtensibleCodecs.REQUIREMENT_TYPES.never).create(),
             entry -> entry
     ), Either::right).optionalFieldOf("load_requirements");
 

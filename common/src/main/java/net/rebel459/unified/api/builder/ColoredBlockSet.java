@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.*;
+import net.rebel459.unified.api.data.BlockGenerator;
+import net.rebel459.unified.api.data.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
@@ -34,8 +36,8 @@ public class ColoredBlockSet {
 
     private final Identifier id;
 
-    private final UnifiedDataRegistries.Blocks blocks;
-    private final UnifiedDataRegistries.Items items;
+    private final BlockGenerator blocks;
+    private final ItemGenerator items;
 
     private SuppliedBlock white;
     private SuppliedBlock lightGray;
@@ -78,7 +80,7 @@ public class ColoredBlockSet {
         pink = create("pink");
     }
 
-    public ColoredBlockSet(Identifier id, Settings settings, UnifiedDataRegistries.Blocks blocks, UnifiedDataRegistries.Items items) {
+    public ColoredBlockSet(Identifier id, Settings settings, BlockGenerator blocks, ItemGenerator items) {
         this.settings = settings;
         this.id = id;
         this.blocks = blocks;
@@ -203,8 +205,8 @@ public class ColoredBlockSet {
 
         private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>>, Function<DyeColor, Function<BlockBehaviour.Properties, ? extends Block>>> blockType = Either.left(_ -> VanillaBlockTypes.BLOCK.create());
         private Either<Function<DyeColor, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>>>, Function<DyeColor, BiFunction<Block, Item.Properties, Item>>> itemType = Either.left(_ -> VanillaItemTypes.BLOCK_ITEM.create());
-        private BiConsumer<DyeColor, UnifiedDataRegistries.Blocks.Builder> blockBuilder = (color, builder) -> builder.properties(properties -> properties.mapColor(color.getMapColor()));
-        private BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> itemBuilder = (_, _) -> {};
+        private BiConsumer<DyeColor, BlockGenerator.Builder> blockBuilder = (color, builder) -> builder.properties(properties -> properties.mapColor(color.getMapColor()));
+        private BiConsumer<DyeColor, ItemGenerator.Builder> itemBuilder = (_, _) -> {};
 
         private @Nullable QuadConsumer<Item, List<SuppliedBlock>, Item, RecipeProvider> dyeRecipe;
 
@@ -225,14 +227,14 @@ public class ColoredBlockSet {
 
         private final Identifier id;
 
-        private final UnifiedDataRegistries.Blocks blocks;
-        private final UnifiedDataRegistries.Items items;
+        private final BlockGenerator blocks;
+        private final ItemGenerator items;
 
         public ColoredBlockSet build() {
             return new ColoredBlockSet(id, settings, blocks, items);
         }
 
-        public RegistryBuilder(Identifier id, ColoredBlockPreset preset, UnifiedDataRegistries.Blocks blocks, UnifiedDataRegistries.Items items) {
+        public RegistryBuilder(Identifier id, ColoredBlockPreset preset, BlockGenerator blocks, ItemGenerator items) {
             super(preset.settings.copy());
 
             this.id = id;
@@ -295,7 +297,7 @@ public class ColoredBlockSet {
             return self();
         }
 
-        public T blockBuilder(BiConsumer<DyeColor, UnifiedDataRegistries.Blocks.Builder> builder) {
+        public T blockBuilder(BiConsumer<DyeColor, BlockGenerator.Builder> builder) {
             settings.blockBuilder = settings.blockBuilder.andThen(builder);
             return self();
         }
@@ -309,7 +311,7 @@ public class ColoredBlockSet {
             return self();
         }
 
-        public T itemBuilder(BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> builder) {
+        public T itemBuilder(BiConsumer<DyeColor, ItemGenerator.Builder> builder) {
             settings.itemBuilder = settings.itemBuilder.andThen(builder);
             return self();
         }

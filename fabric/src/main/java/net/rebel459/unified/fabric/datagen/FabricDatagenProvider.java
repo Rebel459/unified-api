@@ -21,7 +21,7 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -31,24 +31,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Block;
-import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.fabric.FabricUnifiedDatagen;
-import net.rebel459.unified.impl.registry.BlockRegistry;
-import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.asset.ItemAsset;
 import net.rebel459.unified.api.asset.ItemAssets;
-import net.rebel459.unified.impl.registry.ItemRegistry;
+import net.rebel459.unified.impl.core.DataProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
-import net.rebel459.unified.impl.datagen.BlockAssetRequest;
-import net.rebel459.unified.impl.datagen.DataProvider;
-import net.rebel459.unified.impl.datagen.ItemAssetRequest;
+import net.rebel459.unified.impl.asset.BlockAssetRequest;
+import net.rebel459.unified.impl.core.DataProviders;
+import net.rebel459.unified.impl.asset.ItemAssetRequest;
+import net.rebel459.unified.impl.codec.CodecRequest;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
@@ -59,6 +56,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -66,6 +64,7 @@ import java.util.stream.IntStream;
 public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     public static final Map<BlockAsset<?>, BlockAssetAdapter<?>> BLOCK_ASSET_ADAPTERS = new LinkedHashMap<>();
     public static final Map<ItemAsset<?>, ItemAssetAdapter<?>> ITEM_ASSET_ADAPTERS = new LinkedHashMap<>();
+    public static final Map<DataProvider<?>, FabricUnifiedDatagen.ProviderFactory<?>> DATA_PROVIDER_ADAPTERS = new LinkedHashMap<>();
 
     static {
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SIMPLE_CUBE, context -> {
@@ -105,6 +104,43 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.HANDHELD, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_ITEM));
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.MACE, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_MACE_ITEM));
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.SPEAR, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.SPEAR_IN_HAND));
+
+        FabricUnifiedDatagen.registerDataProvider(CodecRequest.FILES, (pack, modId, requests) ->
+                pack.addProvider((output, registries) -> new JsonProvider(output, registries, modId, requests)));
+        FabricUnifiedDatagen.registerDataProvider(DataProviders.LANGUAGES, (pack, modId, requests) ->
+                pack.addProvider((FabricDataGenerator.Pack.Factory<LanguageProvider>) output -> new LanguageProvider(output, modId, requests)));
+        FabricUnifiedDatagen.registerDataProvider(DataProviders.MODELS, (pack, modId, requests) ->
+                pack.addProvider((FabricDataGenerator.Pack.Factory<ModelsProvider>) output -> new ModelsProvider(output, modId, requests)));
+        FabricUnifiedDatagen.registerDataProvider(DataProviders.BLOCK_LOOT, (pack, modId, requests) ->
+                pack.addProvider((output, registries) -> new BlockLootProvider(output, registries, modId, requests)));
+        FabricUnifiedDatagen.registerDataProvider(DataProviders.RECIPES, (pack, modId, requests) ->
+                pack.addProvider((output, registries) -> new RecipesProvider(output, registries, modId, requests)));
+        FabricUnifiedDatagen.registerDataProvider(DataProviders.TAGS, (pack, modId, requests) ->
+                requests.requests(modId).stream()
+                        .map(DataProviders.TagRequest::registry)
+                        .distinct()
+                        .forEach(registry -> registerTagProvider(pack, modId, registry, requests)));
+    }
+
+    public static void register(FabricDataGenerator generator) {
+        String modId = generator.getModId();
+        FabricDataGenerator.Pack pack = generator.createPack();
+        dataProviderAdapters().forEach((provider, factory) -> registerDataProvider(pack, modId, provider, factory));
+    }
+
+    private static synchronized Map<DataProvider<?>, FabricUnifiedDatagen.ProviderFactory<?>> dataProviderAdapters() {
+        return new LinkedHashMap<>(DATA_PROVIDER_ADAPTERS);
+    }
+
+    private static <T> void registerTagProvider(FabricDataGenerator.Pack pack, String modId,
+            ResourceKey<? extends Registry<T>> registry, DataProvider<DataProviders.TagRequest<?>> requests) {
+        pack.addProvider((output, registries) -> new RegistryTagsProvider<>(output, registries, modId, registry, requests));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> void registerDataProvider(FabricDataGenerator.Pack pack, String modId,
+            DataProvider<?> provider, FabricUnifiedDatagen.ProviderFactory<?> factory) {
+        ((FabricUnifiedDatagen.ProviderFactory<T>) factory).register(pack, modId, (DataProvider<T>) provider);
     }
 
     private static BlockModelGenerators.PlantType convertPlantType(BlockAssets.PlantType type) {
@@ -160,25 +196,32 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     }
     public record ItemModelContext(Identifier id, Item item, ItemModelGenerators generator) {}
 
-    public static final class DefinitionProvider implements net.minecraft.data.DataProvider {
+    public static final class JsonProvider implements net.minecraft.data.DataProvider {
 
         private final FabricPackOutput output;
+        private final CompletableFuture<HolderLookup.Provider> registries;
         private final String modId;
-        public DefinitionProvider(FabricPackOutput output, String modId) {
-            this.output = output; this.modId = modId;
+        private final DataProvider<CodecRequest> requests;
+        public JsonProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries,
+                String modId, DataProvider<CodecRequest> requests) {
+            this.output = output;
+            this.registries = registries;
+            this.modId = modId;
+            this.requests = requests;
         }
 
         @Override public CompletableFuture<?> run(CachedOutput cache) {
-            List<CompletableFuture<?>> writes = new ArrayList<>();
-            DynamicOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
-            DataProvider.blocks(modId).forEach(generated -> writes.add(saveDefinition(cache, BlockRegistry.CODEC.encodeStart(registryOps, generated.definition().get()).getOrThrow(), definitionPath(output, generated.id(), "blocks"), modId)));
-            DataProvider.items(modId).forEach(generated -> writes.add(saveDefinition(cache, ItemRegistry.CODEC.encodeStart(registryOps, generated.definition().get()).getOrThrow(), definitionPath(output, generated.id(), "items"), modId)));
-            DataProvider.blockSetTypes(modId).forEach(generated -> writes.add(saveDefinition(cache, BlockSetTypeRegistry.CODEC.encodeStart(JsonOps.INSTANCE, generated.definition().get()).getOrThrow(), definitionPath(output, generated.id(), "block_set_types"), modId)));
-            return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
+            return registries.thenCompose(provider -> {
+                List<CompletableFuture<?>> writes = new ArrayList<>();
+                DynamicOps<JsonElement> registryOps = provider.createSerializationContext(JsonOps.INSTANCE);
+                requests.requests(modId).forEach(request -> writes.add(net.minecraft.data.DataProvider.saveStable(
+                        cache, request.encoder().apply(provider, registryOps), output.getOutputFolder().resolve(request.path()))));
+                return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
+            });
         }
 
         @Override public String getName() {
-            return "Unified registry definitions for " + modId;
+            return "Unified JSON files for " + modId;
         }
     }
 
@@ -186,40 +229,63 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
 
         private final FabricPackOutput output;
         private final String modId;
-        public LanguageProvider(FabricPackOutput output, String modId) {
-            this.output = output; this.modId = modId;
+        private final DataProvider<DataProviders.LanguageRequest> requests;
+        public LanguageProvider(FabricPackOutput output, String modId, DataProvider<DataProviders.LanguageRequest> requests) {
+            this.output = output;
+            this.modId = modId;
+            this.requests = requests;
         }
 
         @Override public CompletableFuture<?> run(CachedOutput cache) {
-            DataProvider.GenerationSettings settings = DataProvider.settings(modId);
-            JsonObject translations = new JsonObject();
-            settings.injectedTranslations().ifPresent(path -> {
-                String normalized = path.startsWith("/") ? path.substring(1) : path;
-                try (InputStream stream = FabricDatagenProvider.class.getClassLoader().getResourceAsStream(normalized)) {
-                    if (stream == null) throw new IllegalArgumentException("Injected translation resource does not exist: " + path);
-                    try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-                        JsonObject injected = JsonParser.parseReader(reader).getAsJsonObject();
-                        injected.entrySet().forEach(entry -> translations.add(entry.getKey(), entry.getValue()));
-                    }
-                } catch (IOException exception) {
-                    throw new IllegalStateException("Failed to read injected translations " + path, exception);
+            Map<String, JsonObject> translations = new LinkedHashMap<>();
+            requests.requests(modId).forEach(request -> {
+                var settings = request.settings();
+                JsonObject language = translations.computeIfAbsent(settings.language(), _ -> new JsonObject());
+                if (request.translation().isEmpty()) {
+                    settings.injectedTranslations().ifPresent(path -> injectTranslations(language, path));
+                    return;
+                }
+                DataProviders.Translation translation = request.translation().orElseThrow();
+                String name = translation.name().get().orElse(null);
+                if (translation.type() == DataProviders.TranslationType.BLOCK) {
+                    addTranslation(language, settings, translation.id(), "block", name);
+                } else {
+                    addItemTranslation(language, settings, translation.id(), name);
                 }
             });
-            DataProvider.blocks(modId).forEach(generated -> addTranslation(translations, settings, generated.id(), "block", generated.assets().get().name().orElse(null)));
-            DataProvider.items(modId).forEach(generated ->
-                    addItemTranslation(translations, settings, generated.id(), generated.assets().get().name().orElse(null)));
-            Path path = output.getOutputFolder().resolve("assets").resolve(modId).resolve("lang").resolve(settings.language() + ".json");
-            return net.minecraft.data.DataProvider.saveStable(cache, translations, path);
+
+            List<CompletableFuture<?>> writes = new ArrayList<>();
+            translations.forEach((language, values) -> {
+                Path path = output.getOutputFolder().resolve("assets").resolve(modId)
+                        .resolve("lang").resolve(language + ".json");
+                writes.add(net.minecraft.data.DataProvider.saveStable(cache, values, path));
+            });
+            return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
         }
 
         @Override public String getName() { return "Unified translations for " + modId; }
 
-        private void addTranslation(JsonObject translations, DataProvider.GenerationSettings settings, Identifier id, String kind, String explicitName) {
+        private void injectTranslations(JsonObject translations, String path) {
+            String normalized = path.startsWith("/") ? path.substring(1) : path;
+            try (InputStream stream = FabricDatagenProvider.class.getClassLoader().getResourceAsStream(normalized)) {
+                if (stream == null) {
+                    throw new IllegalArgumentException("Injected translation resource does not exist: " + path);
+                }
+                try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                    JsonObject injected = JsonParser.parseReader(reader).getAsJsonObject();
+                    injected.entrySet().forEach(entry -> translations.add(entry.getKey(), entry.getValue()));
+                }
+            } catch (IOException exception) {
+                throw new IllegalStateException("Failed to read injected translations " + path, exception);
+            }
+        }
+
+        private void addTranslation(JsonObject translations, DataProviders.GenerationSettings settings, Identifier id, String kind, String explicitName) {
             if (explicitName == null && !settings.autoName()) return;
             translations.addProperty(kind + "." + id.getNamespace() + "." + id.getPath(), explicitName != null ? explicitName : autoName(id.getPath()));
         }
 
-        private void addItemTranslation(JsonObject translations, DataProvider.GenerationSettings settings,
+        private void addItemTranslation(JsonObject translations, DataProviders.GenerationSettings settings,
                 Identifier id, String explicitName) {
             if (explicitName == null && !settings.autoName()) return;
             Component name = BuiltInRegistries.ITEM.getValueOrThrow(ResourceKey.create(Registries.ITEM, id))
@@ -239,19 +305,24 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     public static final class ModelsProvider extends FabricModelProvider {
 
         private final String modId;
+        private final DataProvider<DataProviders.ModelRequest> requests;
         private final Set<Block> familyBases = Collections.newSetFromMap(new IdentityHashMap<>());
         private final Map<Block, BlockModelGenerators.BlockFamilyProvider> families = new IdentityHashMap<>();
-        public ModelsProvider(FabricPackOutput output, String modId) {
-            super(output); this.modId = modId;
+        public ModelsProvider(FabricPackOutput output, String modId, DataProvider<DataProviders.ModelRequest> requests) {
+            super(output);
+            this.modId = modId;
+            this.requests = requests;
         }
 
         @Override public void generateBlockStateModels(BlockModelGenerators generator) {
-            DataProvider.blocks(modId).forEach(generated -> {
-                generated.assets().get().models().forEach(request -> {
-                    if (isFamilyAsset(request.type())) familyBases.add((Block) request.value());
+            requests.requests(modId).forEach(request -> {
+                if (!(request instanceof DataProviders.BlockModels generated)) return;
+                generated.assets().get().models().forEach(asset -> {
+                    if (isFamilyAsset(asset.type())) familyBases.add((Block) asset.value());
                 });
             });
-            DataProvider.blocks(modId).forEach(generated -> {
+            requests.requests(modId).forEach(request -> {
+                if (!(request instanceof DataProviders.BlockModels generated)) return;
                 Identifier id = generated.id();
                 Block block = BuiltInRegistries.BLOCK.getValue(id);
                 BlockModelContext context = new BlockModelContext(
@@ -261,7 +332,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                         familyBases,
                         base -> families.computeIfAbsent(base, generator::family)
                 );
-                generated.assets().get().models().forEach(request -> generateBlockAsset(request, context));
+                generated.assets().get().models().forEach(asset -> generateBlockAsset(asset, context));
             });
         }
 
@@ -272,11 +343,12 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         }
 
         @Override public void generateItemModels(ItemModelGenerators generator) {
-            DataProvider.items(modId).forEach(generated -> {
+            requests.requests(modId).forEach(request -> {
+                if (!(request instanceof DataProviders.ItemModels generated)) return;
                 Identifier id = generated.id();
                 Item item = BuiltInRegistries.ITEM.getValue(id);
                 ItemModelContext context = new ItemModelContext(id, item, generator);
-                generated.assets().get().models().forEach(request -> generateItemAsset(request, context));
+                generated.assets().get().models().forEach(asset -> generateItemAsset(asset, context));
             });
         }
     }
@@ -284,21 +356,27 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     public static final class BlockLootProvider extends FabricBlockLootSubProvider {
 
         private final String modId;
-        public BlockLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId) {
-            super(output, registries); this.modId = modId;
+        private final DataProvider<Consumer<DataProviders.BlockLootGenerator>> requests;
+        public BlockLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, DataProvider<Consumer<DataProviders.BlockLootGenerator>> requests) {
+            super(output, registries);
+            this.modId = modId;
+            this.requests = requests;
         }
 
         @Override public void generate() {
-            DataProvider.loot(modId).forEach(generator ->
-                    generator.accept((block, table) -> add(block, table)));
+            requests.requests(modId).forEach(generator -> generator.accept(this::add));
         }
     }
 
     public static final class RecipesProvider extends FabricRecipeProvider {
 
         private final String modId;
-        public RecipesProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId) {
-            super(output, registries); this.modId = modId;
+        private final DataProvider<Consumer<RecipeProvider>> requests;
+        public RecipesProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries,
+                String modId, DataProvider<Consumer<RecipeProvider>> requests) {
+            super(output, registries);
+            this.modId = modId;
+            this.requests = requests;
         }
 
         @Override protected net.minecraft.data.recipes.RecipeProvider createRecipeProvider(HolderLookup.Provider registries, BootstrapContext<Recipe<?>> recipes, BootstrapContext<Advancement> advancements) {
@@ -308,7 +386,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                         @Override
                         public void buildRecipes() {}
                     };
-                    DataProvider.recipes(modId).forEach(generator -> generator.accept(recipeProvider));
+                    requests.requests(modId).forEach(generator -> generator.accept(recipeProvider));
                 }
             };
         }
@@ -318,44 +396,38 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         }
     }
 
-    public static final class BlockTagsProvider extends FabricTagsProvider.BlockTagsProvider {
-
+    public static final class RegistryTagsProvider<T> extends FabricTagsProvider<T> {
         private final String modId;
-        public BlockTagsProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId) {
-            super(output, registries);
+        private final ResourceKey<? extends Registry<T>> registry;
+        private final DataProvider<DataProviders.TagRequest<?>> requests;
+
+        public RegistryTagsProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries,
+                String modId, ResourceKey<? extends Registry<T>> registry,
+                DataProvider<DataProviders.TagRequest<?>> requests) {
+            super(output, registry, registries);
             this.modId = modId;
+            this.registry = registry;
+            this.requests = requests;
         }
 
         @Override protected void addTags(HolderLookup.Provider registries) {
-            DataProvider.blockTags(modId).forEach(generator -> generator.accept(new DataProvider.TagGenerator<>() {
-                @Override public void add(TagKey<Block> tagKey, ResourceKey<Block> value) {
-                    tag(tagKey).add(value);
+            requests.requests(modId).forEach(request -> {
+                if (!registry.equals(request.registry())) return;
+                generate(request, new DataProviders.TagGenerator<>() {
+                @Override public void add(TagKey<T> tagKey, ResourceKey<T> value) {
+                    builder(tagKey).add(value);
                 }
 
-                @Override public void addOptional(TagKey<Block> tagKey, ResourceKey<Block> value) {
-                    tag(tagKey).addOptional(value);
+                @Override public void addOptional(TagKey<T> tagKey, ResourceKey<T> value) {
+                    builder(tagKey).addOptional(value);
                 }
-            }));
-        }
-    }
-
-    public static final class ItemTagsProvider extends FabricTagsProvider.ItemTagsProvider {
-
-        private final String modId;
-        public ItemTagsProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, BlockTagsProvider blocks) {
-            super(output, registries, blocks); this.modId = modId;
+                });
+            });
         }
 
-        @Override protected void addTags(HolderLookup.Provider registries) {
-            DataProvider.itemTags(modId).forEach(generator -> generator.accept(new DataProvider.TagGenerator<>() {
-                @Override public void add(TagKey<Item> tagKey, ResourceKey<Item> value) {
-                    tag(tagKey).add(value);
-                }
-
-                @Override public void addOptional(TagKey<Item> tagKey, ResourceKey<Item> value) {
-                    tag(tagKey).addOptional(value);
-                }
-            }));
+        @SuppressWarnings("unchecked")
+        private void generate(DataProviders.TagRequest<?> request, DataProviders.TagGenerator<T> generator) {
+            ((DataProviders.TagRequest<T>) request).generator().accept(generator);
         }
     }
 
@@ -369,26 +441,10 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         if (adapter == null) throw new IllegalStateException("No Fabric item asset binding registered for " + request.type().id());
         adapter.generate(request.value(), context);
     }
-    private static CompletableFuture<?> saveDefinition(CachedOutput cache, JsonElement encoded, Path path, String modId) {
-        JsonObject definition = encoded.getAsJsonObject();
-        var metadata = DataProvider.settings(modId).metadata();
-        if (metadata.priority() != 0) definition.addProperty("priority", metadata.priority());
-        metadata.requirement().ifPresent(requirement -> definition.add(
-                "load_requirements",
-                ExtensibleCodecs.REQUIREMENT_TYPES.codec()
-                        .encodeStart(JsonOps.INSTANCE, requirement)
-                        .getOrThrow(error -> new IllegalStateException("Failed to encode load requirement: " + error))
-        ));
-        return net.minecraft.data.DataProvider.saveStable(cache, definition, path);
-    }
-
     private static String autoName(String path) {
         return Arrays.stream(path.split("_"))
                 .filter(part -> !part.isEmpty())
                 .map(part -> Character.toUpperCase(part.charAt(0)) + part.substring(1))
                 .collect(Collectors.joining(" "));
-    }
-    private static Path definitionPath(FabricPackOutput output, Identifier id, String kind) {
-        return output.getOutputFolder().resolve("data").resolve(id.getNamespace()).resolve("unified/registry").resolve(kind).resolve(id.getPath() + ".json");
     }
 }

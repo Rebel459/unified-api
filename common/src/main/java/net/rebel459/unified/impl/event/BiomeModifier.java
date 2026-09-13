@@ -19,6 +19,7 @@ import net.rebel459.unified.impl.data.BiomeModifiers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public final class BiomeModifier extends BiomeModificationContext {
@@ -102,9 +103,38 @@ public final class BiomeModifier extends BiomeModificationContext {
     };
 
     private final Attributes attributes = new Attributes() {
+
         @Override
         public <Value> void set(EnvironmentAttribute<Value> attribute, Value value) {
             attributes(EnvironmentAttributeMap.builder().putAll(attributeMap).set(attribute, value).build());
+        }
+
+        @Override
+        public <Value> void modify(EnvironmentAttribute<Value> attribute, UnaryOperator<Value> modifier) {
+            Value current = attributeMap.applyModifier(attribute, attribute.defaultValue());
+            set(attribute, modifier.apply(current));
+        }
+
+        @Override
+        public void set(EnvironmentAttributeMap attributes) {
+            for (EnvironmentAttribute<?> attribute : attributes.keySet()) {
+                set(attribute, attributes);
+            }
+        }
+
+        @Override
+        public void modify(EnvironmentAttributeMap attributes) {
+            for (EnvironmentAttribute<?> attribute : attributes.keySet()) {
+                modify(attribute, attributes);
+            }
+        }
+
+        private <Value> void set(EnvironmentAttribute<Value> attribute, EnvironmentAttributeMap values) {
+            set(attribute, values.applyModifier(attribute, attribute.defaultValue()));
+        }
+
+        private <Value> void modify(EnvironmentAttribute<Value> attribute, EnvironmentAttributeMap modifiers) {
+            modify(attribute, current -> modifiers.applyModifier(attribute, current));
         }
     };
 
@@ -123,11 +153,6 @@ public final class BiomeModifier extends BiomeModificationContext {
 
     public void apply(BiomeModifiers.PreparedModification modification, Holder.Reference<Biome> biome) {
         modification.modifier().modify(biome, this);
-    }
-
-    public void addAttributes(EnvironmentAttributeMap additions) {
-        EnvironmentAttributeMap merged = EnvironmentAttributeMap.builder().putAll(attributeMap).putAll(additions).build();
-        if (!merged.equals(attributeMap)) attributes(merged);
     }
 
     public boolean changed() { return changed; }

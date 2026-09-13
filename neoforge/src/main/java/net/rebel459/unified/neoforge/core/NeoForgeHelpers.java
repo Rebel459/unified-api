@@ -164,8 +164,7 @@ public class NeoForgeHelpers {
 
         @SubscribeEvent(priority = EventPriority.LOW)
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
-            CreativeModeTab.TabVisibility visibility =
-                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
+            CreativeModeTab.TabVisibility visibility = CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
 
             for (Pair<ItemStackTemplate, ResourceKey<CreativeModeTab>> pair : INSERT_ITEMS) {
                 ItemStack item = pair.getFirst().create();

@@ -6,14 +6,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -45,8 +41,7 @@ public final class BiomeModifiers {
                 Worldgen.EMPTY,
                 Effects.EMPTY,
                 Climate.EMPTY,
-                EnvironmentAttributeMap.EMPTY,
-                MobSpawns.EMPTY
+                Attributes.EMPTY
         )));
     }
 
@@ -84,8 +79,7 @@ public final class BiomeModifiers {
             Worldgen worldgen,
             Effects effects,
             Climate climate,
-            EnvironmentAttributeMap attributes,
-            MobSpawns mobSpawns
+            Attributes attributes
     ) {
         public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Biome.LIST_CODEC.fieldOf("targets").forGetter(Definition::targets),
@@ -93,8 +87,7 @@ public final class BiomeModifiers {
                 Worldgen.CODEC.optionalFieldOf("worldgen", Worldgen.EMPTY).forGetter(Definition::worldgen),
                 Effects.CODEC.optionalFieldOf("effects", Effects.EMPTY).forGetter(Definition::effects),
                 Climate.CODEC.optionalFieldOf("climate", Climate.EMPTY).forGetter(Definition::climate),
-                EnvironmentAttributeMap.CODEC.optionalFieldOf("attributes", EnvironmentAttributeMap.EMPTY).forGetter(Definition::attributes),
-                MobSpawns.CODEC.optionalFieldOf("mob_spawns", MobSpawns.EMPTY).forGetter(Definition::mobSpawns)
+                Attributes.CODEC.optionalFieldOf("attributes", Attributes.EMPTY).forGetter(Definition::attributes)
         ).apply(instance, Definition::new));
 
         private void apply(BiomeModifier context) {
@@ -112,7 +105,7 @@ public final class BiomeModifiers {
             climate.downfall().ifPresent(context.getClimate()::setDownfall);
             climate.hasPrecipitation().ifPresent(context.getClimate()::setPrecipitation);
 
-            context.addAttributes(attributes);
+            attributes.apply(context);
         }
     }
 
@@ -156,30 +149,17 @@ public final class BiomeModifiers {
         ).apply(instance, Climate::new));
     }
 
-    public record SpawnEntry(MobSpawnSettings.SpawnerData data, int weight) {
-        public static final Codec<SpawnEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                MobSpawnSettings.SpawnerData.CODEC.forGetter(SpawnEntry::data),
-                Codec.intRange(1, Integer.MAX_VALUE).fieldOf("weight").forGetter(SpawnEntry::weight)
-        ).apply(instance, SpawnEntry::new));
-    }
+    public record Attributes(EnvironmentAttributeMap set, EnvironmentAttributeMap modify) {
+        public static final Attributes EMPTY = new Attributes(EnvironmentAttributeMap.EMPTY, EnvironmentAttributeMap.EMPTY);
 
-    public record ChargeEntry(EntityType<?> type, double charge, double energyBudget) {
-        public static final Codec<ChargeEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(ChargeEntry::type),
-                Codec.DOUBLE.fieldOf("charge").forGetter(ChargeEntry::charge),
-                Codec.DOUBLE.fieldOf("energy_budget").forGetter(ChargeEntry::energyBudget)
-        ).apply(instance, ChargeEntry::new));
-    }
+        public static final Codec<Attributes> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                EnvironmentAttributeMap.CODEC.optionalFieldOf("set", EnvironmentAttributeMap.EMPTY).forGetter(Attributes::set),
+                EnvironmentAttributeMap.CODEC.optionalFieldOf("modify", EnvironmentAttributeMap.EMPTY).forGetter(Attributes::modify)
+        ).apply(instance, Attributes::new));
 
-    public record MobSpawns(List<SpawnEntry> addSpawns, List<EntityType<?>> removeSpawns, List<ChargeEntry> addCharges, List<EntityType<?>> removeCharges) {
-        public static final MobSpawns EMPTY = new MobSpawns(List.of(), List.of(), List.of(), List.of());
-        private static final Codec<EntityType<?>> ENTITY_TYPE_CODEC = BuiltInRegistries.ENTITY_TYPE.byNameCodec();
-
-        public static final Codec<MobSpawns> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                SpawnEntry.CODEC.listOf().optionalFieldOf("add_spawns", List.of()).forGetter(MobSpawns::addSpawns),
-                ENTITY_TYPE_CODEC.listOf().optionalFieldOf("remove_spawns", List.of()).forGetter(MobSpawns::removeSpawns),
-                ChargeEntry.CODEC.listOf().optionalFieldOf("add_charges", List.of()).forGetter(MobSpawns::addCharges),
-                ENTITY_TYPE_CODEC.listOf().optionalFieldOf("remove_charges", List.of()).forGetter(MobSpawns::removeCharges)
-        ).apply(instance, MobSpawns::new));
+        private void apply(BiomeModifier context) {
+            context.getAttributes().set(set);
+            context.getAttributes().modify(modify);
+        }
     }
 }

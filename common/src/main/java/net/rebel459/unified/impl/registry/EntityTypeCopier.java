@@ -1,6 +1,5 @@
 package net.rebel459.unified.impl.registry;
 
-import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.Holder;

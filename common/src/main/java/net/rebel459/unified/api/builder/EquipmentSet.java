@@ -20,17 +20,19 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.core.SuppliedItem;
-import net.rebel459.unified.api.core.UnifiedDataRegistries;
 import net.rebel459.unified.api.core.UnifiedInstance;
-import net.rebel459.unified.api.core.UnifiedRegistries;
+import net.rebel459.unified.api.data.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
+import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.impl.builder.EquipmentSetProperties;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -46,10 +48,7 @@ public class EquipmentSet {
 
     private final Identifier id;
 
-    private final UnifiedDataRegistries.Items items;
-
-    @Deprecated
-    private final UnifiedRegistries.Items itemRegistry;
+    private final ItemGenerator items;
 
     private @Nullable SuppliedItem sword;
     private @Nullable SuppliedItem spear;
@@ -121,11 +120,10 @@ public class EquipmentSet {
             nautilusArmor = createNautilusArmor();
         }
     }
-    public EquipmentSet(Identifier id, Settings settings, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry) {
+    public EquipmentSet(Identifier id, Settings settings, ItemGenerator items) {
         this.settings = settings;
         this.id = id;
         this.items = items;
-        this.itemRegistry = itemRegistry;
         registerItems();
         EQUIPMENT_SETS.add(this);
         EquipmentSetProperties.EQUIPMENT_COMPONENTS.put(id, settings.components);
@@ -137,11 +135,8 @@ public class EquipmentSet {
         if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) EquipmentSetProperties.init(List.of(this));
     }
 
-    private SuppliedItem createItem(String path, Supplier<Item.Properties> settings){
-        return createItem(path, Item::new, settings);
-    }
-	private SuppliedItem createItem(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties){
-		SuppliedItem item = itemRegistry.register(path, function, properties);
+	private SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<ItemGenerator.Builder> builder) {
+        SuppliedItem item = items.register(path, type, builder);
 		registeredItems.add(item);
 		return item;
 	}
@@ -207,10 +202,13 @@ public class EquipmentSet {
     }
 
     private SuppliedItem createSword() {
-        return createItem(
+        return register(
                 this.getId().getPath() + "_sword",
-                () -> new Item.Properties()
-                        .sword(getToolMaterial(), 3F, -2.4F)
+                VanillaItemTypes.ITEM.create(),
+                builder -> builder
+                        .properties(properties -> {
+                            properties.sword(getToolMaterial(), 3F, -2.4F);
+                        })
         );
     }
 
@@ -448,10 +446,7 @@ public class EquipmentSet {
 
         private final Identifier id;
 
-        private final UnifiedDataRegistries.Items items;
-
-        @Deprecated
-        private final UnifiedRegistries.Items itemRegistry;
+        private final ItemGenerator items;
 
         public RegistryBuilder createTools() {
             settings.hasTools = true;
@@ -465,15 +460,14 @@ public class EquipmentSet {
         }
 
         public EquipmentSet build() {
-            return new EquipmentSet(id, settings, items, itemRegistry);
+            return new EquipmentSet(id, settings, items);
         }
 
-        public RegistryBuilder(Identifier id, EquipmentPreset preset, UnifiedDataRegistries.Items items, UnifiedRegistries.Items itemRegistry) {
+        public RegistryBuilder(Identifier id, EquipmentPreset preset, ItemGenerator items) {
             super(preset.settings.copy());
 
             this.id = id;
             this.items = items;
-            this.itemRegistry = itemRegistry;
         }
     }
 

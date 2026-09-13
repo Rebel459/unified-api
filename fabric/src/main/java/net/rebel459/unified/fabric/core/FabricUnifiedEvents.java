@@ -2,6 +2,7 @@ package net.rebel459.unified.fabric.core;
 
 import com.mojang.logging.LogUtils;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -11,9 +12,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.rebel459.unified.api.event.CreativeEntryContext;
 import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.api.event.LootEntry;
 import net.rebel459.unified.api.event.LootTableContext;
@@ -21,7 +29,9 @@ import net.rebel459.unified.impl.core.CommonEvents;
 import net.rebel459.unified.impl.event.LootTableProvider;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class FabricUnifiedEvents {
@@ -118,5 +128,56 @@ public class FabricUnifiedEvents {
             CommonEvents.Server.passOnLevelUnload(level);
             CommonEvents.Levels.passOnUnload(level);
         }));
+        CreativeModeTabEvents.MODIFY_OUTPUT_ALL.register((creativeModeTab, output) -> {
+            Optional<ResourceKey<CreativeModeTab>> tab = BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(creativeModeTab);
+            if (tab.isEmpty()) return;
+            CommonEvents.CreativeEntries.passModify(tab.get(), new CreativeEntryContext() {
+                @Override
+                public void insert(ItemLike... items) {
+                    var list = Arrays.stream(items).toList();
+                    for (int x = list.size() - 1; x >= 0; x--) {
+                        output.accept(list.get(x));
+                    }
+                }
+
+                @Override
+                public void insert(ItemStack... items) {
+                    var list = Arrays.stream(items).toList();
+                    for (int x = list.size() - 1; x >= 0; x--) {
+                        output.accept(list.get(x));
+                    }
+                }
+
+                @Override
+                public void insertAfter(ItemLike existingItem, ItemLike... addedItems) {
+                    output.insertAfter(existingItem, addedItems);
+                }
+
+                @Override
+                public void insertAfter(ItemLike existingItem, ItemStack... addedItems) {
+                    output.insertAfter(existingItem, addedItems);
+                }
+
+                @Override
+                public void insertAfter(ItemStack existingItem, ItemStack... addedItems) {
+                    output.insertAfter(existingItem, addedItems);
+                }
+
+                @Override
+                public void insertBefore(ItemLike existingItem, ItemLike... addedItems) {
+                    output.insertBefore(existingItem, addedItems);
+                }
+
+                @Override
+                public void insertBefore(ItemLike existingItem, ItemStack... addedItems) {
+                    output.insertBefore(existingItem, addedItems);
+                }
+
+                @Override
+                public void insertBefore(ItemStack existingItem, ItemStack... addedItems) {
+                    output.insertBefore(existingItem, addedItems);
+                }
+            });
+        });
     }
 }

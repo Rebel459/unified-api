@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.Unified;
@@ -23,7 +22,7 @@ public class ComponentModifiers {
     public static final ResourceKey<Registry<Modifier>> KEY = ResourceKey.createRegistryKey(Unified.id("component_modifiers"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Modifier.CODEC, () -> new Modifier(ExtensibleCodecs.ITEM_PREDICATE_TYPES.NEVER.create(), Map.of())));
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Modifier.CODEC, () -> new Modifier(ExtensibleCodecs.ITEM_PREDICATE_TYPES.never.create(), Map.of())));
         UnifiedEvents.DefaultDataComponents.modify((item, builder, provider) -> {
             ItemStack defaultStack = item.getDefaultInstance();
             provider.lookup(KEY).ifPresent(modifiers -> modifiers.listElements().forEach(modifier -> {

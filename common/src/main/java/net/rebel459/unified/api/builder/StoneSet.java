@@ -17,15 +17,16 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.api.core.UnifiedDataRegistries;
+import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
+import net.rebel459.unified.api.data.BlockGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.impl.builder.StoneSetProperties;
-import net.rebel459.unified.impl.datagen.DataProvider;
+import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.registry.BlockRegistry;
 import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +48,7 @@ public class StoneSet {
     private final Identifier id;
     private final MapColor color;
 
-    private final UnifiedDataRegistries.Blocks blocks;
+    private final BlockGenerator blocks;
 
     private SuppliedBlock base;
     private @Nullable SuppliedBlock stairs;
@@ -77,7 +78,7 @@ public class StoneSet {
         if (hasButton()) button = createButton();
     }
 
-    public StoneSet(Identifier id, MapColor color, Settings settings, UnifiedDataRegistries.Blocks blocks){
+    public StoneSet(Identifier id, MapColor color, Settings settings, BlockGenerator blocks){
         this.settings = settings;
         this.id = id;
         this.color = color;
@@ -90,7 +91,8 @@ public class StoneSet {
     }
 
     private void registerBlockSetTypeDefinition() {
-        DataProvider.addBlockSetType(blocks.datagenModId(), new DataProvider.GeneratedBlockSetType(id, () -> new BlockSetTypeRegistry.Definition(
+        CodecGenerator.registry(blocks.modId(), id, "block_set_types", blocks.settings().metadata().priority(),
+                blocks.settings().metadata().requirement(), BlockSetTypeRegistry.CODEC, () -> new BlockSetTypeRegistry.Definition(
                 true,
                 true,
                 settings.canArrowsActivateButton,
@@ -104,10 +106,10 @@ public class StoneSet {
                 settings.pressurePlateSounds.getFirst().get(),
                 settings.buttonSounds.getSecond().get(),
                 settings.buttonSounds.getFirst().get()
-        )));
+        ));
     }
 
-    private SuppliedBlock createBlock(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<UnifiedDataRegistries.Blocks.Builder> builder){
+    private SuppliedBlock createBlock(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<BlockGenerator.Builder> builder){
         SuppliedBlock block = blocks.register(path, type, builder);
         registeredBlocks.add(block);
         return block;
@@ -398,7 +400,7 @@ public class StoneSet {
         @Deprecated private Function<BlockBehaviour.Properties, Block> baseBlockFunction = Block::new;
 
         private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockTypes.BLOCK.create();
-        private Consumer<UnifiedDataRegistries.Blocks.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
+        private Consumer<BlockGenerator.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
         private Optional<TagKey<Block>> baseBlockTag = Optional.empty();
         private Optional<String> baseBlockSuffix = Optional.empty();
 
@@ -449,13 +451,13 @@ public class StoneSet {
         private final Identifier id;
         private final MapColor color;
 
-        private final UnifiedDataRegistries.Blocks blocks;
+        private final BlockGenerator blocks;
 
         public StoneSet build() {
             return new StoneSet(id, color, settings, blocks);
         }
 
-        public RegistryBuilder(Identifier id, MapColor color, StonePreset preset, UnifiedDataRegistries.Blocks blocks) {
+        public RegistryBuilder(Identifier id, MapColor color, StonePreset preset, BlockGenerator blocks) {
             super(preset.settings.copy());
 
             this.id = id;

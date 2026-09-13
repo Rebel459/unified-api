@@ -22,40 +22,40 @@ import java.util.List;
 
 public class LootInjections {
 
-    public static final ResourceKey<Registry<Injection>> KEY = ResourceKey.createRegistryKey(Unified.id("loot_injections"));
+    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("loot_injections"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Injection.CODEC, () -> new Injection(Identifier.withDefaultNamespace("empty"), List.of(), List.of())));
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(Identifier.withDefaultNamespace("empty"), List.of(), List.of())));
         UnifiedEvents.LootTables.modify((table, key, provider) -> {
             provider.lookup(KEY).ifPresent(injections ->
                     injections.listElements().forEach(holder -> {
-                        Injection injection = holder.value();
+                        Definition definition = holder.value();
 
-                        if (!key.identifier().equals(injection.target())) {
+                        if (!key.identifier().equals(definition.target())) {
                             return;
                         }
 
-                        applyInjection(table, injection);
+                        applyInjection(table, definition);
                     })
             );
         });
     }
 
-    private static void applyInjection(LootTableContext table, Injection injection) {
-        for (LootPool pool : injection.pools()) {
+    private static void applyInjection(LootTableContext table, Definition definition) {
+        for (LootPool pool : definition.pools()) {
             table.addPool(LootTableProvider.poolBuilder(pool));
         }
-        for (Modifier modifier : injection.modifiers()) {
+        for (Modifier modifier : definition.modifiers()) {
             table.modifyPool(modifier.items::contains, modifier.entry());
         }
     }
 
-    public record Injection(Identifier target, List<LootPool> pools, List<Modifier> modifiers) {
-        public static final Codec<Injection> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("target").forGetter(Injection::target),
-                LootPool.CODEC.listOf().optionalFieldOf("pools", List.of()).forGetter(Injection::pools),
-                Modifier.CODEC.listOf().optionalFieldOf("modifiers", List.of()).forGetter(Injection::modifiers)
-        ).apply(instance, Injection::new));
+    public record Definition(Identifier target, List<LootPool> pools, List<Modifier> modifiers) {
+        public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Identifier.CODEC.fieldOf("target").forGetter(Definition::target),
+                LootPool.CODEC.listOf().optionalFieldOf("pools", List.of()).forGetter(Definition::pools),
+                Modifier.CODEC.listOf().optionalFieldOf("modifiers", List.of()).forGetter(Definition::modifiers)
+        ).apply(instance, Definition::new));
     }
 
     public record Modifier(HolderSet<Item> items, LootEntry entry) {

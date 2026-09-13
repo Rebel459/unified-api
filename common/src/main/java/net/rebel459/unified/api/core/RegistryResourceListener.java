@@ -7,6 +7,7 @@ import com.google.common.base.Suppliers;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -22,7 +23,7 @@ import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.flag.FeatureFlags;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.impl.datagen.DataProvider;
+import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.slf4j.Logger;
 
@@ -320,7 +321,7 @@ public abstract class RegistryResourceListener<T> {
                             JsonElement parsed = JsonParser.parseReader(reader);
                             if (!parsed.isJsonObject()) throw new IllegalArgumentException("Root must be a JSON object");
                             JsonObject definition = parsed.getAsJsonObject().deepCopy();
-                            DataProvider.PriorityAndRequirement metadata = DataProvider.PriorityAndRequirement.CODEC.parse(JsonOps.INSTANCE, definition)
+                            DataProviders.PriorityAndRequirement metadata = DataProviders.PriorityAndRequirement.CODEC.parse(JsonOps.INSTANCE, definition)
                                     .getOrThrow(error -> new IllegalArgumentException(resourceId + ": " + error));
                             definition.remove("priority");
                             definition.remove("load_requirements");

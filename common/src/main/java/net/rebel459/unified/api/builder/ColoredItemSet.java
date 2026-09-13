@@ -2,20 +2,15 @@ package net.rebel459.unified.api.builder;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentInitializers;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.*;
+import net.rebel459.unified.api.data.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.api.util.QuadConsumer;
 import net.rebel459.unified.api.util.RecipeProvider;
@@ -25,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -37,7 +31,7 @@ public class ColoredItemSet {
 
     private final Identifier id;
 
-    private final UnifiedDataRegistries.Items items;
+    private final ItemGenerator items;
 
     private SuppliedItem white;
     private SuppliedItem lightGray;
@@ -80,7 +74,7 @@ public class ColoredItemSet {
         pink = create("pink");
     }
 
-    public ColoredItemSet(Identifier id, Settings settings, UnifiedDataRegistries.Items items){
+    public ColoredItemSet(Identifier id, Settings settings, ItemGenerator items){
         this.settings = settings;
         this.id = id;
         this.items = items;
@@ -198,7 +192,7 @@ public class ColoredItemSet {
     public static class Settings implements Cloneable {
 
         private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<Item.Properties, Item>>>, Function<DyeColor, Function<Item.Properties, Item>>> type = Either.left(_ -> VanillaItemTypes.ITEM.create());
-        private BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> builder = (_, _) -> {};
+        private BiConsumer<DyeColor, ItemGenerator.Builder> builder = (_, _) -> {};
 
         private @Nullable QuadConsumer<Item, List<SuppliedItem>, Item, RecipeProvider> dyeRecipe;
 
@@ -219,13 +213,13 @@ public class ColoredItemSet {
 
         private final Identifier id;
 
-        private final UnifiedDataRegistries.Items items;
+        private final ItemGenerator items;
 
         public ColoredItemSet build() {
             return new ColoredItemSet(id, settings, items);
         }
 
-        public RegistryBuilder(Identifier id, ColoredItemPreset preset, UnifiedDataRegistries.Items items) {
+        public RegistryBuilder(Identifier id, ColoredItemPreset preset, ItemGenerator items) {
             super(preset.settings.copy());
 
             this.id = id;
@@ -283,7 +277,7 @@ public class ColoredItemSet {
             return self();
         }
 
-        public T builder(BiConsumer<DyeColor, UnifiedDataRegistries.Items.Builder> builder) {
+        public T builder(BiConsumer<DyeColor, ItemGenerator.Builder> builder) {
             settings.builder = settings.builder.andThen(builder);
             return self();
         }

@@ -45,7 +45,7 @@ public class WoodSet {
     private final MapColor barkColor;
     private final MapColor plankColor;
 
-    private final UnifiedDataRegistries registry;
+    private final UnifiedData registry;
     @Deprecated
     private final UnifiedRegistries.Items itemRegistry;
     @Deprecated
@@ -137,7 +137,7 @@ public class WoodSet {
         }
     }
 
-    public WoodSet(Identifier id, MapColor sideColor, MapColor plankColor, Settings settings, UnifiedDataRegistries registry, UnifiedRegistries.Items itemRegistry, UnifiedRegistries.Blocks blockRegistry, UnifiedRegistries.EntityTypes entityRegistry){
+    public WoodSet(Identifier id, MapColor sideColor, MapColor plankColor, Settings settings, UnifiedData registry, UnifiedRegistries.Items itemRegistry, UnifiedRegistries.Blocks blockRegistry, UnifiedRegistries.EntityTypes entityRegistry){
         this.settings = settings;
         this.id = id;
         this.barkColor = sideColor;
@@ -655,7 +655,7 @@ public class WoodSet {
         private final MapColor barkColor;
         private final MapColor plankColor;
 
-        private final UnifiedDataRegistries registries;
+        private final UnifiedData registries;
         @Deprecated
         private final UnifiedRegistries.Items itemRegistry;
         private final UnifiedRegistries.Blocks blockRegistry;
@@ -683,7 +683,7 @@ public class WoodSet {
             return new WoodSet(id, barkColor, plankColor, settings, registries, itemRegistry, blockRegistry, entityRegistry);
         }
 
-        public RegistryBuilder(Identifier id, MapColor barkColor, MapColor plankColor, WoodPreset preset, UnifiedDataRegistries registries, UnifiedRegistries.Items itemRegistry, UnifiedRegistries.Blocks blockRegistry, UnifiedRegistries.EntityTypes entityRegistry) {
+        public RegistryBuilder(Identifier id, MapColor barkColor, MapColor plankColor, WoodPreset preset, UnifiedData registries, UnifiedRegistries.Items itemRegistry, UnifiedRegistries.Blocks blockRegistry, UnifiedRegistries.EntityTypes entityRegistry) {
             super(preset.settings.copy());
 
             this.id = id;

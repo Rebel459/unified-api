@@ -2,9 +2,12 @@ package net.rebel459.unified.api.helper;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+
+import java.util.function.UnaryOperator;
 
 public abstract class BiomeModificationContext {
 
@@ -35,5 +38,8 @@ public abstract class BiomeModificationContext {
 
     public interface Attributes {
         <Value> void set(EnvironmentAttribute<Value> attribute, Value value);
+        <Value> void modify(EnvironmentAttribute<Value> attribute, UnaryOperator<Value> modifier);
+        void set(EnvironmentAttributeMap attributes);
+        void modify(EnvironmentAttributeMap attributes);
     }
 }

@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.datagen;
+package net.rebel459.unified.impl.asset;
 
 import net.rebel459.unified.api.asset.ItemAsset;
 
