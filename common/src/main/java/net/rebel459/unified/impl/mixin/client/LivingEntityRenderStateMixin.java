@@ -3,7 +3,7 @@ package net.rebel459.unified.impl.mixin.client;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.core.Holder;
 import net.rebel459.unified.impl.client.util.LivingEntityRenderStateVariant;
-import net.rebel459.unified.impl.data.MobVariants;
+import net.rebel459.unified.impl.data.helper.MobVariants;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

@@ -20,7 +20,7 @@ import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
-import net.rebel459.unified.impl.data.MobVariants;
+import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
 

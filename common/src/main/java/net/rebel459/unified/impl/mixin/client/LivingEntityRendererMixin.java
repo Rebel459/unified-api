@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.rebel459.unified.impl.client.util.LivingEntityRenderStateVariant;
-import net.rebel459.unified.impl.registry.EntityTypeCopier;
+import net.rebel459.unified.impl.data.registry.EntityTypeCopier;
 import net.rebel459.unified.impl.util.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

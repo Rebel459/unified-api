@@ -27,7 +27,7 @@ public final class DataProviders {
     public static final DataProvider<ModelRequest> MODELS = DataProvider.keyed(Unified.id("models"), request -> (request instanceof BlockModels ? "block/" : "item/") + request.id());
     public static final DataProvider<TagRequest<?>> TAGS = DataProvider.create(Unified.id("tags"));
     public static final DataProvider<Consumer<BlockLootGenerator>> BLOCK_LOOT = DataProvider.create(Unified.id("block_loot"));
-    public static final DataProvider<Consumer<RecipeProvider>> RECIPES = DataProvider.create(Unified.id("recipes"));
+    public static final DataProvider<RecipeRequest> RECIPES = DataProvider.create(Unified.id("recipes"));
 
     private DataProviders() {}
 
@@ -50,6 +50,7 @@ public final class DataProviders {
     public record ItemAssets(Optional<String> name, List<ItemAssetRequest<?>> models) {}
 
     public record TagRequest<T>(ResourceKey<? extends Registry<T>> registry, Consumer<TagGenerator<T>> generator) {}
+    public record RecipeRequest(Optional<ExtensibleCodec.Entry<Boolean>> requirement, Consumer<RecipeProvider> generator) {}
 
     public interface TagGenerator<T> {
         void add(TagKey<T> tag, ResourceKey<T> value);

@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.data;
+package net.rebel459.unified.api.data.registry;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
@@ -21,7 +21,7 @@ import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.asset.ItemAssetRequest;
-import net.rebel459.unified.impl.registry.ItemRegistry;
+import net.rebel459.unified.impl.data.registry.ItemRegistry;
 
 import java.util.*;
 import java.util.function.*;
@@ -41,7 +41,7 @@ public class ItemGenerator {
     }
 
     public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> builder) {
-        return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(namespace, path), () -> type).create(), builder);
+        return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(namespace, "items/" + path), () -> type).create(), builder);
     }
 
     public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> builder) {
@@ -61,13 +61,13 @@ public class ItemGenerator {
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
                         () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, ResourceKey.create(Registries.ITEM, id), registered);
+        finalBuilder.registerData(modId, settings.metadata().requirement(), ResourceKey.create(Registries.ITEM, id), registered);
         return registered;
     }
 
     public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> type, Consumer<Builder> builder) {
         Identifier id = block.blockItemId().item().identifier();
-        return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM_TYPES.register(id, () -> type).create(), builder);
+        return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), "items/" + id.getPath()), () -> type).create(), builder);
     }
 
     public SuppliedItem registerBlockItem(SuppliedBlock block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type, Consumer<Builder> builder) {
@@ -88,7 +88,7 @@ public class ItemGenerator {
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
                         () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, block.blockItemId().item(), registered);
+        finalBuilder.registerData(modId, settings.metadata().requirement(), block.blockItemId().item(), registered);
         return registered;
     }
 
@@ -132,8 +132,9 @@ public class ItemGenerator {
             return assets.build();
         }
 
-        private void registerData(String modId, ResourceKey<Item> key, Supplier<Item> item) {
-            Data data = new Data(modId, key, item);
+        private void registerData(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement,
+                ResourceKey<Item> key, Supplier<Item> item) {
+            Data data = new Data(modId, requirement, key, item);
             dataConfigurations.forEach(configure -> configure.accept(data));
             data.register();
         }
@@ -173,13 +174,16 @@ public class ItemGenerator {
 
     public static final class Data {
         private final String modId;
+        private final Optional<ExtensibleCodec.Entry<Boolean>> requirement;
         private final ResourceKey<Item> key;
         private final Supplier<Item> item;
         private Consumer<DataProviders.TagGenerator<Item>> tags = _ -> {};
         private BiConsumer<Item, RecipeProvider> recipe;
 
-        private Data(String modId, ResourceKey<Item> key, Supplier<Item> item) {
+        private Data(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement,
+                ResourceKey<Item> key, Supplier<Item> item) {
             this.modId = modId;
+            this.requirement = requirement;
             this.key = key;
             this.item = item;
         }
@@ -201,7 +205,8 @@ public class ItemGenerator {
 
         private void register() {
             DataProviders.TAGS.add(modId, new DataProviders.TagRequest<>(Registries.ITEM, tags));
-            if (recipe != null) DataProviders.RECIPES.add(modId, provider -> recipe.accept(item.get(), provider));
+            if (recipe != null) DataProviders.RECIPES.add(modId, new DataProviders.RecipeRequest(requirement,
+                    provider -> recipe.accept(item.get(), provider)));
         }
     }
 }

@@ -30,10 +30,10 @@ import net.rebel459.unified.fabric.core.FabricInstance;
 import net.rebel459.unified.fabric.core.FabricUnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
-import net.rebel459.unified.impl.data.MobVariants;
+import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
-import net.rebel459.unified.impl.registry.EntityTypeCopier;
+import net.rebel459.unified.impl.data.registry.EntityTypeCopier;
 
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;

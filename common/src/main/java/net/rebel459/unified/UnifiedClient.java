@@ -5,7 +5,7 @@ import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.impl.client.builder.WoodSetClientProperties;
 import net.rebel459.unified.impl.client.helper.SimpleBabyArmorImpl;
 import net.rebel459.unified.api.core.UnifiedInstance;
-import net.rebel459.unified.impl.data.CreativeEntries;
+import net.rebel459.unified.impl.data.helper.CreativeEntries;
 
 public class UnifiedClient {
 

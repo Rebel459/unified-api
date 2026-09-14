@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.registry;
+package net.rebel459.unified.impl.data.registry;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -31,7 +31,10 @@ import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.DataRegistry;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.UnifiedRegistries;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -115,6 +118,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public Optional<FeatureFlagSet> requiredFeatures = Optional.empty();
         public Optional<Boolean> noLootTable = Optional.empty();
         public Optional<Flammability> flammability = Optional.empty();
+        public Optional<ResourceKey<Block>> oxidizesInto = Optional.empty();
 
         public Properties() {}
 
@@ -158,7 +162,8 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         private static final MapCodec<Third> THIRD_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 FeatureFlags.CODEC.optionalFieldOf("required_features").forGetter(Third::requiredFeatures),
                 Codec.BOOL.optionalFieldOf("no_loot_table").forGetter(Third::noLootTable),
-                Flammability.CODEC.optionalFieldOf("flammability").forGetter(Third::flammability)
+                Flammability.CODEC.optionalFieldOf("flammability").forGetter(Third::flammability),
+                ResourceKey.codec(Registries.BLOCK).optionalFieldOf("oxidizes_into").forGetter(Third::oxidizesInto)
         ).apply(instance, Third::new));
 
         public static final MapCodec<Properties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -204,6 +209,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             requiredFeatures = third.requiredFeatures();
             noLootTable = third.noLootTable();
             flammability = third.flammability();
+            oxidizesInto = third.oxidizesInto();
         }
 
         private First first() {
@@ -248,7 +254,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         }
 
         private Third third() {
-            return new Third(requiredFeatures, noLootTable, flammability);
+            return new Third(requiredFeatures, noLootTable, flammability, oxidizesInto);
         }
 
         private record First(
@@ -291,7 +297,8 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         private record Third(
                 Optional<FeatureFlagSet> requiredFeatures,
                 Optional<Boolean> noLootTable,
-                Optional<Flammability> flammability
+                Optional<Flammability> flammability,
+                Optional<ResourceKey<Block>> oxidizesInto
         ) {}
     }
 
@@ -434,9 +441,20 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         return actual;
     }
 
-    public static void createLateProperties(Block block, Properties properties) {
+    private static final List<Runnable> LATE_PROPERTIES = new ArrayList<>();
+
+    public static void runLateProperties() {
+        List<Runnable> actions = List.copyOf(LATE_PROPERTIES);
+        LATE_PROPERTIES.clear();
+        actions.forEach(Runnable::run);
+    }
+
+    private static void createLateProperties(Block block, Properties properties) {
         if (properties.flammability.isPresent()) {
             ((FireBlock) Blocks.FIRE).setFlammable(block, properties.flammability.get().igniteOdds, properties.flammability.get().burnOdds);
+        }
+        if (properties.oxidizesInto.isPresent()) {
+            LATE_PROPERTIES.add(() -> PlatformHandler.INSTANCE.internal().getOxidizables().add(block, BuiltInRegistries.BLOCK.getOrThrow(properties.oxidizesInto.get()).value()));
         }
     }
 }

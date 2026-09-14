@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-/** Used to generate codecs as JSON */
+/** Used to generate codecs as JSON. All codecs must contain LOAD_REQUIREMENTS, registry codecs additionally contain PRIORITY */
 public final class CodecGenerator {
     private CodecGenerator() {}
 

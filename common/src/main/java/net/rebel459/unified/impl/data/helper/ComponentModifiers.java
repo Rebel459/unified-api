@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.data;
+package net.rebel459.unified.impl.data.helper;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,10 +19,10 @@ import java.util.function.Predicate;
 
 public class ComponentModifiers {
 
-    public static final ResourceKey<Registry<Modifier>> KEY = ResourceKey.createRegistryKey(Unified.id("component_modifiers"));
+    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("component_modifiers"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Modifier.CODEC, () -> new Modifier(ExtensibleCodecs.ITEM_PREDICATE_TYPES.never.create(), Map.of())));
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(ExtensibleCodecs.ITEM_PREDICATE_TYPES.never.create(), Map.of())));
         UnifiedEvents.DefaultDataComponents.modify((item, builder, provider) -> {
             ItemStack defaultStack = item.getDefaultInstance();
             provider.lookup(KEY).ifPresent(modifiers -> modifiers.listElements().forEach(modifier -> {
@@ -38,10 +38,10 @@ public class ComponentModifiers {
         components.forEach((type, value) -> builder.set((DataComponentType<T>) type, (T) value));
     }
 
-    public record Modifier(ExtensibleCodec.Entry<Predicate<ItemStack>> predicate, Map<DataComponentType<?>, Object> components) {
-        public static final Codec<Modifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ExtensibleCodecs.ITEM_PREDICATE_TYPES.codec().fieldOf("predicate").forGetter(Modifier::predicate),
-                DataComponentType.VALUE_MAP_CODEC.fieldOf("components").forGetter(Modifier::components)
-        ).apply(instance, Modifier::new));
+    public record Definition(ExtensibleCodec.Entry<Predicate<ItemStack>> predicate, Map<DataComponentType<?>, Object> components) {
+        public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                ExtensibleCodecs.ITEM_PREDICATE_TYPES.codec().fieldOf("predicate").forGetter(Definition::predicate),
+                DataComponentType.VALUE_MAP_CODEC.fieldOf("components").forGetter(Definition::components)
+        ).apply(instance, Definition::new));
     }
 }

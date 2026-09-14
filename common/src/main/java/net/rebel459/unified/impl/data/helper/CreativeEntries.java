@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.data;
+package net.rebel459.unified.impl.data.helper;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;

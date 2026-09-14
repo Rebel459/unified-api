@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.data;
+package net.rebel459.unified.api.data.registry;
 
 import com.mojang.datafixers.util.Either;
 import net.minecraft.references.BlockItemId;
@@ -34,7 +34,7 @@ import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
-import net.rebel459.unified.impl.registry.BlockRegistry;
+import net.rebel459.unified.impl.data.registry.BlockRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +71,7 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-        return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, blockPath), () -> type).create(), builder);
+        return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
     }
 
     public SuppliedBlock register(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -90,7 +90,7 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-        return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, blockPath), () -> type).create(), builder);
+        return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
     }
 
     public SuppliedBlock registerWithoutItem(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -118,7 +118,7 @@ public class BlockGenerator {
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.BLOCK,
                         () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, block.blockItemId(), block);
+        finalBuilder.registerData(modId, settings.metadata().requirement(), block.blockItemId(), block);
         return block;
     }
 
@@ -133,7 +133,7 @@ public class BlockGenerator {
         }
 
         private <R> ExtensibleCodec.Entry<R> register(ExtensibleCodec<R> codec, R value) {
-            return codec.register(Identifier.fromNamespaceAndPath(modId, path), () -> value).create();
+            return codec.register(Identifier.fromNamespaceAndPath(modId, "blocks/" + path), () -> value).create();
         }
 
         public Properties copyFrom(Supplier<? extends Block> copyFrom) {
@@ -389,6 +389,7 @@ public class BlockGenerator {
 
     public static final class Data {
         private final String modId;
+        private final Optional<ExtensibleCodec.Entry<Boolean>> requirement;
         private final BlockItemId key;
         private final Supplier<Block> block;
         private Consumer<DataProviders.TagGenerator<Block>> blockTags = _ -> {};
@@ -396,8 +397,9 @@ public class BlockGenerator {
         private Function<Block, LootTable.Builder> loot;
         private BiConsumer<Item, RecipeProvider> recipes;
 
-        private Data(String modId, BlockItemId key, Supplier<Block> block) {
+        private Data(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement, BlockItemId key, Supplier<Block> block) {
             this.modId = modId;
+            this.requirement = requirement;
             this.key = key;
             this.block = block;
         }
@@ -445,7 +447,8 @@ public class BlockGenerator {
                 generator.add(value, loot.apply(value));
             });
             if (recipes != null)
-                DataProviders.RECIPES.add(modId, provider -> recipes.accept(block.get().asItem(), provider));
+                DataProviders.RECIPES.add(modId, new DataProviders.RecipeRequest(requirement,
+                        provider -> recipes.accept(block.get().asItem(), provider)));
         }
     }
 
@@ -485,8 +488,9 @@ public class BlockGenerator {
             return assets.build();
         }
 
-        private void registerData(String modId, BlockItemId key, Supplier<Block> block) {
-            Data data = new Data(modId, key, block);
+        private void registerData(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement,
+                BlockItemId key, Supplier<Block> block) {
+            Data data = new Data(modId, requirement, key, block);
             dataConfigurations.forEach(configure -> configure.accept(data));
             data.register();
         }

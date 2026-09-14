@@ -9,7 +9,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
 import net.rebel459.unified.impl.event.BiomeModifier;
-import net.rebel459.unified.impl.data.BiomeModifiers;
+import net.rebel459.unified.impl.data.helper.BiomeModifiers;
 
 import java.util.List;
 import java.util.Optional;

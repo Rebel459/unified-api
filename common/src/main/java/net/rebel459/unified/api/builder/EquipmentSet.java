@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedInstance;
-import net.rebel459.unified.api.data.ItemGenerator;
+import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.impl.builder.EquipmentSetProperties;

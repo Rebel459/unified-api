@@ -28,6 +28,6 @@ public class UnifiedNeoForge {
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
-        Unified.init();
+        event.enqueueWork(Unified::init);
     }
 }

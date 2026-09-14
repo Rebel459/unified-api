@@ -9,7 +9,7 @@ import net.minecraft.world.level.ItemLike;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.*;
-import net.rebel459.unified.api.data.ItemGenerator;
+import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaItemTypes;
 import net.rebel459.unified.api.util.QuadConsumer;

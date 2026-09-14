@@ -11,9 +11,9 @@ import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
 import net.rebel459.unified.impl.builder.*;
-import net.rebel459.unified.impl.data.*;
+import net.rebel459.unified.impl.data.helper.*;
+import net.rebel459.unified.impl.data.registry.*;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
-import net.rebel459.unified.impl.registry.*;
 
 import java.util.ServiceLoader;
 
@@ -51,6 +51,7 @@ public class Unified {
     }
 
     public static void init() {
+        BlockRegistry.runLateProperties();
         StructurePacketImpl.init();
         if (UnifiedInstance.getModLoader() == ModLoader.NEOFORGE) {
             WoodSetProperties.init(WoodSet.WOOD_SETS);

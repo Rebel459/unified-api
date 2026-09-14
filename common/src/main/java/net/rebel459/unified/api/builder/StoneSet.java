@@ -22,13 +22,12 @@ import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
-import net.rebel459.unified.api.data.BlockGenerator;
+import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockTypes;
 import net.rebel459.unified.impl.builder.StoneSetProperties;
-import net.rebel459.unified.impl.core.DataProviders;
-import net.rebel459.unified.impl.registry.BlockRegistry;
-import net.rebel459.unified.impl.registry.BlockSetTypeRegistry;
+import net.rebel459.unified.impl.data.registry.BlockRegistry;
+import net.rebel459.unified.impl.data.registry.BlockSetTypeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

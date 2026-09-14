@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.registry;
+package net.rebel459.unified.impl.data.registry;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.flag.FeatureFlags;
-import net.rebel459.unified.impl.data.MobVariants;
+import net.rebel459.unified.impl.data.helper.MobVariants;
 
 import java.util.LinkedHashMap;
 import java.util.List;

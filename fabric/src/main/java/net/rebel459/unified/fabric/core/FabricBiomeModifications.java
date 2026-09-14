@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.biome.Biome;
 import net.rebel459.unified.impl.event.BiomeModifier;
-import net.rebel459.unified.impl.data.BiomeModifiers;
+import net.rebel459.unified.impl.data.helper.BiomeModifiers;
 
 import java.util.Optional;
 

@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
-import net.rebel459.unified.impl.data.BiomeModifiers;
+import net.rebel459.unified.impl.data.helper.BiomeModifiers;
 
 import java.util.ArrayList;
 import java.util.List;

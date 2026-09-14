@@ -18,6 +18,7 @@
     "entity.SpawnPlacementsMixin",
     "entity.TamableAnimalMixin",
     "registry.MappedRegistryMixin",
+    "registry.ResourceManagerRegistryLoadTaskMixin",
     "item.BlockItemMixin",
     "item.ItemMixin",
     "item.ItemStackMixin"

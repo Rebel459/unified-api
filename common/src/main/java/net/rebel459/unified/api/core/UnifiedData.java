@@ -3,25 +3,25 @@ package net.rebel459.unified.api.core;
 import net.minecraft.resources.Identifier;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
-import net.rebel459.unified.api.data.BlockGenerator;
-import net.rebel459.unified.api.data.HelperGenerator;
-import net.rebel459.unified.api.data.ItemGenerator;
+import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
+import net.rebel459.unified.api.data.helper.RecipeGenerator;
+import net.rebel459.unified.api.data.registry.BlockGenerator;
+import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.impl.core.DataProviders;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class UnifiedData {
 
     private final Registries registries;
     private final Helpers helpers;
-    private final Builders builders;
+    private final Sets sets;
 
     private UnifiedData(String modId, String namespace, DataProviders.GenerationSettings settings) {
         this.registries = new Registries(modId, namespace, settings);
         this.helpers = new Helpers(modId, settings.metadata().requirement());
-        this.builders = new Builders(this.registries);
+        this.sets = new Sets(this.registries);
         settings.injectedTranslations().ifPresent(ignored -> DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.empty())));
     }
 
@@ -33,8 +33,8 @@ public final class UnifiedData {
         return helpers;
     }
 
-    public Builders builders() {
-        return builders;
+    public Sets sets() {
+        return sets;
     }
 
     public static Builder create(String modId) {
@@ -121,16 +121,20 @@ public final class UnifiedData {
             this.requirement = requirement;
         }
 
-        public HelperGenerator.CreativeEntries creativeEntries(String name) {
-            return new HelperGenerator.CreativeEntries(name, modId, requirement);
+        public CreativeEntryGenerator creativeEntries() {
+            return new CreativeEntryGenerator(modId, requirement);
+        }
+
+        public RecipeGenerator recipes() {
+            return new RecipeGenerator(modId, requirement);
         }
     }
 
-    public static final class Builders {
+    public static final class Sets {
 
         private final UnifiedData.Registries registries;
 
-        private Builders(UnifiedData.Registries registries) {
+        private Sets(UnifiedData.Registries registries) {
             this.registries = registries;
         }
     }
