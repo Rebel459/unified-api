@@ -48,6 +48,7 @@ public class Unified {
         new BlockRegistry().init();
         new EntityRegistry().init();
         new ItemRegistry().init();
+        new CreativeTabRegistry().init();
         ServiceLoader.load(RegistryResourceInitializer.class, Unified.class.getClassLoader()).forEach(RegistryResourceInitializer::initializeRegistryResources);
         RegistryResourceListener.completeRegistration();
         DataRegistry.finish();
