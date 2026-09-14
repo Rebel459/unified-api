@@ -3,12 +3,8 @@ package net.rebel459.unified.neoforge.core;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,40 +18,29 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.tags.TagKey;
-import net.minecraft.util.random.WeightedList;
-import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SpawnPlacementType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.MobSpawnSettings;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
-import net.minecraft.world.level.levelgen.carver.WorldCarver;
-import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
-import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.impl.core.CommonHelpers;
-import net.rebel459.unified.neoforge.util.BiomeBuilderEvent;
-import net.rebel459.unified.neoforge.util.CustomBiomeModifiers;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
@@ -464,7 +449,6 @@ public class NeoForgeHelpers {
 
         @SubscribeEvent
         public static void addServerReloadListeners(final AddServerReloadListenersEvent event) {
-            LogUtils.getLogger().info("ran!");
             LISTENERS.forEach(pair -> event.addListener(pair.getFirst(), pair.getSecond()));
             ORDERING.forEach(pair -> event.addDependency(pair.getFirst(), pair.getSecond()));
         }
@@ -473,6 +457,7 @@ public class NeoForgeHelpers {
     public static class DataRegistries implements CommonHelpers.DataRegistries {
 
         private static final List<Consumer<DataPackRegistryEvent.NewRegistry>> REGISTRATIONS = new ArrayList<>();
+
         @Override
         public <T> void register(ResourceKey<Registry<T>> key, Codec<T> codec) {
             REGISTRATIONS.add(event -> event.dataPackRegistry(key, codec));
@@ -485,7 +470,6 @@ public class NeoForgeHelpers {
 
         @SubscribeEvent
         public static void registerDataRegistries(final DataPackRegistryEvent.NewRegistry event) {
-            LogUtils.getLogger().info("ran!");
             REGISTRATIONS.forEach(consumer -> consumer.accept(event));
         }
     }
@@ -495,6 +479,21 @@ public class NeoForgeHelpers {
         @Override
         public void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {
             UnifiedRegistries.DeferredRegistry.create(id.getNamespace(), NeoForgeRegistries.ENTITY_DATA_SERIALIZERS).register(id.getPath(), serializer);
+        }
+    }
+
+    public static class SpawnPlacements implements CommonHelpers.SpawnPlacements {
+
+        private static final List<Consumer<RegisterSpawnPlacementsEvent>> REGISTRATIONS = new ArrayList<>();
+
+        @Override
+        public <T extends Mob> void register(Supplier<EntityType<T>> type, SpawnPlacementType placementType, Heightmap.Types heightmap, net.minecraft.world.entity.SpawnPlacements.SpawnPredicate<T> spawnPredicate) {
+            REGISTRATIONS.add(event -> event.register(type.get(), placementType, heightmap, spawnPredicate, RegisterSpawnPlacementsEvent.Operation.OR));
+        }
+
+        @SubscribeEvent
+        public static void registerSpawnPlacements(final RegisterSpawnPlacementsEvent event) {
+            REGISTRATIONS.forEach(consumer -> consumer.accept(event));
         }
     }
 }

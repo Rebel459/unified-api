@@ -13,4 +13,5 @@ public class UnifiedHelpers {
     public static CommonHelpers.ReloadListeners RELOAD_LISTENERS = PlatformHandler.INSTANCE.getReloadListeners();
     public static CommonHelpers.DataRegistries DATA_REGISTRIES = PlatformHandler.INSTANCE.getDataRegistries();
     public static CommonHelpers.EntityData ENTITY_DATA = PlatformHandler.INSTANCE.getEntityData();
+    public static CommonHelpers.SpawnPlacements SPAWN_PLACEMENTS = PlatformHandler.INSTANCE.getSpawnPlacements();
 }

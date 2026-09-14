@@ -22,7 +22,7 @@ public class ComponentModifiers {
     public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("component_modifiers"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(ExtensibleCodecs.ITEM_PREDICATE_TYPES.never.create(), Map.of())));
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(ExtensibleCodecs.ITEM_PREDICATES.never.create(), Map.of())));
         UnifiedEvents.DefaultDataComponents.modify((item, builder, provider) -> {
             ItemStack defaultStack = item.getDefaultInstance();
             provider.lookup(KEY).ifPresent(modifiers -> modifiers.listElements().forEach(modifier -> {
@@ -40,7 +40,7 @@ public class ComponentModifiers {
 
     public record Definition(ExtensibleCodec.Entry<Predicate<ItemStack>> predicate, Map<DataComponentType<?>, Object> components) {
         public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ExtensibleCodecs.ITEM_PREDICATE_TYPES.codec().fieldOf("predicate").forGetter(Definition::predicate),
+                ExtensibleCodecs.ITEM_PREDICATES.codec().fieldOf("predicate").forGetter(Definition::predicate),
                 DataComponentType.VALUE_MAP_CODEC.fieldOf("components").forGetter(Definition::components)
         ).apply(instance, Definition::new));
     }

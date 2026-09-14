@@ -1,7 +1,6 @@
 package net.rebel459.unified.neoforge.platform;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.datafixers.util.Either;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -29,10 +28,8 @@ import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
-import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
-import net.rebel459.unified.impl.data.registry.EntityTypeCopier;
 import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
 import net.rebel459.unified.neoforge.core.NeoForgeInstance;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedRegistries;
@@ -138,19 +135,6 @@ public class NeoForgePlatform implements CommonPlatform {
         @Override
         public void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
             NeoForgeUnifiedRegistries.afterRegistry(registry, action);
-        }
-
-        @Override
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        public void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant) {
-            ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
-            net.neoforged.neoforge.registries.DeferredRegister registry = NeoForgeUnifiedRegistries.DEFERRED.get(
-                    com.mojang.datafixers.util.Pair.of(id.getNamespace(), BuiltInRegistries.ENTITY_TYPE)
-            );
-            registry.register(id.getPath(), () -> defaultVariant.map(
-                    variant -> EntityTypeCopier.create(key, base, variant),
-                    variant -> EntityTypeCopier.create(key, base, variant)
-            ));
         }
 
         public static HashMap<Block, Block> OXIDIZABLES = new HashMap<>();

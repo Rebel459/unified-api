@@ -9,11 +9,11 @@ import net.rebel459.unified.api.codec.UnifiedCodecs;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
-public final class UnifiedLightEmissionTypes {
+public final class UnifiedLightEmissionCodecs {
     public static final ExtensibleCodec.Complex<ToIntFunction<BlockState>,
-            UnifiedCodecs.Conditional<Predicate<BlockState>, ToIntFunction<BlockState>>> CONDITIONAL = ExtensibleCodecs.LIGHT_EMISSION_TYPES.register(
+            UnifiedCodecs.Conditional<Predicate<BlockState>, ToIntFunction<BlockState>>> CONDITIONAL = ExtensibleCodecs.LIGHT_EMISSION.register(
             Unified.id("conditional"),
-            UnifiedCodecs.conditional(ExtensibleCodecs.PREDICATE_TYPES, ExtensibleCodecs.LIGHT_EMISSION_TYPES),
+            UnifiedCodecs.conditional(ExtensibleCodecs.BLOCK_PREDICATE, ExtensibleCodecs.LIGHT_EMISSION),
             definition -> {
                 Predicate<BlockState> predicate = definition.predicate().get();
                 ToIntFunction<BlockState> ifTrue = definition.ifTrue().get();
@@ -22,7 +22,7 @@ public final class UnifiedLightEmissionTypes {
             }
     );
 
-    private UnifiedLightEmissionTypes() {}
+    private UnifiedLightEmissionCodecs() {}
 
     public static void init() {}
 }

@@ -44,10 +44,10 @@ public class BlockConversions extends SimpleJsonResourceReloadListener<List<Bloc
 
     public record Definition(ExtensibleCodec.Entry<Predicate<ItemStack>> predicate, Block original, Block converted, List<ExtensibleCodec.Entry<Consumer<UseOnContext>>> useContext) {
         public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ExtensibleCodecs.ITEM_PREDICATE_TYPES.codec().fieldOf("predicate").forGetter(Definition::predicate),
+                ExtensibleCodecs.ITEM_PREDICATES.codec().fieldOf("predicate").forGetter(Definition::predicate),
                 BuiltInRegistries.BLOCK.byNameCodec().fieldOf("original_block").forGetter(Definition::original),
                 BuiltInRegistries.BLOCK.byNameCodec().fieldOf("converted_block").forGetter(Definition::converted),
-                ExtensibleCodecs.USE_CONTEXT_TYPES.codec().listOf().optionalFieldOf("use_context", List.of()).forGetter(Definition::useContext)
+                ExtensibleCodecs.USE_CONTEXT.codec().listOf().optionalFieldOf("use_context", List.of()).forGetter(Definition::useContext)
         ).apply(instance, Definition::new));
 
         public static Codec<List<Definition>> LIST_CODEC = Codec.list(CODEC).fieldOf("entries").codec();

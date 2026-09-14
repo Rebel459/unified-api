@@ -1,7 +1,6 @@
 package net.rebel459.unified.api.registry;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -11,19 +10,18 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
-import net.rebel459.unified.impl.core.CommonHelpers;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class UnifiedUseContextTypes {
+public class UnifiedUseContextCodecs {
 
     private static ExtensibleCodec.Simple<Consumer<UseOnContext>> simple(String path, Consumer<UseOnContext> context) {
-        return ExtensibleCodecs.USE_CONTEXT_TYPES.register(Unified.id(path), () -> context);
+        return ExtensibleCodecs.USE_CONTEXT.register(Unified.id(path), () -> context);
     }
 
     private static <T> ExtensibleCodec.Complex<Consumer<UseOnContext>, T> complex(String path, MapCodec<T> codec, Function<T, Consumer<UseOnContext>> context) {
-        return ExtensibleCodecs.USE_CONTEXT_TYPES.register(Unified.id(path), codec, context);
+        return ExtensibleCodecs.USE_CONTEXT.register(Unified.id(path), codec, context);
     }
 
     public static final ExtensibleCodec.Complex<Consumer<UseOnContext>, SoundEvent> PLAY_SOUND = complex(

@@ -21,9 +21,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SpawnPlacementType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.rebel459.unified.impl.core.CommonHelpers;
 
 import java.util.Arrays;
@@ -272,6 +276,14 @@ public class FabricHelpers {
         @Override
         public void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {
             FabricEntityDataRegistry.register(id, serializer.get());
+        }
+    }
+
+    public static class SpawnPlacements implements CommonHelpers.SpawnPlacements {
+
+        @Override
+        public <T extends Mob> void register(Supplier<EntityType<T>> type, SpawnPlacementType placementType, Heightmap.Types heightmap, net.minecraft.world.entity.SpawnPlacements.SpawnPredicate<T> spawnPredicate) {
+            net.minecraft.world.entity.SpawnPlacements.register(type.get(), placementType, heightmap, spawnPredicate);
         }
     }
 }

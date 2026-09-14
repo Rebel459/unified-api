@@ -1,7 +1,6 @@
 package net.rebel459.unified.impl.platform;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.datafixers.util.Either;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -20,7 +19,6 @@ import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
-import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -46,6 +44,7 @@ public interface CommonPlatform {
     CommonHelpers.ReloadListeners getReloadListeners();
     CommonHelpers.DataRegistries getDataRegistries();
     CommonHelpers.EntityData getEntityData();
+    CommonHelpers.SpawnPlacements getSpawnPlacements();
 
     @ApiStatus.Internal
     Internal internal();
@@ -56,7 +55,6 @@ public interface CommonPlatform {
         Path getGameDirectory();
         void prepareRegistryNamespace(String namespace);
         void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action);
-        void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant);
         BlockConversionsImpl.Oxidizables getOxidizables();
         CreativeModeTab createCreativeModeTab(CreativeModeTab.Row row, int column, Component displayName, Supplier<ItemStack> iconGenerator, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator);
         <T> UnifiedAttachments.Entity<T> createEntityAttachment(Identifier id, Supplier<T> defaultValue, MapCodec<T> persistenceCodec, StreamCodec<? super RegistryFriendlyByteBuf, T> syncCodec, BiPredicate<Entity, ServerPlayer> syncPredicate, boolean copyOnDeath);

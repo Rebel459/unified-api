@@ -17,8 +17,8 @@ import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.registry.VanillaBlockTypes;
-import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.registry.VanillaBlockCodecs;
+import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.QuadConsumer;
 import net.rebel459.unified.impl.builder.ColoredBlockSetProperties;
 import net.rebel459.unified.api.util.RecipeProvider;
@@ -181,11 +181,11 @@ public class ColoredBlockSet {
         SuppliedBlock block;
         ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> blockType;
         if (getSettings().blockType.left().isPresent()) blockType = getSettings().blockType.left().get().apply(dye);
-        else blockType = ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().blockType.right().get().apply(dye)).create();
+        else blockType = ExtensibleCodecs.BLOCK.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().blockType.right().get().apply(dye)).create();
         block = blocks.registerWithoutItem(name, blockType, builder -> getSettings().blockBuilder.accept(dye, builder));
         ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> itemType;
         if (getSettings().itemType.left().isPresent()) itemType = getSettings().itemType.left().get().apply(dye);
-        else itemType = ExtensibleCodecs.BLOCK_ITEM_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().itemType.right().get().apply(dye)).create();
+        else itemType = ExtensibleCodecs.BLOCK_ITEM.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().itemType.right().get().apply(dye)).create();
         items.registerBlockItem(block, itemType, builder -> {
             getSettings().itemBuilder.accept(dye, builder);
             if (getSettings().dyeRecipe != null) builder.data(data -> data.recipe((item, provider) -> {
@@ -203,8 +203,8 @@ public class ColoredBlockSet {
 
     public static class Settings implements Cloneable {
 
-        private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>>, Function<DyeColor, Function<BlockBehaviour.Properties, ? extends Block>>> blockType = Either.left(_ -> VanillaBlockTypes.BLOCK.create());
-        private Either<Function<DyeColor, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>>>, Function<DyeColor, BiFunction<Block, Item.Properties, Item>>> itemType = Either.left(_ -> VanillaItemTypes.BLOCK_ITEM.create());
+        private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>>, Function<DyeColor, Function<BlockBehaviour.Properties, ? extends Block>>> blockType = Either.left(_ -> VanillaBlockCodecs.BLOCK.create());
+        private Either<Function<DyeColor, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>>>, Function<DyeColor, BiFunction<Block, Item.Properties, Item>>> itemType = Either.left(_ -> VanillaItemCodecs.BLOCK_ITEM.create());
         private BiConsumer<DyeColor, BlockGenerator.Builder> blockBuilder = (color, builder) -> builder.properties(properties -> properties.mapColor(color.getMapColor()));
         private BiConsumer<DyeColor, ItemGenerator.Builder> itemBuilder = (_, _) -> {};
 

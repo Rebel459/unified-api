@@ -12,16 +12,16 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
-public class VanillaLightEmissionTypes {
+public class VanillaLightEmissionCodecs {
 
     private static final MapCodec<Integer> VALUE = ExtraCodecs.NON_NEGATIVE_INT.fieldOf("value");
 
     private static ExtensibleCodec.Simple<ToIntFunction<BlockState>> simple(String path, ToIntFunction<BlockState> predicate) {
-        return ExtensibleCodecs.LIGHT_EMISSION_TYPES.register(Identifier.withDefaultNamespace(path), () -> predicate);
+        return ExtensibleCodecs.LIGHT_EMISSION.register(Identifier.withDefaultNamespace(path), () -> predicate);
     }
 
     private static <T> ExtensibleCodec.Complex<ToIntFunction<BlockState>, T> complex(String path, MapCodec<T> codec, Function<T, ToIntFunction<BlockState>> predicate) {
-        return ExtensibleCodecs.LIGHT_EMISSION_TYPES.register(Identifier.withDefaultNamespace(path), codec, predicate);
+        return ExtensibleCodecs.LIGHT_EMISSION.register(Identifier.withDefaultNamespace(path), codec, predicate);
     }
 
     public static final ExtensibleCodec.Simple<ToIntFunction<BlockState>> SEA_PICKLE = simple("sea_pickle", state -> SeaPickleBlock.isDead(state) ? 0 : 3 + 3 * state.getValue(SeaPickleBlock.PICKLES));

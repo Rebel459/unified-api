@@ -41,7 +41,7 @@ public class ItemGenerator {
     }
 
     public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> builder) {
-        return register(path, ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(namespace, "items/" + path), () -> type).create(), builder);
+        return register(path, ExtensibleCodecs.ITEM.register(Identifier.fromNamespaceAndPath(namespace, "items/" + path), () -> type).create(), builder);
     }
 
     public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> builder) {
@@ -67,7 +67,7 @@ public class ItemGenerator {
 
     public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> type, Consumer<Builder> builder) {
         Identifier id = block.blockItemId().item().identifier();
-        return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), "items/" + id.getPath()), () -> type).create(), builder);
+        return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM.register(Identifier.fromNamespaceAndPath(id.getNamespace(), "items/" + id.getPath()), () -> type).create(), builder);
     }
 
     public SuppliedItem registerBlockItem(SuppliedBlock block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type, Consumer<Builder> builder) {

@@ -84,10 +84,18 @@ public class MobVariants {
                 ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table")
         );
 
-        public static final Codec<Variant> PROPERTIES_CODEC = codec(MapCodec.unit(Optional.empty()), MapCodec.unit(SpawnPrioritySelectors.EMPTY), MapCodec.unit(1F), MapCodec.unit(Optional.empty()));
+        public static final Variant DEFAULT_PROPERTIES = new Variant(
+                Optional.empty(), Optional.empty(), Optional.empty(), SoundVariants.EMPTY,
+                SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty()
+        );
+        public static final MapCodec<Variant> PROPERTIES_CODEC = mapCodec(MapCodec.unit(Optional.empty()), MapCodec.unit(SpawnPrioritySelectors.EMPTY), MapCodec.unit(1F), MapCodec.unit(Optional.empty()));
 
         private static Codec<Variant> codec(MapCodec<Optional<Identifier>> target, MapCodec<SpawnPrioritySelectors> spawnConditions, MapCodec<Float> spawnChance, MapCodec<Optional<ResourceKey<LootTable>>> lootTable) {
-            return RecordCodecBuilder.create(instance -> instance.group(
+            return mapCodec(target, spawnConditions, spawnChance, lootTable).codec();
+        }
+
+        private static MapCodec<Variant> mapCodec(MapCodec<Optional<Identifier>> target, MapCodec<SpawnPrioritySelectors> spawnConditions, MapCodec<Float> spawnChance, MapCodec<Optional<ResourceKey<LootTable>>> lootTable) {
+            return RecordCodecBuilder.mapCodec(instance -> instance.group(
                     target.forGetter(Variant::target),
                     TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Variant::texture),
                     TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),

@@ -26,34 +26,30 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definition> {
-    private static final MapCodec<Optional<Identifier>> BLOCK_ID_CODEC =
-            Identifier.CODEC.optionalFieldOf("block");
-    private static final MapCodec<Optional<Identifier>> TYPE_ID_CODEC =
-            Identifier.CODEC.optionalFieldOf("type");
+    private static final MapCodec<Optional<Identifier>> BLOCK_ID_CODEC = Identifier.CODEC.optionalFieldOf("block");
+    private static final MapCodec<Optional<Identifier>> TYPE_ID_CODEC = Identifier.CODEC.optionalFieldOf("type");
     private static final MapCodec<Map<DataComponentType<?>, Object>> PROPERTIES_CODEC =
             DataComponentType.VALUE_MAP_CODEC.optionalFieldOf("properties")
                     .xmap(properties -> properties.orElse(Map.of()),
                             properties -> properties.isEmpty() ? Optional.empty() : Optional.of(properties));
     private static final Codec<Definition> ITEM_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtensibleCodecs.ITEM_TYPES.mapCodec().forGetter(Definition::type),
+            ExtensibleCodecs.ITEM.mapCodec().forGetter(definition -> definition.factoryType.right().orElseThrow()),
             PROPERTIES_CODEC.forGetter(Definition::properties)
     ).apply(instance, Definition::item));
     private static final Codec<Definition> BLOCK_ITEM_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            UnifiedCodecs.supplied(BuiltInRegistries.BLOCK).fieldOf("block")
-                    .forGetter(definition -> definition.blockItem().orElseThrow().block()),
-            ExtensibleCodecs.BLOCK_ITEM_TYPES.mapCodec()
-                    .forGetter(definition -> definition.blockItem().orElseThrow().type()),
+            UnifiedCodecs.supplied(BuiltInRegistries.BLOCK).fieldOf("block").forGetter(definition -> definition.factoryType.left().orElseThrow().block()),
+            ExtensibleCodecs.BLOCK_ITEM.mapCodec().forGetter(definition -> definition.factoryType.left().orElseThrow().type()),
             PROPERTIES_CODEC.forGetter(Definition::properties)
     ).apply(instance, Definition::blockItem));
     public static final Codec<Definition> CODEC = Codec.either(BLOCK_ITEM_CODEC, ITEM_CODEC).xmap(
             value -> value.map(Function.identity(), Function.identity()),
-            definition -> definition.isBlockItem() ? Either.left(definition) : Either.right(definition)
+            definition -> definition.factoryType.left().isPresent() ? Either.left(definition) : Either.right(definition)
     );
 
     public static final Identifier ID = Unified.id("items");
 
     public ItemRegistry() {
-        super(ID, CODEC, BlockRegistry.ID, EntityTypeRegistry.ID);
+        super(ID, CODEC, BlockRegistry.ID, EntityRegistry.ID);
     }
 
     @Override
@@ -63,57 +59,32 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
             UnifiedRegistries.Items items = UnifiedRegistries.Items.create(id.getNamespace());
             Optional<Identifier> blockId = declaration.decode(BLOCK_ID_CODEC);
             Optional<Identifier> typeId = declaration.decode(TYPE_ID_CODEC);
-            boolean blockItem = typeId.map(ExtensibleCodecs.BLOCK_ITEM_TYPES::contains)
+            boolean blockItem = typeId.map(ExtensibleCodecs.BLOCK_ITEM::contains)
                     .orElseGet(blockId::isPresent);
             if (blockItem) {
                 Identifier registeredBlockId = blockId.orElseThrow(() ->
                         new IllegalArgumentException("Block item declaration " + id + " is missing its block"));
-                Supplier<Block> block = () -> declaration.get().blockItem().orElseThrow().block().get();
+                Supplier<Block> block = () -> declaration.get().factoryType.left().orElseThrow().block().get();
                 return items.registerBlockItem(BlockItemId.create(registeredBlockId, id), block,
-                        (registeredBlock, itemProperties) -> declaration.get().blockItem().orElseThrow()
+                        (registeredBlock, itemProperties) -> declaration.get().factoryType.left().orElseThrow()
                                 .factory().apply(registeredBlock, itemProperties), properties);
             }
             return items.register(id.getPath(),
-                    itemProperties -> declaration.get().factory().apply(itemProperties), properties);
+                    itemProperties -> declaration.get().factoryType.right().orElseThrow().get().apply(itemProperties), properties);
         });
     }
 
-    public record Definition(
-            Either<BlockItemDefinition, ExtensibleCodec.Entry<Function<Item.Properties, Item>>> factoryType,
-            Map<DataComponentType<?>, Object> properties
-    ) {
-        public static Definition item(ExtensibleCodec.Entry<Function<Item.Properties, Item>> type,
-                Map<DataComponentType<?>, Object> properties) {
+    public record Definition(Either<BlockItemDefinition, ExtensibleCodec.Entry<Function<Item.Properties, Item>>> factoryType, Map<DataComponentType<?>, Object> properties) {
+        public static Definition item(ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Map<DataComponentType<?>, Object> properties) {
             return new Definition(Either.right(type), properties);
         }
 
-        public static Definition blockItem(Supplier<Block> block,
-                ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type,
-                Map<DataComponentType<?>, Object> properties) {
+        public static Definition blockItem(Supplier<Block> block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type, Map<DataComponentType<?>, Object> properties) {
             return new Definition(Either.left(new BlockItemDefinition(block, type)), properties);
-        }
-
-        public ExtensibleCodec.Entry<Function<Item.Properties, Item>> type() {
-            return factoryType.right().orElseThrow();
-        }
-
-        public Optional<BlockItemDefinition> blockItem() {
-            return factoryType.left();
-        }
-
-        public boolean isBlockItem() {
-            return blockItem().isPresent();
-        }
-
-        public Function<Item.Properties, Item> factory() {
-            return type().get();
         }
     }
 
-    public record BlockItemDefinition(
-            Supplier<Block> block,
-            ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type
-    ) {
+    public record BlockItemDefinition(Supplier<Block> block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type) {
         public BiFunction<Block, Item.Properties, Item> factory() {
             return type.get();
         }

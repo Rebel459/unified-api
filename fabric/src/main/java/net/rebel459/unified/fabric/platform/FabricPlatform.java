@@ -1,7 +1,6 @@
 package net.rebel459.unified.fabric.platform;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.datafixers.util.Either;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -30,10 +29,8 @@ import net.rebel459.unified.fabric.core.FabricInstance;
 import net.rebel459.unified.fabric.core.FabricUnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
 import net.rebel459.unified.impl.core.CommonInstance;
-import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.platform.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
-import net.rebel459.unified.impl.data.registry.EntityTypeCopier;
 
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -108,6 +105,11 @@ public class FabricPlatform implements CommonPlatform {
     }
 
     @Override
+    public CommonHelpers.SpawnPlacements getSpawnPlacements() {
+        return new FabricHelpers.SpawnPlacements();
+    }
+
+    @Override
     public CommonPlatform.Internal internal() {
         return new Internal();
     }
@@ -134,16 +136,6 @@ public class FabricPlatform implements CommonPlatform {
         @Override
         public void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
             action.run();
-        }
-
-        @Override
-        public void registerEntityCopy(Identifier id, ResourceKey<EntityType<?>> base, Either<Identifier, MobVariants.Variant> defaultVariant) {
-            ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
-            EntityType<?> entityType = defaultVariant.map(
-                    variant -> EntityTypeCopier.create(key, base, variant),
-                    variant -> EntityTypeCopier.create(key, base, variant)
-            );
-            Registry.register(BuiltInRegistries.ENTITY_TYPE, key, entityType);
         }
 
         @Override

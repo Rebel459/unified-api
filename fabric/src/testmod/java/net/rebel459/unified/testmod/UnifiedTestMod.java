@@ -14,12 +14,12 @@ import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.builder.StonePreset;
 import net.rebel459.unified.api.builder.StoneSet;
 import net.rebel459.unified.api.core.*;
-import net.rebel459.unified.api.codec.BlockType;
+import net.rebel459.unified.api.codec.ExtensibleBlockCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.data.registry.ItemGenerator;
-import net.rebel459.unified.api.registry.VanillaBlockTypes;
-import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.registry.VanillaBlockCodecs;
+import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.asset.ItemAssets;
 import net.rebel459.unified.fabric.FabricUnifiedInitializer;
@@ -32,7 +32,7 @@ public final class UnifiedTestMod implements ModInitializer {
     public static final ItemGenerator ITEMS = DATA.registries().items();
     public static final UnifiedRegistries.SoundEvents SOUNDS = UnifiedRegistries.SoundEvents.create(MOD_ID);
     public static final Supplied<SoundEvent> TEST_SOUND = SOUNDS.register("test_sound");
-    public static final BlockType.Complex<SoundEvent> SOUND_BLOCK_TYPE = ExtensibleCodecs.BLOCK_TYPES.register(
+    public static final ExtensibleBlockCodec.Complex<SoundEvent> SOUND_BLOCK_TYPE = ExtensibleCodecs.BLOCK.register(
             id("sound_block"),
             BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("sound"),
             sound -> properties -> new Block(properties.sound(new SoundType(1, 1, sound, sound, sound, sound, sound)))
@@ -45,7 +45,7 @@ public final class UnifiedTestMod implements ModInitializer {
 
     public static final SuppliedBlock TEST_BLOCK = BLOCKS.register(
             "test_block",
-            VanillaBlockTypes.BLOCK.create(),
+            VanillaBlockCodecs.BLOCK.create(),
             block -> block
                     .properties(properties -> properties
                             .mapColor(MapColor.COLOR_PURPLE)
@@ -64,7 +64,7 @@ public final class UnifiedTestMod implements ModInitializer {
 
     public static final SuppliedItem TEST_ITEM = ITEMS.register(
             "test_item",
-            VanillaItemTypes.ITEM.create(),
+            VanillaItemCodecs.ITEM.create(),
             item -> item
                     .properties(properties -> properties
                             .stacksTo(16)
@@ -77,7 +77,7 @@ public final class UnifiedTestMod implements ModInitializer {
 
     public static final SuppliedBlock TEST_STAIRS = BLOCKS.register(
             "test_stairs",
-            VanillaBlockTypes.STAIRS.create(TEST_BLOCK::get),
+            VanillaBlockCodecs.STAIRS.create(TEST_BLOCK::get),
             block -> block.properties(properties -> properties.copyFrom(TEST_BLOCK))
     );
 

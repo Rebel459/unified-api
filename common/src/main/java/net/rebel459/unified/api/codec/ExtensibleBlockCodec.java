@@ -8,8 +8,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class BlockType extends ExtensibleCodec<Function<BlockBehaviour.Properties, ? extends Block>> {
-    public BlockType() { super(); }
+public final class ExtensibleBlockCodec extends ExtensibleCodec<Function<BlockBehaviour.Properties, ? extends Block>> {
+    public ExtensibleBlockCodec() { super(); }
 
     @Override
     public Simple register(Identifier id, Supplier<? extends Function<BlockBehaviour.Properties, ? extends Block>> factory) {

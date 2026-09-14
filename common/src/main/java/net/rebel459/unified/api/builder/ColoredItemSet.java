@@ -11,7 +11,7 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.QuadConsumer;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.builder.ColoredItemSetProperties;
@@ -173,7 +173,7 @@ public class ColoredItemSet {
         DyeColor dye = DyeColor.byName(color, null);
         ExtensibleCodec.Entry<Function<Item.Properties, Item>> itemType;
         if (getSettings().type.left().isPresent()) itemType = getSettings().type.left().get().apply(dye);
-        else itemType = ExtensibleCodecs.ITEM_TYPES.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().type.right().get().apply(dye)).create();
+        else itemType = ExtensibleCodecs.ITEM.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().type.right().get().apply(dye)).create();
         SuppliedItem item = items.register(name, itemType, builder -> {
             getSettings().builder.accept(dye, builder);
             if (getSettings().dyeRecipe != null) builder.data(data -> data.recipe((currentItem, provider) -> {
@@ -191,7 +191,7 @@ public class ColoredItemSet {
 
     public static class Settings implements Cloneable {
 
-        private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<Item.Properties, Item>>>, Function<DyeColor, Function<Item.Properties, Item>>> type = Either.left(_ -> VanillaItemTypes.ITEM.create());
+        private Either<Function<DyeColor, ExtensibleCodec.Entry<Function<Item.Properties, Item>>>, Function<DyeColor, Function<Item.Properties, Item>>> type = Either.left(_ -> VanillaItemCodecs.ITEM.create());
         private BiConsumer<DyeColor, ItemGenerator.Builder> builder = (_, _) -> {};
 
         private @Nullable QuadConsumer<Item, List<SuppliedItem>, Item, RecipeProvider> dyeRecipe;

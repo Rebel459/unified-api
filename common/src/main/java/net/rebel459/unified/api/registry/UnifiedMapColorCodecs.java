@@ -10,11 +10,11 @@ import net.rebel459.unified.api.codec.UnifiedCodecs;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public final class UnifiedMapColorTypes {
+public final class UnifiedMapColorCodecs {
     public static final ExtensibleCodec.Complex<Function<BlockState, MapColor>,
-            UnifiedCodecs.Conditional<Predicate<BlockState>, Function<BlockState, MapColor>>> CONDITIONAL = ExtensibleCodecs.MAP_COLOR_TYPES.register(
+            UnifiedCodecs.Conditional<Predicate<BlockState>, Function<BlockState, MapColor>>> CONDITIONAL = ExtensibleCodecs.MAP_COLOR.register(
             Unified.id("conditional"),
-            UnifiedCodecs.conditional(ExtensibleCodecs.PREDICATE_TYPES, ExtensibleCodecs.MAP_COLOR_TYPES),
+            UnifiedCodecs.conditional(ExtensibleCodecs.BLOCK_PREDICATE, ExtensibleCodecs.MAP_COLOR),
             definition -> {
                 Predicate<BlockState> predicate = definition.predicate().get();
                 Function<BlockState, MapColor> ifTrue = definition.ifTrue().get();
@@ -23,7 +23,7 @@ public final class UnifiedMapColorTypes {
             }
     );
 
-    private UnifiedMapColorTypes() {}
+    private UnifiedMapColorCodecs() {}
 
     public static void init() {}
 }

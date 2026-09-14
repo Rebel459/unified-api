@@ -50,7 +50,7 @@ public final class CodecGenerator {
                     JsonElement encoded = encoder.apply(registries, ops);
                     if (requirement.isEmpty()) return encoded;
                     JsonObject json = encoded.getAsJsonObject();
-                    json.add("load_requirements", ExtensibleCodecs.REQUIREMENT_TYPES.codec()
+                    json.add("load_requirements", ExtensibleCodecs.LOAD_REQUIREMENT.codec()
                             .encodeStart(ops, requirement.orElseThrow()).getOrThrow());
                     return json;
                 }));

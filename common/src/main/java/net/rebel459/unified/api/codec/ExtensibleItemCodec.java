@@ -7,8 +7,8 @@ import net.minecraft.world.item.Item;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class ItemType extends ExtensibleCodec<Function<Item.Properties, Item>> {
-    public ItemType() {
+public final class ExtensibleItemCodec extends ExtensibleCodec<Function<Item.Properties, Item>> {
+    public ExtensibleItemCodec() {
         super();
     }
 

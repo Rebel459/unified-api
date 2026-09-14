@@ -26,23 +26,29 @@ public class ExtensibleCodec<R> {
             MapCodec<T> codec,
             Function<T, ? extends R> factory
     ) {
-        if (types.containsKey(id)) {
-            throw new IllegalArgumentException("Duplicate extensible codec type " + id);
-        }
-
         Complex<R, T> type = createComplex(id, codec, factory);
-        types.put(id, type);
-        return type;
+        return registerComplexType(type);
     }
 
     public Simple<R> register(Identifier id, Supplier<? extends R> factory) {
-        if (types.containsKey(id)) {
-            throw new IllegalArgumentException("Duplicate extensible codec type " + id);
-        }
-
         Simple<R> type = createSimple(id, factory);
-        types.put(id, type);
+        return registerSimpleType(type);
+    }
+
+    protected synchronized <S extends Simple<R>> S registerSimpleType(S type) {
+        registerType(type);
         return type;
+    }
+
+    protected synchronized <C extends Complex<R, ?>> C registerComplexType(C type) {
+        registerType(type);
+        return type;
+    }
+
+    private void registerType(InternalType<R> type) {
+        if (types.putIfAbsent(type.id(), type) != null) {
+            throw new IllegalArgumentException("Duplicate extensible codec type " + type.id());
+        }
     }
 
     protected Simple<R> createSimple(Identifier id, Supplier<? extends R> factory) {
@@ -54,7 +60,8 @@ public class ExtensibleCodec<R> {
     }
 
 
-    /** Provides a codec which can be used with a named field. If the identifier has no additional fields, it can be displayed compactly
+    /**
+     * Provides a codec which can be used with a named field. If the identifier has no additional fields, it can be displayed compactly
      * If the identifier has no additional fields, it can be displayed compactly like "[field_name]": "[identifier]"
      * Otherwise, it can be displayed in full like:
      * {

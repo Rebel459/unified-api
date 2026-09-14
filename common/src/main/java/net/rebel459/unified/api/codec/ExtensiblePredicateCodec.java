@@ -6,14 +6,14 @@ import net.rebel459.unified.Unified;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class PredicateType<P> extends ExtensibleCodec<P> {
+public class ExtensiblePredicateCodec<P> extends ExtensibleCodec<P> {
     public final Simple<P> always;
     public final Simple<P> never;
     public final Complex<P, List<Entry<P>>> allOf;
     public final Complex<P, List<Entry<P>>> anyOf;
     public final Complex<P, Entry<P>> not;
 
-    public PredicateType(Adapter<P> adapter) {
+    public ExtensiblePredicateCodec(Adapter<P> adapter) {
         super();
         always = register(Unified.id("always"), () -> adapter.adapt(_ -> true));
         never = register(Unified.id("never"), () -> adapter.adapt(_ -> false));
@@ -26,12 +26,12 @@ public class PredicateType<P> extends ExtensibleCodec<P> {
                 adapter.adapt(test -> !test.test(entry.get())));
     }
 
-    public static <T> PredicateType<Predicate<T>> predicate() {
-        return new PredicateType<>(evaluation -> value -> evaluation.evaluate(predicate -> predicate.test(value)));
+    public static <T> ExtensiblePredicateCodec<Predicate<T>> predicate() {
+        return new ExtensiblePredicateCodec<>(evaluation -> value -> evaluation.evaluate(predicate -> predicate.test(value)));
     }
 
-    public static PredicateType<Boolean> booleanValue() {
-        return new PredicateType<>(evaluation -> evaluation.evaluate(Boolean::booleanValue));
+    public static ExtensiblePredicateCodec<Boolean> booleanValue() {
+        return new ExtensiblePredicateCodec<>(evaluation -> evaluation.evaluate(Boolean::booleanValue));
     }
 
     @FunctionalInterface

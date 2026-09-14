@@ -288,3 +288,5 @@ accessible method net/minecraft/world/level/block/WetSpongeBlock <init> (Lnet/mi
 accessible method net/minecraft/world/level/block/WitherSkullBlock <init> (Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
 accessible method net/minecraft/world/level/block/WitherWallSkullBlock <init> (Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
 accessible method net/minecraft/world/level/block/WoolCarpetBlock <init> (Lnet/minecraft/world/item/DyeColor;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
+
+accessible class net/minecraft/world/item/CreativeModeTab$TabVisibility

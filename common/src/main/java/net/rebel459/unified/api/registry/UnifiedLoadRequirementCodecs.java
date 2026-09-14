@@ -2,7 +2,6 @@ package net.rebel459.unified.api.registry;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
@@ -12,10 +11,10 @@ import net.rebel459.unified.api.core.UnifiedInstance;
 import java.util.List;
 import java.util.function.Function;
 
-public class UnifiedRequirementTypes {
+public class UnifiedLoadRequirementCodecs {
 
     private static <T> ExtensibleCodec.Complex<Boolean, T> complex(String path, MapCodec<T> codec, Function<T, Boolean> predicate) {
-        return ExtensibleCodecs.REQUIREMENT_TYPES.register(Unified.id(path), codec, predicate);
+        return ExtensibleCodecs.LOAD_REQUIREMENT.register(Unified.id(path), codec, predicate);
     }
 
     public static final ExtensibleCodec.Complex<Boolean, List<String>> MODS_LOADED = complex(

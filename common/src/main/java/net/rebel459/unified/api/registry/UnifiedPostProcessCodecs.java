@@ -3,7 +3,6 @@ package net.rebel459.unified.api.registry;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.Unified;
@@ -13,20 +12,20 @@ import net.rebel459.unified.api.codec.UnifiedCodecs;
 
 import java.util.function.Function;
 
-public class UnifiedPostProcessTypes {
+public class UnifiedPostProcessCodecs {
 
     private static ExtensibleCodec.Simple<BlockBehaviour.PostProcess> simple(String path, BlockBehaviour.PostProcess predicate) {
-        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Unified.id(path), () -> predicate);
+        return ExtensibleCodecs.POST_PROCESS.register(Unified.id(path), () -> predicate);
     }
 
     private static <T> ExtensibleCodec.Complex<BlockBehaviour.PostProcess, T> complex(String path, MapCodec<T> codec, Function<T, BlockBehaviour.PostProcess> predicate) {
-        return ExtensibleCodecs.POST_PROCESS_TYPES.register(Unified.id(path), codec, predicate);
+        return ExtensibleCodecs.POST_PROCESS.register(Unified.id(path), codec, predicate);
     }
 
     public static final ExtensibleCodec.Complex<BlockBehaviour.PostProcess,
             UnifiedCodecs.Conditional<BlockBehaviour.StatePredicate, BlockBehaviour.PostProcess>> CONDITIONAL = complex(
             "conditional",
-            UnifiedCodecs.conditional(ExtensibleCodecs.STATE_PREDICATE_TYPES, ExtensibleCodecs.POST_PROCESS_TYPES),
+            UnifiedCodecs.conditional(ExtensibleCodecs.STATE_PREDICATE, ExtensibleCodecs.POST_PROCESS),
             definition -> {
                 BlockBehaviour.StatePredicate predicate = definition.predicate().get();
                 BlockBehaviour.PostProcess ifTrue = definition.ifTrue().get();

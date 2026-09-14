@@ -9,8 +9,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class BlockItemType extends ExtensibleCodec<BiFunction<Block, Item.Properties, Item>> {
-    public BlockItemType() {
+public final class ExtensibleBlockItemCodec extends ExtensibleCodec<BiFunction<Block, Item.Properties, Item>> {
+    public ExtensibleBlockItemCodec() {
         super();
     }
 

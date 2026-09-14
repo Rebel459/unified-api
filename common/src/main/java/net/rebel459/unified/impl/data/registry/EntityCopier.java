@@ -20,36 +20,60 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public final class EntityTypeCopier {
+public final class EntityCopier {
     private static final Map<ResourceKey<EntityType<?>>, Declaration> DECLARATIONS = new LinkedHashMap<>();
     private static final Map<EntityType<?>, EntityType<?>> TEMPLATES = new LinkedHashMap<>();
     private static final Map<EntityType<?>, ResourceKey<MobVariants.Variant>> DEFAULT_VARIANTS = new LinkedHashMap<>();
     private static final Map<EntityType<?>, MobVariants.Variant> INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
+    private static final Map<ResourceKey<EntityType<?>>, ResourceKey<MobVariants.Variant>> PENDING_DEFAULT_VARIANTS = new LinkedHashMap<>();
+    private static final Map<ResourceKey<EntityType<?>>, MobVariants.Variant> PENDING_INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
 
-    private EntityTypeCopier() {}
+    private EntityCopier() {}
 
     public static EntityType<?> create(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base, Identifier defaultVariant) {
+        PENDING_DEFAULT_VARIANTS.put(key, ResourceKey.create(MobVariants.KEY, defaultVariant));
         EntityType<?> entityType = create(key, base);
-        DEFAULT_VARIANTS.put(entityType, ResourceKey.create(MobVariants.KEY, defaultVariant));
         return entityType;
     }
 
     public static EntityType<?> create(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base, MobVariants.Variant defaultVariant) {
+        setDefaultVariant(key, defaultVariant);
         EntityType<?> entityType = create(key, base);
-        INLINE_DEFAULT_VARIANTS.put(entityType, defaultVariant);
         return entityType;
     }
 
-    private static EntityType<?> create(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base) {
-        EntityType<?> entityType = placeholder(key);
-        Declaration previous = DECLARATIONS.put(key, new Declaration(entityType, base));
+    public static void setDefaultVariant(ResourceKey<EntityType<?>> entityType, MobVariants.Variant defaultVariant) {
+        PENDING_INLINE_DEFAULT_VARIANTS.put(entityType, defaultVariant);
+    }
+
+    public static void declare(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base) {
+        Declaration previous = DECLARATIONS.put(key, new Declaration(base));
         if (previous != null) throw new IllegalStateException("Duplicate copied entity declaration for " + key.identifier());
-        resolve(key);
+    }
+
+    public static EntityType<?> create(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base) {
+        EntityType<?> entityType = placeholder(key);
+        declare(key, base);
+        onRegistered(key, entityType);
         return entityType;
     }
 
     public static void onRegistered(ResourceKey<EntityType<?>> key, EntityType<?> entityType) {
-        resolveDependants(key, entityType);
+        ResourceKey<MobVariants.Variant> defaultVariant = PENDING_DEFAULT_VARIANTS.remove(key);
+        if (defaultVariant != null) DEFAULT_VARIANTS.put(entityType, defaultVariant);
+        MobVariants.Variant inlineDefaultVariant = PENDING_INLINE_DEFAULT_VARIANTS.remove(key);
+        if (inlineDefaultVariant != null) INLINE_DEFAULT_VARIANTS.put(entityType, inlineDefaultVariant);
+
+        Declaration declaration = DECLARATIONS.get(key);
+        if (declaration != null) {
+            if (declaration.entityType != null && declaration.entityType != entityType) {
+                throw new IllegalStateException("Copied entity type registered twice: " + key.identifier());
+            }
+            declaration.entityType = entityType;
+            resolve(key);
+        } else {
+            resolveDependants(key, entityType);
+        }
     }
 
     public static Optional<EntityType<?>> template(EntityType<?> entityType) {
@@ -111,7 +135,7 @@ public final class EntityTypeCopier {
 
     private static void resolve(ResourceKey<EntityType<?>> key) {
         Declaration declaration = DECLARATIONS.get(key);
-        if (declaration == null || declaration.resolved) return;
+        if (declaration == null || declaration.entityType == null || declaration.resolved) return;
 
         Declaration baseDeclaration = DECLARATIONS.get(declaration.base);
         if (baseDeclaration != null && !baseDeclaration.resolved) return;
@@ -123,7 +147,7 @@ public final class EntityTypeCopier {
     private static void resolveDependants(ResourceKey<EntityType<?>> registeredKey, EntityType<?> registeredType) {
         for (Map.Entry<ResourceKey<EntityType<?>>, Declaration> entry : DECLARATIONS.entrySet()) {
             Declaration declaration = entry.getValue();
-            if (!declaration.resolved && declaration.base.equals(registeredKey)) {
+            if (declaration.entityType != null && !declaration.resolved && declaration.base.equals(registeredKey)) {
                 Declaration baseDeclaration = DECLARATIONS.get(registeredKey);
                 if (baseDeclaration == null || baseDeclaration.resolved) hydrate(entry.getKey(), declaration, registeredType);
             }
@@ -155,12 +179,11 @@ public final class EntityTypeCopier {
     }
 
     private static final class Declaration {
-        private final EntityType<?> entityType;
+        private EntityType<?> entityType;
         private final ResourceKey<EntityType<?>> base;
         private boolean resolved;
 
-        private Declaration(EntityType<?> entityType, ResourceKey<EntityType<?>> base) {
-            this.entityType = entityType;
+        private Declaration(ResourceKey<EntityType<?>> base) {
             this.base = base;
         }
     }

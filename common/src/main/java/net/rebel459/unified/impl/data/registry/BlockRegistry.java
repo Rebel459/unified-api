@@ -44,7 +44,7 @@ import java.util.function.ToIntFunction;
 public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Definition> {
     private static final MapCodec<Optional<Supplier<BlockEntityType<?>>>> BLOCK_ENTITY_CODEC = UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity");
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtensibleCodecs.BLOCK_TYPES.mapCodec().forGetter(Definition::type),
+            ExtensibleCodecs.BLOCK.mapCodec().forGetter(Definition::type),
             Properties.CODEC.optionalFieldOf("properties")
                     .xmap(properties -> properties.orElseGet(Properties::new), Optional::of).forGetter(Definition::properties),
             UnifiedCodecs.supplied(BuiltInRegistries.BLOCK_ENTITY_TYPE).optionalFieldOf("block_entity").forGetter(Definition::blockEntity)
@@ -124,14 +124,14 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
 
         private static final MapCodec<First> FIRST_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 UnifiedCodecs.supplied(BuiltInRegistries.BLOCK).optionalFieldOf("copy_from").forGetter(First::copyFrom),
-                Codec.either(UnifiedCodecs.named(MapColor.class), ExtensibleCodecs.MAP_COLOR_TYPES.codec()).optionalFieldOf("map_color").forGetter(First::mapColor),
+                Codec.either(UnifiedCodecs.named(MapColor.class), ExtensibleCodecs.MAP_COLOR.codec()).optionalFieldOf("map_color").forGetter(First::mapColor),
                 Codec.BOOL.optionalFieldOf("collision").forGetter(First::collision),
                 Codec.BOOL.optionalFieldOf("occlusion").forGetter(First::occlusion),
                 Codec.FLOAT.optionalFieldOf("friction").forGetter(First::friction),
                 Codec.FLOAT.optionalFieldOf("speed_multiplier").forGetter(First::speedMultiplier),
                 Codec.FLOAT.optionalFieldOf("jump_multiplier").forGetter(First::jumpMultiplier),
                 SoundType.CODEC.optionalFieldOf("sound_type").forGetter(First::soundType),
-                Codec.either(ExtraCodecs.NON_NEGATIVE_INT, ExtensibleCodecs.LIGHT_EMISSION_TYPES.codec()).optionalFieldOf("light_level").forGetter(First::lightLevel),
+                Codec.either(ExtraCodecs.NON_NEGATIVE_INT, ExtensibleCodecs.LIGHT_EMISSION.codec()).optionalFieldOf("light_level").forGetter(First::lightLevel),
                 Codec.FLOAT.optionalFieldOf("destroy_time").forGetter(First::destroyTime),
                 Codec.FLOAT.optionalFieldOf("explosion_resistance").forGetter(First::explosionResistance),
                 Codec.BOOL.optionalFieldOf("random_ticks").forGetter(First::randomTicks),
@@ -145,12 +145,12 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 Codec.BOOL.optionalFieldOf("solid").forGetter(Second::solid),
                 UnifiedCodecs.named(PushReaction.class).optionalFieldOf("push_reaction").forGetter(Second::pushReaction),
                 Codec.BOOL.optionalFieldOf("air").forGetter(Second::air),
-                ExtensibleCodecs.ENTITY_PREDICATE_TYPES.codec().optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
-                ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("redstone_conductor").forGetter(Second::redstoneConductor),
-                ExtensibleCodecs.STATE_PREDICATE_TYPES.codec().optionalFieldOf("suffocating").forGetter(Second::suffocating),
-                ExtensibleCodecs.COLLISION_PREDICATE_TYPES.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
-                ExtensibleCodecs.POST_PROCESS_TYPES.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
-                ExtensibleCodecs.PREDICATE_TYPES.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
+                ExtensibleCodecs.ENTITY_PREDICATE.codec().optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
+                ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("redstone_conductor").forGetter(Second::redstoneConductor),
+                ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("suffocating").forGetter(Second::suffocating),
+                ExtensibleCodecs.COLLISION_PREDICATE.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
+                ExtensibleCodecs.POST_PROCESS.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
+                ExtensibleCodecs.BLOCK_PREDICATE.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
                 Codec.BOOL.optionalFieldOf("requires_correct_tool_for_drops").forGetter(Second::requiresCorrectToolForDrops),
                 UnifiedCodecs.named(BlockBehaviour.OffsetType.class).optionalFieldOf("offset").forGetter(Second::offset),
                 Codec.BOOL.optionalFieldOf("spawn_terrain_particles").forGetter(Second::spawnTerrainParticles),

@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class BlockPredicateType {
+public class ExtensibleBlockPredicateCodec {
     public interface Simple {
         Optional<ExtensibleCodec.Simple<Predicate<BlockState>>> predicate();
         Optional<ExtensibleCodec.Simple<BlockBehaviour.StatePredicate>> statePredicate();
@@ -27,20 +27,20 @@ public class BlockPredicateType {
         Optional<ExtensibleCodec.Complex<BlockBehaviour.StateArgumentPredicate<AABB>, T>> collisionPredicate();
     }
 
-    public static BlockPredicateType.Simple register(Identifier id, Optional<Supplier<Predicate<BlockState>>> predicate, Optional<Supplier<BlockBehaviour.StatePredicate>> statePredicate, Optional<Supplier<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> entityPredicate, Optional<Supplier<BlockBehaviour.StateArgumentPredicate<AABB>>> collisionPredicate) {
+    public static ExtensibleBlockPredicateCodec.Simple register(Identifier id, Optional<Supplier<Predicate<BlockState>>> predicate, Optional<Supplier<BlockBehaviour.StatePredicate>> statePredicate, Optional<Supplier<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> entityPredicate, Optional<Supplier<BlockBehaviour.StateArgumentPredicate<AABB>>> collisionPredicate) {
         Optional<ExtensibleCodec.Simple<Predicate<BlockState>>> registeredPredicate;
         Optional<ExtensibleCodec.Simple<BlockBehaviour.StatePredicate>> registeredStatePredicate;
         Optional<ExtensibleCodec.Simple<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> registeredEntityPredicate;
         Optional<ExtensibleCodec.Simple<BlockBehaviour.StateArgumentPredicate<AABB>>> registeredCollisionPredicate;
-        if (predicate.isPresent()) registeredPredicate = Optional.of(ExtensibleCodecs.PREDICATE_TYPES.register(id, predicate.get()));
+        if (predicate.isPresent()) registeredPredicate = Optional.of(ExtensibleCodecs.BLOCK_PREDICATE.register(id, predicate.get()));
         else registeredPredicate = Optional.empty();
-        if (statePredicate.isPresent()) registeredStatePredicate = Optional.of(ExtensibleCodecs.STATE_PREDICATE_TYPES.register(id, statePredicate.get()));
+        if (statePredicate.isPresent()) registeredStatePredicate = Optional.of(ExtensibleCodecs.STATE_PREDICATE.register(id, statePredicate.get()));
         else registeredStatePredicate = Optional.empty();
-        if (entityPredicate.isPresent()) registeredEntityPredicate = Optional.of(ExtensibleCodecs.ENTITY_PREDICATE_TYPES.register(id, entityPredicate.get()));
+        if (entityPredicate.isPresent()) registeredEntityPredicate = Optional.of(ExtensibleCodecs.ENTITY_PREDICATE.register(id, entityPredicate.get()));
         else registeredEntityPredicate = Optional.empty();
-        if (collisionPredicate.isPresent()) registeredCollisionPredicate = Optional.of(ExtensibleCodecs.COLLISION_PREDICATE_TYPES.register(id, collisionPredicate.get()));
+        if (collisionPredicate.isPresent()) registeredCollisionPredicate = Optional.of(ExtensibleCodecs.COLLISION_PREDICATE.register(id, collisionPredicate.get()));
         else registeredCollisionPredicate = Optional.empty();
-        return new BlockPredicateType.Simple() {
+        return new ExtensibleBlockPredicateCodec.Simple() {
             @Override
             public Optional<ExtensibleCodec.Simple<Predicate<BlockState>>> predicate() {
                 return registeredPredicate;
@@ -63,20 +63,20 @@ public class BlockPredicateType {
         };
     }
 
-    public static <T> BlockPredicateType.Complex<T> register(Identifier id, MapCodec<T> codec, Optional<Function<T, Predicate<BlockState>>> predicate, Optional<Function<T, BlockBehaviour.StatePredicate>> statePredicate, Optional<Function<T, BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> entityPredicate, Optional<Function<T, BlockBehaviour.StateArgumentPredicate<AABB>>> collisionPredicate) {
+    public static <T> ExtensibleBlockPredicateCodec.Complex<T> register(Identifier id, MapCodec<T> codec, Optional<Function<T, Predicate<BlockState>>> predicate, Optional<Function<T, BlockBehaviour.StatePredicate>> statePredicate, Optional<Function<T, BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> entityPredicate, Optional<Function<T, BlockBehaviour.StateArgumentPredicate<AABB>>> collisionPredicate) {
         Optional<ExtensibleCodec.Complex<Predicate<BlockState>, T>> registeredPredicate;
         Optional<ExtensibleCodec.Complex<BlockBehaviour.StatePredicate, T>> registeredStatePredicate;
         Optional<ExtensibleCodec.Complex<BlockBehaviour.StateArgumentPredicate<EntityType<?>>, T>> registeredEntityPredicate;
         Optional<ExtensibleCodec.Complex<BlockBehaviour.StateArgumentPredicate<AABB>, T>> registeredCollisionPredicate;
-        if (predicate.isPresent()) registeredPredicate = Optional.of(ExtensibleCodecs.PREDICATE_TYPES.register(id, codec, predicate.get()));
+        if (predicate.isPresent()) registeredPredicate = Optional.of(ExtensibleCodecs.BLOCK_PREDICATE.register(id, codec, predicate.get()));
         else registeredPredicate = Optional.empty();
-        if (statePredicate.isPresent()) registeredStatePredicate = Optional.of(ExtensibleCodecs.STATE_PREDICATE_TYPES.register(id, codec, statePredicate.get()));
+        if (statePredicate.isPresent()) registeredStatePredicate = Optional.of(ExtensibleCodecs.STATE_PREDICATE.register(id, codec, statePredicate.get()));
         else registeredStatePredicate = Optional.empty();
-        if (entityPredicate.isPresent()) registeredEntityPredicate = Optional.of(ExtensibleCodecs.ENTITY_PREDICATE_TYPES.register(id, codec, entityPredicate.get()));
+        if (entityPredicate.isPresent()) registeredEntityPredicate = Optional.of(ExtensibleCodecs.ENTITY_PREDICATE.register(id, codec, entityPredicate.get()));
         else registeredEntityPredicate = Optional.empty();
-        if (collisionPredicate.isPresent()) registeredCollisionPredicate = Optional.of(ExtensibleCodecs.COLLISION_PREDICATE_TYPES.register(id, codec, collisionPredicate.get()));
+        if (collisionPredicate.isPresent()) registeredCollisionPredicate = Optional.of(ExtensibleCodecs.COLLISION_PREDICATE.register(id, codec, collisionPredicate.get()));
         else registeredCollisionPredicate = Optional.empty();
-        return new BlockPredicateType.Complex<>() {
+        return new ExtensibleBlockPredicateCodec.Complex<>() {
             @Override
             public Optional<ExtensibleCodec.Complex<Predicate<BlockState>, T>> predicate() {
                 return registeredPredicate;

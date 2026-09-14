@@ -64,7 +64,7 @@ public final class UnifiedData {
             priority = value; return this;
         }
         public Builder requirement(String path, Supplier<Boolean> value) {
-            requirement = Optional.of(ExtensibleCodecs.REQUIREMENT_TYPES
+            requirement = Optional.of(ExtensibleCodecs.LOAD_REQUIREMENT
                     .register(Identifier.fromNamespaceAndPath(modId, path), value)
                     .create());
             return this;

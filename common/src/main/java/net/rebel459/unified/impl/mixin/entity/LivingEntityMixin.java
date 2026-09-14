@@ -17,7 +17,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.rebel459.unified.impl.core.CommonEvents;
 import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.impl.data.helper.MobVariants;
-import net.rebel459.unified.impl.data.registry.EntityTypeCopier;
+import net.rebel459.unified.impl.data.registry.EntityCopier;
 import net.rebel459.unified.impl.util.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -106,8 +106,8 @@ public class LivingEntityMixin implements LivingEntityVariant {
         RandomSource random = level.getRandom();
 
         var variants = level.registryAccess().lookupOrThrow(MobVariants.KEY);
-        var defaultVariantKey = EntityTypeCopier.defaultVariant(entity.getType());
-        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityTypeCopier.resolveDefaultVariant(entity.getType(), variants);
+        var defaultVariantKey = EntityCopier.defaultVariant(entity.getType());
+        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityCopier.resolveDefaultVariant(entity.getType(), variants);
         if (defaultVariant.isEmpty()) {
             defaultVariantKey.ifPresent(key -> {
                 throw new IllegalStateException("Missing default mob variant " + key.identifier() + " for " + entityType);

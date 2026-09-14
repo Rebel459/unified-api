@@ -19,16 +19,16 @@ import net.rebel459.unified.api.codec.UnifiedCodecs;
 
 import java.util.function.Function;
 
-public class VanillaMapColorTypes {
+public class VanillaMapColorCodecs {
 
     private static final MapCodec<MapColor> COLOR = UnifiedCodecs.named(MapColor.class).fieldOf("color");
 
     private static ExtensibleCodec.Simple<Function<BlockState, MapColor>> simple(String path, Function<BlockState, MapColor> predicate) {
-        return ExtensibleCodecs.MAP_COLOR_TYPES.register(Identifier.withDefaultNamespace(path), () -> predicate);
+        return ExtensibleCodecs.MAP_COLOR.register(Identifier.withDefaultNamespace(path), () -> predicate);
     }
 
     private static <T> ExtensibleCodec.Complex<Function<BlockState, MapColor>, T> complex(String path, MapCodec<T> codec, Function<T, Function<BlockState, MapColor>> predicate) {
-        return ExtensibleCodecs.MAP_COLOR_TYPES.register(Identifier.withDefaultNamespace(path), codec, predicate);
+        return ExtensibleCodecs.MAP_COLOR.register(Identifier.withDefaultNamespace(path), codec, predicate);
     }
 
     public static final ExtensibleCodec.Simple<Function<BlockState, MapColor>> WATERLOGGED = simple("waterlogged", state -> state.getValue(BlockStateProperties.WATERLOGGED) ? MapColor.WATER : MapColor.NONE);

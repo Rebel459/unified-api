@@ -21,6 +21,10 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SpawnPlacementType;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.HoneycombItem;
@@ -37,6 +41,7 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
 import net.minecraft.world.level.storage.loot.providers.number.floats.ResolvableFloat;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
@@ -230,5 +235,9 @@ public class CommonHelpers {
 
     public interface EntityData {
         void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer);
+    }
+
+    public interface SpawnPlacements {
+        <T extends Mob> void register(Supplier<EntityType<T>> type, SpawnPlacementType placementType, Heightmap.Types heightmap, net.minecraft.world.entity.SpawnPlacements.SpawnPredicate<T> spawnPredicate);
     }
 }

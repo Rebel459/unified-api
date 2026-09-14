@@ -30,7 +30,7 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
@@ -71,7 +71,7 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-        return register(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
+        return register(blockPath, itemPath, ExtensibleCodecs.BLOCK.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
     }
 
     public SuppliedBlock register(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -80,7 +80,7 @@ public class BlockGenerator {
 
     public SuppliedBlock register(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
         SuppliedBlock block = registerWithoutItem(blockPath, itemPath, type, builder);
-        items.registerBlockItem(block, VanillaItemTypes.BLOCK_ITEM.create(), _ -> {
+        items.registerBlockItem(block, VanillaItemCodecs.BLOCK_ITEM.create(), _ -> {
         });
         return block;
     }
@@ -90,7 +90,7 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-        return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK_TYPES.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
+        return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
     }
 
     public SuppliedBlock registerWithoutItem(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -152,7 +152,7 @@ public class BlockGenerator {
         }
 
         public Properties mapColor(Function<BlockState, MapColor> mapColor) {
-            return mapColor(register(ExtensibleCodecs.MAP_COLOR_TYPES, mapColor));
+            return mapColor(register(ExtensibleCodecs.MAP_COLOR, mapColor));
         }
 
         public Properties collision(boolean collision) {
@@ -196,7 +196,7 @@ public class BlockGenerator {
         }
 
         public Properties lightLevel(ToIntFunction<BlockState> lightLevel) {
-            return lightLevel(register(ExtensibleCodecs.LIGHT_EMISSION_TYPES, lightLevel));
+            return lightLevel(register(ExtensibleCodecs.LIGHT_EMISSION, lightLevel));
         }
 
         public Properties strength(float strength) {
@@ -270,7 +270,7 @@ public class BlockGenerator {
         }
 
         public Properties validSpawn(BlockBehaviour.StateArgumentPredicate<EntityType<?>> validSpawn) {
-            return validSpawn(register(ExtensibleCodecs.ENTITY_PREDICATE_TYPES, validSpawn));
+            return validSpawn(register(ExtensibleCodecs.ENTITY_PREDICATE, validSpawn));
         }
 
         public Properties redstoneConductor(ExtensibleCodec.Entry<BlockBehaviour.StatePredicate> redstoneConductor) {
@@ -279,7 +279,7 @@ public class BlockGenerator {
         }
 
         public Properties redstoneConductor(BlockBehaviour.StatePredicate redstoneConductor) {
-            return redstoneConductor(register(ExtensibleCodecs.STATE_PREDICATE_TYPES, redstoneConductor));
+            return redstoneConductor(register(ExtensibleCodecs.STATE_PREDICATE, redstoneConductor));
         }
 
         public Properties suffocating(ExtensibleCodec.Entry<BlockBehaviour.StatePredicate> suffocating) {
@@ -288,7 +288,7 @@ public class BlockGenerator {
         }
 
         public Properties suffocating(BlockBehaviour.StatePredicate suffocating) {
-            return suffocating(register(ExtensibleCodecs.STATE_PREDICATE_TYPES, suffocating));
+            return suffocating(register(ExtensibleCodecs.STATE_PREDICATE, suffocating));
         }
 
         public Properties viewBlocking(ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<AABB>> viewBlocking) {
@@ -297,7 +297,7 @@ public class BlockGenerator {
         }
 
         public Properties viewBlocking(BlockBehaviour.StateArgumentPredicate<AABB> viewBlocking) {
-            return viewBlocking(register(ExtensibleCodecs.COLLISION_PREDICATE_TYPES, viewBlocking));
+            return viewBlocking(register(ExtensibleCodecs.COLLISION_PREDICATE, viewBlocking));
         }
 
         public Properties postProcess(ExtensibleCodec.Entry<BlockBehaviour.PostProcess> postProcess) {
@@ -306,7 +306,7 @@ public class BlockGenerator {
         }
 
         public Properties postProcess(BlockBehaviour.PostProcess postProcess) {
-            return postProcess(register(ExtensibleCodecs.POST_PROCESS_TYPES, postProcess));
+            return postProcess(register(ExtensibleCodecs.POST_PROCESS, postProcess));
         }
 
         public Properties emissiveRendering(ExtensibleCodec.Entry<Predicate<BlockState>> emissiveRendering) {
@@ -315,7 +315,7 @@ public class BlockGenerator {
         }
 
         public Properties emissiveRendering(Predicate<BlockState> emissiveRendering) {
-            return emissiveRendering(register(ExtensibleCodecs.PREDICATE_TYPES, emissiveRendering));
+            return emissiveRendering(register(ExtensibleCodecs.BLOCK_PREDICATE, emissiveRendering));
         }
 
         public Properties requiresCorrectToolForDrops(boolean requiresCorrectToolForDrops) {

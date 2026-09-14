@@ -5,8 +5,11 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.rebel459.unified.api.core.Supplied;
@@ -32,9 +35,9 @@ public final class UnifiedCodecs {
 
     public static final MapCodec<Optional<ExtensibleCodec.Entry<Boolean>>> LOAD_REQUIREMENTS = Codec.either(
             Codec.BOOL,
-            ExtensibleCodecs.REQUIREMENT_TYPES.codec()
+            ExtensibleCodecs.LOAD_REQUIREMENT.codec()
     ).xmap(either -> either.map(
-            value -> (value ? ExtensibleCodecs.REQUIREMENT_TYPES.always : ExtensibleCodecs.REQUIREMENT_TYPES.never).create(),
+            value -> (value ? ExtensibleCodecs.LOAD_REQUIREMENT.always : ExtensibleCodecs.LOAD_REQUIREMENT.never).create(),
             entry -> entry
     ), Either::right).optionalFieldOf("load_requirements");
 
@@ -140,4 +143,8 @@ public final class UnifiedCodecs {
         );
     }
 
+    public static final Codec<ItemStack> ITEM_OR_STACK = Codec.either(BuiltInRegistries.ITEM.byNameCodec(), ItemStack.CODEC).xmap(
+            either -> either.map(Item::getDefaultInstance, ItemStack::copy),
+            Either::right
+    );
 }

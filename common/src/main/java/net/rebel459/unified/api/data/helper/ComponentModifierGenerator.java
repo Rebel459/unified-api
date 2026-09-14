@@ -19,7 +19,7 @@ public class ComponentModifierGenerator extends HelperGenerator {
     }
 
     public Builder create(String name, Predicate<ItemStack> predicate) {
-        return create(name, ExtensibleCodecs.ITEM_PREDICATE_TYPES.register(Identifier.fromNamespaceAndPath(modId, "component_modifiers/" + name), () -> predicate).create());
+        return create(name, ExtensibleCodecs.ITEM_PREDICATES.register(Identifier.fromNamespaceAndPath(modId, "component_modifiers/" + name), () -> predicate).create());
     }
 
     public Builder create(String name, ExtensibleCodec.Entry<Predicate<ItemStack>> predicate) {

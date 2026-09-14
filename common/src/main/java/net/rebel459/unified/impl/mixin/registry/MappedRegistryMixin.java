@@ -5,7 +5,7 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
-import net.rebel459.unified.impl.data.registry.EntityTypeCopier;
+import net.rebel459.unified.impl.data.registry.EntityCopier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,7 +18,7 @@ public class MappedRegistryMixin<T> {
     @SuppressWarnings("unchecked")
     private void resolveCopiedEntities(ResourceKey<T> key, T value, RegistrationInfo registrationInfo, CallbackInfoReturnable<Holder.Reference<T>> cir) {
         if (value instanceof EntityType<?> entityType) {
-            EntityTypeCopier.onRegistered((ResourceKey<EntityType<?>>) (ResourceKey<?>) key, entityType);
+            EntityCopier.onRegistered((ResourceKey<EntityType<?>>) (ResourceKey<?>) key, entityType);
         }
     }
 
@@ -26,7 +26,7 @@ public class MappedRegistryMixin<T> {
     private void validateCopiedEntities(CallbackInfoReturnable<?> cir) {
         MappedRegistry<?> registry = (MappedRegistry<?>) (Object) this;
         if (registry.key().equals(net.minecraft.core.registries.Registries.ENTITY_TYPE)) {
-            EntityTypeCopier.validateResolved();
+            EntityCopier.validateResolved();
         }
     }
 }

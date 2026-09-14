@@ -25,7 +25,7 @@ import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.registry.VanillaItemTypes;
+import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.impl.builder.EquipmentSetProperties;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
@@ -204,7 +204,7 @@ public class EquipmentSet {
     private SuppliedItem createSword() {
         return register(
                 this.getId().getPath() + "_sword",
-                VanillaItemTypes.ITEM.create(),
+                VanillaItemCodecs.ITEM.create(),
                 builder -> builder
                         .properties(properties -> {
                             properties.sword(getToolMaterial(), 3F, -2.4F);

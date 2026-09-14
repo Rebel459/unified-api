@@ -25,6 +25,7 @@ public class UnifiedNeoForge {
         modEventBus.addListener(NeoForgeUnifiedRegistries.EntityTypes::createEntityAttributes);
         NeoForge.EVENT_BUS.addListener(NeoForgeHelpers.ReloadListeners::addServerReloadListeners);
         modEventBus.addListener(NeoForgeHelpers.DataRegistries::registerDataRegistries);
+        modEventBus.addListener(NeoForgeHelpers.SpawnPlacements::registerSpawnPlacements);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {

@@ -24,7 +24,7 @@ import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.api.registry.VanillaBlockTypes;
+import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.impl.builder.StoneSetProperties;
 import net.rebel459.unified.impl.data.registry.BlockRegistry;
 import net.rebel459.unified.impl.data.registry.BlockSetTypeRegistry;
@@ -186,7 +186,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createStairs() {
-        return createBlock(this.getFormattedName() + "_stairs", VanillaBlockTypes.STAIRS.create(getBase()::get), builder -> builder
+        return createBlock(this.getFormattedName() + "_stairs", VanillaBlockCodecs.STAIRS.create(getBase()::get), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.STAIRS, getBase().get()))
                 .data(data -> data
@@ -202,7 +202,7 @@ public class StoneSet {
     private SuppliedBlock createSlab(){
         Supplier<BlockBehaviour.Properties> blockProperties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get());
         if (getSettings().hasLegacySlab) blockProperties = () -> BlockBehaviour.Properties.ofFullCopy(getBase().get()).strength(2F, 6F);
-        return createBlock(this.getFormattedName() + "_slab", VanillaBlockTypes.SLAB.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_slab", VanillaBlockCodecs.SLAB.create(), builder -> builder
                 .properties(properties -> {
                     properties.copyFrom(getBase());
                     if (getSettings().hasLegacySlab) properties.strength(2F, 6F);
@@ -219,7 +219,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createFence(){
-        return createBlock(this.getFormattedName() + "_fence", VanillaBlockTypes.FENCE.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_fence", VanillaBlockCodecs.FENCE.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.FENCE, getBase().get()))
                 .data(data -> data
@@ -233,7 +233,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createPressurePlate(){
-        return createBlock(this.getFormattedName() + "_pressure_plate", VanillaBlockTypes.PRESSURE_PLATE.create(() -> this.getBlockSetType().get()), builder -> builder
+        return createBlock(this.getFormattedName() + "_pressure_plate", VanillaBlockCodecs.PRESSURE_PLATE.create(() -> this.getBlockSetType().get()), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.PRESSURE_PLATE, getBase().get()))
                 .data(data -> data
@@ -247,7 +247,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createButton(){
-        return createBlock(this.getFormattedName() + "_button", VanillaBlockTypes.BUTTON.create(() -> new VanillaBlockTypes.Button(this.getBlockSetType().get(), 30)), builder -> builder
+        return createBlock(this.getFormattedName() + "_button", VanillaBlockCodecs.BUTTON.create(() -> new VanillaBlockCodecs.Button(this.getBlockSetType().get(), 30)), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.BUTTON, getBase().get()))
                 .data(data -> data
@@ -261,7 +261,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createChiseled(){
-        return createBlock("chiseled_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
+        return createBlock("chiseled_" + this.getId().getPath(), VanillaBlockCodecs.BLOCK.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.SIMPLE_CUBE))
                 .data(data -> data
@@ -274,7 +274,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createCracked(){
-        return createBlock("cracked_" + this.getId().getPath(), VanillaBlockTypes.BLOCK.create(), builder -> builder
+        return createBlock("cracked_" + this.getId().getPath(), VanillaBlockCodecs.BLOCK.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.SIMPLE_CUBE))
                 .data(data -> data
@@ -285,7 +285,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createPillar(){
-        return createBlock(this.getFormattedName() + "_pillar", VanillaBlockTypes.ROTATED_PILLAR_BLOCK.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_pillar", VanillaBlockCodecs.ROTATED_PILLAR_BLOCK.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.ROTATED_PILLAR))
                 .data(data -> data
@@ -304,7 +304,7 @@ public class StoneSet {
         );
     }
     private SuppliedBlock createWall(){
-        return createBlock(this.getFormattedName() + "_wall", VanillaBlockTypes.WALL.create(), builder -> builder
+        return createBlock(this.getFormattedName() + "_wall", VanillaBlockCodecs.WALL.create(), builder -> builder
                 .properties(properties -> properties.copyFrom(getBase()))
                 .assets(assets -> assets.model(BlockAssets.WALL, getBase().get()))
                 .data(data -> data
@@ -398,7 +398,7 @@ public class StoneSet {
 
         @Deprecated private Function<BlockBehaviour.Properties, Block> baseBlockFunction = Block::new;
 
-        private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockTypes.BLOCK.create();
+        private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockCodecs.BLOCK.create();
         private Consumer<BlockGenerator.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
         private Optional<TagKey<Block>> baseBlockTag = Optional.empty();
         private Optional<String> baseBlockSuffix = Optional.empty();
