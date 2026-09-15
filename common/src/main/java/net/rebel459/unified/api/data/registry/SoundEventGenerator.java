@@ -1,11 +1,9 @@
 package net.rebel459.unified.api.data.registry;
 
-import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.Supplied;
-import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.data.registry.SoundEventRegistry;
 
@@ -32,26 +30,10 @@ public class SoundEventGenerator {
         return register(path, Optional.of(fixedRange));
     }
 
-    public Holder<SoundEvent> registerForHolder(String path) {
-        return registerForHolder(path, Optional.empty());
-    }
-
-    public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
-        return registerForHolder(path, Optional.of(fixedRange));
-    }
-
     private Supplied<SoundEvent> register(String path, Optional<Float> fixedRange) {
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
         Supplier<SoundEventRegistry.Definition> definition = definition(fixedRange);
         Supplied<SoundEvent> sound = SoundEventRegistry.registerDefinition(id, definition);
-        generate(id, definition);
-        return sound;
-    }
-
-    private Holder<SoundEvent> registerForHolder(String path, Optional<Float> fixedRange) {
-        Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
-        Supplier<SoundEventRegistry.Definition> definition = definition(fixedRange);
-        Holder<SoundEvent> sound = fixedRange.isPresent() ? UnifiedRegistries.SoundEvents.create(namespace).registerForHolder(path, fixedRange.orElseThrow()) : UnifiedRegistries.SoundEvents.create(namespace).registerForHolder(path);
         generate(id, definition);
         return sound;
     }

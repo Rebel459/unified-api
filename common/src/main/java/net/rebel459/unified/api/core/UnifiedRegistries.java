@@ -1,6 +1,5 @@
 package net.rebel459.unified.api.core;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.references.BlockItemId;
@@ -30,8 +29,6 @@ public class UnifiedRegistries {
         String modId();
 
         <T extends Y> Supplied<T> register(String path, Supplier<T> value);
-
-        <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
@@ -160,9 +157,6 @@ public class UnifiedRegistries {
 
         Supplied<SoundEvent> register(String path);
         Supplied<SoundEvent> register(String path, float fixedRange);
-
-        Holder<SoundEvent> registerForHolder(String path);
-        Holder<SoundEvent> registerForHolder(String path, float fixedRange);
 
         static SoundEvents create(String modId) {
             return new StagedRegistries.StagedSoundEvents(modId);

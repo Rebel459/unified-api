@@ -6,7 +6,9 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -43,6 +45,12 @@ public class FabricPlatform implements CommonPlatform {
     @Override
     public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
         return new FabricUnifiedRegistries.DeferredRegistry<>(modId, registry);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Holder<T> createHolder(Registry<T> registry, ResourceKey<T> key) {
+        return ((WritableRegistry<T>) registry).createRegistrationLookup().getOrThrow(key);
     }
 
     @Override

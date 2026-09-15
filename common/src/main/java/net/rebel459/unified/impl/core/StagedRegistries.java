@@ -1,8 +1,8 @@
 package net.rebel459.unified.impl.core;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
@@ -53,15 +53,10 @@ public final class StagedRegistries {
         public <Y extends T> Supplied<Y> register(String path, Supplier<Y> value) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<T> key = ResourceKey.create(registry.key(), id);
-            return (Supplied<Y>) StagedRegistry.stage(registry.key(), id,
+            return (Supplied<Y>) StagedRegistry.stage(registry, id,
                     (supplied, holder) -> new Supplied<>(key, supplied, holder),
                     () -> (Supplied<T>) PlatformHandler.INSTANCE.createDeferredRegistry(modId, registry).register(path, value)
             );
-        }
-
-        @Override
-        public <Y extends T> Holder<Y> registerForHolder(String path, Supplier<Y> value) {
-            return PlatformHandler.INSTANCE.createDeferredRegistry(modId, registry).registerForHolder(path, value);
         }
 
         @Override
@@ -86,7 +81,7 @@ public final class StagedRegistries {
         public SuppliedItem register(String path, Function<Item.Properties, Item> factory, Supplier<Item.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
-            return StagedRegistry.stage(Registries.ITEM, id,
+            return StagedRegistry.stage(BuiltInRegistries.ITEM, id,
                     (value, holder) -> new SuppliedItem(key, value, holder),
                     () -> PlatformHandler.INSTANCE.createItems(modId).register(path, factory, properties));
         }
@@ -101,7 +96,7 @@ public final class StagedRegistries {
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> factory, Supplier<Item.Properties> properties) {
             Identifier itemId = id.item().identifier();
-            return StagedRegistry.stage(Registries.ITEM, itemId,
+            return StagedRegistry.stage(BuiltInRegistries.ITEM, itemId,
                     (value, holder) -> new SuppliedItem(id.item(), value, holder),
                     () -> PlatformHandler.INSTANCE.createItems(modId).registerBlockItem(id, block, factory, properties));
         }
@@ -161,7 +156,7 @@ public final class StagedRegistries {
         private SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> factory, Supplier<BlockBehaviour.Properties> properties, Optional<? extends Supplier<? extends BlockEntityType<?>>> blockEntity) {
             Identifier blockId = Identifier.fromNamespaceAndPath(modId, blockPath);
             BlockItemId id = BlockItemId.create(blockId, Identifier.fromNamespaceAndPath(modId, itemPath));
-            return StagedRegistry.stage(Registries.BLOCK, blockId,
+            return StagedRegistry.stage(BuiltInRegistries.BLOCK, blockId,
                     (value, holder) -> new SuppliedBlock(id, value, holder),
                     () -> actualRegister(PlatformHandler.INSTANCE.createBlocks(modId), id, factory, properties, blockEntity));
         }
@@ -200,7 +195,7 @@ public final class StagedRegistries {
         public <T> Supplied<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> builder) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<DataComponentType<?>> key = ResourceKey.create(Registries.DATA_COMPONENT_TYPE, id);
-            return (Supplied<DataComponentType<T>>) (Supplied<?>) StagedRegistry.stage(Registries.DATA_COMPONENT_TYPE, id,
+            return (Supplied<DataComponentType<T>>) (Supplied<?>) StagedRegistry.stage(BuiltInRegistries.DATA_COMPONENT_TYPE, id,
                     (value, holder) -> new Supplied<>(key, value, holder),
                     () -> (Supplied<DataComponentType<?>>) (Supplied<?>) PlatformHandler.INSTANCE.createDataComponentTypes(modId).register(path, builder)
             );
@@ -241,7 +236,7 @@ public final class StagedRegistries {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
             return (Supplied<EntityType<T>>) (Supplied<?>) StagedRegistry.stage(
-                    Registries.ENTITY_TYPE, id,
+                    BuiltInRegistries.ENTITY_TYPE, id,
                     (value, holder) -> new Supplied<>(key, value, holder),
                     () -> (Supplied<EntityType<?>>) (Supplied<?>) registration.apply(PlatformHandler.INSTANCE.createEntityTypes(modId))
             );
@@ -278,33 +273,10 @@ public final class StagedRegistries {
         private Supplied<SoundEvent> register(String path, Function<UnifiedRegistries.SoundEvents, Supplied<SoundEvent>> registration) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, path);
             ResourceKey<SoundEvent> key = ResourceKey.create(Registries.SOUND_EVENT, id);
-            return StagedRegistry.stage(Registries.SOUND_EVENT, id,
+            return StagedRegistry.stage(BuiltInRegistries.SOUND_EVENT, id,
                     (value, holder) -> new Supplied<>(key, value, holder),
                     () -> registration.apply(PlatformHandler.INSTANCE.createSoundEvents(modId))
             );
-        }
-
-        @Override
-        public Holder<SoundEvent> registerForHolder(String path) {
-            return registerForHolder(path, registry -> registry.registerForHolder(path));
-        }
-
-        @Override
-        public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
-            return registerForHolder(path, registry -> registry.registerForHolder(path, fixedRange));
-        }
-
-        private Holder<SoundEvent> registerForHolder(String path,
-                Function<UnifiedRegistries.SoundEvents, Holder<SoundEvent>> registration) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            ResourceKey<SoundEvent> key = ResourceKey.create(Registries.SOUND_EVENT, id);
-            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(key);
-            if (existing != null) return existing.holder();
-            Holder<SoundEvent> holder = registration.apply(
-                    PlatformHandler.INSTANCE.createSoundEvents(modId));
-            StagedRegistry.register(Registries.SOUND_EVENT, id,
-                    () -> new Supplied<>(key, holder::value, () -> holder));
-            return holder;
         }
     }
 }

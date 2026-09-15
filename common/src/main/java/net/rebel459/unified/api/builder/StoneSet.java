@@ -23,6 +23,7 @@ import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
+import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.impl.builder.StoneSetProperties;
@@ -48,6 +49,7 @@ public class StoneSet {
     private final MapColor color;
 
     private final BlockGenerator blocks;
+    private final BlockSetTypeGenerator blockSetTypes;
 
     private SuppliedBlock base;
     private @Nullable SuppliedBlock stairs;
@@ -77,11 +79,12 @@ public class StoneSet {
         if (hasButton()) button = createButton();
     }
 
-    public StoneSet(Identifier id, MapColor color, Settings settings, BlockGenerator blocks){
+    public StoneSet(Identifier id, MapColor color, Settings settings, BlockGenerator blocks, BlockSetTypeGenerator blockSetTypes) {
         this.settings = settings;
         this.id = id;
         this.color = color;
         this.blocks = blocks;
+        this.blockSetTypes = blockSetTypes;
         registerBlockSetTypeDefinition();
         registerBlocks();
         BLOCK_SETS.add(this);
@@ -90,13 +93,13 @@ public class StoneSet {
     }
 
     private void registerBlockSetTypeDefinition() {
-        CodecGenerator.registry(blocks.modId(), id, "block_set_types", blocks.settings().metadata().priority(),
-                blocks.settings().metadata().requirement(), BlockSetTypeRegistry.CODEC, () -> new BlockSetTypeRegistry.Definition(
+        blockSetTypes.register(id.getPath(), () -> new BlockSetType(
+                id.toString(),
                 true,
                 true,
                 settings.canArrowsActivateButton,
                 settings.pressurePlateSensitivity,
-                BlockRegistry.SoundType.create(settings.soundType.get()),
+                settings.soundType.get(),
                 SoundEvents.IRON_DOOR_CLOSE,
                 SoundEvents.IRON_DOOR_OPEN,
                 SoundEvents.IRON_TRAPDOOR_CLOSE,
@@ -451,28 +454,19 @@ public class StoneSet {
         private final MapColor color;
 
         private final BlockGenerator blocks;
+        private final BlockSetTypeGenerator blockSetTypes;
 
         public StoneSet build() {
-            return new StoneSet(id, color, settings, blocks);
+            return new StoneSet(id, color, settings, blocks, blockSetTypes);
         }
 
-        public RegistryBuilder(Identifier id, MapColor color, StonePreset preset, BlockGenerator blocks) {
+        public RegistryBuilder(Identifier id, MapColor color, StonePreset preset, BlockGenerator blocks, BlockSetTypeGenerator blockSetTypes) {
             super(preset.settings.copy());
 
             this.id = id;
             this.color = color;
             this.blocks = blocks;
-        }
-
-        public RegistryBuilder(Identifier id, MapColor color, float hardness, float blastResistance, StonePreset preset) {
-            Settings settings = preset.settings.copy();
-            settings.destroyTime = hardness;
-            settings.explosionResistance = blastResistance;
-            super(settings.copy());
-
-            this.id = id;
-            this.color = color;
-            this.blocks = null;
+            this.blockSetTypes = blockSetTypes;
         }
     }
 

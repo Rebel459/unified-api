@@ -27,6 +27,7 @@ public class WoodTypeGenerator {
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
         Supplier<WoodTypeRegistry.Definition> definition = () -> {
             WoodType type = woodType.get();
+            if (!Identifier.parse(type.name()).equals(id)) throw new RuntimeException("Wood Type name must match provided mod id & path");
             return new WoodTypeRegistry.Definition(
                     type.setType(),
                     BlockRegistry.SoundType.create(type.soundType()),

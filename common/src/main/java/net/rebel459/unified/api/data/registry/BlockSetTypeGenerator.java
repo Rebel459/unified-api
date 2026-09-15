@@ -60,6 +60,7 @@ public class BlockSetTypeGenerator {
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
         CodecGenerator.registry(modId, Identifier.fromNamespaceAndPath(namespace, path), "block_set_types", settings.metadata().priority(), settings.metadata().requirement(), BlockSetTypeRegistry.CODEC, () -> {
             BlockSetType type = blockSetType.get();
+            if (!Identifier.parse(type.name()).equals(id)) throw new RuntimeException("Block Set Type name must match provided mod id & path");
             return new BlockSetTypeRegistry.Definition(
                     type.canOpenByHand(),
                     type.canOpenByWindCharge(),

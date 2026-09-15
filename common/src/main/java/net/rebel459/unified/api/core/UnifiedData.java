@@ -19,7 +19,7 @@ public final class UnifiedData {
     private UnifiedData(String modId, String namespace, DataProviders.GenerationSettings settings) {
         this.helpers = new Helpers(modId, settings.metadata().requirement());
         this.registries = new Registries(modId, namespace, settings, this.helpers.tags(), this.helpers.recipes());
-        this.sets = new Sets(this.registries);
+        this.sets = new Sets(this.registries, this.helpers);
         settings.injectedTranslations().ifPresent(ignored -> DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.empty())));
     }
 
@@ -197,10 +197,12 @@ public final class UnifiedData {
 
     public static final class Sets {
 
-        private final UnifiedData.Registries registries;
+        private final Registries registries;
+        private final Helpers helpers;
 
-        private Sets(UnifiedData.Registries registries) {
+        private Sets(Registries registries, Helpers helpers) {
             this.registries = registries;
+            this.helpers = helpers;
         }
     }
 }

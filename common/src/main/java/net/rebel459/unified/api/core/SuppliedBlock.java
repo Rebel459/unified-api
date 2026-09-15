@@ -1,9 +1,7 @@
 package net.rebel459.unified.api.core;
 
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.references.BlockItemId;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -21,7 +19,7 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
     private final BlockItemId blockItemId;
 
     @ApiStatus.Internal
-    public SuppliedBlock(BlockItemId blockItemId, Supplier<? extends Block> block, Supplier<? extends Holder<Block>> holder) {
+    public SuppliedBlock(BlockItemId blockItemId, Supplier<? extends Block> block, Holder<Block> holder) {
         super(blockItemId.block(), block, holder);
         this.blockItemId = blockItemId;
     }

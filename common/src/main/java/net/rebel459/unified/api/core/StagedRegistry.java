@@ -4,6 +4,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,27 +69,29 @@ public final class StagedRegistry<T> {
      * staged registration while retaining the original supplied handle.
      */
     public static <T, S extends Supplied<T>> S stage(
-            ResourceKey<? extends Registry<T>> registry,
+            Registry<T> registry,
             Identifier id,
-            BiFunction<Supplier<? extends T>, Supplier<? extends Holder<T>>, S> placeholder,
+            BiFunction<Supplier<? extends T>, Holder<T>, S> placeholder,
             Supplier<S> registration) {
         synchronized (StagedRegistry.class) {
-            S claimed = StagedRegistry.getClaimed(ResourceKey.create(registry, id));
+            ResourceKey<? extends Registry<T>> registryKey = registry.key();
+            ResourceKey<T> key = ResourceKey.create(registryKey, id);
+            S claimed = StagedRegistry.getClaimed(key);
             if (claimed != null) return claimed;
-            if (!staging || FINISHED.contains(registry)) return registration.get();
+            if (!staging || FINISHED.contains(registryKey)) return registration.get();
 
-            StagedRegistry<T> stagedRegistry = StagedRegistry.registry(registry);
+            StagedRegistry<T> stagedRegistry = StagedRegistry.registry(registryKey);
             Registration<T> existing = stagedRegistry.registrations.get(id);
             if (existing == null) {
                 AtomicReference<Supplied<T>> registered = new AtomicReference<>();
                 Supplier<Supplied<T>> resolved = () -> resolve(registered, id);
-                S supplied = placeholder.apply(() -> resolved.get().get(), () -> resolved.get().holder());
+                S supplied = placeholder.apply(() -> resolved.get().get(), PlatformHandler.INSTANCE.createHolder(registry, key));
                 stagedRegistry.registrations.put(id, new Registration<>(supplied, registered, registration));
                 return supplied;
             }
 
-            if (!StagedRegistry.isRegistering(registry, id)) {
-                throw new IllegalStateException("Duplicate code registration in " + registry.identifier() + ": " + id);
+            if (!StagedRegistry.isRegistering(registryKey, id)) {
+                throw new IllegalStateException("Duplicate code registration in " + registryKey.identifier() + ": " + id);
             }
             existing.registration = registration;
             return cast(existing.supplied);
