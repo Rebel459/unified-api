@@ -17,7 +17,6 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
-import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.asset.ItemAssetRequest;
@@ -31,13 +30,10 @@ public class ItemGenerator {
     private final String modId;
     private final String namespace;
     private final DataProviders.GenerationSettings settings;
-    private final UnifiedRegistries.Items items;
-
-    public ItemGenerator(String modId, String namespace, DataProviders.GenerationSettings settings, UnifiedRegistries.Items runtime) {
+    public ItemGenerator(String modId, String namespace, DataProviders.GenerationSettings settings) {
         this.modId = modId;
         this.namespace = namespace;
         this.settings = settings;
-        this.items = runtime;
     }
 
     public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> builder) {
@@ -48,20 +44,17 @@ public class ItemGenerator {
         Builder finalBuilder = new Builder();
         builder.accept(finalBuilder);
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
-        Supplier<Item.Properties> runtimeProperties = () -> {
-            Item.Properties createProperties = new Item.Properties();
-            finalBuilder.properties.accept(createProperties);
-            return createProperties;
-        };
-        SuppliedItem registered = items.register(path, itemProperties -> type.get().apply(itemProperties), runtimeProperties);
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
+        Supplier<ItemRegistry.Definition> definition = () -> ItemRegistry.Definition.item(
+                type, componentValues(finalBuilder.properties, key));
+        SuppliedItem registered = ItemRegistry.registerDefinition(id, definition);
         CodecGenerator.registry(modId, id, "items", settings.metadata().priority(), settings.metadata().requirement(),
-                ItemRegistry.CODEC, () -> ItemRegistry.Definition.item(type,
-                                componentValues(finalBuilder.properties, ResourceKey.create(Registries.ITEM, id))));
+                ItemRegistry.CODEC, definition);
         DataProviders.MODELS.add(modId, new DataProviders.ItemModels(id, finalBuilder::buildAssets));
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
                         () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, settings.metadata().requirement(), ResourceKey.create(Registries.ITEM, id), registered);
+        finalBuilder.registerData(modId, settings.metadata().requirement(), key, registered);
         return registered;
     }
 
@@ -74,16 +67,11 @@ public class ItemGenerator {
         Builder finalBuilder = new Builder();
         builder.accept(finalBuilder);
         Identifier id = block.blockItemId().item().identifier();
-        Supplier<Item.Properties> runtimeProperties = () -> {
-            Item.Properties properties = new Item.Properties();
-            finalBuilder.properties.accept(properties);
-            return properties;
-        };
-        SuppliedItem registered = items.registerBlockItem(
-                block.blockItemId(), block, type.get(), runtimeProperties);
+        Supplier<ItemRegistry.Definition> definition = () -> ItemRegistry.Definition.blockItem(
+                block, type, componentValues(finalBuilder.properties, block.blockItemId().item()));
+        SuppliedItem registered = ItemRegistry.registerBlockItem(block.blockItemId(), definition);
         CodecGenerator.registry(modId, id, "items", settings.metadata().priority(), settings.metadata().requirement(),
-                ItemRegistry.CODEC, () -> ItemRegistry.Definition.blockItem(block, type,
-                                componentValues(finalBuilder.properties, block.blockItemId().item())));
+                ItemRegistry.CODEC, definition);
         DataProviders.MODELS.add(modId, new DataProviders.ItemModels(id, finalBuilder::buildAssets));
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
@@ -180,8 +168,7 @@ public class ItemGenerator {
         private Consumer<DataProviders.TagGenerator<Item>> tags = _ -> {};
         private BiConsumer<Item, RecipeProvider> recipe;
 
-        private Data(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement,
-                ResourceKey<Item> key, Supplier<Item> item) {
+        private Data(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement, ResourceKey<Item> key, Supplier<Item> item) {
             this.modId = modId;
             this.requirement = requirement;
             this.key = key;

@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.core.*;
-import net.rebel459.unified.api.core.DataRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -35,14 +34,21 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Y> Supplied<T> register(String path, Supplier<T> value) {
-            ResourceKey<Y> key = ResourceKey.create(registry.key(), Identifier.fromNamespaceAndPath(modId, path));
-            T registered = Registry.register(registry, key, value.get());
-            return new Supplied<>(() -> registry, key, () -> registered);
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            ResourceKey<Y> key = ResourceKey.create(registry.key(), id);
+            Supplied<T> existing = StagedRegistry.getClaimed(key);
+            if (existing != null) return existing;
+            Holder.Reference<T> holder = Registry.registerForHolder(registry, id, value.get());
+            return new Supplied<>(key, holder::value, () -> holder);
         }
 
         @Override
         public <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value) {
-            return Registry.registerForHolder(registry, Identifier.fromNamespaceAndPath(modId, path), value.get());
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            ResourceKey<Y> key = ResourceKey.create(registry.key(), id);
+            Supplied<T> existing = StagedRegistry.getClaimed(key);
+            if (existing != null) return existing.holder();
+            return Registry.registerForHolder(registry, id, value.get());
         }
 
         @Override
@@ -55,13 +61,11 @@ public class FabricUnifiedRegistries {
 
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedItem existing = DataRegistry.getClaimed(Registries.ITEM, id);
+            ResourceKey<Item> resourceKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path));
+            SuppliedItem existing = StagedRegistry.getClaimed(resourceKey);
             if (existing != null) return existing;
-            var resourceKey = ResourceKey.create(Registries.ITEM, id);
             var item = net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
-            Supplier<Item> supplied = () -> item;
-            return new SuppliedItem(() -> BuiltInRegistries.ITEM, resourceKey, supplied);
+            return new SuppliedItem(resourceKey, () -> item, () -> BuiltInRegistries.ITEM.getOrThrow(resourceKey));
         }
 
         @Override
@@ -71,12 +75,10 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            Identifier itemId = id.item().identifier();
-            SuppliedItem existing = DataRegistry.getClaimed(Registries.ITEM, itemId);
+            SuppliedItem existing = StagedRegistry.getClaimed(id.item());
             if (existing != null) return existing;
             Item item = net.minecraft.world.item.Items.registerBlock(id, block.get(), function, properties.get());
-            Supplier<Item> supplied = () -> item;
-            return new SuppliedItem(() -> BuiltInRegistries.ITEM, id.item(), supplied);
+            return new SuppliedItem(id.item(), () -> item, () -> BuiltInRegistries.ITEM.getOrThrow(id.item()));
         }
 
         @Override
@@ -89,23 +91,18 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
-            if (existing != null) return existing;
             Identifier blockId = Identifier.fromNamespaceAndPath(modId, path);
             BlockItemId blockItemId = BlockItemId.create(blockId, blockId);
-
+            SuppliedBlock existing = StagedRegistry.getClaimed(blockItemId.block());
+            if (existing != null) return existing;
             Block block = Registry.register(BuiltInRegistries.BLOCK, blockItemId.block(), function.apply(blockProperties.get().setId(blockItemId.block())));
             net.minecraft.world.item.Items.registerBlock(blockItemId, block, BlockItem::new, new Item.Properties());
-
-            Supplier<Block> suppliedBlock = () -> block;
-            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, blockItemId, suppliedBlock);
+            return new SuppliedBlock(blockItemId, () -> block, () -> BuiltInRegistries.BLOCK.getOrThrow(blockItemId.block()));
         }
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
+            SuppliedBlock existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path)));
             if (existing != null) return existing;
             SuppliedBlock block = register(path, function, blockProperties);
             type.get().addValidBlock(block.get());
@@ -124,13 +121,11 @@ public class FabricUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, blockPath);
-            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
+            ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, blockPath));
+            SuppliedBlock existing = StagedRegistry.getClaimed(key);
             if (existing != null) return existing;
-            ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
             Block block = Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key)));
-            Supplier<Block> supplied = () -> block;
-            return new SuppliedBlock(() -> BuiltInRegistries.BLOCK, BlockItemId.create(id, Identifier.fromNamespaceAndPath(modId, itemPath)), supplied);
+            return new SuppliedBlock(BlockItemId.create(key.identifier(), Identifier.fromNamespaceAndPath(modId, itemPath)), () -> block, () -> BuiltInRegistries.BLOCK.getOrThrow(key));
         }
 
         @Override
@@ -151,9 +146,10 @@ public class FabricUnifiedRegistries {
         @Override
         public <T> Supplied<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
             ResourceKey<DataComponentType<?>> key = ResourceKey.create(Registries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, path));
+            Supplied<DataComponentType<T>> existing = StagedRegistry.getClaimed(key);
+            if (existing != null) return existing;
             DataComponentType<T> component = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, key, unaryOperator.apply(DataComponentType.builder()).build());
-            Supplier<DataComponentType<T>> supplied = () -> component;
-            return new Supplied<>(() -> BuiltInRegistries.DATA_COMPONENT_TYPE, key, supplied);
+            return new Supplied<>(key, () -> component, () -> BuiltInRegistries.DATA_COMPONENT_TYPE.getOrThrow(key));
         }
 
         @Override
@@ -167,9 +163,10 @@ public class FabricUnifiedRegistries {
         @Override
         public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
             ResourceKey<EntityType<?>> resourceKey = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
+            Supplied<EntityType<T>> existing = StagedRegistry.getClaimed(resourceKey);
+            if (existing != null) return existing;
             EntityType<T> entity = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey));
-            Supplier<EntityType<T>> supplied = () -> entity;
-            return new Supplied<>(() -> BuiltInRegistries.ENTITY_TYPE, resourceKey, supplied);
+            return new Supplied<>(resourceKey, () -> entity, () -> BuiltInRegistries.ENTITY_TYPE.getOrThrow(resourceKey));
         }
 
         @Override
@@ -194,12 +191,13 @@ public class FabricUnifiedRegistries {
         @Override
         public Supplied<SoundEvent> register(String path, float fixedRange) {
             ResourceKey<SoundEvent> key = ResourceKey.create(Registries.SOUND_EVENT, Identifier.fromNamespaceAndPath(modId, path));
+            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(key);
+            if (existing != null) return existing;
             SoundEvent rangeType = SoundEvent.createVariableRangeEvent(key.identifier());
             if (fixedRange >= 0F) rangeType = SoundEvent.createFixedRangeEvent(key.identifier(), fixedRange);
             SoundEvent finalRangeType = rangeType;
             SoundEvent sound = Registry.register(BuiltInRegistries.SOUND_EVENT, key, finalRangeType);
-            Supplier<SoundEvent> supplied = () -> sound;
-            return new Supplied<>(() -> BuiltInRegistries.SOUND_EVENT, key, supplied);
+            return new Supplied<>(key, () -> sound, () -> BuiltInRegistries.SOUND_EVENT.getOrThrow(key));
         }
 
         @Override
@@ -209,10 +207,13 @@ public class FabricUnifiedRegistries {
         @Override
         public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
+            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.SOUND_EVENT, identifier));
+            if (existing != null) return existing.holder();
             SoundEvent rangeType = SoundEvent.createVariableRangeEvent(identifier);
             if (fixedRange >= 0F) rangeType = SoundEvent.createFixedRangeEvent(identifier, fixedRange);
             SoundEvent finalRangeType = rangeType;
             return Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, identifier, finalRangeType);
         }
     }
+
 }

@@ -5,39 +5,38 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
 public class Supplied<T> implements Supplier<T> {
 
-    private final Supplier<? extends Registry<?>> registry;
-    private final ResourceKey<?> key;
-    private final Supplier<?> supplied;
+    private final ResourceKey<T> key;
+    private final Supplier<? extends T> supplier;
+    private final Supplier<? extends Holder<T>> holder;
 
     @ApiStatus.Internal
-    public Supplied(Supplier<? extends Registry<?>> registry, ResourceKey<?> key, Supplier<?> supplied) {
-        this.registry = registry;
-        this.key = key;
-        this.supplied = supplied;
+    @SuppressWarnings("unchecked")
+    public Supplied(ResourceKey<? super T> key, Supplier<? extends T> supplier, Supplier<? extends Holder<? super T>> holder) {
+        this.key = (ResourceKey<T>) key;
+        this.supplier = supplier;
+        this.holder = () -> (Holder<T>) holder.get();
     }
 
-    @SuppressWarnings("unchecked")
     public ResourceKey<T> key() {
-        return (ResourceKey<T>) key;
+        return key;
     }
 
     public Identifier id() {
         return key().identifier();
     }
 
-    @SuppressWarnings("unchecked")
     public Holder<T> holder() {
-        return ((Registry<T>) registry.get()).getOrThrow(key());
+        return holder.get();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public T get() {
-        return (T) supplied.get();
+        return supplier.get();
     }
 }

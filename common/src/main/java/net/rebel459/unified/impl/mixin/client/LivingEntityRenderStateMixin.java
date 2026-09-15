@@ -13,15 +13,15 @@ import java.util.Optional;
 public class LivingEntityRenderStateMixin implements LivingEntityRenderStateVariant {
 
     @Unique
-    private Optional<Holder<MobVariants.Variant>> unified$variant = Optional.empty();
+    private Optional<Holder<MobVariants.Definition>> unified$variant = Optional.empty();
 
     @Override
-    public void setVariant(Optional<Holder<MobVariants.Variant>> variant) {
+    public void setVariant(Optional<Holder<MobVariants.Definition>> variant) {
         this.unified$variant = variant;
     }
 
     @Override
-    public Optional<Holder<MobVariants.Variant>> getVariant() {
+    public Optional<Holder<MobVariants.Definition>> getVariant() {
         return this.unified$variant;
     }
 }

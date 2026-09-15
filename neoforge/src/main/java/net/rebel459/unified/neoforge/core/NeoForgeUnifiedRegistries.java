@@ -28,7 +28,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.rebel459.unified.api.core.*;
-import net.rebel459.unified.api.core.DataRegistry;
+import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.util.BlockLike;
 import org.jetbrains.annotations.NotNull;
 
@@ -103,14 +103,18 @@ public class NeoForgeUnifiedRegistries {
         @Override
         @SuppressWarnings("unchecked")
         public <T extends Y> Supplied<T> register(String path, Supplier<T> value) {
+            Supplied<T> existing = StagedRegistry.getClaimed(ResourceKey.create(registry.key(), Identifier.fromNamespaceAndPath(modId, path)));
+            if (existing != null) return existing;
             var deferredRegistry = DEFERRED.get(Pair.of(modId, registry));
             var deferred = deferredRegistry.register(path, value);
-            return new Supplied<T>(deferredRegistry.getRegistry(), deferred.getKey(), deferred);
+            return new Supplied<T>(deferred.getKey(), deferred, () -> deferred);
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public <T extends Y> Holder<T> registerForHolder(String path, Supplier<T> value) {
+            Supplied<T> existing = StagedRegistry.getClaimed(ResourceKey.create(registry.key(), Identifier.fromNamespaceAndPath(modId, path)));
+            if (existing != null) return existing.holder();
             return DEFERRED.get(Pair.of(modId, registry)).register(path, value);
         }
 
@@ -124,12 +128,11 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public SuppliedItem register(String path, Function<Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedItem existing = DataRegistry.getClaimed(Registries.ITEM, id);
+            SuppliedItem existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modId, path)));
             if (existing != null) return existing;
             var registry = ITEMS.get(modId);
-            var item = ITEMS.get(modId).registerItem(path, function, properties);
-            return new SuppliedItem(registry.getRegistry(), item.getKey(), item);
+            var item = registry.registerItem(path, function, properties);
+            return new SuppliedItem(item.getKey(), item, () -> item);
         }
 
         @Override
@@ -139,11 +142,11 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
-            SuppliedItem existing = DataRegistry.getClaimed(Registries.ITEM, id.item().identifier());
+            SuppliedItem existing = StagedRegistry.getClaimed(id.item());
             if (existing != null) return existing;
             var registry = ITEMS.get(modId);
             var item = registry.registerItem(id.item().identifier().getPath(), settings -> function.apply(block.get(), settings), () -> properties.get().useBlockDescriptionPrefix().requiredFeatures(block.get().requiredFeatures()));
-            return new SuppliedItem(registry.getRegistry(), item.getKey(), item);
+            return new SuppliedItem(item.getKey(), item, () -> item);
         }
 
         @Override
@@ -158,20 +161,19 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T extends Block> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties) {
-            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
-            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
+            SuppliedBlock existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path)));
             if (existing != null) return existing;
             var blockRegistry = BLOCKS.get(modId);
             var itemRegistry = ITEMS.get(modId);
             var block = blockRegistry.registerBlock(path, function, blockProperties);
             itemRegistry.registerSimpleBlockItem(path, block);
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
-            return new SuppliedBlock(blockRegistry.getRegistry(), BlockItemId.create(identifier, identifier), block);
+            return new SuppliedBlock(BlockItemId.create(identifier, identifier), block, () -> block);
         }
 
         @Override
         public <T extends Block, Y extends BlockEntity> SuppliedBlock register(String path, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> blockProperties, Supplier<BlockEntityType<Y>> type) {
-            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path));
+            SuppliedBlock existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modId, path)));
             if (existing != null) return existing;
             var block = register(path, function, blockProperties);
             BLOCK_ENTITIES.add(Pair.of(type, block));
@@ -191,12 +193,11 @@ public class NeoForgeUnifiedRegistries {
         @Override
         public <T extends Block> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, blockPath);
-            SuppliedBlock existing = DataRegistry.getClaimed(Registries.BLOCK, id);
+            SuppliedBlock existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.BLOCK, id));
             if (existing != null) return existing;
             var registry = BLOCKS.get(modId);
             var block = registry.registerBlock(blockPath, function, properties);
-            return new SuppliedBlock(registry.getRegistry(), BlockItemId.create(
-                    id, Identifier.fromNamespaceAndPath(modId, itemPath)), block);
+            return new SuppliedBlock(BlockItemId.create(id, Identifier.fromNamespaceAndPath(modId, itemPath)), block, () -> block);
         }
 
         @Override
@@ -225,9 +226,11 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public <T> Supplied<DataComponentType<T>> register(String path, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
+            Supplied<DataComponentType<T>> existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(modId, path)));
+            if (existing != null) return existing;
             var registry = DATA_COMPONENTS.get(modId);
             var component = registry.register(path, () -> unaryOperator.apply(DataComponentType.builder()).build());
-            return new Supplied<>(registry.getRegistry(), component.getKey(), component);
+            return new Supplied<>(component.getKey(), component, () -> component);
         }
 
         @Override
@@ -242,9 +245,12 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
+            ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
+            Supplied<EntityType<T>> existing = StagedRegistry.getClaimed(key);
+            if (existing != null) return existing;
             DeferredRegister<EntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.ENTITY_TYPE));
-            var entityType = registry.register(path, () -> builder.build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path))));
-            return new Supplied<>(registry.getRegistry(), entityType.getKey(), entityType);
+            var entityType = registry.register(path, () -> builder.build(key));
+            return new Supplied<>(entityType.getKey(), entityType, () -> entityType);
         }
 
         @Override
@@ -271,24 +277,33 @@ public class NeoForgeUnifiedRegistries {
 
         @Override
         public Supplied<SoundEvent> register(String path) {
+            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.SOUND_EVENT, Identifier.fromNamespaceAndPath(modId, path)));
+            if (existing != null) return existing;
             DeferredRegister<SoundEvent> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT));
             var soundEvent = registry.register(path, SoundEvent::createVariableRangeEvent);
-            return new Supplied<>(registry.getRegistry(), soundEvent.getKey(), soundEvent);
+            return new Supplied<>(soundEvent.getKey(), soundEvent, () -> soundEvent);
         }
         @Override
         public Supplied<SoundEvent> register(String path, float fixedRange) {
+            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.SOUND_EVENT, Identifier.fromNamespaceAndPath(modId, path)));
+            if (existing != null) return existing;
             DeferredRegister<SoundEvent> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT));
             var soundEvent = registry.register(path, () -> SoundEvent.createFixedRangeEvent(Identifier.fromNamespaceAndPath(modId, path), fixedRange));
-            return new Supplied<>(registry.getRegistry(), soundEvent.getKey(), soundEvent);
+            return new Supplied<>(soundEvent.getKey(), soundEvent, () -> soundEvent);
         }
 
         @Override
         public Holder<SoundEvent> registerForHolder(String path) {
+            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.SOUND_EVENT, Identifier.fromNamespaceAndPath(modId, path)));
+            if (existing != null) return existing.holder();
             return ((DeferredRegister<SoundEvent>) DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT))).register(path, () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(modId, path)));
         }
         @Override
         public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
+            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(ResourceKey.create(Registries.SOUND_EVENT, Identifier.fromNamespaceAndPath(modId, path)));
+            if (existing != null) return existing.holder();
             return ((DeferredRegister<SoundEvent>) DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT))).register(path, () -> SoundEvent.createFixedRangeEvent(Identifier.fromNamespaceAndPath(modId, path), fixedRange));
         }
     }
+
 }

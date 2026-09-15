@@ -7,13 +7,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Supplier;
 
 public class SuppliedItem extends Supplied<Item> implements ItemLike {
 
-    public <T extends Item> SuppliedItem(Supplier<Registry<Item>> registry, ResourceKey<Item> key, Supplier<T> item) {
-        super(registry, key, item);
+    @ApiStatus.Internal
+    public SuppliedItem(ResourceKey<Item> key, Supplier<? extends Item> item, Supplier<? extends Holder<Item>> holder) {
+        super(key, item, holder);
     }
 
     public ItemStack defaultItemStack() {

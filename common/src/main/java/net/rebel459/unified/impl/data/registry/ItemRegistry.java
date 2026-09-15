@@ -15,8 +15,9 @@ import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
-import net.rebel459.unified.api.core.DataRegistry;
+import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.core.RegistryResourceListener;
+import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 
 import java.util.Map;
@@ -49,14 +50,12 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
     public static final Identifier ID = Unified.id("items");
 
     public ItemRegistry() {
-        super(ID, CODEC, BlockRegistry.ID, EntityRegistry.ID);
+        super(ID, CODEC, Registries.ITEM, EntityRegistry.ID);
     }
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
-        Supplier<Item.Properties> properties = () -> createProperties(declaration.get().properties());
-        DataRegistry.register(Registries.ITEM, id, () -> {
-            UnifiedRegistries.Items items = UnifiedRegistries.Items.create(id.getNamespace());
+        StagedRegistry.register(Registries.ITEM, id, () -> {
             Optional<Identifier> blockId = declaration.decode(BLOCK_ID_CODEC);
             Optional<Identifier> typeId = declaration.decode(TYPE_ID_CODEC);
             boolean blockItem = typeId.map(ExtensibleCodecs.BLOCK_ITEM::contains)
@@ -64,14 +63,32 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
             if (blockItem) {
                 Identifier registeredBlockId = blockId.orElseThrow(() ->
                         new IllegalArgumentException("Block item declaration " + id + " is missing its block"));
-                Supplier<Block> block = () -> declaration.get().factoryType.left().orElseThrow().block().get();
-                return items.registerBlockItem(BlockItemId.create(registeredBlockId, id), block,
-                        (registeredBlock, itemProperties) -> declaration.get().factoryType.left().orElseThrow()
-                                .factory().apply(registeredBlock, itemProperties), properties);
+                return registerBlockItem(BlockItemId.create(registeredBlockId, id), declaration);
             }
-            return items.register(id.getPath(),
-                    itemProperties -> declaration.get().factoryType.right().orElseThrow().get().apply(itemProperties), properties);
+            return registerDefinition(id, declaration);
         });
+    }
+
+    public static SuppliedItem registerDefinition(
+            Identifier id, Supplier<Definition> suppliedDefinition) {
+        UnifiedRegistries.Items items = UnifiedRegistries.Items.create(id.getNamespace());
+        Supplier<Item.Properties> properties = () ->
+                createProperties(suppliedDefinition.get().properties());
+        return items.register(id.getPath(), itemProperties -> suppliedDefinition.get()
+                .factoryType.right().orElseThrow().get().apply(itemProperties), properties);
+    }
+
+    public static SuppliedItem registerBlockItem(BlockItemId id,
+            Supplier<Definition> suppliedDefinition) {
+        UnifiedRegistries.Items items = UnifiedRegistries.Items.create(
+                id.item().identifier().getNamespace());
+        Supplier<Item.Properties> properties = () ->
+                createProperties(suppliedDefinition.get().properties());
+        Supplier<Block> block = () -> suppliedDefinition.get().factoryType.left()
+                .orElseThrow().block().get();
+        return items.registerBlockItem(id, block,
+                (registeredBlock, itemProperties) -> suppliedDefinition.get().factoryType.left()
+                        .orElseThrow().factory().apply(registeredBlock, itemProperties), properties);
     }
 
     public record Definition(Either<BlockItemDefinition, ExtensibleCodec.Entry<Function<Item.Properties, Item>>> factoryType, Map<DataComponentType<?>, Object> properties) {

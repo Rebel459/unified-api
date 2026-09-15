@@ -6,6 +6,7 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.helper.RecipeGenerator;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
+import net.rebel459.unified.api.data.registry.CreativeTabGenerator;
 import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.impl.core.DataProviders;
 
@@ -98,6 +99,7 @@ public final class UnifiedData {
     public static final class Registries {
         private final ItemGenerator items;
         private final BlockGenerator blocks;
+        private final CreativeTabGenerator creativeTabs;
 
         public ItemGenerator items() {
             return items;
@@ -105,10 +107,14 @@ public final class UnifiedData {
         public BlockGenerator blocks() {
             return blocks;
         }
+        public CreativeTabGenerator creativeTabs() {
+            return creativeTabs;
+        }
 
         private Registries(String modId, String namespace, DataProviders.GenerationSettings settings) {
-            this.items = new ItemGenerator(modId, namespace, settings, UnifiedRegistries.Items.create(namespace));
-            this.blocks = new BlockGenerator(modId, namespace, settings, UnifiedRegistries.Blocks.create(namespace), this.items);
+            this.items = new ItemGenerator(modId, namespace, settings);
+            this.blocks = new BlockGenerator(modId, namespace, settings, this.items);
+            this.creativeTabs = new CreativeTabGenerator(modId, namespace, settings);
         }
     }
 

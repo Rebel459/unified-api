@@ -6,7 +6,7 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.RegistryResourceInitializer;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.UnifiedHelpers;
-import net.rebel459.unified.api.core.DataRegistry;
+import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
@@ -51,7 +51,7 @@ public class Unified {
         new CreativeTabRegistry().init();
         ServiceLoader.load(RegistryResourceInitializer.class, Unified.class.getClassLoader()).forEach(RegistryResourceInitializer::initializeRegistryResources);
         RegistryResourceListener.completeRegistration();
-        DataRegistry.finish();
+        StagedRegistry.finish();
         UnifiedHelpers.RELOAD_LISTENERS.addListener(BlockConversions.ID, new BlockConversions());
     }
 

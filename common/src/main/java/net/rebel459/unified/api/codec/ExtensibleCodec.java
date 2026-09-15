@@ -21,11 +21,7 @@ public class ExtensibleCodec<R> {
         return types.containsKey(id);
     }
 
-    public synchronized <T> Complex<R, T> register(
-            Identifier id,
-            MapCodec<T> codec,
-            Function<T, ? extends R> factory
-    ) {
+    public synchronized <T> Complex<R, T> register(Identifier id, MapCodec<T> codec, Function<T, ? extends R> factory) {
         Complex<R, T> type = createComplex(id, codec, factory);
         return registerComplexType(type);
     }

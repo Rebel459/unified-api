@@ -3,6 +3,7 @@ package net.rebel459.unified.api.core;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.references.BlockItemId;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.rebel459.unified.api.util.BlockLike;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
@@ -18,9 +20,10 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
 
     private final BlockItemId blockItemId;
 
-    public <T extends Block> SuppliedBlock(Supplier<Registry<Block>> registry, BlockItemId id, Supplier<T> block) {
-        super(registry, id.block(), block);
-        this.blockItemId = id;
+    @ApiStatus.Internal
+    public SuppliedBlock(BlockItemId blockItemId, Supplier<? extends Block> block, Supplier<? extends Holder<Block>> holder) {
+        super(blockItemId.block(), block, holder);
+        this.blockItemId = blockItemId;
     }
 
     public BlockState defaultBlockState() {

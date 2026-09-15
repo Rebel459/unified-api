@@ -34,29 +34,29 @@ import java.util.Optional;
 
 public class MobVariants {
 
-    public static final ResourceKey<Registry<Variant>> KEY = ResourceKey.createRegistryKey(Unified.id("mob_variants"));
+    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("mob_variants"));
 
     public static void init() {
         UnifiedHelpers.DATA_REGISTRIES.registerSynced(
                 KEY,
-                UnifiedCodecs.loadRequirements(Variant.CODEC, () -> new Variant(
+                UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(
                         Optional.empty(),
                         Optional.empty(),
                         Optional.empty(),
-                        SoundVariants.EMPTY
+                        Sounds.EMPTY
                 )),
-                UnifiedCodecs.loadRequirements(Variant.NETWORK_CODEC, () -> new Variant(
+                UnifiedCodecs.loadRequirements(Definition.NETWORK_CODEC, () -> new Definition(
                         Optional.empty(),
                         Optional.empty(),
                         Optional.empty(),
-                        SoundVariants.EMPTY
+                        Sounds.EMPTY
                 ))
         );
     }
 
-    public static UnifiedAttachments.Entity<Optional<Holder<Variant>>> MOB_VARIANT = UnifiedAttachments.Entity.builder(Unified.id("mob_variant"), Optional::<Holder<Variant>>empty)
-            .persistent(Variant.REGISTRY_CODEC.optionalFieldOf("mob_variant"))
-            .synced(Variant.STREAM_CODEC)
+    public static UnifiedAttachments.Entity<Optional<Holder<Definition>>> MOB_VARIANT = UnifiedAttachments.Entity.builder(Unified.id("mob_variant"), Optional::<Holder<Definition>>empty)
+            .persistent(Definition.REGISTRY_CODEC.optionalFieldOf("mob_variant"))
+            .synced(Definition.STREAM_CODEC)
             .copyOnDeath()
             .build();
 
@@ -64,11 +64,11 @@ public class MobVariants {
             .persistent(Codec.BOOL.fieldOf("mob_variant_attempted"))
             .build();
 
-    public record Variant(
+    public record Definition(
             Optional<Identifier> target,
             Optional<TextureReplacement> texture,
             Optional<TextureReplacement> babyTexture,
-            SoundVariants sounds,
+            Sounds sounds,
             SpawnPrioritySelectors spawnConditions,
             float spawnChance,
             List<AttributeEntry> attributes,
@@ -77,50 +77,47 @@ public class MobVariants {
             Optional<ResourceKey<LootTable>> lootTable
     ) implements PriorityProvider<SpawnContext, SpawnCondition> {
 
-        public static final Codec<Variant> CODEC = codec(
+        public static final Codec<Definition> CODEC = create(
                 Identifier.CODEC.xmap(Optional::of, target -> target.orElseThrow(() -> new IllegalStateException("Mob Variant target is required"))).fieldOf("target"),
                 SpawnPrioritySelectors.CODEC.optionalFieldOf("spawn_conditions", SpawnPrioritySelectors.EMPTY),
                 ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("spawn_chance", 1F),
-                ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table")
-        );
+                ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table"),
+                AttributeEntry.CODEC.listOf().optionalFieldOf("attributes", List.of())
+        ).codec();
 
-        public static final Variant DEFAULT_PROPERTIES = new Variant(
-                Optional.empty(), Optional.empty(), Optional.empty(), SoundVariants.EMPTY,
+        public static final Definition DEFAULT_PROPERTIES = new Definition(
+                Optional.empty(), Optional.empty(), Optional.empty(), Sounds.EMPTY,
                 SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty()
         );
-        public static final MapCodec<Variant> PROPERTIES_CODEC = mapCodec(MapCodec.unit(Optional.empty()), MapCodec.unit(SpawnPrioritySelectors.EMPTY), MapCodec.unit(1F), MapCodec.unit(Optional.empty()));
+        public static final MapCodec<Definition> PROPERTIES_CODEC = create(MapCodec.unit(Optional.empty()), MapCodec.unit(SpawnPrioritySelectors.EMPTY), MapCodec.unit(1F), MapCodec.unit(Optional.empty()), MapCodec.unit(List.of()));
 
-        private static Codec<Variant> codec(MapCodec<Optional<Identifier>> target, MapCodec<SpawnPrioritySelectors> spawnConditions, MapCodec<Float> spawnChance, MapCodec<Optional<ResourceKey<LootTable>>> lootTable) {
-            return mapCodec(target, spawnConditions, spawnChance, lootTable).codec();
-        }
-
-        private static MapCodec<Variant> mapCodec(MapCodec<Optional<Identifier>> target, MapCodec<SpawnPrioritySelectors> spawnConditions, MapCodec<Float> spawnChance, MapCodec<Optional<ResourceKey<LootTable>>> lootTable) {
+        private static MapCodec<Definition> create(MapCodec<Optional<Identifier>> target, MapCodec<SpawnPrioritySelectors> spawnConditions, MapCodec<Float> spawnChance, MapCodec<Optional<ResourceKey<LootTable>>> lootTable, MapCodec<List<AttributeEntry>> attributes) {
             return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    target.forGetter(Variant::target),
-                    TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Variant::texture),
-                    TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),
-                    SoundVariants.CODEC.optionalFieldOf("sound_type", SoundVariants.EMPTY).forGetter(Variant::sounds),
-                    spawnConditions.forGetter(Variant::spawnConditions),
-                    spawnChance.forGetter(Variant::spawnChance),
-                    AttributeEntry.CODEC.listOf().optionalFieldOf("attributes", List.of()).forGetter(Variant::attributes),
-                    MobEffectInstance.CODEC.listOf().optionalFieldOf("attack_effects", List.of()).forGetter(Variant::attackEffects),
-                    Codec.BOOL.optionalFieldOf("burn_in_daylight").forGetter(Variant::burnInDaylight),
-                    lootTable.forGetter(Variant::lootTable)
-            ).apply(instance, Variant::new));
+                    target.forGetter(Definition::target),
+                    TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Definition::texture),
+                    TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Definition::babyTexture),
+                    Sounds.CODEC.optionalFieldOf("sound_type", Sounds.EMPTY).forGetter(Definition::sounds),
+                    spawnConditions.forGetter(Definition::spawnConditions),
+                    spawnChance.forGetter(Definition::spawnChance),
+                    attributes.forGetter(Definition::attributes),
+                    MobEffectInstance.CODEC.listOf().optionalFieldOf("attack_effects", List.of()).forGetter(Definition::attackEffects),
+                    Codec.BOOL.optionalFieldOf("burn_in_daylight").forGetter(Definition::burnInDaylight),
+                    lootTable.forGetter(Definition::lootTable)
+            ).apply(instance, Definition::new));
         }
 
-        private Variant(Optional<Identifier> target, Optional<TextureReplacement> texture, Optional<TextureReplacement> babyTexture, SoundVariants sounds) {
+        private Definition(Optional<Identifier> target, Optional<TextureReplacement> texture, Optional<TextureReplacement> babyTexture, Sounds sounds) {
             this(target, texture, babyTexture, sounds, SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty());
         }
 
-        public static final Codec<Variant> NETWORK_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-                Identifier.CODEC.optionalFieldOf("target").forGetter(Variant::target),
-                TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Variant::texture),
-                TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Variant::babyTexture),
-                SoundVariants.CODEC.optionalFieldOf("soundType", new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Variant::sounds)
-        ).apply(instance, Variant::new));
-        public static final Codec<Holder<Variant>> REGISTRY_CODEC = RegistryFixedCodec.create(KEY);
-        public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Variant>>> STREAM_CODEC = ByteBufCodecs.optional(
+        public static final Codec<Definition> NETWORK_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+                Identifier.CODEC.optionalFieldOf("target").forGetter(Definition::target),
+                TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Definition::texture),
+                TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Definition::babyTexture),
+                Sounds.CODEC.optionalFieldOf("soundType", new Sounds(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Definition::sounds)
+        ).apply(instance, Definition::new));
+        public static final Codec<Holder<Definition>> REGISTRY_CODEC = RegistryFixedCodec.create(KEY);
+        public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Definition>>> STREAM_CODEC = ByteBufCodecs.optional(
                 ByteBufCodecs.holder(KEY, ByteBufCodecs.fromCodecWithRegistries(NETWORK_CODEC))
         );
 
@@ -151,16 +148,16 @@ public class MobVariants {
         );
     }
 
-    public record SoundVariants(Optional<SoundEvent> ambientSound, Optional<SoundEvent> hurtSound, Optional<SoundEvent> eatSound, Optional<SoundEvent> deathSound, Optional<SoundEvent> stepSound) {
-        public static final Codec<SoundVariants> CODEC =  RecordCodecBuilder.create(instance -> instance.group(
-                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("ambient_sound").forGetter(SoundVariants::ambientSound),
-                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("hurt_sound").forGetter(SoundVariants::hurtSound),
-                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("eat_sound").forGetter(SoundVariants::eatSound),
-                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("death_sound").forGetter(SoundVariants::deathSound),
-                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("step_sound").forGetter(SoundVariants::stepSound))
-                .apply(instance, SoundVariants::new)
+    public record Sounds(Optional<SoundEvent> ambientSound, Optional<SoundEvent> hurtSound, Optional<SoundEvent> eatSound, Optional<SoundEvent> deathSound, Optional<SoundEvent> stepSound) {
+        public static final Codec<Sounds> CODEC =  RecordCodecBuilder.create(instance -> instance.group(
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("ambient_sound").forGetter(Sounds::ambientSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("hurt_sound").forGetter(Sounds::hurtSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("eat_sound").forGetter(Sounds::eatSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("death_sound").forGetter(Sounds::deathSound),
+                        BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("step_sound").forGetter(Sounds::stepSound))
+                .apply(instance, Sounds::new)
         );
 
-        public static final SoundVariants EMPTY = new SoundVariants(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+        public static final Sounds EMPTY = new Sounds(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
     }
 }

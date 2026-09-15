@@ -23,10 +23,10 @@ import java.util.Optional;
 public final class EntityCopier {
     private static final Map<ResourceKey<EntityType<?>>, Declaration> DECLARATIONS = new LinkedHashMap<>();
     private static final Map<EntityType<?>, EntityType<?>> TEMPLATES = new LinkedHashMap<>();
-    private static final Map<EntityType<?>, ResourceKey<MobVariants.Variant>> DEFAULT_VARIANTS = new LinkedHashMap<>();
-    private static final Map<EntityType<?>, MobVariants.Variant> INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
-    private static final Map<ResourceKey<EntityType<?>>, ResourceKey<MobVariants.Variant>> PENDING_DEFAULT_VARIANTS = new LinkedHashMap<>();
-    private static final Map<ResourceKey<EntityType<?>>, MobVariants.Variant> PENDING_INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
+    private static final Map<EntityType<?>, ResourceKey<MobVariants.Definition>> DEFAULT_VARIANTS = new LinkedHashMap<>();
+    private static final Map<EntityType<?>, MobVariants.Definition> INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
+    private static final Map<ResourceKey<EntityType<?>>, ResourceKey<MobVariants.Definition>> PENDING_DEFAULT_VARIANTS = new LinkedHashMap<>();
+    private static final Map<ResourceKey<EntityType<?>>, MobVariants.Definition> PENDING_INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
 
     private EntityCopier() {}
 
@@ -36,13 +36,13 @@ public final class EntityCopier {
         return entityType;
     }
 
-    public static EntityType<?> create(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base, MobVariants.Variant defaultVariant) {
+    public static EntityType<?> create(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base, MobVariants.Definition defaultVariant) {
         setDefaultVariant(key, defaultVariant);
         EntityType<?> entityType = create(key, base);
         return entityType;
     }
 
-    public static void setDefaultVariant(ResourceKey<EntityType<?>> entityType, MobVariants.Variant defaultVariant) {
+    public static void setDefaultVariant(ResourceKey<EntityType<?>> entityType, MobVariants.Definition defaultVariant) {
         PENDING_INLINE_DEFAULT_VARIANTS.put(entityType, defaultVariant);
     }
 
@@ -59,9 +59,9 @@ public final class EntityCopier {
     }
 
     public static void onRegistered(ResourceKey<EntityType<?>> key, EntityType<?> entityType) {
-        ResourceKey<MobVariants.Variant> defaultVariant = PENDING_DEFAULT_VARIANTS.remove(key);
+        ResourceKey<MobVariants.Definition> defaultVariant = PENDING_DEFAULT_VARIANTS.remove(key);
         if (defaultVariant != null) DEFAULT_VARIANTS.put(entityType, defaultVariant);
-        MobVariants.Variant inlineDefaultVariant = PENDING_INLINE_DEFAULT_VARIANTS.remove(key);
+        MobVariants.Definition inlineDefaultVariant = PENDING_INLINE_DEFAULT_VARIANTS.remove(key);
         if (inlineDefaultVariant != null) INLINE_DEFAULT_VARIANTS.put(entityType, inlineDefaultVariant);
 
         Declaration declaration = DECLARATIONS.get(key);
@@ -80,20 +80,20 @@ public final class EntityCopier {
         return Optional.ofNullable(TEMPLATES.get(entityType));
     }
 
-    public static Optional<ResourceKey<MobVariants.Variant>> defaultVariant(EntityType<?> entityType) {
+    public static Optional<ResourceKey<MobVariants.Definition>> defaultVariant(EntityType<?> entityType) {
         return Optional.ofNullable(DEFAULT_VARIANTS.get(entityType));
     }
 
-    public static Optional<Holder<MobVariants.Variant>> resolveDefaultVariant(EntityType<?> entityType, HolderGetter<MobVariants.Variant> variants) {
-        ResourceKey<MobVariants.Variant> key = DEFAULT_VARIANTS.get(entityType);
+    public static Optional<Holder<MobVariants.Definition>> resolveDefaultVariant(EntityType<?> entityType, HolderGetter<MobVariants.Definition> variants) {
+        ResourceKey<MobVariants.Definition> key = DEFAULT_VARIANTS.get(entityType);
         if (key != null) return variants.get(key).map(holder -> holder);
         return Optional.ofNullable(INLINE_DEFAULT_VARIANTS.get(entityType)).map(Holder::direct);
     }
 
-    public static boolean isDefaultVariant(EntityType<?> entityType, Holder<MobVariants.Variant> variant) {
-        ResourceKey<MobVariants.Variant> key = DEFAULT_VARIANTS.get(entityType);
+    public static boolean isDefaultVariant(EntityType<?> entityType, Holder<MobVariants.Definition> variant) {
+        ResourceKey<MobVariants.Definition> key = DEFAULT_VARIANTS.get(entityType);
         if (key != null) return variant.is(key);
-        MobVariants.Variant inline = INLINE_DEFAULT_VARIANTS.get(entityType);
+        MobVariants.Definition inline = INLINE_DEFAULT_VARIANTS.get(entityType);
         return inline != null && inline.equals(variant.value());
     }
 

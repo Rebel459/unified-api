@@ -29,7 +29,7 @@ public class AnimalMixin {
         Animal animal = Animal.class.cast(this);
         if (animal instanceof LivingEntityVariant firstParent && partner instanceof LivingEntityVariant secondParent && offspring instanceof LivingEntityVariant child) {
             Identifier offspringType = EntityType.getKey(offspring.getType());
-            List<Holder<MobVariants.Variant>> inherited = new ArrayList<>(2);
+            List<Holder<MobVariants.Definition>> inherited = new ArrayList<>(2);
             firstParent.getVariant().filter(variant -> appliesTo(variant, offspring.getType(), offspringType)).ifPresent(inherited::add);
             secondParent.getVariant().filter(variant -> appliesTo(variant, offspring.getType(), offspringType)).ifPresent(inherited::add);
 
@@ -39,7 +39,7 @@ public class AnimalMixin {
         }
     }
 
-    private static boolean appliesTo(Holder<MobVariants.Variant> variant, EntityType<?> entityType, Identifier entityTypeId) {
+    private static boolean appliesTo(Holder<MobVariants.Definition> variant, EntityType<?> entityType, Identifier entityTypeId) {
         return variant.value().target().map(entityTypeId::equals).orElseGet(() -> EntityCopier.isDefaultVariant(entityType, variant));
     }
 

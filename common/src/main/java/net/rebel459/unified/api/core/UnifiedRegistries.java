@@ -17,8 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.builder.*;
-import net.rebel459.unified.impl.core.DataRegistries;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.impl.core.StagedRegistries;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -37,7 +36,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static <Y> DeferredRegistry<Y> create(String modId, Registry<Y> registry) {
-            return PlatformHandler.INSTANCE.createDeferredRegistry(modId, registry);
+            return new StagedRegistries.StagedDeferredRegistry<>(modId, registry);
         }
     }
 
@@ -76,7 +75,7 @@ public class UnifiedRegistries {
         }
 
         static Items create(String modId) {
-            return DataRegistries.items(modId);
+            return new StagedRegistries.StagedItems(modId);
         }
     }
 
@@ -127,7 +126,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static Blocks create(String modId) {
-            return DataRegistries.blocks(modId);
+            return new StagedRegistries.StagedBlocks(modId);
         }
     }
 
@@ -139,7 +138,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static DataComponentTypes create(String modId) {
-            return PlatformHandler.INSTANCE.createDataComponentTypes(modId);
+            return new StagedRegistries.StagedDataComponentTypes(modId);
         }
     }
 
@@ -152,7 +151,7 @@ public class UnifiedRegistries {
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 
         static EntityTypes create(String modId) {
-            return PlatformHandler.INSTANCE.createEntityTypes(modId);
+            return new StagedRegistries.StagedEntityTypes(modId);
         }
     }
 
@@ -166,7 +165,7 @@ public class UnifiedRegistries {
         Holder<SoundEvent> registerForHolder(String path, float fixedRange);
 
         static SoundEvents create(String modId) {
-            return PlatformHandler.INSTANCE.createSoundEvents(modId);
+            return new StagedRegistries.StagedSoundEvents(modId);
         }
     }
 }

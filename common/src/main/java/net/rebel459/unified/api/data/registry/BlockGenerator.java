@@ -29,7 +29,6 @@ import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.SuppliedBlock;
-import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
@@ -47,14 +46,12 @@ public class BlockGenerator {
     private final String modId;
     private final String namespace;
     private final DataProviders.GenerationSettings settings;
-    private final UnifiedRegistries.Blocks blocks;
     private final ItemGenerator items;
 
-    public BlockGenerator(String modId, String namespace, DataProviders.GenerationSettings settings, UnifiedRegistries.Blocks blocks, ItemGenerator items) {
+    public BlockGenerator(String modId, String namespace, DataProviders.GenerationSettings settings, ItemGenerator items) {
         this.modId = modId;
         this.namespace = namespace;
         this.settings = settings;
-        this.blocks = blocks;
         this.items = items;
     }
 
@@ -101,19 +98,13 @@ public class BlockGenerator {
         Builder finalBuilder = new Builder(namespace, blockPath);
         builder.accept(finalBuilder);
         Identifier id = Identifier.fromNamespaceAndPath(namespace, blockPath);
-        Supplier<BlockBehaviour.Properties> properties =
-                () -> BlockRegistry.createProperties(finalBuilder.properties.definition);
-        SuppliedBlock block;
-        if (finalBuilder.blockEntity.isPresent()) {
-            block = register(blocks, blockPath, itemPath,
-                    blockProperties -> type.get().apply(blockProperties), properties,
-                    finalBuilder.blockEntity.orElseThrow());
-        } else {
-            block = blocks.registerWithoutItem(blockPath, itemPath,
-                    blockProperties -> type.get().apply(blockProperties), properties);
-        }
+        Supplier<BlockRegistry.Definition> definition = () -> new BlockRegistry.Definition(
+                type, finalBuilder.properties.definition, finalBuilder.blockEntity);
+        SuppliedBlock block = BlockRegistry.registerDefinition(BlockItemId.create(id,
+                Identifier.fromNamespaceAndPath(namespace, itemPath)), definition,
+                finalBuilder.blockEntity);
         CodecGenerator.registry(modId, id, "blocks", settings.metadata().priority(), settings.metadata().requirement(),
-                BlockRegistry.CODEC, () -> new BlockRegistry.Definition(type, finalBuilder.properties.definition, finalBuilder.blockEntity));
+                BlockRegistry.CODEC, definition);
         DataProviders.MODELS.add(modId, new DataProviders.BlockModels(id, finalBuilder::buildAssets));
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.BLOCK,
@@ -494,15 +485,6 @@ public class BlockGenerator {
             dataConfigurations.forEach(configure -> configure.accept(data));
             data.register();
         }
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static SuppliedBlock register(UnifiedRegistries.Blocks blocks, String blockPath, String itemPath,
-                                          Function<BlockBehaviour.Properties, ? extends Block> factory,
-                                          Supplier<BlockBehaviour.Properties> properties,
-                                          Supplier<BlockEntityType<?>> blockEntity) {
-        Supplier type = blockEntity;
-        return blocks.registerWithoutItem(blockPath, itemPath, factory, properties, type);
     }
 
     @SuppressWarnings("unchecked")

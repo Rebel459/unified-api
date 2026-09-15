@@ -7,7 +7,7 @@ import net.rebel459.unified.impl.data.helper.MobVariants;
 import java.util.Optional;
 
 public interface LivingEntityVariant {
-    void setVariant(Optional<Holder<MobVariants.Variant>> variant);
-    Optional<Holder<MobVariants.Variant>> getVariant();
+    void setVariant(Optional<Holder<MobVariants.Definition>> variant);
+    Optional<Holder<MobVariants.Definition>> getVariant();
     void spawnVariant(ServerLevelAccessor level);
 }

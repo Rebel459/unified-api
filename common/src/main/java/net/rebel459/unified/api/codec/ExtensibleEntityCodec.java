@@ -19,18 +19,19 @@ public final class ExtensibleEntityCodec extends ExtensibleCodec<ExtensibleEntit
     private final Map<Identifier, List<ResourceKey<EntityType<?>>>> entities = new LinkedHashMap<>();
     private final Map<Identifier, Binding<?>> bindings = new LinkedHashMap<>();
 
-    public <E extends Entity> Simple<E> register(Identifier id, Class<E> entityClass,
-            Supplier<? extends EntityType.Builder<E>> builder) {
-        return registerSimpleType(new Simple<>(this, id, entityClass, builder));
+    public <E extends Entity> Simple<E> register(Identifier id, Class<E> entityClass, Supplier<? extends EntityType.Builder<E>> builder) {
+        return registerSimpleType(new Simple<>(this, id, builder));
     }
 
-    public <E extends Entity, T> Complex<E, T> register(Identifier id, Class<E> entityClass,
-            MapCodec<T> codec, Function<T, ? extends EntityType.Builder<E>> builder) {
-        return registerComplexType(new Complex<>(this, id, entityClass, codec, builder));
+    public <E extends Entity, T> Complex<E, T> register(Identifier id, Class<E> entityClass, MapCodec<T> codec, Function<T, ? extends EntityType.Builder<E>> builder) {
+        return registerComplexType(new Complex<>(this, id, codec, builder));
     }
 
-    private <E extends Entity> void bind(Identifier id,
-            Consumer<Supplier<EntityType<? extends E>>> renderer) {
+    public <E extends Entity> void bind(ResourceKey<EntityType<?>> key, Consumer<Supplier<EntityType<? extends E>>> renderer) {
+        bind(Identifier.fromNamespaceAndPath(key.identifier().getNamespace(), "entities/" + key.identifier().getPath()), renderer);
+    }
+
+    private <E extends Entity> void bind(Identifier id, Consumer<Supplier<EntityType<? extends E>>> renderer) {
         Binding<E> binding = new Binding<>(renderer);
         if (bindings.putIfAbsent(id, binding) != null) {
             throw new IllegalArgumentException("Duplicate binding for entity codec type " + id);
@@ -51,16 +52,13 @@ public final class ExtensibleEntityCodec extends ExtensibleCodec<ExtensibleEntit
 
     public static final class Simple<E extends Entity> extends ExtensibleCodec.Simple<Factory> {
         private final ExtensibleEntityCodec owner;
-        private final Class<E> entityClass;
 
-        private Simple(ExtensibleEntityCodec owner, Identifier id, Class<E> entityClass,
-                       Supplier<? extends EntityType.Builder<E>> builder) {
+        private Simple(ExtensibleEntityCodec owner, Identifier id, Supplier<? extends EntityType.Builder<E>> builder) {
             super(id, () -> key -> {
                 owner.track(id, key);
                 return builder.get();
             });
             this.owner = owner;
-            this.entityClass = entityClass;
         }
 
         public void bind(Consumer<Supplier<EntityType<? extends E>>> renderer) {
@@ -70,16 +68,13 @@ public final class ExtensibleEntityCodec extends ExtensibleCodec<ExtensibleEntit
 
     public static final class Complex<E extends Entity, T> extends ExtensibleCodec.Complex<Factory, T> {
         private final ExtensibleEntityCodec owner;
-        private final Class<E> entityClass;
 
-        private Complex(ExtensibleEntityCodec owner, Identifier id, Class<E> entityClass, MapCodec<T> codec,
-                        Function<T, ? extends EntityType.Builder<E>> builder) {
+        private Complex(ExtensibleEntityCodec owner, Identifier id, MapCodec<T> codec, Function<T, ? extends EntityType.Builder<E>> builder) {
             super(id, codec, data -> key -> {
                 owner.track(id, key);
                 return builder.apply(data);
             });
             this.owner = owner;
-            this.entityClass = entityClass;
         }
 
         public void bind(Consumer<Supplier<EntityType<? extends E>>> renderer) {

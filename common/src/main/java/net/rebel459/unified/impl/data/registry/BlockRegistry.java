@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -28,8 +29,9 @@ import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
-import net.rebel459.unified.api.core.DataRegistry;
+import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.core.RegistryResourceListener;
+import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 
@@ -53,24 +55,38 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     public static final Identifier ID = Unified.id("blocks");
 
     public BlockRegistry() {
-        super(ID, CODEC, WoodTypeRegistry.ID);
+        super(ID, CODEC, Registries.BLOCK, WoodTypeRegistry.ID);
     }
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
         Optional<Supplier<BlockEntityType<?>>> blockEntity = declaration.decode(BLOCK_ENTITY_CODEC);
-        DataRegistry.register(Registries.BLOCK, id, () -> {
-            UnifiedRegistries.Blocks blocks = UnifiedRegistries.Blocks.create(id.getNamespace());
-            Function<BlockBehaviour.Properties, ? extends Block> factory = properties -> {
-                Definition definition = declaration.get();
-                Block block = definition.factory().apply(properties);
-                createLateProperties(block, definition.properties);
-                return block;
-            };
-            Supplier<BlockBehaviour.Properties> properties = () -> createProperties(declaration.get().properties());
-            if (blockEntity.isPresent()) return blocks.registerWithoutItem(id.getPath(), factory, properties, (Supplier) blockEntity.orElseThrow());
-            else return blocks.registerWithoutItem(id.getPath(), factory, properties);
-        });
+        StagedRegistry.register(Registries.BLOCK, id, () -> registerDefinition(
+                BlockItemId.create(id, id), declaration, blockEntity));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static SuppliedBlock registerDefinition(
+            BlockItemId id,
+            Supplier<Definition> suppliedDefinition,
+            Optional<? extends Supplier<? extends BlockEntityType<?>>> blockEntity) {
+        UnifiedRegistries.Blocks blocks = UnifiedRegistries.Blocks.create(
+                id.block().identifier().getNamespace());
+        Function<BlockBehaviour.Properties, ? extends Block> factory = properties -> {
+            Definition definition = suppliedDefinition.get();
+            Block block = definition.factory().apply(properties);
+            createLateProperties(block, definition.properties);
+            return block;
+        };
+        Supplier<BlockBehaviour.Properties> properties = () ->
+                createProperties(suppliedDefinition.get().properties());
+        if (blockEntity.isPresent()) {
+            Supplier type = blockEntity.orElseThrow();
+            return blocks.registerWithoutItem(id.block().identifier().getPath(),
+                    id.item().identifier().getPath(), factory, properties, type);
+        }
+        return blocks.registerWithoutItem(id.block().identifier().getPath(),
+                id.item().identifier().getPath(), factory, properties);
     }
 
     public record Definition(

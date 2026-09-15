@@ -7,11 +7,12 @@ import com.google.common.base.Suppliers;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackLocationInfo;
@@ -51,13 +52,20 @@ public abstract class RegistryResourceListener<T> {
     private final Identifier id;
     private final String directory;
     private final Codec<T> codec;
+    private final ResourceKey<? extends Registry<?>> registry;
     private final List<Identifier> loadAfter;
     private State state = State.UNREGISTERED;
 
     protected RegistryResourceListener(Identifier id, Codec<T> codec, Identifier... loadAfter) {
+        this(id, codec, null, loadAfter);
+    }
+
+    protected RegistryResourceListener(Identifier id, Codec<T> codec,
+            ResourceKey<? extends Registry<?>> registry, Identifier... loadAfter) {
         this.id = id;
         this.directory = normalizeDirectory(id.getNamespace() + "/registry/" + id.getPath());
         this.codec = codec;
+        this.registry = registry;
         this.loadAfter = List.copyOf(List.of(loadAfter));
     }
 
@@ -164,6 +172,7 @@ public abstract class RegistryResourceListener<T> {
             try {
                 if (resourceIndex == null) resourceIndex = ResourceIndex.create();
                 next.load(resourceIndex);
+                if (next.registry != null) StagedRegistry.finish(next.registry);
                 next.state = State.LOADED;
             } catch (RuntimeException | Error exception) {
                 next.state = State.FAILED;

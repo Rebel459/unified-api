@@ -70,7 +70,7 @@ public class LivingEntityMixin implements LivingEntityVariant {
     }
 
     @Override
-    public void setVariant(Optional<Holder<MobVariants.Variant>> variant) {
+    public void setVariant(Optional<Holder<MobVariants.Definition>> variant) {
         LivingEntity entity = LivingEntity.class.cast(this);
         MobVariants.MOB_VARIANT_ATTEMPTED.set(entity, true);
         MobVariants.MOB_VARIANT.set(entity, variant);
@@ -91,7 +91,7 @@ public class LivingEntityMixin implements LivingEntityVariant {
     }
 
     @Override
-    public Optional<Holder<MobVariants.Variant>> getVariant() {
+    public Optional<Holder<MobVariants.Definition>> getVariant() {
         return MobVariants.MOB_VARIANT.get(LivingEntity.class.cast(this));
     }
 
@@ -107,20 +107,20 @@ public class LivingEntityMixin implements LivingEntityVariant {
 
         var variants = level.registryAccess().lookupOrThrow(MobVariants.KEY);
         var defaultVariantKey = EntityCopier.defaultVariant(entity.getType());
-        Optional<Holder<MobVariants.Variant>> defaultVariant = EntityCopier.resolveDefaultVariant(entity.getType(), variants);
+        Optional<Holder<MobVariants.Definition>> defaultVariant = EntityCopier.resolveDefaultVariant(entity.getType(), variants);
         if (defaultVariant.isEmpty()) {
             defaultVariantKey.ifPresent(key -> {
                 throw new IllegalStateException("Missing default mob variant " + key.identifier() + " for " + entityType);
             });
         }
 
-        Stream<Holder.Reference<MobVariants.Variant>> candidates = variants
+        Stream<Holder.Reference<MobVariants.Definition>> candidates = variants
                         .listElements()
                         .filter(holder -> holder.value().target().map(entityType::equals).orElse(false))
                         .filter(holder -> defaultVariantKey.map(key -> !holder.key().equals(key)).orElse(true))
                         .filter(holder -> random.nextFloat() < holder.value().spawnChance());
 
-        Optional<Holder<MobVariants.Variant>> selected = PriorityProvider.pick(candidates, Holder::value, random, SpawnContext.create(level, entity.blockPosition())).map(holder -> holder);
+        Optional<Holder<MobVariants.Definition>> selected = PriorityProvider.pick(candidates, Holder::value, random, SpawnContext.create(level, entity.blockPosition())).map(holder -> holder);
         selected.or(() -> defaultVariant).ifPresent(holder -> setVariant(Optional.of(holder)));
     }
 }
