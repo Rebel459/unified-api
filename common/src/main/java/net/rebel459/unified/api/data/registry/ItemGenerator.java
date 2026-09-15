@@ -17,6 +17,8 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
+import net.rebel459.unified.api.data.helper.RecipeGenerator;
+import net.rebel459.unified.api.data.helper.TagGenerator;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.asset.ItemAssetRequest;
@@ -30,10 +32,15 @@ public class ItemGenerator {
     private final String modId;
     private final String namespace;
     private final DataProviders.GenerationSettings settings;
-    public ItemGenerator(String modId, String namespace, DataProviders.GenerationSettings settings) {
+    private final TagGenerator tags;
+    private final RecipeGenerator recipes;
+
+    public ItemGenerator(String modId, String namespace, DataProviders.GenerationSettings settings, TagGenerator tags, RecipeGenerator recipes) {
         this.modId = modId;
         this.namespace = namespace;
         this.settings = settings;
+        this.tags = tags;
+        this.recipes = recipes;
     }
 
     public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> builder) {
@@ -54,7 +61,7 @@ public class ItemGenerator {
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
                         () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, settings.metadata().requirement(), key, registered);
+        finalBuilder.registerData(key, registered, tags, recipes);
         return registered;
     }
 
@@ -76,7 +83,7 @@ public class ItemGenerator {
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
                         () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, settings.metadata().requirement(), block.blockItemId().item(), registered);
+        finalBuilder.registerData(block.blockItemId().item(), registered, tags, recipes);
         return registered;
     }
 
@@ -120,9 +127,8 @@ public class ItemGenerator {
             return assets.build();
         }
 
-        private void registerData(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement,
-                ResourceKey<Item> key, Supplier<Item> item) {
-            Data data = new Data(modId, requirement, key, item);
+        private void registerData(ResourceKey<Item> key, Supplier<Item> item, TagGenerator tags, RecipeGenerator recipes) {
+            Data data = new Data(key, item, tags, recipes);
             dataConfigurations.forEach(configure -> configure.accept(data));
             data.register();
         }
@@ -161,27 +167,26 @@ public class ItemGenerator {
     }
 
     public static final class Data {
-        private final String modId;
-        private final Optional<ExtensibleCodec.Entry<Boolean>> requirement;
         private final ResourceKey<Item> key;
         private final Supplier<Item> item;
-        private Consumer<DataProviders.TagGenerator<Item>> tags = _ -> {};
+        private final TagGenerator tagGenerator;
+        private final RecipeGenerator recipeGenerator;
         private BiConsumer<Item, RecipeProvider> recipe;
 
-        private Data(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement, ResourceKey<Item> key, Supplier<Item> item) {
-            this.modId = modId;
-            this.requirement = requirement;
+        private Data(ResourceKey<Item> key, Supplier<Item> item, TagGenerator tags, RecipeGenerator recipes) {
             this.key = key;
             this.item = item;
+            this.tagGenerator = tags;
+            this.recipeGenerator = recipes;
         }
 
         public Data tag(TagKey<Item> tag) {
-            tags = tags.andThen(generator -> generator.add(tag, key));
+            tagGenerator.create(tag).add(key);
             return this;
         }
 
         public Data optionalTag(TagKey<Item> tag) {
-            tags = tags.andThen(generator -> generator.addOptional(tag, key));
+            tagGenerator.create(tag).addOptional(key);
             return this;
         }
 
@@ -191,9 +196,7 @@ public class ItemGenerator {
         }
 
         private void register() {
-            DataProviders.TAGS.add(modId, new DataProviders.TagRequest<>(Registries.ITEM, tags));
-            if (recipe != null) DataProviders.RECIPES.add(modId, new DataProviders.RecipeRequest(requirement,
-                    provider -> recipe.accept(item.get(), provider)));
+            if (recipe != null) recipeGenerator.add(provider -> recipe.accept(item.get(), provider));
         }
     }
 }

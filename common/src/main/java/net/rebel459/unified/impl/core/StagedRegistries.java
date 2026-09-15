@@ -286,12 +286,25 @@ public final class StagedRegistries {
 
         @Override
         public Holder<SoundEvent> registerForHolder(String path) {
-            return PlatformHandler.INSTANCE.createSoundEvents(modId).registerForHolder(path);
+            return registerForHolder(path, registry -> registry.registerForHolder(path));
         }
 
         @Override
         public Holder<SoundEvent> registerForHolder(String path, float fixedRange) {
-            return PlatformHandler.INSTANCE.createSoundEvents(modId).registerForHolder(path, fixedRange);
+            return registerForHolder(path, registry -> registry.registerForHolder(path, fixedRange));
+        }
+
+        private Holder<SoundEvent> registerForHolder(String path,
+                Function<UnifiedRegistries.SoundEvents, Holder<SoundEvent>> registration) {
+            Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+            ResourceKey<SoundEvent> key = ResourceKey.create(Registries.SOUND_EVENT, id);
+            Supplied<SoundEvent> existing = StagedRegistry.getClaimed(key);
+            if (existing != null) return existing.holder();
+            Holder<SoundEvent> holder = registration.apply(
+                    PlatformHandler.INSTANCE.createSoundEvents(modId));
+            StagedRegistry.register(Registries.SOUND_EVENT, id,
+                    () -> new Supplied<>(key, holder::value, () -> holder));
+            return holder;
         }
     }
 }

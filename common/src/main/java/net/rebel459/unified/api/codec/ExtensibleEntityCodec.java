@@ -19,11 +19,11 @@ public final class ExtensibleEntityCodec extends ExtensibleCodec<ExtensibleEntit
     private final Map<Identifier, List<ResourceKey<EntityType<?>>>> entities = new LinkedHashMap<>();
     private final Map<Identifier, Binding<?>> bindings = new LinkedHashMap<>();
 
-    public <E extends Entity> Simple<E> register(Identifier id, Class<E> entityClass, Supplier<? extends EntityType.Builder<E>> builder) {
+    public <E extends Entity> Simple<E> registerSimple(Identifier id, Supplier<? extends EntityType.Builder<E>> builder) {
         return registerSimpleType(new Simple<>(this, id, builder));
     }
 
-    public <E extends Entity, T> Complex<E, T> register(Identifier id, Class<E> entityClass, MapCodec<T> codec, Function<T, ? extends EntityType.Builder<E>> builder) {
+    public <E extends Entity, T> Complex<E, T> registerComplex(Identifier id, MapCodec<T> codec, Function<T, ? extends EntityType.Builder<E>> builder) {
         return registerComplexType(new Complex<>(this, id, codec, builder));
     }
 

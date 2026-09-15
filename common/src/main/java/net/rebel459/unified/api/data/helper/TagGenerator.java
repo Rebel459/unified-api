@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public final class TagGenerator extends HelperGenerator {
 
-    TagGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+    public TagGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
         super(modId, requirement);
     }
 

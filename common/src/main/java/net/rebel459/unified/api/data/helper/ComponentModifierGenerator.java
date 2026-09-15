@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class ComponentModifierGenerator extends HelperGenerator {
-    ComponentModifierGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+    public ComponentModifierGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
         super(modId, requirement);
     }
 

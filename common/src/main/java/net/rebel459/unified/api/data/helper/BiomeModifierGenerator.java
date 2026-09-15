@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 public final class BiomeModifierGenerator extends HelperGenerator {
 
-    BiomeModifierGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+    public BiomeModifierGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
         super(modId, requirement);
     }
     

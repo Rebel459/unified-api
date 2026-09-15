@@ -9,6 +9,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -29,6 +30,10 @@ import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.UnifiedData;
+import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
+import net.rebel459.unified.api.data.helper.RecipeGenerator;
+import net.rebel459.unified.api.data.helper.TagGenerator;
 import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
@@ -47,20 +52,16 @@ public class BlockGenerator {
     private final String namespace;
     private final DataProviders.GenerationSettings settings;
     private final ItemGenerator items;
+    private final TagGenerator tags;
+    private final RecipeGenerator recipes;
 
-    public BlockGenerator(String modId, String namespace, DataProviders.GenerationSettings settings, ItemGenerator items) {
+    public BlockGenerator(String modId, String namespace, DataProviders.GenerationSettings settings, ItemGenerator items, TagGenerator tags, RecipeGenerator recipes) {
         this.modId = modId;
         this.namespace = namespace;
         this.settings = settings;
         this.items = items;
-    }
-
-    public String modId() {
-        return modId;
-    }
-
-    public DataProviders.GenerationSettings settings() {
-        return settings;
+        this.tags = tags;
+        this.recipes = recipes;
     }
 
     public SuppliedBlock register(String path, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
@@ -95,7 +96,7 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
-        Builder finalBuilder = new Builder(namespace, blockPath);
+        Builder finalBuilder = new Builder(namespace, blockPath, tags, recipes);
         builder.accept(finalBuilder);
         Identifier id = Identifier.fromNamespaceAndPath(namespace, blockPath);
         Supplier<BlockRegistry.Definition> definition = () -> new BlockRegistry.Definition(
@@ -109,7 +110,7 @@ public class BlockGenerator {
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.BLOCK,
                         () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, settings.metadata().requirement(), block.blockItemId(), block);
+        finalBuilder.registerData(modId, block.blockItemId(), block);
         return block;
     }
 
@@ -380,38 +381,38 @@ public class BlockGenerator {
 
     public static final class Data {
         private final String modId;
-        private final Optional<ExtensibleCodec.Entry<Boolean>> requirement;
         private final BlockItemId key;
         private final Supplier<Block> block;
-        private Consumer<DataProviders.TagGenerator<Block>> blockTags = _ -> {};
-        private Consumer<DataProviders.TagGenerator<Item>> itemTags = _ -> {};
+        private final TagGenerator tagGenerator;
+        private final RecipeGenerator recipeGenerator;
         private Function<Block, LootTable.Builder> loot;
         private BiConsumer<Item, RecipeProvider> recipes;
 
-        private Data(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement, BlockItemId key, Supplier<Block> block) {
+        private Data(String modId, BlockItemId key, Supplier<Block> block, TagGenerator tagGenerator, RecipeGenerator recipeGenerator) {
             this.modId = modId;
-            this.requirement = requirement;
             this.key = key;
             this.block = block;
+            this.tagGenerator = tagGenerator;
+            this.recipeGenerator = recipeGenerator;
         }
 
         public Data tag(TagKey<Block> tag) {
-            blockTags = blockTags.andThen(generator -> generator.add(tag, key.block()));
+            tagGenerator.create(tag).add(key.block());
             return this;
         }
 
         public Data optionalTag(TagKey<Block> tag) {
-            blockTags = blockTags.andThen(generator -> generator.addOptional(tag, key.block()));
+            tagGenerator.create(tag).addOptional(key.block());
             return this;
         }
 
         public Data itemTag(TagKey<Item> tag) {
-            itemTags = itemTags.andThen(generator -> generator.add(tag, key.item()));
+            tagGenerator.create(tag).add(key.item());
             return this;
         }
 
         public Data optionalItemTag(TagKey<Item> tag) {
-            itemTags = itemTags.andThen(generator -> generator.addOptional(tag, key.item()));
+            tagGenerator.create(tag).addOptional(key.item());
             return this;
         }
 
@@ -431,15 +432,11 @@ public class BlockGenerator {
         }
 
         private void register() {
-            DataProviders.TAGS.add(modId, new DataProviders.TagRequest<>(Registries.BLOCK, blockTags));
-            DataProviders.TAGS.add(modId, new DataProviders.TagRequest<>(Registries.ITEM, itemTags));
             if (loot != null) DataProviders.BLOCK_LOOT.add(modId, generator -> {
                 Block value = block.get();
                 generator.add(value, loot.apply(value));
             });
-            if (recipes != null)
-                DataProviders.RECIPES.add(modId, new DataProviders.RecipeRequest(requirement,
-                        provider -> recipes.accept(block.get().asItem(), provider)));
+            if (recipes != null) recipeGenerator.add(provider -> recipes.accept(block.get().asItem(), provider));
         }
     }
 
@@ -448,9 +445,13 @@ public class BlockGenerator {
         private final List<Consumer<Assets>> assetConfigurations = new ArrayList<>();
         private final List<Consumer<Data>> dataConfigurations = new ArrayList<>();
         private Optional<Supplier<BlockEntityType<?>>> blockEntity = Optional.empty();
+        private final TagGenerator tags;
+        private final RecipeGenerator recipes;
 
-        private Builder(String modId, String path) {
+        private Builder(String modId, String path, TagGenerator tags, RecipeGenerator recipes) {
             properties = new Properties(modId, path);
+            this.tags = tags;
+            this.recipes = recipes;
         }
 
         public Builder properties(Consumer<Properties> properties) {
@@ -479,9 +480,8 @@ public class BlockGenerator {
             return assets.build();
         }
 
-        private void registerData(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement,
-                BlockItemId key, Supplier<Block> block) {
-            Data data = new Data(modId, requirement, key, block);
+        private void registerData(String modId, BlockItemId key, Supplier<Block> block) {
+            Data data = new Data(modId, key, block, tags, recipes);
             dataConfigurations.forEach(configure -> configure.accept(data));
             data.register();
         }

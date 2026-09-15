@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class BlockConversionGenerator extends HelperGenerator {
-    BlockConversionGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+    public BlockConversionGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
         super(modId, requirement);
     }
 

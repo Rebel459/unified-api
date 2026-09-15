@@ -46,6 +46,8 @@ import net.rebel459.unified.api.core.Supplied;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.data.helper.HelperGenerator;
+import net.rebel459.unified.api.data.helper.TagGenerator;
+import net.rebel459.unified.api.registry.UnifiedEntityCodecs;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
@@ -64,19 +66,17 @@ public class EntityGenerator {
     private final String modId;
     private final String namespace;
     private final DataProviders.GenerationSettings settings;
+    private final TagGenerator tags;
 
-    public EntityGenerator(String modId, String namespace, DataProviders.GenerationSettings settings) {
+    public EntityGenerator(String modId, String namespace, DataProviders.GenerationSettings settings, TagGenerator tags) {
         this.modId = modId;
         this.namespace = namespace;
         this.settings = settings;
+        this.tags = tags;
     }
 
-    public String modId() {
-        return modId;
-    }
-
-    public DataProviders.GenerationSettings settings() {
-        return settings;
+    public <T extends Entity> Supplied<? extends EntityType<?>> register(String path, EntityType.Builder<T> type, Consumer<Builder> builder) {
+        return register(path, ExtensibleCodecs.ENTITY.register(Identifier.fromNamespaceAndPath(modId, path), () -> _ -> type).create(), builder);
     }
 
     public Supplied<? extends EntityType<?>> register(String path, ExtensibleCodec.Entry<ExtensibleEntityCodec.Factory> type, Consumer<Builder> builder) {
@@ -104,8 +104,12 @@ public class EntityGenerator {
             return definition.get();
         });
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(new DataProviders.Translation(id, DataProviders.TranslationType.ENTITY, () -> finalBuilder.buildAssets().name()))));
-        finalBuilder.registerData(modId, settings.metadata().requirement(), ResourceKey.create(Registries.ENTITY_TYPE, id), entity);
+        finalBuilder.registerData(modId, ResourceKey.create(Registries.ENTITY_TYPE, id), entity, tags);
         return entity;
+    }
+
+    public Supplied<? extends EntityType<?>> registerCopy(String path, ResourceKey<EntityType<?>> base, Consumer<Builder> builder) {
+        return register(path, UnifiedEntityCodecs.COPY.create(() -> base), builder);
     }
 
     public static final class Properties {
@@ -212,7 +216,6 @@ public class EntityGenerator {
             return this;
         }
 
-
         private DataProviders.EntityAssets build() {
             return new DataProviders.EntityAssets(name);
         }
@@ -220,26 +223,25 @@ public class EntityGenerator {
 
     public static final class Data {
         private final String modId;
-        private final Optional<ExtensibleCodec.Entry<Boolean>> requirement;
         private final ResourceKey<EntityType<?>> key;
         private final Supplier<? extends EntityType<?>> entity;
-        private Consumer<DataProviders.TagGenerator<EntityType<?>>> tags = _ -> {};
+        private final TagGenerator tagGenerator;
         private Supplier<LootTable.Builder> loot;
 
-        private Data(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement, ResourceKey<EntityType<?>> key, Supplier<? extends EntityType<?>> entity) {
+        private Data(String modId, ResourceKey<EntityType<?>> key, Supplier<? extends EntityType<?>> entity, TagGenerator tags) {
             this.modId = modId;
-            this.requirement = requirement;
             this.key = key;
             this.entity = entity;
+            this.tagGenerator = tags;
         }
 
         public Data tag(TagKey<EntityType<?>> tag) {
-            tags = tags.andThen(generator -> generator.add(tag, key));
+            tagGenerator.create(tag).add(key);
             return this;
         }
 
         public Data optionalTag(TagKey<EntityType<?>> tag) {
-            tags = tags.andThen(generator -> generator.addOptional(tag, key));
+            tagGenerator.create(tag).addOptional(key);
             return this;
         }
 
@@ -249,7 +251,6 @@ public class EntityGenerator {
         }
 
         private void register() {
-            DataProviders.TAGS.add(modId, new DataProviders.TagRequest<>(Registries.ENTITY_TYPE, tags));
             if (loot != null) DataProviders.ENTITY_LOOT.add(modId, generator -> generator.add(entity.get(), loot.get()));
         }
     }
@@ -284,8 +285,8 @@ public class EntityGenerator {
             return assets.build();
         }
 
-        private void registerData(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement, ResourceKey<EntityType<?>> key, Supplier<? extends EntityType<?>> entity) {
-            Data data = new Data(modId, requirement, key, entity);
+        private void registerData(String modId, ResourceKey<EntityType<?>> key, Supplier<? extends EntityType<?>> entity, TagGenerator tags) {
+            Data data = new Data(modId, key, entity, tags);
             dataConfigurations.forEach(configure -> configure.accept(data));
             data.register();
         }
