@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
@@ -27,6 +28,7 @@ public final class DataProviders {
     public static final DataProvider<ModelRequest> MODELS = DataProvider.keyed(Unified.id("models"), request -> (request instanceof BlockModels ? "block/" : "item/") + request.id());
     public static final DataProvider<TagRequest<?>> TAGS = DataProvider.create(Unified.id("tags"));
     public static final DataProvider<Consumer<BlockLootGenerator>> BLOCK_LOOT = DataProvider.create(Unified.id("block_loot"));
+    public static final DataProvider<Consumer<EntityLootGenerator>> ENTITY_LOOT = DataProvider.create(Unified.id("entity_loot"));
     public static final DataProvider<RecipeRequest> RECIPES = DataProvider.create(Unified.id("recipes"));
 
     private DataProviders() {}
@@ -36,7 +38,8 @@ public final class DataProviders {
 
     public enum TranslationType {
         BLOCK,
-        ITEM
+        ITEM,
+        ENTITY
     }
 
     public sealed interface ModelRequest permits BlockModels, ItemModels {
@@ -47,6 +50,7 @@ public final class DataProviders {
     public record ItemModels(Identifier id, Supplier<ItemAssets> assets) implements ModelRequest {}
 
     public record BlockAssets(Optional<String> name, List<BlockAssetRequest<?>> models) {}
+    public record EntityAssets(Optional<String> name) {}
     public record ItemAssets(Optional<String> name, List<ItemAssetRequest<?>> models) {}
 
     public record TagRequest<T>(ResourceKey<? extends Registry<T>> registry, Consumer<TagGenerator<T>> generator) {}
@@ -60,6 +64,11 @@ public final class DataProviders {
     @FunctionalInterface
     public interface BlockLootGenerator {
         void add(Block block, LootTable.Builder table);
+    }
+
+    @FunctionalInterface
+    public interface EntityLootGenerator {
+        void add(EntityType<?> entity, LootTable.Builder table);
     }
 
     public record GenerationSettings(PriorityAndRequirement metadata, boolean autoName, String language, Optional<String> injectedTranslations) {

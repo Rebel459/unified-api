@@ -66,10 +66,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static SuppliedBlock registerDefinition(
-            BlockItemId id,
-            Supplier<Definition> suppliedDefinition,
-            Optional<? extends Supplier<? extends BlockEntityType<?>>> blockEntity) {
+    public static SuppliedBlock registerDefinition(BlockItemId id, Supplier<Definition> suppliedDefinition, Optional<? extends Supplier<? extends BlockEntityType<?>>> blockEntity) {
         UnifiedRegistries.Blocks blocks = UnifiedRegistries.Blocks.create(
                 id.block().identifier().getNamespace());
         Function<BlockBehaviour.Properties, ? extends Block> factory = properties -> {

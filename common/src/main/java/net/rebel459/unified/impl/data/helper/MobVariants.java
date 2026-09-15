@@ -85,7 +85,7 @@ public class MobVariants {
                 AttributeEntry.CODEC.listOf().optionalFieldOf("attributes", List.of())
         ).codec();
 
-        public static final Definition DEFAULT_PROPERTIES = new Definition(
+        public static final Definition EMPTY = new Definition(
                 Optional.empty(), Optional.empty(), Optional.empty(), Sounds.EMPTY,
                 SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty()
         );

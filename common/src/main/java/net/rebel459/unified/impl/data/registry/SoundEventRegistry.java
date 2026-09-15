@@ -27,17 +27,13 @@ public class SoundEventRegistry extends RegistryResourceListener<SoundEventRegis
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
-        StagedRegistry.register(Registries.SOUND_EVENT, id,
-                () -> registerDefinition(id, declaration));
+        StagedRegistry.register(Registries.SOUND_EVENT, id, () -> registerDefinition(id, declaration));
     }
 
-    public static Supplied<SoundEvent> registerDefinition(
-            Identifier id, Supplier<Definition> definition) {
+    public static Supplied<SoundEvent> registerDefinition(Identifier id, Supplier<Definition> definition) {
         UnifiedRegistries.SoundEvents sounds = UnifiedRegistries.SoundEvents.create(id.getNamespace());
         Optional<Float> fixedRange = definition.get().fixedRange();
-        return fixedRange.isPresent()
-                ? sounds.register(id.getPath(), fixedRange.orElseThrow())
-                : sounds.register(id.getPath());
+        return fixedRange.isPresent() ? sounds.register(id.getPath(), fixedRange.orElseThrow()) : sounds.register(id.getPath());
     }
 
     public record Definition(Optional<Float> fixedRange) {}

@@ -1,5 +1,6 @@
 package net.rebel459.unified.impl.data.registry;
 
+import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.SpawnPlacementType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
@@ -28,6 +30,7 @@ import net.rebel459.unified.impl.data.helper.MobVariants;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Definition> {
@@ -52,52 +55,69 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
             Definition definition = declaration.get();
             EntityCopier.setDefaultVariant(key, definition.variantProperties());
 
-            Supplied<? extends EntityType<?>> entity;
-            if (definition.properties().attributes.isPresent()) entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(
-                    id.getPath(),
-                    (EntityType.Builder<? extends LivingEntity>) definition.type().get().builder(key),
-                    () -> {
-                        Attributes attributes = definition.properties().attributes.get();
-                        AttributeSupplier.Builder builder = AttributeSupplier.builder();
-                        Set<Holder<Attribute>> overrides = attributes.values().stream().map(AttributeEntry::attribute).collect(Collectors.toSet());
-
-                        if (attributes.baseAttributes.isPresent()) {
-                            AttributeSupplier base = DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) BuiltInRegistries.ENTITY_TYPE.getValue(attributes.baseAttributes.get()));
-
-                            BuiltInRegistries.ATTRIBUTE.listElements().filter(base::hasAttribute).filter(attribute -> !overrides.contains(attribute))
-                                    .forEach(attribute -> builder.add(attribute, base.getBaseValue(attribute)));
-                        }
-
-                        for (AttributeEntry entry : attributes.values()) {
-                            if (entry.value().isPresent()) builder.add(entry.attribute(), entry.value().get());
-                            else builder.add(entry.attribute());
-                        }
-                        return builder.build();
-                    });
-            else entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(id.getPath(), definition.type().get().builder(key));
+            Supplied<? extends EntityType<?>> entity = registerDefinition(key.identifier(), declaration, Optional.empty());
 
             createLateProperties(entity, definition.properties());
             return entity;
         });
     }
 
+    public static Supplied<? extends EntityType<?>> registerDefinition(Identifier id, Supplier<Definition> suppliedDefinition, Optional<Supplier<Attributes>> optionalAttributes) {
+        ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+        Supplied<? extends EntityType<?>> entity;
+        if (optionalAttributes.isPresent() || suppliedDefinition.get().properties.attributes.isPresent()) entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(
+                id.getPath(),
+                (EntityType.Builder<? extends LivingEntity>) suppliedDefinition.get().type.get().builder(key),
+                () -> {
+                    Attributes attributes;
+                    if (optionalAttributes.isPresent()) attributes = optionalAttributes.get().get();
+                    else attributes = suppliedDefinition.get().properties.attributes.get();
+                    AttributeSupplier.Builder builder = AttributeSupplier.builder();
+                    Set<Holder<Attribute>> overrides = attributes.values().stream().map(AttributeEntry::attribute).collect(Collectors.toSet());
+
+                    if (attributes.baseAttributes.isPresent()) {
+                        AttributeSupplier base = DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) BuiltInRegistries.ENTITY_TYPE.getValue(attributes.baseAttributes.get()));
+
+                        BuiltInRegistries.ATTRIBUTE.listElements().filter(base::hasAttribute).filter(attribute -> !overrides.contains(attribute)).forEach(attribute -> builder.add(attribute, base.getBaseValue(attribute)));
+                    }
+
+                    for (AttributeEntry entry : attributes.values()) {
+                        if (entry.value().isPresent()) builder.add(entry.attribute(), entry.value().get());
+                        else builder.add(entry.attribute());
+                    }
+                    return builder.build();
+                });
+        else entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(id.getPath(), suppliedDefinition.get().type.get().builder(key));
+        return entity;
+    }
+
     public record Definition(ExtensibleCodec.Entry<ExtensibleEntityCodec.Factory> type, Properties properties, MobVariants.Definition variantProperties) {}
 
-    public record Properties(Optional<SpawnPlacement> spawnPlacement, Optional<Attributes> attributes) {
-        private static final MapCodec<Properties> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                SpawnPlacement.CODEC.optionalFieldOf("spawn_placement").forGetter(Properties::spawnPlacement),
-                Attributes.CODEC.optionalFieldOf("default_attributes").forGetter(Properties::attributes)
+    public static final class Properties {
+        public Optional<SpawnPlacement> spawnPlacement = Optional.empty();
+        public Optional<Attributes> attributes = Optional.empty();
+
+        public Properties() {}
+
+        public static final MapCodec<Properties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                SpawnPlacement.CODEC.optionalFieldOf("spawn_placement").forGetter(properties -> properties.spawnPlacement),
+                Attributes.CODEC.optionalFieldOf("default_attributes").forGetter(properties -> properties.attributes)
         ).apply(instance, Properties::new));
+
+        private Properties(Optional<SpawnPlacement> spawnPlacement, Optional<Attributes> attributes) {
+            this.spawnPlacement = spawnPlacement;
+            this.attributes = attributes;
+        }
     }
 
     private record CombinedProperties(Properties properties, MobVariants.Definition variant) {
         private static final CombinedProperties EMPTY = new CombinedProperties(
-                new Properties(Optional.empty(), Optional.empty()),
-                MobVariants.Definition.DEFAULT_PROPERTIES
+                new Properties(),
+                MobVariants.Definition.EMPTY
         );
 
         private static final MapCodec<CombinedProperties> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Properties.CODEC.forGetter(CombinedProperties::properties),
+                Properties.MAP_CODEC.forGetter(CombinedProperties::properties),
                 MobVariants.Definition.PROPERTIES_CODEC.forGetter(CombinedProperties::variant)
         ).apply(instance, CombinedProperties::new));
     }

@@ -58,24 +58,19 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
         StagedRegistry.register(Registries.ITEM, id, () -> {
             Optional<Identifier> blockId = declaration.decode(BLOCK_ID_CODEC);
             Optional<Identifier> typeId = declaration.decode(TYPE_ID_CODEC);
-            boolean blockItem = typeId.map(ExtensibleCodecs.BLOCK_ITEM::contains)
-                    .orElseGet(blockId::isPresent);
+            boolean blockItem = typeId.map(ExtensibleCodecs.BLOCK_ITEM::contains).orElseGet(blockId::isPresent);
             if (blockItem) {
-                Identifier registeredBlockId = blockId.orElseThrow(() ->
-                        new IllegalArgumentException("Block item declaration " + id + " is missing its block"));
+                Identifier registeredBlockId = blockId.orElseThrow(() -> new IllegalArgumentException("Block item declaration " + id + " is missing its block"));
                 return registerBlockItem(BlockItemId.create(registeredBlockId, id), declaration);
             }
             return registerDefinition(id, declaration);
         });
     }
 
-    public static SuppliedItem registerDefinition(
-            Identifier id, Supplier<Definition> suppliedDefinition) {
+    public static SuppliedItem registerDefinition(Identifier id, Supplier<Definition> suppliedDefinition) {
         UnifiedRegistries.Items items = UnifiedRegistries.Items.create(id.getNamespace());
-        Supplier<Item.Properties> properties = () ->
-                createProperties(suppliedDefinition.get().properties());
-        return items.register(id.getPath(), itemProperties -> suppliedDefinition.get()
-                .factoryType.right().orElseThrow().get().apply(itemProperties), properties);
+        Supplier<Item.Properties> properties = () -> createProperties(suppliedDefinition.get().properties());
+        return items.register(id.getPath(), itemProperties -> suppliedDefinition.get().factoryType.right().orElseThrow().get().apply(itemProperties), properties);
     }
 
     public static SuppliedItem registerBlockItem(BlockItemId id,

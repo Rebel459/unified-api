@@ -290,3 +290,5 @@ accessible method net/minecraft/world/level/block/WitherWallSkullBlock <init> (L
 accessible method net/minecraft/world/level/block/WoolCarpetBlock <init> (Lnet/minecraft/world/item/DyeColor;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V
 
 accessible class net/minecraft/world/item/CreativeModeTab$TabVisibility
+
+accessible field net/minecraft/world/entity/ai/attributes/AttributeSupplier instances Ljava/util/Map;

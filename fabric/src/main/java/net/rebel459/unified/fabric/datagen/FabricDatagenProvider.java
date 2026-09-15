@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricEntityLootSubProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.fabricmc.fabric.api.datagen.v1.recipe.FabricRecipeOutput;
 import net.minecraft.advancements.Advancement;
@@ -120,6 +121,8 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                 pack.addProvider((FabricDataGenerator.Pack.Factory<ModelsProvider>) output -> new ModelsProvider(output, modId, requests)));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.BLOCK_LOOT, (pack, modId, requests) ->
                 pack.addProvider((output, registries) -> new BlockLootProvider(output, registries, modId, requests)));
+        FabricUnifiedDatagen.registerDataProvider(DataProviders.ENTITY_LOOT, (pack, modId, requests) ->
+                pack.addProvider((output, registries) -> new EntityLootProvider(output, registries, modId, requests)));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.RECIPES, (pack, modId, requests) ->
                 pack.addProvider((output, registries) -> new RecipesProvider(output, registries, modId, requests)));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.TAGS, (pack, modId, requests) ->
@@ -256,6 +259,9 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                 String name = translation.name().get().orElse(null);
                 if (translation.type() == DataProviders.TranslationType.BLOCK) {
                     addTranslation(language, settings, translation.id(), "block", name);
+                }
+                if (translation.type() == DataProviders.TranslationType.BLOCK) {
+                    addTranslation(language, settings, translation.id(), "entity", name);
                 } else {
                     addItemTranslation(language, settings, translation.id(), name);
                 }
@@ -365,6 +371,21 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         private final String modId;
         private final DataProvider<Consumer<DataProviders.BlockLootGenerator>> requests;
         public BlockLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, DataProvider<Consumer<DataProviders.BlockLootGenerator>> requests) {
+            super(output, registries);
+            this.modId = modId;
+            this.requests = requests;
+        }
+
+        @Override public void generate() {
+            requests.requests(modId).forEach(generator -> generator.accept(this::add));
+        }
+    }
+
+    public static final class EntityLootProvider extends FabricEntityLootSubProvider {
+
+        private final String modId;
+        private final DataProvider<Consumer<DataProviders.EntityLootGenerator>> requests;
+        public EntityLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, DataProvider<Consumer<DataProviders.EntityLootGenerator>> requests) {
             super(output, registries);
             this.modId = modId;
             this.requests = requests;
