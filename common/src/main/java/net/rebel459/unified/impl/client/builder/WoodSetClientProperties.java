@@ -26,12 +26,12 @@ public class WoodSetClientProperties {
             final boolean raft = Objects.equals(woodset.getSettings().getBoats(), WoodSet.Boats.RAFTS);
 
             if (layers) {
-                UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(boatModelLayer, raft ? RaftModel::createRaftModel : BoatModel::createBoatModel);
-                UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(chestBoatModelLayer, raft ? RaftModel::createChestRaftModel : BoatModel::createChestBoatModel);
+                UnifiedClientHelpers.ENTITY_RENDERERS.addModel(boatModelLayer, raft ? RaftModel::createRaftModel : BoatModel::createBoatModel);
+                UnifiedClientHelpers.ENTITY_RENDERERS.addModel(chestBoatModelLayer, raft ? RaftModel::createChestRaftModel : BoatModel::createChestBoatModel);
             }
             if (renderers) {
-                UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getBoat()::get, ctx -> raft ? new RaftRenderer(ctx, boatModelLayer) : new BoatRenderer(ctx, boatModelLayer));
-                UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(woodset.getChestBoat()::get, ctx -> raft ? new RaftRenderer(ctx, chestBoatModelLayer) : new BoatRenderer(ctx, chestBoatModelLayer));
+                UnifiedClientHelpers.ENTITY_RENDERERS.addRenderer(woodset.getBoat()::get, ctx -> raft ? new RaftRenderer(ctx, boatModelLayer) : new BoatRenderer(ctx, boatModelLayer));
+                UnifiedClientHelpers.ENTITY_RENDERERS.addRenderer(woodset.getChestBoat()::get, ctx -> raft ? new RaftRenderer(ctx, chestBoatModelLayer) : new BoatRenderer(ctx, chestBoatModelLayer));
             }
         }
     }

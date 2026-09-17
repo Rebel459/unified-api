@@ -171,7 +171,7 @@ public class StoneSet {
 
     private SuppliedBlock createBase(){
         String name = this.getId().getPath();
-        if (getSettings().baseBlockSuffix.isPresent()) name = name + "_" + getSettings().baseBlockSuffix.get();
+        if (!getSettings().baseBlockSuffix.isEmpty()) name = name + "_" + getSettings().baseBlockSuffix.get();
         return createBlock(name, getSettings().baseBlockType, builder -> builder
                 .properties(properties -> properties
                         .copyFrom(() -> Blocks.STONE)
@@ -404,7 +404,7 @@ public class StoneSet {
         private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockCodecs.BLOCK.create();
         private Consumer<BlockGenerator.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
         private Optional<TagKey<Block>> baseBlockTag = Optional.empty();
-        private Optional<String> baseBlockSuffix = Optional.empty();
+        private String baseBlockSuffix = "";
 
         private Supplier<SoundType> soundType = () -> SoundType.STONE;
         private Pair<Supplier<SoundEvent>, Supplier<SoundEvent>> buttonSounds = Pair.of(() -> SoundEvents.WOODEN_BUTTON_CLICK_ON, () -> SoundEvents.WOODEN_BUTTON_CLICK_OFF);
@@ -635,7 +635,7 @@ public class StoneSet {
             return self();
         }
 
-        public T baseBlockSuffix(Optional<String> baseBlockSuffix) {
+        public T baseBlockSuffix(String baseBlockSuffix) {
             settings.baseBlockSuffix = baseBlockSuffix;
             return self();
         }

@@ -1,6 +1,5 @@
 package net.rebel459.unified.impl.data.registry;
 
-import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -10,19 +9,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.SpawnPlacementType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
-import net.rebel459.unified.api.codec.ExtensibleEntityCodec;
 import net.rebel459.unified.api.codec.ExtensibleSpawnPredicate;
 import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.impl.data.helper.MobVariants;
@@ -35,11 +29,22 @@ import java.util.stream.Collectors;
 
 public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Definition> {
 
-    public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtensibleCodecs.ENTITY.mapCodec().forGetter(EntityRegistry.Definition::type),
+    private static final Codec<Definition> TYPE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ExtensibleCodecs.ENTITY.mapCodec().forGetter(definition -> ((CodecBase) definition.base()).type()),
             CombinedProperties.CODEC.codec().optionalFieldOf("properties", CombinedProperties.EMPTY)
                     .forGetter(definition -> new CombinedProperties(definition.properties(), definition.variantProperties()))
-    ).apply(instance, (type, properties) -> new Definition(type, properties.properties(), properties.variant())));
+    ).apply(instance, (type, properties) -> new Definition(new CodecBase(type), properties.properties(), properties.variant())));
+
+    private static final Codec<Definition> COPY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ResourceKey.codec(Registries.ENTITY_TYPE).fieldOf("base").forGetter(definition -> ((CopiedBase) definition.base()).entity()),
+            CombinedProperties.CODEC.codec().optionalFieldOf("properties", CombinedProperties.EMPTY)
+                    .forGetter(definition -> new CombinedProperties(definition.properties(), definition.variantProperties()))
+    ).apply(instance, (base, properties) -> new Definition(new CopiedBase(base), properties.properties(), properties.variant())));
+
+    public static final Codec<Definition> CODEC = Codec.either(TYPE_CODEC, COPY_CODEC).xmap(
+            value -> value.map(definition -> definition, definition -> definition),
+            definition -> definition.base() instanceof CodecBase ? Either.left(definition) : Either.right(definition)
+    );
 
     public static final Identifier ID = Unified.id("entities");
 
@@ -64,14 +69,22 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
 
     public static Supplied<? extends EntityType<?>> registerDefinition(Identifier id, Supplier<Definition> suppliedDefinition, Optional<Supplier<Attributes>> optionalAttributes) {
         ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+        Definition definition = suppliedDefinition.get();
+        EntityType.Builder<?> entityBuilder = switch (definition.base()) {
+            case CodecBase(ExtensibleCodec.Entry<EntityType.Builder<?>> type) -> ExtensibleCodecs.ENTITY.create(type, key);
+            case CopiedBase(ResourceKey<EntityType<?>> base) -> {
+                EntityCopier.declare(key, base);
+                yield EntityType.Builder.createNothing(MobCategory.MISC).dontTrackDeltas();
+            }
+        };
         Supplied<? extends EntityType<?>> entity;
-        if (optionalAttributes.isPresent() || suppliedDefinition.get().properties.attributes.isPresent()) entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(
+        if (optionalAttributes.isPresent() || definition.properties.attributes.isPresent()) entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(
                 id.getPath(),
-                (EntityType.Builder<? extends LivingEntity>) suppliedDefinition.get().type.get().builder(key),
+                (EntityType.Builder<? extends LivingEntity>) entityBuilder,
                 () -> {
                     Attributes attributes;
                     if (optionalAttributes.isPresent()) attributes = optionalAttributes.get().get();
-                    else attributes = suppliedDefinition.get().properties.attributes.get();
+                    else attributes = definition.properties.attributes.get();
                     AttributeSupplier.Builder builder = AttributeSupplier.builder();
                     Set<Holder<Attribute>> overrides = attributes.values().stream().map(AttributeEntry::attribute).collect(Collectors.toSet());
 
@@ -87,11 +100,17 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
                     }
                     return builder.build();
                 });
-        else entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(id.getPath(), suppliedDefinition.get().type.get().builder(key));
+        else entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(id.getPath(), entityBuilder);
         return entity;
     }
 
-    public record Definition(ExtensibleCodec.Entry<ExtensibleEntityCodec.Factory> type, Properties properties, MobVariants.Definition variantProperties) {}
+    public sealed interface Base permits CodecBase, CopiedBase {}
+
+    public record CodecBase(ExtensibleCodec.Entry<EntityType.Builder<?>> type) implements Base {}
+
+    public record CopiedBase(ResourceKey<EntityType<?>> entity) implements Base {}
+
+    public record Definition(Base base, Properties properties, MobVariants.Definition variantProperties) {}
 
     public static final class Properties {
         public Optional<SpawnPlacement> spawnPlacement = Optional.empty();

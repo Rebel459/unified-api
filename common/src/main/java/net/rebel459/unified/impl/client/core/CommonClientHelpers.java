@@ -14,7 +14,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.sounds.Music;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.rebel459.unified.impl.client.helper.SimpleBabyArmorImpl;
 import net.rebel459.unified.impl.client.helper.StructureMusicImpl;
 import net.rebel459.unified.impl.client.platform.ClientPlatformHandler;
-import net.rebel459.unified.impl.network.StructurePacketImpl;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -45,9 +43,9 @@ public class CommonClientHelpers {
 
     public interface EntityRenderers {
 
-        void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition);
+        void addModel(ModelLayerLocation location, Supplier<LayerDefinition> definition);
 
-        <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider);
+        <T extends Entity> void addRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider);
 
         <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(Supplier<BlockEntityType<? extends T>> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
 

@@ -45,10 +45,17 @@ public final class SimpleBabyArmorImpl {
     );
 
     public static void init() {
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.head(), SimpleBabyArmorImpl::headLayer);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.chest(), SimpleBabyArmorImpl::chestLayer);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.legs(), SimpleBabyArmorImpl::legsLayer);
-        UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(LEGACY_BABY_ARMOR.feet(), SimpleBabyArmorImpl::feetLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addModel(LEGACY_BABY_ARMOR.head(), SimpleBabyArmorImpl::headLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addModel(LEGACY_BABY_ARMOR.chest(), SimpleBabyArmorImpl::chestLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addModel(LEGACY_BABY_ARMOR.legs(), SimpleBabyArmorImpl::legsLayer);
+        UnifiedClientHelpers.ENTITY_RENDERERS.addModel(LEGACY_BABY_ARMOR.feet(), SimpleBabyArmorImpl::feetLayer);
+    }
+
+    public static void onReload(List<ResourceKey<EquipmentAsset>> keys) {
+        keys.forEach(LEGACY_BABY_ARMOR_EQUIPMENT::remove);
+        Minecraft minecraft = Minecraft.getInstance();
+        clearResizedTextureCache(minecraft.getTextureManager());
+        cachedResourceManager = minecraft.getResourceManager();
     }
 
     private static final Map<EquipmentSlot, Set<String>> ARMOR_PARTS_PER_SLOT = Map.of(

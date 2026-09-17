@@ -2,6 +2,8 @@ package net.rebel459.unified.api.builder;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.DamageResistant;
 import net.minecraft.world.item.equipment.ArmorMaterial;
@@ -22,19 +24,24 @@ public class EquipmentPreset {
     public static final EquipmentPreset WOOD = createFrom(ToolMaterial.WOOD)
             .setAxeSwingSpeed(0.8F)
             .setSpearProperties(0.65F, 0.7F, 0.75F, 5.0F, 14.0F, 10.0F, 5.1F, 15.0F, 4.6F)
+            .craftingRecipe(ItemTags.WOODEN_TOOL_MATERIALS)
             .build();
 
     public static final EquipmentPreset LEATHER = createFrom(ArmorMaterials.LEATHER)
+            .craftingRecipe(ItemTags.REPAIRS_LEATHER_ARMOR)
+            .isDyeable(true)
             .build();
 
     public static final EquipmentPreset STONE = createFrom(ToolMaterial.STONE)
             .setAxeSwingSpeed(0.8F)
             .setSpearProperties(0.75F, 0.82F, 0.7F, 4.5F, 13.0F, 9.0F, 5.1F, 13.75F, 4.6F)
+            .craftingRecipe(ItemTags.STONE_TOOL_MATERIALS)
             .build();
 
     public static final EquipmentPreset COPPER = createFrom(ToolMaterial.COPPER, ArmorMaterials.COPPER)
             .setAxeSwingSpeed(0.8F)
             .setSpearProperties(0.85F, 0.82F, 0.65F, 4.0F, 12.0F, 8.25F, 5.1F, 12.5F, 4.6F)
+            .craftingRecipe(ItemTags.COPPER_TOOL_MATERIALS)
             .build();
 
     public static final EquipmentPreset CHAINMAIL = createFrom(ArmorMaterials.CHAINMAIL)
@@ -43,18 +50,38 @@ public class EquipmentPreset {
     public static final EquipmentPreset IRON = createFrom(ToolMaterial.IRON, ArmorMaterials.IRON)
             .setAxeSwingSpeed(0.9F)
             .setSpearProperties(0.95F, 0.95F, 0.6F, 2.5F, 11.0F, 6.75F, 5.1F, 11.25F, 4.6F)
+            .craftingRecipe(ItemTags.IRON_TOOL_MATERIALS)
             .build();
 
     public static final EquipmentPreset GOLD = createFrom(ToolMaterial.GOLD, ArmorMaterials.GOLD)
             .setSpearProperties(0.95F, 0.7F, 0.7F, 3.5F, 13.0F, 8.5F, 5.1F, 13.75F, 4.6F)
+            .craftingRecipe(ItemTags.GOLD_TOOL_MATERIALS)
+            .addTag(EquipmentSet.Group.HUMANOID_ARMOR, ItemTags.PIGLIN_SAFE_ARMOR)
             .build();
 
     public static final EquipmentPreset DIAMOND = createFrom(ToolMaterial.DIAMOND, ArmorMaterials.DIAMOND)
             .setSpearProperties(1.05F, 1.075F, 0.5F, 3.0F, 10.0F, 6.5F, 5.1F, 10.0F, 4.6F)
+            .craftingRecipe(ItemTags.DIAMOND_TOOL_MATERIALS)
             .build();
 
     public static final EquipmentPreset NETHERITE = createFrom(ToolMaterial.NETHERITE, ArmorMaterials.NETHERITE)
             .setComponentWithProvider(EquipmentSet.Group.ALL, () -> DataComponents.DAMAGE_RESISTANT, provider -> new DamageResistant(provider.getOrThrow(DamageTypeTags.IS_FIRE)))
+            .smithingRecipes(
+                    () -> Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE,
+                    ItemTags.NETHERITE_TOOL_MATERIALS,
+                    () -> Items.DIAMOND_SWORD,
+                    () -> Items.DIAMOND_SPEAR,
+                    () -> Items.DIAMOND_AXE,
+                    () -> Items.DIAMOND_PICKAXE,
+                    () -> Items.DIAMOND_SHOVEL,
+                    () -> Items.DIAMOND_HOE,
+                    () -> Items.DIAMOND_HELMET,
+                    () -> Items.DIAMOND_CHESTPLATE,
+                    () -> Items.DIAMOND_LEGGINGS,
+                    () -> Items.DIAMOND_BOOTS,
+                    () -> Items.DIAMOND_HORSE_ARMOR,
+                    () -> Items.DIAMOND_NAUTILUS_ARMOR
+            )
             .build();
 
     public static EquipmentSet.PresetBuilder create() {

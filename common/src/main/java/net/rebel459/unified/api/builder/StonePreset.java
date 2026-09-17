@@ -111,7 +111,7 @@ public final class StonePreset {
     public static final StonePreset PURPUR = createFrom(StonePreset.BASIC)
             .hasLegacySlab(true)
             .hasPillar(true)
-            .baseBlockSuffix(Optional.of("block"))
+            .baseBlockSuffix("block")
             .build();
 
     public static final StonePreset SULFUR = create()

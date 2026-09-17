@@ -33,7 +33,7 @@ public class Unified {
         VanillaPostProcessCodecs.init();
         VanillaSpawnPlacementCodecs.init();
         VanillaSpawnPredicateCodecs.init();
-        UnifiedEntityCodecs.init();
+        VanillaEntityCodecs.init();
         UnifiedMapColorCodecs.init();
         UnifiedLightEmissionCodecs.init();
         UnifiedBlockPredicateCodecs.init();

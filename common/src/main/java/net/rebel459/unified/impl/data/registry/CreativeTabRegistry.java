@@ -60,10 +60,8 @@ public class CreativeTabRegistry extends RegistryResourceListener<CreativeTabReg
     }
 
     private static CreativeModeTab create(Definition definition) {
-        CreativeModeTab tab = PlatformHandler.INSTANCE.internal().createCreativeModeTab(
-                definition.row, definition.column, definition.title, definition.icon,
-                (parameters, output) -> definition.displayItems.forEach(
-                        entry -> entry.get().accept(parameters, output)));
+        CreativeModeTab tab = PlatformHandler.INSTANCE.internal().createCreativeModeTab(definition.row, definition.column, definition.title, definition.icon,
+                (parameters, output) -> definition.displayItems.forEach(entry -> entry.get().accept(parameters, output)));
         tab.alignedRight = definition.alignment == Alignment.RIGHT;
         tab.showTitle = definition.showTitle;
         tab.canScroll = definition.canScroll;

@@ -45,12 +45,12 @@ public class FabricClientHelpers {
     public static class EntityRenderers implements CommonClientHelpers.EntityRenderers {
 
         @Override
-        public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
+        public void addModel(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
             ModelLayerRegistry.registerModelLayer(location, definition::get);
         }
 
         @Override
-        public <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
+        public <T extends Entity> void addRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
             net.minecraft.client.renderer.entity.EntityRenderers.register(entityType.get(), entityRendererProvider);
         }
 

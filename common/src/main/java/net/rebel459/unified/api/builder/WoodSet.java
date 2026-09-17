@@ -25,6 +25,9 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.rebel459.unified.api.core.*;
+import net.rebel459.unified.api.data.registry.BlockGenerator;
+import net.rebel459.unified.api.data.registry.EntityGenerator;
+import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.impl.builder.WoodSetProperties;
 import org.jetbrains.annotations.Nullable;
@@ -45,12 +48,9 @@ public class WoodSet {
     private final MapColor barkColor;
     private final MapColor plankColor;
 
-    private final UnifiedData registry;
-    @Deprecated
-    private final UnifiedRegistries.Items itemRegistry;
-    @Deprecated
-    private final UnifiedRegistries.Blocks blockRegistry;
-    private final UnifiedRegistries.EntityTypes entityRegistry;
+    private final BlockGenerator blocks;
+    private final ItemGenerator items;
+    private final EntityGenerator entities;
 
     private SuppliedBlock log;
     private SuppliedBlock strippedLog;
@@ -137,15 +137,14 @@ public class WoodSet {
         }
     }
 
-    public WoodSet(Identifier id, MapColor sideColor, MapColor plankColor, Settings settings, UnifiedData registry, UnifiedRegistries.Items itemRegistry, UnifiedRegistries.Blocks blockRegistry, UnifiedRegistries.EntityTypes entityRegistry){
+    public WoodSet(Identifier id, MapColor sideColor, MapColor plankColor, Settings settings, BlockGenerator blocks, ItemGenerator items, EntityGenerator entities) {
         this.settings = settings;
         this.id = id;
         this.barkColor = sideColor;
         this.plankColor = plankColor;
-        this.registry = registry;
-        this.itemRegistry = itemRegistry;
-        this.blockRegistry = blockRegistry;
-        this.entityRegistry = entityRegistry;
+        this.blocks = blocks;
+        this.items = items;
+        this.entities = entities;
         registerWood();
         WOOD_SETS.add(this);
         WoodSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
@@ -655,11 +654,9 @@ public class WoodSet {
         private final MapColor barkColor;
         private final MapColor plankColor;
 
-        private final UnifiedData registries;
-        @Deprecated
-        private final UnifiedRegistries.Items itemRegistry;
-        private final UnifiedRegistries.Blocks blockRegistry;
-        private final UnifiedRegistries.EntityTypes entityRegistry;
+        private final BlockGenerator blocks;
+        private final ItemGenerator items;
+        private final EntityGenerator entities;
 
         public RegistryBuilder createLeaves(Leaves... leaves) {
             Set<Leaves> set = new HashSet<>(List.of(leaves));
@@ -680,19 +677,18 @@ public class WoodSet {
         }
 
         public WoodSet build() {
-            return new WoodSet(id, barkColor, plankColor, settings, registries, itemRegistry, blockRegistry, entityRegistry);
+            return new WoodSet(id, barkColor, plankColor, settings, blocks, items, entities);
         }
 
-        public RegistryBuilder(Identifier id, MapColor barkColor, MapColor plankColor, WoodPreset preset, UnifiedData registries, UnifiedRegistries.Items itemRegistry, UnifiedRegistries.Blocks blockRegistry, UnifiedRegistries.EntityTypes entityRegistry) {
+        public RegistryBuilder(Identifier id, MapColor barkColor, MapColor plankColor, WoodPreset preset, BlockGenerator blocks, ItemGenerator items, EntityGenerator entities) {
             super(preset.settings.copy());
 
             this.id = id;
             this.barkColor = barkColor;
             this.plankColor = plankColor;
-            this.registries = registries;
-            this.itemRegistry = itemRegistry;
-            this.blockRegistry = blockRegistry;
-            this.entityRegistry = entityRegistry;
+            this.blocks = blocks;
+            this.items = items;
+            this.entities = entities;
         }
     }
 

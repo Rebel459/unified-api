@@ -1,14 +1,10 @@
 package net.rebel459.unified.api.data.registry;
 
-import com.google.common.base.Suppliers;
-import com.mojang.datafixers.util.Either;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -16,50 +12,25 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacementType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.variant.PriorityProvider;
-import net.minecraft.world.entity.variant.SpawnCondition;
-import net.minecraft.world.entity.variant.SpawnContext;
 import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
-import net.minecraft.world.flag.FeatureFlag;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
-import net.minecraft.world.phys.AABB;
-import net.rebel459.unified.api.asset.BlockAsset;
-import net.rebel459.unified.api.asset.BlockAssets;
-import net.rebel459.unified.api.codec.*;
+import net.rebel459.unified.api.codec.CodecGenerator;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.codec.ExtensibleSpawnPredicate;
 import net.rebel459.unified.api.core.Supplied;
-import net.rebel459.unified.api.core.SuppliedBlock;
-import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.api.data.helper.HelperGenerator;
 import net.rebel459.unified.api.data.helper.TagGenerator;
-import net.rebel459.unified.api.registry.UnifiedEntityCodecs;
-import net.rebel459.unified.api.util.RecipeProvider;
-import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.data.helper.MobVariants;
-import net.rebel459.unified.impl.data.registry.BlockRegistry;
 import net.rebel459.unified.impl.data.registry.EntityRegistry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class EntityGenerator {
 
@@ -76,16 +47,20 @@ public class EntityGenerator {
     }
 
     public <T extends Entity> Supplied<? extends EntityType<?>> register(String path, EntityType.Builder<T> type, Consumer<Builder> builder) {
-        return register(path, ExtensibleCodecs.ENTITY.register(Identifier.fromNamespaceAndPath(modId, path), () -> _ -> type).create(), builder);
+        return register(path, ExtensibleCodecs.ENTITY.register(Identifier.fromNamespaceAndPath(modId, path), () -> type).create(), builder);
     }
 
-    public Supplied<? extends EntityType<?>> register(String path, ExtensibleCodec.Entry<ExtensibleEntityCodec.Factory> type, Consumer<Builder> builder) {
+    public Supplied<? extends EntityType<?>> register(String path, ExtensibleCodec.Entry<EntityType.Builder<?>> type, Consumer<Builder> builder) {
+        return register(path, new EntityRegistry.CodecBase(type), builder);
+    }
+
+    private Supplied<? extends EntityType<?>> register(String path, EntityRegistry.Base base, Consumer<Builder> builder) {
         Builder finalBuilder = new Builder(namespace, path);
         builder.accept(finalBuilder);
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
         Supplier<EntityRegistry.Definition> definition = () -> {
             Properties builderProperties = finalBuilder.properties;
-            return new EntityRegistry.Definition(type, builderProperties.properties, new MobVariants.Definition(
+            return new EntityRegistry.Definition(base, builderProperties.properties, new MobVariants.Definition(
                     Optional.empty(),
                     builderProperties.texture,
                     builderProperties.babyTexture,
@@ -109,7 +84,7 @@ public class EntityGenerator {
     }
 
     public Supplied<? extends EntityType<?>> registerCopy(String path, ResourceKey<EntityType<?>> base, Consumer<Builder> builder) {
-        return register(path, UnifiedEntityCodecs.COPY.create(() -> base), builder);
+        return register(path, new EntityRegistry.CopiedBase(base), builder);
     }
 
     public static final class Properties {

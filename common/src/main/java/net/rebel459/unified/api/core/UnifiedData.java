@@ -6,6 +6,7 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.data.helper.*;
 import net.rebel459.unified.api.data.registry.*;
 import net.rebel459.unified.impl.core.DataProviders;
+import net.rebel459.unified.impl.data.helper.SimpleBabyArmor;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -146,9 +147,11 @@ public final class UnifiedData {
         private final BlockConversionGenerator blockConversions;
         private final ComponentModifierGenerator componentModifiers;
         private final CreativeEntryGenerator creativeEntries;
+        private final EquipmentAssetGenerator equipmentAssets;
         private final LootInjectionGenerator lootInjections;
         private final MobVariantGenerator mobVariants;
         private final RecipeGenerator recipes;
+        private final SimpleBabyArmorGenerator simpleBabyArmor;
         private final TagGenerator tags;
 
         private Helpers(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
@@ -156,9 +159,11 @@ public final class UnifiedData {
             this.blockConversions = new BlockConversionGenerator(modId, requirement);
             this.componentModifiers = new ComponentModifierGenerator(modId, requirement);
             this.creativeEntries = new CreativeEntryGenerator(modId, requirement);
+            this.equipmentAssets = new EquipmentAssetGenerator(modId, requirement);
             this.lootInjections = new LootInjectionGenerator(modId, requirement);
             this.mobVariants = new MobVariantGenerator(modId, requirement);
             this.recipes = new RecipeGenerator(modId, requirement);
+            this.simpleBabyArmor = new SimpleBabyArmorGenerator(modId, requirement);
             this.tags = new TagGenerator(modId, requirement);
         }
 
@@ -178,6 +183,10 @@ public final class UnifiedData {
             return creativeEntries;
         }
 
+        public EquipmentAssetGenerator equipmentAssets() {
+            return equipmentAssets;
+        }
+
         public LootInjectionGenerator lootInjections() {
             return lootInjections;
         }
@@ -188,6 +197,10 @@ public final class UnifiedData {
 
         public RecipeGenerator recipes() {
             return recipes;
+        }
+
+        public SimpleBabyArmorGenerator simpleBabyArmor() {
+            return simpleBabyArmor;
         }
 
         public TagGenerator tags() {

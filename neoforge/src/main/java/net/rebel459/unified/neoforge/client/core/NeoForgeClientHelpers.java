@@ -69,12 +69,12 @@ public class NeoForgeClientHelpers {
         public static List<Pair<Supplier, BlockEntityRendererProvider>> BLOCK_ENTITY_RENDERERS = new ArrayList<>();
 
         @Override
-        public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
+        public void addModel(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
             LAYER_DEFINITIONS.add(Pair.of(location, definition));
         }
 
         @Override
-        public <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
+        public <T extends Entity> void addRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
             ENTITY_RENDERERS.add(Pair.of(entityType, entityRendererProvider));
         }
 
