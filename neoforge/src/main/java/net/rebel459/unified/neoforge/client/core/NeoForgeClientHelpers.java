@@ -30,11 +30,11 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.rebel459.unified.impl.client.builder.WoodSetClientProperties;
 import net.rebel459.unified.impl.client.core.CommonClientHelpers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -64,42 +64,32 @@ public class NeoForgeClientHelpers {
 
     public static class EntityRenderers implements CommonClientHelpers.EntityRenderers {
 
-        public static List<Pair<ModelLayerLocation, Supplier<LayerDefinition>>> LAYER_DEFINITIONS = new ArrayList<>();
-        public static List<Pair<Supplier, EntityRendererProvider>> ENTITY_RENDERERS = new ArrayList<>();
-        public static List<Pair<Supplier, BlockEntityRendererProvider>> BLOCK_ENTITY_RENDERERS = new ArrayList<>();
+        public static List<Consumer<EntityRenderersEvent.RegisterLayerDefinitions>> MODELS = new ArrayList<>();
+        public static List<Consumer<EntityRenderersEvent.RegisterRenderers>> RENDERERS = new ArrayList<>();
 
         @Override
         public void addModel(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
-            LAYER_DEFINITIONS.add(Pair.of(location, definition));
+            MODELS.add(model -> model.registerLayerDefinition(location, definition));
         }
 
         @Override
         public <T extends Entity> void addRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
-            ENTITY_RENDERERS.add(Pair.of(entityType, entityRendererProvider));
+            RENDERERS.add(renderer -> renderer.registerEntityRenderer(entityType.get(), entityRendererProvider));
         }
 
         @Override
         public <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(Supplier<BlockEntityType<? extends T>> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider) {
-            BLOCK_ENTITY_RENDERERS.add(Pair.of(blockEntityType, blockEntityRendererProvider));
+            RENDERERS.add(renderer -> renderer.registerBlockEntityRenderer(blockEntityType.get(), blockEntityRendererProvider));
         }
 
         @SubscribeEvent
         public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-            WoodSetClientProperties.init(true, false);
-            for (Pair<ModelLayerLocation, Supplier<LayerDefinition>> layerDefinitions : LAYER_DEFINITIONS) {
-                event.registerLayerDefinition(layerDefinitions.getFirst(), layerDefinitions.getSecond());
-            }
+            MODELS.forEach(model -> model.accept(event));
         }
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            WoodSetClientProperties.init(false, true);
-            for (Pair<Supplier, EntityRendererProvider> entityRenderers : ENTITY_RENDERERS) {
-                event.registerEntityRenderer((EntityType) entityRenderers.getFirst().get(), entityRenderers.getSecond());
-            }
-            for (Pair<Supplier, BlockEntityRendererProvider> blockEntityRenderers : BLOCK_ENTITY_RENDERERS) {
-                event.registerBlockEntityRenderer((BlockEntityType) blockEntityRenderers.getFirst().get(), blockEntityRenderers.getSecond());
-            }
+            RENDERERS.forEach(renderer -> renderer.accept(event));
         }
     }
 

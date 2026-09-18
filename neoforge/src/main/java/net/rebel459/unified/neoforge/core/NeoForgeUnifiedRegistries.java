@@ -123,7 +123,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             var registry = ITEMS.get(modId);
             var item = registry.registerItem(path, function, properties);
-            return new SuppliedItem(item.getKey(), item, item);
+            return new SuppliedItem(item.getKey(), item, () -> item);
         }
 
         @Override
@@ -137,7 +137,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             var registry = ITEMS.get(modId);
             var item = registry.registerItem(id.item().identifier().getPath(), settings -> function.apply(block.get(), settings), () -> properties.get().useBlockDescriptionPrefix().requiredFeatures(block.get().requiredFeatures()));
-            return new SuppliedItem(item.getKey(), item, item);
+            return new SuppliedItem(item.getKey(), item, () -> item);
         }
 
         @Override
@@ -159,7 +159,7 @@ public class NeoForgeUnifiedRegistries {
             var block = blockRegistry.registerBlock(path, function, blockProperties);
             itemRegistry.registerSimpleBlockItem(path, block);
             Identifier identifier = Identifier.fromNamespaceAndPath(modId, path);
-            return new SuppliedBlock(BlockItemId.create(identifier, identifier), block, block);
+            return new SuppliedBlock(BlockItemId.create(identifier, identifier), block, () -> block);
         }
 
         @Override
@@ -188,7 +188,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             var registry = BLOCKS.get(modId);
             var block = registry.registerBlock(blockPath, function, properties);
-            return new SuppliedBlock(BlockItemId.create(id, Identifier.fromNamespaceAndPath(modId, itemPath)), block, block);
+            return new SuppliedBlock(BlockItemId.create(id, Identifier.fromNamespaceAndPath(modId, itemPath)), block, () -> block);
         }
 
         @Override
@@ -221,7 +221,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             var registry = DATA_COMPONENTS.get(modId);
             var component = registry.register(path, () -> unaryOperator.apply(DataComponentType.builder()).build());
-            return new Supplied<>(component.getKey(), component, component);
+            return new Supplied<>(component.getKey(), component, () -> component);
         }
 
         @Override
@@ -241,7 +241,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             DeferredRegister<EntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.ENTITY_TYPE));
             var entityType = registry.register(path, () -> builder.build(key));
-            return new Supplied<>(entityType.getKey(), entityType, entityType);
+            return new Supplied<>(entityType.getKey(), entityType, () -> entityType);
         }
 
         @Override
@@ -272,7 +272,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             DeferredRegister<SoundEvent> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT));
             var soundEvent = registry.register(path, SoundEvent::createVariableRangeEvent);
-            return new Supplied<>(soundEvent.getKey(), soundEvent, soundEvent);
+            return new Supplied<>(soundEvent.getKey(), soundEvent, () -> soundEvent);
         }
         @Override
         public Supplied<SoundEvent> register(String path, float fixedRange) {
@@ -280,7 +280,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             DeferredRegister<SoundEvent> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.SOUND_EVENT));
             var soundEvent = registry.register(path, () -> SoundEvent.createFixedRangeEvent(Identifier.fromNamespaceAndPath(modId, path), fixedRange));
-            return new Supplied<>(soundEvent.getKey(), soundEvent, soundEvent);
+            return new Supplied<>(soundEvent.getKey(), soundEvent, () -> soundEvent);
         }
     }
 
