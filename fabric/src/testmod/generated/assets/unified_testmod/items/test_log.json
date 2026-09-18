@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "unified_testmod:block/test_log"
+  }
+}

@@ -9,6 +9,7 @@ import net.minecraft.world.level.ItemLike;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.*;
+import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaItemCodecs;
@@ -74,14 +75,18 @@ public class ColoredItemSet {
         pink = create("pink");
     }
 
-    public ColoredItemSet(Identifier id, Settings settings, ItemGenerator items){
+    public ColoredItemSet(Identifier id, Settings settings, ItemGenerator items, CreativeEntryGenerator creativeEntries){
         this.settings = settings;
         this.id = id;
         this.items = items;
         registerItems();
         COLORED_ITEM_SETS.add(this);
         ColoredItemSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) ColoredItemSetProperties.init(List.of(this));
+        ColoredItemSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
+        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
+            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
+                    .afterRegistry(net.minecraft.core.registries.Registries.ITEM, () -> ColoredItemSetProperties.init(List.of(this)));
+        }
     }
 
     public Settings getSettings() {
@@ -176,7 +181,7 @@ public class ColoredItemSet {
         else itemType = ExtensibleCodecs.ITEM.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().type.right().get().apply(dye)).create();
         SuppliedItem item = items.register(name, itemType, builder -> {
             getSettings().builder.accept(dye, builder);
-            if (getSettings().dyeRecipe != null) builder.data(data -> data.recipe((currentItem, provider) -> {
+            if (getSettings().dyeRecipe != null) builder.data(data -> data.recipes((currentItem, provider) -> {
                 List<SuppliedItem> otherItems = registeredItems.stream()
                         .filter(otherItem -> getDyeFromItem(otherItem) != dye)
                         .toList();
@@ -214,16 +219,18 @@ public class ColoredItemSet {
         private final Identifier id;
 
         private final ItemGenerator items;
+        private final CreativeEntryGenerator creativeEntries;
 
         public ColoredItemSet build() {
-            return new ColoredItemSet(id, settings, items);
+            return new ColoredItemSet(id, settings, items, creativeEntries);
         }
 
-        public RegistryBuilder(Identifier id, ColoredItemPreset preset, ItemGenerator items) {
+        public RegistryBuilder(Identifier id, ColoredItemPreset preset, ItemGenerator items, CreativeEntryGenerator creativeEntries) {
             super(preset.settings.copy());
 
             this.id = id;
             this.items = items;
+            this.creativeEntries = creativeEntries;
         }
     }
 

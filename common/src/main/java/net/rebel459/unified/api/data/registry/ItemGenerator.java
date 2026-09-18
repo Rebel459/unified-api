@@ -44,7 +44,7 @@ public class ItemGenerator {
     }
 
     public SuppliedItem register(String path, Function<Item.Properties, Item> type, Consumer<Builder> builder) {
-        return register(path, ExtensibleCodecs.ITEM.register(Identifier.fromNamespaceAndPath(namespace, "items/" + path), () -> type).create(), builder);
+        return register(path, ExtensibleCodecs.ITEM.register(Identifier.fromNamespaceAndPath(namespace, path), () -> type).create(), builder);
     }
 
     public SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<Builder> builder) {
@@ -67,7 +67,7 @@ public class ItemGenerator {
 
     public SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> type, Consumer<Builder> builder) {
         Identifier id = block.blockItemId().item().identifier();
-        return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM.register(Identifier.fromNamespaceAndPath(id.getNamespace(), "items/" + id.getPath()), () -> type).create(), builder);
+        return registerBlockItem(block, ExtensibleCodecs.BLOCK_ITEM.register(Identifier.fromNamespaceAndPath(namespace, id.getPath()), () -> type).create(), builder);
     }
 
     public SuppliedItem registerBlockItem(SuppliedBlock block, ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> type, Consumer<Builder> builder) {
@@ -81,7 +81,7 @@ public class ItemGenerator {
                 ItemRegistry.CODEC, definition);
         DataProviders.MODELS.add(modId, new DataProviders.ItemModels(id, finalBuilder::buildAssets));
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
-                new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
+                new DataProviders.Translation(block.blockItemId().block().identifier(), DataProviders.TranslationType.BLOCK,
                         () -> finalBuilder.buildAssets().name()))));
         finalBuilder.registerData(block.blockItemId().item(), registered, tags, recipes);
         return registered;
@@ -190,7 +190,7 @@ public class ItemGenerator {
             return this;
         }
 
-        public Data recipe(BiConsumer<Item, RecipeProvider> factory) {
+        public Data recipes(BiConsumer<Item, RecipeProvider> factory) {
             recipe = factory;
             return this;
         }

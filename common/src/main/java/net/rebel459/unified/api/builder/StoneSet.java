@@ -22,6 +22,7 @@ import net.rebel459.unified.api.core.UnifiedInstance;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
+import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
@@ -79,20 +80,12 @@ public class StoneSet {
         if (hasButton()) button = createButton();
     }
 
-    public StoneSet(Identifier id, MapColor color, Settings settings, BlockGenerator blocks, BlockSetTypeGenerator blockSetTypes) {
+    public StoneSet(Identifier id, MapColor color, Settings settings, BlockGenerator blocks, BlockSetTypeGenerator blockSetTypes, CreativeEntryGenerator creativeEntries) {
         this.settings = settings;
         this.id = id;
         this.color = color;
         this.blocks = blocks;
         this.blockSetTypes = blockSetTypes;
-        registerBlockSetTypeDefinition();
-        registerBlocks();
-        BLOCK_SETS.add(this);
-        StoneSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) StoneSetProperties.init(List.of(this));
-    }
-
-    private void registerBlockSetTypeDefinition() {
         blockSetTypes.register(id.getPath(), () -> new BlockSetType(
                 id.toString(),
                 true,
@@ -109,6 +102,14 @@ public class StoneSet {
                 settings.buttonSounds.getSecond().get(),
                 settings.buttonSounds.getFirst().get()
         ));
+        registerBlocks();
+        BLOCK_SETS.add(this);
+        StoneSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
+        StoneSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
+        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
+            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
+                    .afterRegistry(net.minecraft.core.registries.Registries.ITEM, () -> StoneSetProperties.init(List.of(this)));
+        }
     }
 
     private SuppliedBlock createBlock(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<BlockGenerator.Builder> builder){
@@ -171,7 +172,7 @@ public class StoneSet {
 
     private SuppliedBlock createBase(){
         String name = this.getId().getPath();
-        if (!getSettings().baseBlockSuffix.isEmpty()) name = name + "_" + getSettings().baseBlockSuffix.get();
+        if (!getSettings().baseBlockSuffix.isEmpty()) name = name + "_" + getSettings().baseBlockSuffix;
         return createBlock(name, getSettings().baseBlockType, builder -> builder
                 .properties(properties -> properties
                         .copyFrom(() -> Blocks.STONE)
@@ -455,18 +456,20 @@ public class StoneSet {
 
         private final BlockGenerator blocks;
         private final BlockSetTypeGenerator blockSetTypes;
+        private final CreativeEntryGenerator creativeEntries;
 
         public StoneSet build() {
-            return new StoneSet(id, color, settings, blocks, blockSetTypes);
+            return new StoneSet(id, color, settings, blocks, blockSetTypes, creativeEntries);
         }
 
-        public RegistryBuilder(Identifier id, MapColor color, StonePreset preset, BlockGenerator blocks, BlockSetTypeGenerator blockSetTypes) {
+        public RegistryBuilder(Identifier id, MapColor color, StonePreset preset, BlockGenerator blocks, BlockSetTypeGenerator blockSetTypes, CreativeEntryGenerator creativeEntries) {
             super(preset.settings.copy());
 
             this.id = id;
             this.color = color;
             this.blocks = blocks;
             this.blockSetTypes = blockSetTypes;
+            this.creativeEntries = creativeEntries;
         }
     }
 

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "unified_testmod:test_door",
+            "state": {
+              "half": "lower"
+            }
+          },
+          "name": "unified_testmod:test_door"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

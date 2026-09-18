@@ -1,5 +1,6 @@
 package net.rebel459.unified.api.data.helper;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -11,6 +12,7 @@ import net.rebel459.unified.impl.data.helper.ComponentModifiers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ComponentModifierGenerator extends HelperGenerator {
@@ -18,11 +20,11 @@ public class ComponentModifierGenerator extends HelperGenerator {
         super(modId, requirement);
     }
 
-    public Builder create(String name, Predicate<ItemStack> predicate) {
-        return create(name, ExtensibleCodecs.ITEM_PREDICATES.register(Identifier.fromNamespaceAndPath(modId, "component_modifiers/" + name), () -> predicate).create());
+    public Builder createAndRegister(String name, Function<HolderLookup.Provider, Predicate<ItemStack>> predicate) {
+        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATES.register(Identifier.fromNamespaceAndPath(modId, "component_modifier/" + name), () -> predicate.apply(provider)).create());
     }
 
-    public Builder create(String name, ExtensibleCodec.Entry<Predicate<ItemStack>> predicate) {
+    public Builder create(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate) {
         return new Builder(name, predicate, modId, requirement);
     }
 
@@ -30,10 +32,10 @@ public class ComponentModifierGenerator extends HelperGenerator {
 
         private final Map<DataComponentType<?>, Object> components = new HashMap<>();
 
-        Builder(String name, ExtensibleCodec.Entry<Predicate<ItemStack>> predicate, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/component_modifiers/" + name), requirement, (_, ops) ->
-                    ComponentModifiers.Definition.CODEC.encodeStart(ops, new ComponentModifiers.Definition(predicate, Map.copyOf(components))).getOrThrow());
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/component_modifiers/" + name), requirement, (provider, ops) ->
+                    ComponentModifiers.Definition.CODEC.encodeStart(ops, new ComponentModifiers.Definition(predicate.apply(provider), Map.copyOf(components))).getOrThrow());
         }
 
         public <T> Builder set(DataComponentType<T> type, T value) {

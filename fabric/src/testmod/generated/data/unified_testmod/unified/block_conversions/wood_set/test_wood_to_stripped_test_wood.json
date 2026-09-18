@@ -1,0 +1,16 @@
+{
+  "converted_block": "unified_testmod:stripped_test_wood",
+  "original_block": "unified_testmod:test_wood",
+  "predicate": {
+    "type": "unified:components",
+    "components": {
+      "minecraft:block_transformer": "minecraft:axe"
+    }
+  },
+  "use_context": [
+    {
+      "type": "unified:play_sound",
+      "sound": "minecraft:item.axe.strip"
+    }
+  ]
+}

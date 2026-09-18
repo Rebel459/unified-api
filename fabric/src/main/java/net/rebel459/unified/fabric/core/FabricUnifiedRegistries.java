@@ -39,7 +39,7 @@ public class FabricUnifiedRegistries {
             Supplied<T> existing = StagedRegistry.getClaimed(key);
             if (existing != null) return existing;
             Holder.Reference<T> holder = Registry.registerForHolder(registry, id, value.get());
-            return new Supplied<>(key, holder::value, holder);
+            return new Supplied<>(key, holder::value, () -> holder);
         }
 
         @Override
@@ -56,7 +56,7 @@ public class FabricUnifiedRegistries {
             SuppliedItem existing = StagedRegistry.getClaimed(resourceKey);
             if (existing != null) return existing;
             var item = net.minecraft.world.item.Items.registerItem(resourceKey, function, properties.get().setId(resourceKey));
-            return new SuppliedItem(resourceKey, () -> item, BuiltInRegistries.ITEM.getOrThrow(resourceKey));
+            return new SuppliedItem(resourceKey, () -> item, () -> BuiltInRegistries.ITEM.getOrThrow(resourceKey));
         }
 
         @Override
@@ -69,7 +69,7 @@ public class FabricUnifiedRegistries {
             SuppliedItem existing = StagedRegistry.getClaimed(id.item());
             if (existing != null) return existing;
             Item item = net.minecraft.world.item.Items.registerBlock(id, block.get(), function, properties.get());
-            return new SuppliedItem(id.item(), () -> item, BuiltInRegistries.ITEM.getOrThrow(id.item()));
+            return new SuppliedItem(id.item(), () -> item, () -> BuiltInRegistries.ITEM.getOrThrow(id.item()));
         }
 
         @Override
@@ -88,7 +88,7 @@ public class FabricUnifiedRegistries {
             if (existing != null) return existing;
             Block block = Registry.register(BuiltInRegistries.BLOCK, blockItemId.block(), function.apply(blockProperties.get().setId(blockItemId.block())));
             net.minecraft.world.item.Items.registerBlock(blockItemId, block, BlockItem::new, new Item.Properties());
-            return new SuppliedBlock(blockItemId, () -> block, BuiltInRegistries.BLOCK.getOrThrow(blockItemId.block()));
+            return new SuppliedBlock(blockItemId, () -> block, () -> BuiltInRegistries.BLOCK.getOrThrow(blockItemId.block()));
         }
 
         @Override
@@ -116,7 +116,7 @@ public class FabricUnifiedRegistries {
             SuppliedBlock existing = StagedRegistry.getClaimed(key);
             if (existing != null) return existing;
             Block block = Registry.register(BuiltInRegistries.BLOCK, key, function.apply(properties.get().setId(key)));
-            return new SuppliedBlock(BlockItemId.create(key.identifier(), Identifier.fromNamespaceAndPath(modId, itemPath)), () -> block, BuiltInRegistries.BLOCK.getOrThrow(key));
+            return new SuppliedBlock(BlockItemId.create(key.identifier(), Identifier.fromNamespaceAndPath(modId, itemPath)), () -> block, () -> BuiltInRegistries.BLOCK.getOrThrow(key));
         }
 
         @Override
@@ -140,7 +140,7 @@ public class FabricUnifiedRegistries {
             Supplied<DataComponentType<T>> existing = StagedRegistry.getClaimed(key);
             if (existing != null) return existing;
             DataComponentType<T> component = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, key, unaryOperator.apply(DataComponentType.builder()).build());
-            return new Supplied<>(key, () -> component, BuiltInRegistries.DATA_COMPONENT_TYPE.getOrThrow(key));
+            return new Supplied<>(key, () -> component, () -> BuiltInRegistries.DATA_COMPONENT_TYPE.getOrThrow(key));
         }
 
         @Override
@@ -157,7 +157,7 @@ public class FabricUnifiedRegistries {
             Supplied<EntityType<T>> existing = StagedRegistry.getClaimed(resourceKey);
             if (existing != null) return existing;
             EntityType<T> entity = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey));
-            return new Supplied<>(resourceKey, () -> entity, BuiltInRegistries.ENTITY_TYPE.getOrThrow(resourceKey));
+            return new Supplied<>(resourceKey, () -> entity, () -> BuiltInRegistries.ENTITY_TYPE.getOrThrow(resourceKey));
         }
 
         @Override
@@ -188,7 +188,7 @@ public class FabricUnifiedRegistries {
             if (fixedRange >= 0F) rangeType = SoundEvent.createFixedRangeEvent(key.identifier(), fixedRange);
             SoundEvent finalRangeType = rangeType;
             SoundEvent sound = Registry.register(BuiltInRegistries.SOUND_EVENT, key, finalRangeType);
-            return new Supplied<>(key, () -> sound, BuiltInRegistries.SOUND_EVENT.getOrThrow(key));
+            return new Supplied<>(key, () -> sound, () -> BuiltInRegistries.SOUND_EVENT.getOrThrow(key));
         }
     }
 

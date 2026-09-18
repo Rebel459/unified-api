@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "chest_boat",
+  "ingredients": [
+    "minecraft:chest",
+    "unified_testmod:test_boat"
+  ],
+  "result": {
+    "id": "unified_testmod:test_chest_boat"
+  }
+}

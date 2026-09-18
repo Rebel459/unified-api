@@ -1,7 +1,6 @@
 package net.rebel459.unified.impl.platform;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -31,7 +30,6 @@ import java.util.List;
 public interface CommonPlatform {
 
     <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry);
-    <T> Holder<T> createHolder(Registry<T> registry, ResourceKey<T> key);
     UnifiedRegistries.Items createItems(String modId);
     UnifiedRegistries.Blocks createBlocks(String modId);
     UnifiedRegistries.DataComponentTypes createDataComponentTypes(String modId);

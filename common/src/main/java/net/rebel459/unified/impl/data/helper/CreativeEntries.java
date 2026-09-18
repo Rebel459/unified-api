@@ -57,7 +57,9 @@ public class CreativeEntries extends SimpleJsonResourceReloadListener<List<Creat
                 continue;
             }
 
-            ItemStack[] items = definition.items.toArray(ItemStack[]::new);
+            ItemStack[] items = definition.items.stream()
+                    .map(entry -> entry.map(Item::getDefaultInstance, ItemStack::copy))
+                    .toArray(ItemStack[]::new);
 
             switch (definition.insertion) {
                 case Insertion.Insert ignored -> context.insert(items);
@@ -73,11 +75,11 @@ public class CreativeEntries extends SimpleJsonResourceReloadListener<List<Creat
         }
     }
 
-    public record Definition(ResourceKey<CreativeModeTab> tab, Insertion insertion, List<ItemStack> items) {
+    public record Definition(ResourceKey<CreativeModeTab> tab, Insertion insertion, List<Either<Item, ItemStack>> items) {
         public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceKey.codec(Registries.CREATIVE_MODE_TAB).fieldOf("tab").forGetter(Definition::tab),
                 Insertion.CODEC.forGetter(Definition::insertion),
-                ExtraCodecs.compactListCodec(UnifiedCodecs.ITEM_OR_STACK).fieldOf("items").forGetter(Definition::items)
+                ExtraCodecs.compactListCodec(ENTRY_CODEC).fieldOf("items").forGetter(Definition::items)
         ).apply(instance, Definition::new));
 
         public static Codec<List<Definition>> LIST_CODEC = Codec.list(CODEC).fieldOf("entries").codec();

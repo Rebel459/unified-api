@@ -22,6 +22,7 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.ExtensibleSpawnPredicate;
 import net.rebel459.unified.api.core.Supplied;
 import net.rebel459.unified.api.data.helper.TagGenerator;
+import net.rebel459.unified.api.util.EntityLootProvider;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.data.registry.EntityRegistry;
@@ -29,6 +30,7 @@ import net.rebel459.unified.impl.data.registry.EntityRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -47,7 +49,7 @@ public class EntityGenerator {
     }
 
     public <T extends Entity> Supplied<? extends EntityType<?>> register(String path, EntityType.Builder<T> type, Consumer<Builder> builder) {
-        return register(path, ExtensibleCodecs.ENTITY.register(Identifier.fromNamespaceAndPath(modId, path), () -> type).create(), builder);
+        return register(path, ExtensibleCodecs.ENTITY.register(Identifier.fromNamespaceAndPath(namespace, path), () -> type).create(), builder);
     }
 
     public Supplied<? extends EntityType<?>> register(String path, ExtensibleCodec.Entry<EntityType.Builder<?>> type, Consumer<Builder> builder) {
@@ -110,7 +112,7 @@ public class EntityGenerator {
         }
 
         private <R> ExtensibleCodec.Entry<R> register(ExtensibleCodec<R> codec, R value) {
-            return codec.register(Identifier.fromNamespaceAndPath(modId, "entities/" + path), () -> value).create();
+            return codec.register(Identifier.fromNamespaceAndPath(modId, "entity/" + path), () -> value).create();
         }
 
         public Properties attributes(Supplier<AttributeSupplier> attributes) {
@@ -201,7 +203,7 @@ public class EntityGenerator {
         private final ResourceKey<EntityType<?>> key;
         private final Supplier<? extends EntityType<?>> entity;
         private final TagGenerator tagGenerator;
-        private Supplier<LootTable.Builder> loot;
+        private BiFunction<EntityType<?>, EntityLootProvider, LootTable.Builder> loot;
 
         private Data(String modId, ResourceKey<EntityType<?>> key, Supplier<? extends EntityType<?>> entity, TagGenerator tags) {
             this.modId = modId;
@@ -220,13 +222,16 @@ public class EntityGenerator {
             return this;
         }
 
-        public Data loot(Supplier<LootTable.Builder> lootTable) {
+        public Data loot(BiFunction<EntityType<?>, EntityLootProvider, LootTable.Builder> lootTable) {
             loot = lootTable;
             return this;
         }
 
         private void register() {
-            if (loot != null) DataProviders.ENTITY_LOOT.add(modId, generator -> generator.add(entity.get(), loot.get()));
+            if (loot != null) DataProviders.ENTITY_LOOT.add(modId, (generator, output) -> {
+                EntityType<?> value = entity.get();
+                output.accept(value, loot.apply(value, generator));
+            });
         }
     }
 

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "properties": {
+    "copy_from": "minecraft:oak_planks",
+    "flammability": {
+      "burn_odds": 20,
+      "ignite_odds": 5
+    },
+    "map_color": "color_brown",
+    "sound_type": {
+      "break_sound": "minecraft:block.wood.break",
+      "fall_sound": "minecraft:block.wood.fall",
+      "hit_sound": "minecraft:block.wood.hit",
+      "place_sound": "minecraft:block.wood.place",
+      "step_sound": "minecraft:block.wood.step"
+    }
+  }
+}

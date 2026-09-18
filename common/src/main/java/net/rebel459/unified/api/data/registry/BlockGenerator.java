@@ -2,14 +2,13 @@ package net.rebel459.unified.api.data.registry;
 
 import com.mojang.datafixers.util.Either;
 import net.minecraft.references.BlockItemId;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -19,10 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.phys.AABB;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
@@ -30,11 +26,10 @@ import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.core.SuppliedBlock;
-import net.rebel459.unified.api.core.UnifiedData;
-import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.helper.RecipeGenerator;
 import net.rebel459.unified.api.data.helper.TagGenerator;
 import net.rebel459.unified.api.registry.VanillaItemCodecs;
+import net.rebel459.unified.api.util.BlockLootProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
@@ -69,7 +64,7 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock register(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-        return register(blockPath, itemPath, ExtensibleCodecs.BLOCK.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
+        return register(blockPath, itemPath, ExtensibleCodecs.BLOCK.register(Identifier.fromNamespaceAndPath(namespace, blockPath), () -> type).create(), builder);
     }
 
     public SuppliedBlock register(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -77,9 +72,9 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock register(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
-        SuppliedBlock block = registerWithoutItem(blockPath, itemPath, type, builder);
-        items.registerBlockItem(block, VanillaItemCodecs.BLOCK_ITEM.create(), _ -> {
-        });
+        Builder finalBuilder = createBuilder(blockPath, builder);
+        SuppliedBlock block = registerWithoutItem(blockPath, itemPath, type, finalBuilder);
+        items.registerBlockItem(block, VanillaItemCodecs.BLOCK_ITEM.create(), itemBuilder -> itemBuilder.properties(finalBuilder.itemProperties));
         return block;
     }
 
@@ -88,7 +83,7 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, ? extends Block> type, Consumer<Builder> builder) {
-        return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK.register(Identifier.fromNamespaceAndPath(namespace, "blocks/" + blockPath), () -> type).create(), builder);
+        return registerWithoutItem(blockPath, itemPath, ExtensibleCodecs.BLOCK.register(Identifier.fromNamespaceAndPath(namespace, blockPath), () -> type).create(), builder);
     }
 
     public SuppliedBlock registerWithoutItem(String path, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
@@ -96,11 +91,19 @@ public class BlockGenerator {
     }
 
     public SuppliedBlock registerWithoutItem(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Consumer<Builder> builder) {
+        return registerWithoutItem(blockPath, itemPath, type, createBuilder(blockPath, builder));
+    }
+
+    private Builder createBuilder(String blockPath, Consumer<Builder> builder) {
         Builder finalBuilder = new Builder(namespace, blockPath, tags, recipes);
         builder.accept(finalBuilder);
+        return finalBuilder;
+    }
+
+    private SuppliedBlock registerWithoutItem(String blockPath, String itemPath, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, Builder finalBuilder) {
         Identifier id = Identifier.fromNamespaceAndPath(namespace, blockPath);
         Supplier<BlockRegistry.Definition> definition = () -> new BlockRegistry.Definition(
-                type, finalBuilder.properties.definition, finalBuilder.blockEntity);
+                type, finalBuilder.buildProperties(), finalBuilder.blockEntity);
         SuppliedBlock block = BlockRegistry.registerDefinition(BlockItemId.create(id,
                 Identifier.fromNamespaceAndPath(namespace, itemPath)), definition,
                 finalBuilder.blockEntity);
@@ -125,7 +128,7 @@ public class BlockGenerator {
         }
 
         private <R> ExtensibleCodec.Entry<R> register(ExtensibleCodec<R> codec, R value) {
-            return codec.register(Identifier.fromNamespaceAndPath(modId, "blocks/" + path), () -> value).create();
+            return codec.register(Identifier.fromNamespaceAndPath(modId, "block/" + path), () -> value).create();
         }
 
         public Properties copyFrom(Supplier<? extends Block> copyFrom) {
@@ -228,11 +231,6 @@ public class BlockGenerator {
             definition.requiredFeatures = Optional.of(features.length == 0
                     ? FeatureFlagSet.of()
                     : FeatureFlagSet.of(features[0], Arrays.copyOfRange(features, 1, features.length)));
-            return this;
-        }
-
-        public Properties ignitedByLava(boolean ignitedByLava) {
-            definition.ignitedByLava = Optional.of(ignitedByLava);
             return this;
         }
 
@@ -385,7 +383,7 @@ public class BlockGenerator {
         private final Supplier<Block> block;
         private final TagGenerator tagGenerator;
         private final RecipeGenerator recipeGenerator;
-        private Function<Block, LootTable.Builder> loot;
+        private BiFunction<Block, BlockLootProvider, LootTable.Builder> loot;
         private BiConsumer<Item, RecipeProvider> recipes;
 
         private Data(String modId, BlockItemId key, Supplier<Block> block, TagGenerator tagGenerator, RecipeGenerator recipeGenerator) {
@@ -416,7 +414,17 @@ public class BlockGenerator {
             return this;
         }
 
-        public Data loot(Function<Block, LootTable.Builder> factory) {
+        public Data tag(BlockItemTagId tag) {
+            tagGenerator.create(tag).add(key);
+            return this;
+        }
+
+        public Data optionalTag(BlockItemTagId tag) {
+            tagGenerator.create(tag).addOptional(key);
+            return this;
+        }
+
+        public Data loot(BiFunction<Block, BlockLootProvider, LootTable.Builder> factory) {
             loot = factory;
             return this;
         }
@@ -427,14 +435,14 @@ public class BlockGenerator {
         }
 
         public Data dropSelf() {
-            loot(value -> LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1)).add(LootItem.lootTableItem(value))));
+            loot((value, provider) -> provider.createSingleItemTable(value));
             return this;
         }
 
         private void register() {
-            if (loot != null) DataProviders.BLOCK_LOOT.add(modId, generator -> {
+            if (loot != null) DataProviders.BLOCK_LOOT.add(modId, (generator, output) -> {
                 Block value = block.get();
-                generator.add(value, loot.apply(value));
+                output.accept(value, loot.apply(value, generator));
             });
             if (recipes != null) recipeGenerator.add(provider -> recipes.accept(block.get().asItem(), provider));
         }
@@ -442,8 +450,10 @@ public class BlockGenerator {
 
     public static final class Builder {
         private final Properties properties;
+        private final List<Consumer<Properties>> propertyConfigurations = new ArrayList<>();
         private final List<Consumer<Assets>> assetConfigurations = new ArrayList<>();
         private final List<Consumer<Data>> dataConfigurations = new ArrayList<>();
+        private Consumer<Item.Properties> itemProperties = _ -> {};
         private Optional<Supplier<BlockEntityType<?>>> blockEntity = Optional.empty();
         private final TagGenerator tags;
         private final RecipeGenerator recipes;
@@ -455,8 +465,20 @@ public class BlockGenerator {
         }
 
         public Builder properties(Consumer<Properties> properties) {
-            properties.accept(this.properties);
+            if (propertiesBuilt) properties.accept(this.properties);
+            else propertyConfigurations.add(properties);
             return this;
+        }
+
+        private boolean propertiesBuilt;
+
+        private synchronized BlockRegistry.Properties buildProperties() {
+            if (!propertiesBuilt) {
+                propertyConfigurations.forEach(configuration -> configuration.accept(properties));
+                propertyConfigurations.clear();
+                propertiesBuilt = true;
+            }
+            return properties.definition;
         }
 
         public Builder assets(Consumer<Assets> assets) {
@@ -466,6 +488,11 @@ public class BlockGenerator {
 
         public Builder data(Consumer<Data> data) {
             dataConfigurations.add(data);
+            return this;
+        }
+
+        public Builder itemProperties(Consumer<Item.Properties> itemProperties) {
+            this.itemProperties = itemProperties;
             return this;
         }
 

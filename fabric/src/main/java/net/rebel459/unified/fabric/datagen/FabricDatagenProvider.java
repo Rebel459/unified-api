@@ -20,20 +20,19 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BootstrapRegistry;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
@@ -48,6 +47,7 @@ import net.rebel459.unified.api.asset.ItemAsset;
 import net.rebel459.unified.api.asset.ItemAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.core.DataProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
@@ -91,22 +91,22 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.ROTATED_PILLAR, context -> context.generator().createRotatedPillarWithHorizontalVariant(context.block, TexturedModel.COLUMN_ALT, TexturedModel.COLUMN_HORIZONTAL_ALT));
 
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.TINTED_LEAVES, (definition, context) -> context.generator().createTintedLeaves(context.block, TexturedModel.LEAVES, definition));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SLAB, (definition, context) -> context.family(definition).slab(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.STAIRS, (definition, context) -> context.family(definition).stairs(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.WALL, (definition, context) -> context.family(definition).wall(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SLAB, (definition, context) -> context.family(definition.asBlock()).slab(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.STAIRS, (definition, context) -> context.family(definition.asBlock()).stairs(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.WALL, (definition, context) -> context.family(definition.asBlock()).wall(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PLANT, (definition, context) -> context.generator.createCrossBlockWithDefaultItem(context.block, convertPlantType(definition)));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.DOUBLE_PLANT, (definition, context) -> context.generator().createDoublePlant(context.block, convertPlantType(definition)));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.POTTED_PLANT, (definition, context) -> context.generator().createPlant(context.block, definition.potted(), convertPlantType(definition.type())));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.POTTED_PLANT, (definition, context) -> context.generator().createPlant(context.block, definition.potted().asBlock(), convertPlantType(definition.type())));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.CROP, (definition, context) -> context.generator().createCropBlock(context.block, definition.property(), IntStream.range(0, definition.stages()).toArray()));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.COPIED_PARTICLE_ONLY, (definition, context) -> context.generator().createParticleOnlyBlock(context.block, definition));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.WOOD, (definition, context) -> context.generator().woodProvider(definition).wood(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.COPIED_PARTICLE_ONLY, (definition, context) -> context.generator().createParticleOnlyBlock(context.block, definition.asBlock()));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.WOOD, (definition, context) -> context.generator().woodProvider(definition.asBlock()).wood(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.HANGING_SIGN, FabricDatagenProvider::createHangingSignModels);
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SHELF, (definition, context) -> context.generator().createShelf(context.block, definition));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.BUTTON, (definition, context) -> context.family(definition).button(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE, (definition, context) -> context.family(definition).fence(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE_GATE, (definition, context) -> context.family(definition).fenceGate(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PRESSURE_PLATE, (definition, context) -> context.family(definition).pressurePlate(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SIGN, (definition, context) -> context.family(definition).sign(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SHELF, (definition, context) -> context.generator().createShelf(context.block, definition.asBlock()));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.BUTTON, (definition, context) -> context.family(definition.asBlock()).button(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE, (definition, context) -> context.family(definition.asBlock()).fence(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE_GATE, (definition, context) -> context.family(definition.asBlock()).fenceGate(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PRESSURE_PLATE, (definition, context) -> context.family(definition.asBlock()).pressurePlate(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SIGN, FabricDatagenProvider::createSignModels);
 
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.GENERATED, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_ITEM));
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.HANDHELD, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_ITEM));
@@ -162,23 +162,50 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     }
 
     private static void createHangingSignModels(BlockAssets.HangingSign definition, BlockModelContext context) {
-        TextureMapping textures = TextureMapping.particle(definition.strippedLog());
-        MultiVariant hanging0 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_0.create(context.block(), textures, context.generator().modelOutput));
-        MultiVariant hanging1 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_1.create(context.block(), textures, context.generator().modelOutput));
-        MultiVariant hanging2 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_2.create(context.block(), textures, context.generator().modelOutput));
-        MultiVariant hanging3 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_3.create(context.block(), textures, context.generator().modelOutput));
-        MultiVariant attached0 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_0.create(context.block(), textures, context.generator().modelOutput));
-        MultiVariant attached1 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_1.create(context.block(), textures, context.generator().modelOutput));
-        MultiVariant attached2 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_2.create(context.block(), textures, context.generator().modelOutput));
-        MultiVariant attached3 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_3.create(context.block(), textures, context.generator().modelOutput));
+        TextureMapping textures = new TextureMapping()
+                .put(TextureSlot.ALL, TextureMapping.getBlockTexture(context.block()))
+                .put(TextureSlot.PARTICLE, TextureMapping.getBlockTexture(definition.strippedLog().asBlock()));
+        MultiVariant hanging0 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_0.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_0"), textures, context.generator().modelOutput));
+        MultiVariant hanging1 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_1.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_1"), textures, context.generator().modelOutput));
+        MultiVariant hanging2 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_2.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_2"), textures, context.generator().modelOutput));
+        MultiVariant hanging3 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_3.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_3"), textures, context.generator().modelOutput));
+        MultiVariant attached0 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_0.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_0"), textures, context.generator().modelOutput));
+        MultiVariant attached1 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_1.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_1"), textures, context.generator().modelOutput));
+        MultiVariant attached2 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_2.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_2"), textures, context.generator().modelOutput));
+        MultiVariant attached3 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_3.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_3"), textures, context.generator().modelOutput));
         context.generator().blockStateOutput.accept(BlockModelGenerators.createHangingSign(
                 context.block(), hanging0, hanging1, hanging2, hanging3, attached0, attached1, attached2, attached3
         ));
 
-        Identifier wallModel = ModelTemplates.WALL_HANGING_SIGN.create(definition.wallHangingSign(), textures, context.generator().modelOutput);
+        Identifier wallModel = ModelTemplates.WALL_HANGING_SIGN.create(definition.wallHangingSign().asBlock(), textures, context.generator().modelOutput);
         context.generator().blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                definition.wallHangingSign(), BlockModelGenerators.plainVariant(wallModel)
-        ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+                definition.wallHangingSign().asBlock(), BlockModelGenerators.plainVariant(wallModel)
+        ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING_ALT));
+        context.generator().registerSimpleFlatItemModel(context.block().asItem());
+    }
+
+    private static void createSignModels(BlockAssets.Sign definition, BlockModelContext context) {
+        TextureMapping textures = new TextureMapping()
+                .put(TextureSlot.ALL, TextureMapping.getBlockTexture(context.block()))
+                .put(TextureSlot.PARTICLE, TextureMapping.getBlockTexture(definition.base().asBlock()));
+        MultiVariant sign0 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_0.create(
+                ModelLocationUtils.getModelLocation(context.block(), "_rot_0"), textures, context.generator().modelOutput));
+        MultiVariant sign1 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_1.create(
+                ModelLocationUtils.getModelLocation(context.block(), "_rot_1"), textures, context.generator().modelOutput));
+        MultiVariant sign2 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_2.create(
+                ModelLocationUtils.getModelLocation(context.block(), "_rot_2"), textures, context.generator().modelOutput));
+        MultiVariant sign3 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_3.create(
+                ModelLocationUtils.getModelLocation(context.block(), "_rot_3"), textures, context.generator().modelOutput));
+        context.generator().blockStateOutput.accept(BlockModelGenerators.createSign(
+                context.block(), sign0, sign1, sign2, sign3
+        ));
+
+        Block wallSign = definition.wallSign().asBlock();
+        Identifier wallModel = ModelTemplates.WALL_SIGN.create(wallSign, textures, context.generator().modelOutput);
+        context.generator().blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                wallSign, BlockModelGenerators.plainVariant(wallModel)
+        ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING_ALT));
+        context.generator().registerSimpleFlatItemModel(context.block().asItem());
     }
 
     @Override
@@ -224,8 +251,16 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             return registries.thenCompose(provider -> {
                 List<CompletableFuture<?>> writes = new ArrayList<>();
                 DynamicOps<JsonElement> registryOps = provider.createSerializationContext(JsonOps.INSTANCE);
-                requests.requests(modId).forEach(request -> writes.add(net.minecraft.data.DataProvider.saveStable(
-                        cache, request.encoder().apply(provider, registryOps), output.getOutputFolder().resolve(request.path()))));
+                requests.requests(modId).forEach(request -> {
+                    JsonElement encoded;
+                    try {
+                        encoded = request.encoder().apply(provider, registryOps);
+                    } catch (RuntimeException exception) {
+                        throw new IllegalStateException("Failed to encode generated JSON " + request.path(), exception);
+                    }
+                    writes.add(net.minecraft.data.DataProvider.saveStable(
+                            cache, encoded, output.getOutputFolder().resolve(request.path())));
+                });
                 return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
             });
         }
@@ -257,14 +292,12 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                 }
                 DataProviders.Translation translation = request.translation().orElseThrow();
                 String name = translation.name().get().orElse(null);
-                if (translation.type() == DataProviders.TranslationType.BLOCK) {
-                    addTranslation(language, settings, translation.id(), "block", name);
-                }
-                if (translation.type() == DataProviders.TranslationType.BLOCK) {
-                    addTranslation(language, settings, translation.id(), "entity", name);
-                } else {
-                    addItemTranslation(language, settings, translation.id(), name);
-                }
+                String kind = switch (translation.type()) {
+                    case BLOCK -> "block";
+                    case ITEM -> "item";
+                    case ENTITY -> "entity";
+                };
+                addTranslation(language, settings, translation.id(), kind, name);
             });
 
             List<CompletableFuture<?>> writes = new ArrayList<>();
@@ -298,21 +331,6 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             translations.addProperty(kind + "." + id.getNamespace() + "." + id.getPath(), explicitName != null ? explicitName : autoName(id.getPath()));
         }
 
-        private void addItemTranslation(JsonObject translations, DataProviders.GenerationSettings settings,
-                Identifier id, String explicitName) {
-            if (explicitName == null && !settings.autoName()) return;
-            Component name = BuiltInRegistries.ITEM.getValueOrThrow(ResourceKey.create(Registries.ITEM, id))
-                    .components().get(DataComponents.ITEM_NAME);
-            if (name == null || !(name.getContents() instanceof TranslatableContents translation)) return;
-            String key = translation.getKey();
-            String itemPrefix = "item." + id.getNamespace() + ".";
-            String blockPrefix = "block." + id.getNamespace() + ".";
-            String path = key.startsWith(itemPrefix) ? key.substring(itemPrefix.length())
-                    : key.startsWith(blockPrefix) ? key.substring(blockPrefix.length())
-                    : id.getPath();
-            translations.addProperty(key, explicitName != null ? explicitName : autoName(path));
-        }
-
     }
 
     public static final class ModelsProvider extends FabricModelProvider {
@@ -331,7 +349,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             requests.requests(modId).forEach(request -> {
                 if (!(request instanceof DataProviders.BlockModels generated)) return;
                 generated.assets().get().models().forEach(asset -> {
-                    if (isFamilyAsset(asset.type())) familyBases.add((Block) asset.value());
+                    if (isFamilyAsset(asset.type())) familyBases.add(((BlockLike) asset.value()).asBlock());
                 });
             });
             requests.requests(modId).forEach(request -> {
@@ -352,7 +370,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         private static boolean isFamilyAsset(BlockAsset<?> asset) {
             return asset == BlockAssets.SLAB || asset == BlockAssets.STAIRS || asset == BlockAssets.WALL
                     || asset == BlockAssets.BUTTON || asset == BlockAssets.FENCE || asset == BlockAssets.FENCE_GATE
-                    || asset == BlockAssets.PRESSURE_PLATE || asset == BlockAssets.SIGN;
+                    || asset == BlockAssets.PRESSURE_PLATE;
         }
 
         @Override public void generateItemModels(ItemModelGenerators generator) {
@@ -369,30 +387,38 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
     public static final class BlockLootProvider extends FabricBlockLootSubProvider {
 
         private final String modId;
-        private final DataProvider<Consumer<DataProviders.BlockLootGenerator>> requests;
-        public BlockLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, DataProvider<Consumer<DataProviders.BlockLootGenerator>> requests) {
+        private final CompletableFuture<HolderLookup.Provider> registries;
+        private final DataProvider<DataProviders.BlockLootRequest> requests;
+        public BlockLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, DataProvider<DataProviders.BlockLootRequest> requests) {
             super(output, registries);
             this.modId = modId;
+            this.registries = registries;
             this.requests = requests;
         }
 
         @Override public void generate() {
-            requests.requests(modId).forEach(generator -> generator.accept(this::add));
+            net.rebel459.unified.api.util.BlockLootProvider provider = new net.rebel459.unified.api.util.BlockLootProvider(
+                    registries.join(), this);
+            requests.requests(modId).forEach(request -> request.generate(provider, this::add));
         }
     }
 
     public static final class EntityLootProvider extends FabricEntityLootSubProvider {
 
         private final String modId;
-        private final DataProvider<Consumer<DataProviders.EntityLootGenerator>> requests;
-        public EntityLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, DataProvider<Consumer<DataProviders.EntityLootGenerator>> requests) {
+        private final CompletableFuture<HolderLookup.Provider> registries;
+        private final DataProvider<DataProviders.EntityLootRequest> requests;
+        public EntityLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modId, DataProvider<DataProviders.EntityLootRequest> requests) {
             super(output, registries);
             this.modId = modId;
+            this.registries = registries;
             this.requests = requests;
         }
 
         @Override public void generate() {
-            requests.requests(modId).forEach(generator -> generator.accept(this::add));
+            net.rebel459.unified.api.util.EntityLootProvider provider = new net.rebel459.unified.api.util.EntityLootProvider(
+                    registries.join());
+            requests.requests(modId).forEach(request -> request.generate(provider, this::add));
         }
     }
 
@@ -560,6 +586,14 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
 
                 @Override public void addOptional(TagKey<T> tagKey, ResourceKey<T> value) {
                     builder(tagKey).addOptional(value);
+                }
+
+                @Override public void addTag(TagKey<T> tagKey, TagKey<T> value) {
+                    builder(tagKey).addTag(value);
+                }
+
+                @Override public void addOptionalTag(TagKey<T> tagKey, TagKey<T> value) {
+                    builder(tagKey).addOptionalTag(value);
                 }
                 });
             });

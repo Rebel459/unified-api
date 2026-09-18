@@ -3,6 +3,7 @@ package net.rebel459.unified.api.asset;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.rebel459.unified.Unified;
+import net.rebel459.unified.api.util.BlockLike;
 
 public final class BlockAssets {
 
@@ -19,28 +20,30 @@ public final class BlockAssets {
     public static final BlockAsset<Void> ROTATED_PILLAR = create("rotated_pillar");
 
     public static final BlockAsset<Integer> TINTED_LEAVES = create("tinted_leaves");
-    public static final BlockAsset<Block> SLAB = create("slab");
-    public static final BlockAsset<Block> STAIRS = create("stairs");
-    public static final BlockAsset<Block> WALL = create("wall");
+    public static final BlockAsset<BlockLike> SLAB = create("slab");
+    public static final BlockAsset<BlockLike> STAIRS = create("stairs");
+    public static final BlockAsset<BlockLike> WALL = create("wall");
     public static final BlockAsset<PlantType> PLANT = create("plant");
     public static final BlockAsset<PlantType> DOUBLE_PLANT = create("double_plant");
     public static final BlockAsset<PottedPlant> POTTED_PLANT = create("potted_plant");
     public static final BlockAsset<Crop> CROP = create("crop");
-    public static final BlockAsset<Block> COPIED_PARTICLE_ONLY = create("copied_particle_only");
-    public static final BlockAsset<Block> WOOD = create("wood");
+    public static final BlockAsset<BlockLike> COPIED_PARTICLE_ONLY = create("copied_particle_only");
+    public static final BlockAsset<BlockLike> WOOD = create("wood");
     public static final BlockAsset<HangingSign> HANGING_SIGN = create("hanging_sign");
-    public static final BlockAsset<Block> SHELF = create("shelf");
-    public static final BlockAsset<Block> BUTTON = create("button");
-    public static final BlockAsset<Block> FENCE = create("fence");
-    public static final BlockAsset<Block> FENCE_GATE = create("fence_gate");
-    public static final BlockAsset<Block> PRESSURE_PLATE = create("pressure_plate");
-    public static final BlockAsset<Block> SIGN = create("sign");
+    public static final BlockAsset<BlockLike> SHELF = create("shelf");
+    public static final BlockAsset<BlockLike> BUTTON = create("button");
+    public static final BlockAsset<BlockLike> FENCE = create("fence");
+    public static final BlockAsset<BlockLike> FENCE_GATE = create("fence_gate");
+    public static final BlockAsset<BlockLike> PRESSURE_PLATE = create("pressure_plate");
+    public static final BlockAsset<Sign> SIGN = create("sign");
 
     public record Crop(Property<Integer> property, int stages) {}
 
-    public record HangingSign(Block strippedLog, Block wallHangingSign) {}
+    public record HangingSign(BlockLike strippedLog, BlockLike wallHangingSign) {}
 
-    public record PottedPlant(Block potted, PlantType type) {}
+    public record Sign(BlockLike base, BlockLike wallSign) {}
+
+    public record PottedPlant(BlockLike potted, PlantType type) {}
 
     public enum PlantType {
         TINTED,

@@ -1,14 +1,16 @@
 package net.rebel459.unified.api.core;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockItemTagId;
+import net.minecraft.world.level.material.MapColor;
+import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.data.helper.*;
 import net.rebel459.unified.api.data.registry.*;
 import net.rebel459.unified.impl.core.DataProviders;
-import net.rebel459.unified.impl.data.helper.SimpleBabyArmor;
 
-import java.util.*;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class UnifiedData {
@@ -20,7 +22,7 @@ public final class UnifiedData {
     private UnifiedData(String modId, String namespace, DataProviders.GenerationSettings settings) {
         this.helpers = new Helpers(modId, settings.metadata().requirement());
         this.registries = new Registries(modId, namespace, settings, this.helpers.tags(), this.helpers.recipes());
-        this.sets = new Sets(this.registries, this.helpers);
+        this.sets = new Sets(modId, this.registries, this.helpers);
         settings.injectedTranslations().ifPresent(ignored -> DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.empty())));
     }
 
@@ -210,12 +212,34 @@ public final class UnifiedData {
 
     public static final class Sets {
 
+        private final String modId;
         private final Registries registries;
         private final Helpers helpers;
 
-        private Sets(Registries registries, Helpers helpers) {
+        private Sets(String modId, Registries registries, Helpers helpers) {
+            this.modId = modId;
             this.registries = registries;
             this.helpers = helpers;
+        }
+
+        public WoodSet.RegistryBuilder woodSet(String name, WoodPreset preset, BlockItemTagId logTag, MapColor barkColor, MapColor plankColor) {
+            return new WoodSet.RegistryBuilder(Identifier.fromNamespaceAndPath(modId, name), logTag, barkColor, plankColor, preset, registries.blocks, registries.items, registries.entities, registries.blockSetTypes, registries.woodTypes, helpers.tags, helpers.creativeEntries, helpers.blockConversions);
+        }
+
+        public StoneSet.RegistryBuilder stoneSet(String name, StonePreset preset, MapColor color) {
+            return new StoneSet.RegistryBuilder(Identifier.fromNamespaceAndPath(modId, name), color, preset, registries.blocks, registries.blockSetTypes, helpers.creativeEntries);
+        }
+
+        public ColoredBlockSet.RegistryBuilder coloredBlockSet(String name, ColoredBlockPreset preset) {
+            return new ColoredBlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(modId, name), preset, registries.blocks, registries.items, helpers.recipes, helpers.creativeEntries);
+        }
+
+        public ColoredItemSet.RegistryBuilder coloredItemSet(String name, ColoredItemPreset preset) {
+            return new ColoredItemSet.RegistryBuilder(Identifier.fromNamespaceAndPath(modId, name), preset, registries.items, helpers.creativeEntries);
+        }
+
+        public EquipmentSet.RegistryBuilder coloredItemSet(String name, EquipmentPreset preset) {
+            return new EquipmentSet.RegistryBuilder(Identifier.fromNamespaceAndPath(modId, name), preset, registries.items, helpers.recipes, helpers.tags, helpers.equipmentAssets, helpers.simpleBabyArmor, helpers.creativeEntries);
         }
     }
 }

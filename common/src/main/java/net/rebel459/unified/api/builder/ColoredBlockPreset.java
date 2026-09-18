@@ -23,7 +23,7 @@ public final class ColoredBlockPreset {
             .build();
 
     public static final ColoredBlockPreset WOOL = create()
-            .blockBuilder((_, builder) -> builder
+            .builder((_, builder) -> builder
                     .properties(properties -> properties
                             .copyFrom(Blocks.WOOL::white)
                             .flammable(30, 60)
@@ -32,11 +32,10 @@ public final class ColoredBlockPreset {
                             .dropSelf()
                             .tag(BlockTags.SHEARS_MAJOR_BREAKING_SPEED)
                     )
-            )
-            .itemBuilder((_, builder) -> builder.properties(
-                    properties -> properties
+                    .itemProperties(itemProperties -> itemProperties
                             .component(DataComponents.COOKING_FUEL, new CookingFuel(new ResolvableInt.Constant(100), ResolvableFloat.fromKey(ContextFloatProviders.COOKING_DEFAULT_SPEED_MULTIPLIER)))
-            ))
+                    )
+            )
             .dyeRecipe((dye, otherBlocks, item, provider) -> {
                 provider.shapeless(RecipeCategory.BUILDING_BLOCKS, item)
                         .requires(dye)
@@ -48,7 +47,7 @@ public final class ColoredBlockPreset {
             .build();
 
     public static final ColoredBlockPreset DYED_TERRACOTTA = create()
-            .blockBuilder((_, builder) ->
+            .builder((_, builder) ->
                     builder.properties(properties -> properties
                                     .copyFrom(Blocks.DYED_TERRACOTTA::white)
                             )
@@ -61,7 +60,7 @@ public final class ColoredBlockPreset {
             .build();
 
     public static final ColoredBlockPreset CONCRETE = create()
-            .blockBuilder((_, builder) -> builder
+            .builder((_, builder) -> builder
                     .properties(properties -> properties
                             .copyFrom(Blocks.CONCRETE::white)
                     )
@@ -73,7 +72,7 @@ public final class ColoredBlockPreset {
             .build();
 
     public static final ColoredBlockPreset CONCRETE_POWDER = create()
-            .blockBuilder((_, builder) -> builder
+            .builder((_, builder) -> builder
                     .properties(properties -> properties
                             .copyFrom(Blocks.CONCRETE_POWDER::white)
                     )

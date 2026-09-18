@@ -34,7 +34,11 @@ import java.util.Optional;
 
 public class MobVariants {
 
-    public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("mob_variants"));
+    private static final class RegistryKeyHolder {
+        private static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("mob_variants"));
+    }
+
+    public static final ResourceKey<Registry<Definition>> KEY = RegistryKeyHolder.KEY;
 
     public static void init() {
         UnifiedHelpers.DATA_REGISTRIES.registerSynced(
@@ -116,9 +120,9 @@ public class MobVariants {
                 TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Definition::babyTexture),
                 Sounds.CODEC.optionalFieldOf("soundType", new Sounds(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Definition::sounds)
         ).apply(instance, Definition::new));
-        public static final Codec<Holder<Definition>> REGISTRY_CODEC = RegistryFixedCodec.create(KEY);
+        public static final Codec<Holder<Definition>> REGISTRY_CODEC = RegistryFixedCodec.create(RegistryKeyHolder.KEY);
         public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Definition>>> STREAM_CODEC = ByteBufCodecs.optional(
-                ByteBufCodecs.holder(KEY, ByteBufCodecs.fromCodecWithRegistries(NETWORK_CODEC))
+                ByteBufCodecs.holder(RegistryKeyHolder.KEY, ByteBufCodecs.fromCodecWithRegistries(NETWORK_CODEC))
         );
 
         public List<Selector<SpawnContext, SpawnCondition>> selectors() {

@@ -4,6 +4,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.rebel459.unified.api.builder.StoneSet;
 import net.rebel459.unified.api.core.UnifiedHelpers;
+import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.registry.CreativeModeTabIds;
 
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class StoneSetProperties {
 
     public static Map<Identifier, StoneSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, CreativeEntryGenerator> CREATIVE_ENTRY_GENERATORS = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<StoneSet> stoneSets) {
         creativeEntries(stoneSets);
@@ -23,20 +25,22 @@ public class StoneSetProperties {
     private static void creativeEntries(List<StoneSet> stoneSets) {
         for (StoneSet stoneSet : stoneSets) {
             StoneSet.PrecedingCreativeEntries precedingItems = CREATIVE_ENTRIES.get(stoneSet.getId());
-            if (precedingItems == null) continue;
+            CreativeEntryGenerator generator = CREATIVE_ENTRY_GENERATORS.get(stoneSet.getId());
+            if (precedingItems == null || generator == null) continue;
+            CreativeEntryGenerator.Builder builder = generator.create("stone_set/" + stoneSet.getId().getPath());
 
-            if (stoneSet.hasButton()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getButton());
-            if (stoneSet.hasPressurePlate()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getPressurePlate());
-            if (stoneSet.hasChiseled()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getChiseled());
-            if (stoneSet.hasFence()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getFence());
-            if (stoneSet.hasWall()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getWall());
-            if (stoneSet.hasSlab()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getSlab());
-            if (stoneSet.hasStairs()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getStairs());
-            if (stoneSet.hasPillar()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getPillar());
-            if (stoneSet.hasCracked()) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getCracked());
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getBase());
+            if (stoneSet.hasButton()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getButton());
+            if (stoneSet.hasPressurePlate()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getPressurePlate());
+            if (stoneSet.hasChiseled()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getChiseled());
+            if (stoneSet.hasFence()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getFence());
+            if (stoneSet.hasWall()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getWall());
+            if (stoneSet.hasSlab()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getSlab());
+            if (stoneSet.hasStairs()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getStairs());
+            if (stoneSet.hasPillar()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getPillar());
+            if (stoneSet.hasCracked()) builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getCracked());
+            builder.insertAfter(CreativeModeTabIds.BUILDING_BLOCKS, precedingItems.building().get(), stoneSet.getBase());
 
-            if (precedingItems.natural() != null) UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), stoneSet.getBase());
+            if (precedingItems.natural() != null) builder.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), stoneSet.getBase());
         }
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.vehicle.boat.Boat;
 import net.minecraft.world.entity.vehicle.boat.ChestBoat;
+import net.minecraft.world.entity.vehicle.boat.ChestRaft;
 import net.minecraft.world.entity.vehicle.boat.Raft;
 import net.minecraft.world.item.Item;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
@@ -47,7 +48,7 @@ public class VanillaEntityCodecs {
                     .clientTrackingRange(10)
     );
 
-    public static final ExtensibleEntityCodec.Complex<Raft, Supplier<Item>> CHEST_RAFT = ExtensibleCodecs.ENTITY.register(
+    public static final ExtensibleEntityCodec.Complex<ChestRaft, Supplier<Item>> CHEST_RAFT = ExtensibleCodecs.ENTITY.register(
             Identifier.withDefaultNamespace("chest_raft"),
             UnifiedCodecs.supplied(BuiltInRegistries.ITEM).fieldOf("drop_item"),
             dropItem -> EntityType.Builder.of(EntityTypes.chestRaftFactory(dropItem), MobCategory.MISC)

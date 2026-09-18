@@ -1,0 +1,16 @@
+{
+  "converted_block": "unified_testmod:stripped_test_log",
+  "original_block": "unified_testmod:test_log",
+  "predicate": {
+    "type": "unified:components",
+    "components": {
+      "minecraft:block_transformer": "minecraft:axe"
+    }
+  },
+  "use_context": [
+    {
+      "type": "unified:play_sound",
+      "sound": "minecraft:item.axe.strip"
+    }
+  ]
+}

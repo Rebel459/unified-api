@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_sign_rot_1",
+  "textures": {
+    "all": "unified_testmod:block/test_sign",
+    "particle": "unified_testmod:block/test_planks"
+  }
+}

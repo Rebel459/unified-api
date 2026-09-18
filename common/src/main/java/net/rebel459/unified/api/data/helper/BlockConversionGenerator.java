@@ -1,6 +1,8 @@
 package net.rebel459.unified.api.data.helper;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
@@ -9,9 +11,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.codec.ExtensibleCodecBase;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.registry.UnifiedItemPredicateCodecs;
 import net.rebel459.unified.api.registry.UnifiedUseContextCodecs;
+import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.data.helper.BlockConversions;
 
 import java.util.ArrayList;
@@ -19,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class BlockConversionGenerator extends HelperGenerator {
@@ -26,28 +31,31 @@ public class BlockConversionGenerator extends HelperGenerator {
         super(modId, requirement);
     }
 
-    public Builder create(String name, Predicate<ItemStack> predicate, Block original, Block converted) {
-        return create(name, ExtensibleCodecs.ITEM_PREDICATES.register(Identifier.fromNamespaceAndPath(modId, "block_conversions/" + name), () -> predicate).create(), original, converted);
+    public Builder createAndRegister(String name, Function<HolderLookup.Provider, Predicate<ItemStack>> predicate, BlockLike original, BlockLike converted) {
+        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATES.register(Identifier.fromNamespaceAndPath(modId, "block_conversion/" + name), () -> predicate.apply(provider)).create(), original, converted);
     }
 
-    public Builder create(String name, ExtensibleCodec.Entry<Predicate<ItemStack>> predicate, Block original, Block converted) {
+    public Builder create(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, BlockLike original, BlockLike converted) {
         return new Builder(name, predicate, original, converted, modId, requirement);
     }
 
-    public void addStrippable(String name, Block log, Block strippedLog) {
-        new Builder(name, UnifiedItemPredicateCodecs.COMPONENTS.create(() -> Map.of(DataComponents.BLOCK_TRANSFORMER, BlockTransformers.AXE)), log, strippedLog, modId, requirement).onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(SoundEvents.AXE_STRIP::value));
+    public void addStrippable(String name, BlockLike log, BlockLike strippedLog) {
+        create(name, registries -> UnifiedItemPredicateCodecs.COMPONENTS.create(() -> Map.of(
+                DataComponents.BLOCK_TRANSFORMER,
+                registries.lookupOrThrow(Registries.BLOCK_TRANSFORMER).getOrThrow(BlockTransformers.AXE)
+        )), log, strippedLog).onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(SoundEvents.AXE_STRIP::value));
     }
 
     public static final class Builder extends HelperGenerator.Builder {
 
         private final List<ExtensibleCodec.Entry<Consumer<UseOnContext>>> useOnContext = new ArrayList<>();
 
-        Builder(String name, ExtensibleCodec.Entry<Predicate<ItemStack>> predicate, Block original, Block converted, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, BlockLike original, BlockLike converted, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/block_conversions/" + name), requirement, (_, ops) ->
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/block_conversions/" + name), requirement, (registries, ops) ->
                     BlockConversions.Definition.CODEC.encodeStart(ops,
                             new BlockConversions.Definition(
-                                    predicate, original, converted, List.copyOf(useOnContext)
+                                    predicate.apply(registries), original.asBlock(), converted.asBlock(), List.copyOf(useOnContext)
                             )).getOrThrow()
             );
         }

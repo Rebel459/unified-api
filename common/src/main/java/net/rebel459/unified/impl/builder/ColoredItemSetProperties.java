@@ -10,17 +10,19 @@ import net.minecraft.world.item.DyeColor;
 import net.rebel459.unified.api.builder.ColoredItemSet;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedHelpers;
+import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ColoredItemSetProperties {
 
     public static Map<Identifier, ColoredItemSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Identifier, CreativeEntryGenerator> CREATIVE_ENTRY_GENERATORS = Collections.synchronizedMap(new HashMap<>());
 
     public static Map<Identifier, List<Pair<Supplier<? extends DataComponentType<?>>, ?>>> COMPONENTS = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, List<Pair<Supplier<? extends DataComponentType<?>>, Function<DyeColor, ?>>>> DYED_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
@@ -65,8 +67,10 @@ public class ColoredItemSetProperties {
     private static void creativeEntries(List<ColoredItemSet> coloredItemSets) {
         for (ColoredItemSet coloredItemSet : coloredItemSets) {
             ColoredItemSet.PrecedingCreativeEntries entries = CREATIVE_ENTRIES.get(coloredItemSet.getId());
-            if (entries == null) continue;
-            UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(
+            CreativeEntryGenerator generator = CREATIVE_ENTRY_GENERATORS.get(coloredItemSet.getId());
+            if (entries == null || generator == null) continue;
+            CreativeEntryGenerator.Builder builder = generator.create("colored_item_set/" + coloredItemSet.getId().getPath());
+            builder.insertAfter(
                     entries.firstTab().getFirst(),
                     entries.firstTab().getSecond().get(),
                     coloredItemSet.getWhite(),
@@ -87,7 +91,7 @@ public class ColoredItemSetProperties {
                     coloredItemSet.getPink()
             );
             if (entries.secondTab() != null) {
-                UnifiedHelpers.CREATIVE_ENTRIES.insertAfter(
+                builder.insertAfter(
                         entries.secondTab().getFirst(),
                         entries.secondTab().getSecond().get(),
                         coloredItemSet.getWhite(),

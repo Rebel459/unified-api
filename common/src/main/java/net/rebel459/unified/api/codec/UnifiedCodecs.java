@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.rebel459.unified.api.core.Supplied;
+import net.rebel459.unified.api.core.StagedRegistry;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -91,6 +92,8 @@ public final class UnifiedCodecs {
     private record RegistrySupplier<T>(Registry<T> registry, ResourceKey<T> key) implements Supplier<T> {
         @Override
         public T get() {
+            Supplied<T> claimed = StagedRegistry.getClaimed(key);
+            if (claimed != null) return claimed.get();
             return registry.getValueOrThrow(key);
         }
     }

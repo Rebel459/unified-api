@@ -37,7 +37,6 @@ public class UnifiedRegistries {
         }
     }
 
-    /** UnifiedRegistries.Items should not be used by mods. You can still use it, however UnifiedDataRegistries.Items makes it redundant for mod developers */
     public interface Items {
         String modId();
 
@@ -48,35 +47,11 @@ public class UnifiedRegistries {
         SuppliedItem registerBlockItem(SuppliedBlock block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
         <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties);
 
-        default Builders builders() {
-            return new Builders(modId());
-        }
-
-        class Builders {
-
-            private final String modId;
-            private final UnifiedRegistries.Items itemRegistry;
-
-            private Builders(String modId) {
-                this.modId = modId;
-                this.itemRegistry = UnifiedRegistries.Items.create(modId);
-            }
-
-            public EquipmentSet.RegistryBuilder equipmentSet(String name, EquipmentPreset preset) {
-                return new EquipmentSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, null, this.itemRegistry);
-            }
-
-            public ColoredItemSet.RegistryBuilder coloredItemSet(String name, ColoredItemPreset preset) {
-                return new ColoredItemSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, null, this.itemRegistry);
-            }
-        }
-
         static Items create(String modId) {
             return new StagedRegistries.StagedItems(modId);
         }
     }
 
-    /** UnifiedRegistries.Blocks should not be used by mods. You can still use it, however UnifiedDataRegistries.Blocks makes it redundant for mod developers */
     public interface Blocks {
         String modId();
 
@@ -88,37 +63,6 @@ public class UnifiedRegistries {
 
         <T extends Block> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties);
         <T extends Block, Y extends BlockEntity> SuppliedBlock registerWithoutItem(String blockPath, String itemPath, Function<BlockBehaviour.Properties, T> function, Supplier<BlockBehaviour.Properties> properties, Supplier<BlockEntityType<Y>> type);
-
-        default Builders builders() {
-            return new Builders(modId());
-        }
-
-        class Builders {
-
-            private final String modId;
-            private final UnifiedRegistries.Items itemRegistry;
-            private final UnifiedRegistries.Blocks blockRegistry;
-            private final UnifiedRegistries.EntityTypes entityRegistry;
-
-            private Builders(String modId) {
-                this.modId = modId;
-                this.itemRegistry = UnifiedRegistries.Items.create(modId);
-                this.blockRegistry = UnifiedRegistries.Blocks.create(modId);
-                this.entityRegistry = UnifiedRegistries.EntityTypes.create(modId);
-            }
-
-            public WoodSet.RegistryBuilder woodSet(String name, WoodPreset preset, MapColor barkColor, MapColor plankColor) {
-                return new WoodSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), barkColor, plankColor, preset, null, this.itemRegistry, this.blockRegistry, this.entityRegistry);
-            }
-
-            public StoneSet.RegistryBuilder blockSet(String name, StonePreset preset, MapColor color) {
-                return new StoneSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), color, preset, null, this.blockRegistry);
-            }
-
-            public ColoredBlockSet.RegistryBuilder coloredBlockSet(String name, ColoredBlockPreset preset) {
-                return new ColoredBlockSet.RegistryBuilder(Identifier.fromNamespaceAndPath(this.modId, name), preset, null, this.blockRegistry);
-            }
-        }
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 

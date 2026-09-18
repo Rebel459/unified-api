@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:button",
+  "block_set_type": "unified_testmod:test",
+  "properties": {
+    "collision": false,
+    "copy_from": "unified_testmod:test_planks",
+    "destroy_time": 0.5,
+    "explosion_resistance": 0.5,
+    "push_reaction": "popped",
+    "solid": true
+  },
+  "ticks_to_stay_pressed": 30
+}

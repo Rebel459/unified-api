@@ -54,6 +54,7 @@ public final class StagedRegistry<T> {
 
     private static final Map<ResourceKey<? extends Registry<?>>, StagedRegistry<?>> REGISTRIES = new LinkedHashMap<>();
     private static final Set<ResourceKey<? extends Registry<?>>> FINISHED = new HashSet<>();
+    private static final Map<ResourceKey<? extends Registry<?>>, List<Runnable>> AFTER_FINISH = new LinkedHashMap<>();
     private static boolean staging = true;
 
     private final ResourceKey<? extends Registry<T>> registry;
@@ -62,16 +63,11 @@ public final class StagedRegistry<T> {
     private StagedRegistry(ResourceKey<? extends Registry<T>> registry) {
         this.registry = registry;
     }
-
-    /**
-     * Stages a registration or performs it immediately after static bootstrap has
-     * completed. A data-driven registration for the same identifier replaces the
-     * staged registration while retaining the original supplied handle.
-     */
+    
     public static <T, S extends Supplied<T>> S stage(
             Registry<T> registry,
             Identifier id,
-            BiFunction<Supplier<? extends T>, Holder<T>, S> placeholder,
+            BiFunction<Supplier<? extends T>, Supplier<? extends Holder<T>>, S> placeholder,
             Supplier<S> registration) {
         synchronized (StagedRegistry.class) {
             ResourceKey<? extends Registry<T>> registryKey = registry.key();
@@ -84,8 +80,8 @@ public final class StagedRegistry<T> {
             Registration<T> existing = stagedRegistry.registrations.get(id);
             if (existing == null) {
                 AtomicReference<Supplied<T>> registered = new AtomicReference<>();
-                Supplier<Supplied<T>> resolved = () -> resolve(registered, id);
-                S supplied = placeholder.apply(() -> resolved.get().get(), PlatformHandler.INSTANCE.createHolder(registry, key));
+                Supplier<Supplied<T>> resolved = () -> stagedRegistry.resolve(registered, id);
+                S supplied = placeholder.apply(() -> resolved.get().get(), () -> resolved.get().holder());
                 stagedRegistry.registrations.put(id, new Registration<>(supplied, registered, registration));
                 return supplied;
             }
@@ -113,6 +109,9 @@ public final class StagedRegistry<T> {
         if (!staging) return;
         staging = false;
         for (StagedRegistry<?> registry : REGISTRIES.values()) registry.flush();
+        List<Runnable> actions = AFTER_FINISH.values().stream().flatMap(Collection::stream).toList();
+        AFTER_FINISH.clear();
+        actions.forEach(Runnable::run);
     }
 
     @ApiStatus.Internal
@@ -120,14 +119,24 @@ public final class StagedRegistry<T> {
         FINISHED.add(registry);
         StagedRegistry<?> stagedRegistry = REGISTRIES.get(registry);
         if (stagedRegistry != null) stagedRegistry.flush();
+        List<Runnable> actions = AFTER_FINISH.remove(registry);
+        if (actions != null) actions.forEach(Runnable::run);
+    }
+
+    @ApiStatus.Internal
+    public static synchronized void afterFinish(ResourceKey<? extends Registry<?>> registry, Runnable action) {
+        if (!staging || FINISHED.contains(registry)) {
+            action.run();
+            return;
+        }
+        AFTER_FINISH.computeIfAbsent(registry, ignored -> new ArrayList<>()).add(action);
     }
 
     private void flush() {
-        Iterator<Map.Entry<Identifier, Registration<T>>> iterator = registrations.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Identifier, Registration<T>> entry = iterator.next();
+        while (!registrations.isEmpty()) {
+            Map.Entry<Identifier, Registration<T>> entry = registrations.entrySet().iterator().next();
+            registrations.remove(entry.getKey());
             register(entry.getKey(), entry.getValue());
-            iterator.remove();
         }
     }
 
@@ -147,10 +156,15 @@ public final class StagedRegistry<T> {
         }
     }
 
-    private static <T> Supplied<T> resolve(AtomicReference<Supplied<T>> reference, Identifier id) {
+    private Supplied<T> resolve(AtomicReference<Supplied<T>> reference, Identifier id) {
         Supplied<T> supplied = reference.get();
         if (supplied == null) {
-            throw new IllegalStateException("Requested staged registry value before static bootstrap: " + id);
+            Registration<T> registration = registrations.remove(id);
+            if (registration == null) {
+                throw new IllegalStateException("Requested staged registry value while it was being registered: " + id);
+            }
+            register(id, registration);
+            supplied = reference.get();
         }
         return supplied;
     }

@@ -13,12 +13,15 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
+import net.rebel459.unified.api.util.BlockLootProvider;
+import net.rebel459.unified.api.util.EntityLootProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.asset.ItemAssetRequest;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -27,8 +30,8 @@ public final class DataProviders {
     public static final DataProvider<LanguageRequest> LANGUAGES = DataProvider.create(Unified.id("languages"));
     public static final DataProvider<ModelRequest> MODELS = DataProvider.keyed(Unified.id("models"), request -> (request instanceof BlockModels ? "block/" : "item/") + request.id());
     public static final DataProvider<TagRequest<?>> TAGS = DataProvider.create(Unified.id("tags"));
-    public static final DataProvider<Consumer<BlockLootGenerator>> BLOCK_LOOT = DataProvider.create(Unified.id("block_loot"));
-    public static final DataProvider<Consumer<EntityLootGenerator>> ENTITY_LOOT = DataProvider.create(Unified.id("entity_loot"));
+    public static final DataProvider<BlockLootRequest> BLOCK_LOOT = DataProvider.create(Unified.id("block_loot"));
+    public static final DataProvider<EntityLootRequest> ENTITY_LOOT = DataProvider.create(Unified.id("entity_loot"));
     public static final DataProvider<RecipeRequest> RECIPES = DataProvider.create(Unified.id("recipes"));
 
     private DataProviders() {}
@@ -56,19 +59,21 @@ public final class DataProviders {
     public record TagRequest<T>(ResourceKey<? extends Registry<T>> registry, Consumer<TagGenerator<T>> generator) {}
     public record RecipeRequest(Optional<ExtensibleCodec.Entry<Boolean>> requirement, Consumer<RecipeProvider> generator) {}
 
+    @FunctionalInterface
+    public interface BlockLootRequest {
+        void generate(BlockLootProvider provider, BiConsumer<Block, LootTable.Builder> output);
+    }
+
+    @FunctionalInterface
+    public interface EntityLootRequest {
+        void generate(EntityLootProvider provider, BiConsumer<EntityType<?>, LootTable.Builder> output);
+    }
+
     public interface TagGenerator<T> {
         void add(TagKey<T> tag, ResourceKey<T> value);
         void addOptional(TagKey<T> tag, ResourceKey<T> value);
-    }
-
-    @FunctionalInterface
-    public interface BlockLootGenerator {
-        void add(Block block, LootTable.Builder table);
-    }
-
-    @FunctionalInterface
-    public interface EntityLootGenerator {
-        void add(EntityType<?> entity, LootTable.Builder table);
+        void addTag(TagKey<T> tag, TagKey<T> value);
+        void addOptionalTag(TagKey<T> tag, TagKey<T> value);
     }
 
     public record GenerationSettings(PriorityAndRequirement metadata, boolean autoName, String language, Optional<String> injectedTranslations) {

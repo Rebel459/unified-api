@@ -7,16 +7,16 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class ExtensibleEntityCodec extends ExtensibleCodecBase<EntityType.Builder<?>> {
-    private final Map<Identifier, List<ResourceKey<EntityType<?>>>> entities = new LinkedHashMap<>();
+    private final Map<Identifier, Set<ResourceKey<EntityType<?>>>> entities = new LinkedHashMap<>();
     private final Map<Identifier, Binding<?>> bindings = new LinkedHashMap<>();
 
     public <E extends Entity> void bind(ResourceKey<EntityType<?>> key, BiConsumer<Supplier<EntityType<? extends E>>, Identifier> consumer) {
@@ -36,13 +36,14 @@ public final class ExtensibleEntityCodec extends ExtensibleCodecBase<EntityType.
         if (bindings.putIfAbsent(id, binding) != null) {
             throw new IllegalArgumentException("Duplicate binding for entity codec type " + id);
         }
-        entities.getOrDefault(id, List.of()).forEach(binding::bind);
+        entities.getOrDefault(id, Set.of()).forEach(binding::bind);
     }
 
     private void track(Identifier id, ResourceKey<EntityType<?>> entity) {
-        entities.computeIfAbsent(id, ignored -> new ArrayList<>()).add(entity);
-        Binding<?> binding = bindings.get(id);
-        if (binding != null) binding.bind(entity);
+        if (entities.computeIfAbsent(id, ignored -> new LinkedHashSet<>()).add(entity)) {
+            Binding<?> binding = bindings.get(id);
+            if (binding != null) binding.bind(entity);
+        }
     }
 
     public EntityType.Builder<?> create(Entry<EntityType.Builder<?>> type, ResourceKey<EntityType<?>> key) {

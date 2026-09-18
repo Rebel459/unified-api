@@ -33,6 +33,7 @@ import net.rebel459.unified.api.asset.ItemAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedInstance;
+import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.helper.EquipmentAssetGenerator;
 import net.rebel459.unified.api.data.helper.RecipeGenerator;
 import net.rebel459.unified.api.data.helper.SimpleBabyArmorGenerator;
@@ -144,6 +145,7 @@ public class EquipmentSet {
             else {
                 info.addLayers(EquipmentClientInfo.LayerType.HUMANOID, EquipmentClientInfo.Layer.leatherDyeable(id, settings.isDyeable));
                 info.addLayers(EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, EquipmentClientInfo.Layer.leatherDyeable(id, settings.isDyeable));
+                simpleBabyArmor.add("equipment_sets/" + id.getPath(), getEquipmentAsset());
             }
 
             if (hasAnimalArmor()) {
@@ -210,7 +212,7 @@ public class EquipmentSet {
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(settings.smithingRecipes.template.get()), Ingredient.of(base.get()), provider.tag(settings.smithingRecipes.material), category, result.asItem()).unlocks("has_" + id.getPath(), provider.has(settings.smithingRecipes.material)).save(provider.output, RecipeProvider.getItemName(result) + "_smithing");
     }
 
-    public EquipmentSet(Identifier id, Settings settings, ItemGenerator items, RecipeGenerator recipes, TagGenerator tags, EquipmentAssetGenerator equipmentAssets, SimpleBabyArmorGenerator simpleBabyArmor) {
+    public EquipmentSet(Identifier id, Settings settings, ItemGenerator items, RecipeGenerator recipes, TagGenerator tags, EquipmentAssetGenerator equipmentAssets, SimpleBabyArmorGenerator simpleBabyArmor, CreativeEntryGenerator creativeEntries) {
         this.settings = settings;
         this.id = id;
         this.items = items;
@@ -222,7 +224,11 @@ public class EquipmentSet {
         EQUIPMENT_SETS.add(this);
         EquipmentSetProperties.CREATIVE_ARMOR_ENTRIES.put(id, settings.precedingArmorCreativeEntries);
         EquipmentSetProperties.CREATIVE_TOOL_ENTRIES.put(id, settings.precedingToolCreativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) EquipmentSetProperties.init(List.of(this));
+        EquipmentSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
+        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
+            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
+                    .afterRegistry(net.minecraft.core.registries.Registries.ITEM, () -> EquipmentSetProperties.init(List.of(this)));
+        }
     }
 
 	private SuppliedItem register(String path, ExtensibleCodec.Entry<Function<Item.Properties, Item>> type, Consumer<ItemGenerator.Builder> builder) {
@@ -716,6 +722,7 @@ public class EquipmentSet {
         private final TagGenerator tags;
         private final EquipmentAssetGenerator equipmentAssets;
         private final SimpleBabyArmorGenerator simpleBabyArmor;
+        private final CreativeEntryGenerator creativeEntries;
 
         public RegistryBuilder createTools() {
             settings.hasTools = true;
@@ -728,10 +735,10 @@ public class EquipmentSet {
         }
 
         public EquipmentSet build() {
-            return new EquipmentSet(id, settings, items, recipes, tags, equipmentAssets, simpleBabyArmor);
+            return new EquipmentSet(id, settings, items, recipes, tags, equipmentAssets, simpleBabyArmor, creativeEntries);
         }
 
-        public RegistryBuilder(Identifier id, EquipmentPreset preset, ItemGenerator items, RecipeGenerator recipes, TagGenerator tags, EquipmentAssetGenerator equipmentAssets, SimpleBabyArmorGenerator simpleBabyArmor) {
+        public RegistryBuilder(Identifier id, EquipmentPreset preset, ItemGenerator items, RecipeGenerator recipes, TagGenerator tags, EquipmentAssetGenerator equipmentAssets, SimpleBabyArmorGenerator simpleBabyArmor, CreativeEntryGenerator creativeEntries) {
             super(preset.settings.copy());
 
             this.id = id;
@@ -740,6 +747,7 @@ public class EquipmentSet {
             this.tags = tags;
             this.equipmentAssets = equipmentAssets;
             this.simpleBabyArmor = simpleBabyArmor;
+            this.creativeEntries = creativeEntries;
         }
     }
 

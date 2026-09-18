@@ -111,7 +111,6 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public Optional<Boolean> randomTicks = Optional.empty();
         public Optional<Boolean> dynamicShape = Optional.empty();
         public Optional<ResourceKey<LootTable>> lootTable = Optional.empty();
-        public Optional<Boolean> ignitedByLava = Optional.empty();
         public Optional<Boolean> liquid = Optional.empty();
         public Optional<Boolean> solid = Optional.empty();
         public Optional<PushReaction> pushReaction = Optional.empty();
@@ -149,8 +148,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 Codec.FLOAT.optionalFieldOf("explosion_resistance").forGetter(First::explosionResistance),
                 Codec.BOOL.optionalFieldOf("random_ticks").forGetter(First::randomTicks),
                 Codec.BOOL.optionalFieldOf("dynamic_shape").forGetter(First::dynamicShape),
-                ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(First::lootTable),
-                Codec.BOOL.optionalFieldOf("ignited_by_lava").forGetter(First::ignitedByLava)
+                ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table").forGetter(First::lootTable)
         ).apply(instance, First::new));
 
         private static final MapCodec<Second> SECOND_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -202,7 +200,6 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             randomTicks = first.randomTicks();
             dynamicShape = first.dynamicShape();
             lootTable = first.lootTable();
-            ignitedByLava = first.ignitedByLava();
             liquid = second.liquid();
             solid = second.solid();
             pushReaction = second.pushReaction();
@@ -240,8 +237,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                     explosionResistance,
                     randomTicks,
                     dynamicShape,
-                    lootTable,
-                    ignitedByLava
+                    lootTable
             );
         }
 
@@ -284,8 +280,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 Optional<Float> explosionResistance,
                 Optional<Boolean> randomTicks,
                 Optional<Boolean> dynamicShape,
-                Optional<ResourceKey<LootTable>> lootTable,
-                Optional<Boolean> ignitedByLava
+                Optional<ResourceKey<LootTable>> lootTable
         ) {}
 
         private record Second(
@@ -391,8 +386,8 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         if (properties.noLootTable.orElse(false)) {
             actual.noLootTable();
         }
-        if (properties.ignitedByLava.isPresent()) {
-            actual.ignitedByLava = properties.ignitedByLava.get();
+        if (properties.flammability.isPresent()) {
+            actual.ignitedByLava = properties.flammability.get().burnOdds > 0 || properties.flammability.get().igniteOdds > 0;
         }
         if (properties.liquid.isPresent()) {
             actual.liquid = properties.liquid.get();

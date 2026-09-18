@@ -19,7 +19,7 @@ public class SuppliedBlock extends Supplied<Block> implements BlockLike, ItemLik
     private final BlockItemId blockItemId;
 
     @ApiStatus.Internal
-    public SuppliedBlock(BlockItemId blockItemId, Supplier<? extends Block> block, Holder<Block> holder) {
+    public SuppliedBlock(BlockItemId blockItemId, Supplier<? extends Block> block, Supplier<? extends Holder<Block>> holder) {
         super(blockItemId.block(), block, holder);
         this.blockItemId = blockItemId;
     }

@@ -1,8 +1,12 @@
 package net.rebel459.unified.api.builder;
 
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.WoodType;
+import net.rebel459.unified.api.asset.BlockAssets;
 
 public final class WoodPreset {
 
@@ -27,6 +31,7 @@ public final class WoodPreset {
             .setFenceGateSounds(() -> SoundEvents.NETHER_WOOD_FENCE_GATE_OPEN, () -> SoundEvents.NETHER_WOOD_FENCE_GATE_CLOSE)
             .setHangingSignSoundType(() -> SoundType.NETHER_WOOD_HANGING_SIGN)
             .setWoodSoundType(() -> SoundType.NETHER_WOOD)
+            .isOverworld(false)
             .build();
 
     public static final WoodPreset BAMBOO = createFrom(WoodType.BAMBOO)
@@ -34,10 +39,14 @@ public final class WoodPreset {
             .hasWood(false)
             .hasMosaic(true)
             .setBoats(WoodSet.Boats.RAFTS)
+            .planksFromLog(2)
+            .logRecipe((item, provider) -> provider.threeByThreePacker(RecipeCategory.BUILDING_BLOCKS, item, Items.BAMBOO))
+            .logModel(BlockAssets.LOG_UV_LOCKED)
             .build();
 
     public static final WoodPreset CHERRY = createFrom(WoodType.CHERRY)
             .setLeavesSoundType(() -> SoundType.CHERRY_LEAVES)
+            .logModel(BlockAssets.LOG_UV_LOCKED)
             .build();
 
     public static final WoodPreset PALE_OAK = createFrom(WoodType.PALE_OAK)

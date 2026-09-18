@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 public class SuppliedItem extends Supplied<Item> implements ItemLike {
 
     @ApiStatus.Internal
-    public SuppliedItem(ResourceKey<Item> key, Supplier<? extends Item> item, Holder<Item> holder) {
+    public SuppliedItem(ResourceKey<Item> key, Supplier<? extends Item> item, Supplier<? extends Holder<Item>> holder) {
         super(key, item, holder);
     }
 

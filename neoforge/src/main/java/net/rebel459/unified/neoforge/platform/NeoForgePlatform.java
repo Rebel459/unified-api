@@ -1,7 +1,6 @@
 package net.rebel459.unified.neoforge.platform;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -24,7 +23,6 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
@@ -48,11 +46,6 @@ public class NeoForgePlatform implements CommonPlatform {
     @Override
     public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
         return new NeoForgeUnifiedRegistries.DeferredRegistry<>(modId, registry);
-    }
-
-    @Override
-    public <T> Holder<T> createHolder(Registry<T> registry, ResourceKey<T> key) {
-        return DeferredHolder.create(key);
     }
 
     @Override
