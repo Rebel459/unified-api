@@ -33,7 +33,7 @@ import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.impl.platform.PlatformLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -462,7 +462,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
             ((FireBlock) Blocks.FIRE).setFlammable(block, properties.flammability.get().igniteOdds, properties.flammability.get().burnOdds);
         }
         if (properties.oxidizesInto.isPresent()) {
-            LATE_PROPERTIES.add(() -> PlatformHandler.INSTANCE.internal().getOxidizables().add(block, BuiltInRegistries.BLOCK.getOrThrow(properties.oxidizesInto.get()).value()));
+            LATE_PROPERTIES.add(() -> PlatformLoader.INSTANCE.internal().getOxidizables().add(block, BuiltInRegistries.BLOCK.getOrThrow(properties.oxidizesInto.get()).value()));
         }
     }
 }

@@ -24,15 +24,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementType;
-import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.BlockTransformers;
-import net.minecraft.world.item.component.Compostable;
-import net.minecraft.world.item.component.CookingFuel;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -42,15 +37,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
-import net.minecraft.world.level.storage.loot.providers.number.floats.ResolvableFloat;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ResolvableInt;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.helper.BiomeModificationContext;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.impl.platform.PlatformLoader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -61,22 +52,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class CommonHelpers {
-
-    public interface CreativeEntries {
-
-        void insert(ResourceKey<CreativeModeTab> tab, ItemLike... items);
-        void insert(ResourceKey<CreativeModeTab> tab, ItemStackTemplate... items);
-        void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemLike... items);
-        void insert(List<ResourceKey<CreativeModeTab>> tabs, ItemStackTemplate... items);
-        void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStackTemplate... addedItems);
-        void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemLike... addedItems);
-        void insertAfter(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStackTemplate... addedItems);
-        void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemLike... addedItems);
-        void insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike existingItem, ItemStackTemplate... addedItems);
-        void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemLike... addedItems);
-        void insertBefore(List<ResourceKey<CreativeModeTab>> tabs, ItemLike existingItem, ItemStackTemplate... addedItems);
-    }
 
     public interface DataPacks {
 
@@ -145,7 +120,7 @@ public class CommonHelpers {
                     context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
                 });
             }
-            BlockConversionsImpl.Oxidizables oxidizables = PlatformHandler.INSTANCE.internal().getOxidizables();
+            BlockConversionsImpl.Oxidizables oxidizables = PlatformLoader.INSTANCE.internal().getOxidizables();
             oxidizables.add(unaffected, exposed);
             oxidizables.add(exposed, weathered);
             oxidizables.add(weathered, oxidized);

@@ -25,7 +25,7 @@ import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.flag.FeatureFlags;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.impl.core.DataProviders;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.impl.platform.PlatformLoader;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -195,7 +195,7 @@ public abstract class RegistryResourceListener<T> {
                 return;
             }
             Identifier registryId = registryId(resourceId);
-            PlatformHandler.INSTANCE.internal().prepareRegistryNamespace(registryId.getNamespace());
+            PlatformLoader.INSTANCE.internal().prepareRegistryNamespace(registryId.getNamespace());
             register(registryId, new DeferredDeclaration<>(resourceId, candidate.source(), candidate.definition(), codec));
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to init static registry declaration " + resourceId + " from " + candidate.source(), exception);
@@ -205,14 +205,14 @@ public abstract class RegistryResourceListener<T> {
     private static List<PackEntry> openPacks() {
         List<PackEntry> packs = new ArrayList<>();
         int index = 0;
-        for (Path root : PlatformHandler.INSTANCE.internal().getModResourceRoots()) addPack(packs, root, "mod-" + index++, false);
+        for (Path root : PlatformLoader.INSTANCE.internal().getModResourceRoots()) addPack(packs, root, "mod-" + index++, false);
 
-        Path gameDirectory = PlatformHandler.INSTANCE.internal().getGameDirectory();
-        if (UnifiedInstance.isModLoaded("simpleresourceloader")) {
+        Path gameDirectory = UnifiedPlatform.getGameDirectory();
+        if (UnifiedPlatform.isModLoaded("simpleresourceloader")) {
             index = addPackDirectory(packs, gameDirectory.resolve("resources/common/required"), "srl-common-", index);
             addPackDirectory(packs, gameDirectory.resolve("resources/datapack/required"), "srl-data-", index);
         }
-        if (UnifiedInstance.isModLoaded("paxi")) addPaxiPacks(packs, gameDirectory);
+        if (UnifiedPlatform.isModLoaded("paxi")) addPaxiPacks(packs, gameDirectory);
         return packs;
     }
 

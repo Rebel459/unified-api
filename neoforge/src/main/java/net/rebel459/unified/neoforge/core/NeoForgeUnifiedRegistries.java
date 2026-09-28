@@ -88,7 +88,7 @@ public class NeoForgeUnifiedRegistries {
         }
     }
 
-    public static synchronized void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
+    public static synchronized void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable runnable) {
         AFTER_REGISTRY.computeIfAbsent(registry, ignored -> new ArrayList<>()).add(action);
     }
 

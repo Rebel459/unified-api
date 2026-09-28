@@ -18,7 +18,7 @@ import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.Supplied;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.impl.platform.PlatformLoader;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -60,7 +60,7 @@ public class CreativeTabRegistry extends RegistryResourceListener<CreativeTabReg
     }
 
     private static CreativeModeTab create(Definition definition) {
-        CreativeModeTab tab = PlatformHandler.INSTANCE.internal().createCreativeModeTab(definition.row, definition.column, definition.title, definition.icon,
+        CreativeModeTab tab = PlatformLoader.INSTANCE.internal().createCreativeModeTab(definition.row, definition.column, definition.title, definition.icon,
                 (parameters, output) -> definition.displayItems.forEach(entry -> entry.get().accept(parameters, output)));
         tab.alignedRight = definition.alignment == Alignment.RIGHT;
         tab.showTitle = definition.showTitle;

@@ -4,7 +4,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.rebel459.unified.impl.platform.PlatformHandler;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -123,13 +122,14 @@ public final class StagedRegistry<T> {
         if (actions != null) actions.forEach(Runnable::run);
     }
 
+    /** Call UnifiedInstance.executeAfter instead */
     @ApiStatus.Internal
-    public static synchronized void afterFinish(ResourceKey<? extends Registry<?>> registry, Runnable action) {
+    public static synchronized void afterFinish(ResourceKey<? extends Registry<?>> registry, Runnable runnable) {
         if (!staging || FINISHED.contains(registry)) {
-            action.run();
+            runnable.run();
             return;
         }
-        AFTER_FINISH.computeIfAbsent(registry, ignored -> new ArrayList<>()).add(action);
+        AFTER_FINISH.computeIfAbsent(registry, ignored -> new ArrayList<>()).add(runnable);
     }
 
     private void flush() {

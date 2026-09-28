@@ -6,7 +6,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
-import net.rebel459.unified.api.core.UnifiedInstance;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 
 import java.util.List;
 import java.util.function.Function;
@@ -23,7 +23,7 @@ public class UnifiedLoadRequirementCodecs {
             definition -> {
                 boolean loaded = true;
                 for (String mod : definition) {
-                    if (!UnifiedInstance.isModLoaded(mod)) {
+                    if (!UnifiedPlatform.isModLoaded(mod)) {
                         loaded = false;
                         break;
                     }

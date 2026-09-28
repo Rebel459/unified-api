@@ -1,17 +1,26 @@
 package net.rebel459.unified.neoforge.core;
 
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLPaths;
 import net.rebel459.unified.api.platform.ModLoader;
-import net.rebel459.unified.impl.core.CommonHelpers;
-import net.rebel459.unified.impl.core.CommonInstance;
+import net.rebel459.unified.impl.core.CommonPlatform;
 
-public class NeoForgeInstance implements CommonInstance {
+import java.nio.file.Path;
+
+public class NeoForgePlatform implements CommonPlatform {
 
     @Override
     public ModLoader getModLoader() {
         return ModLoader.NEOFORGE;
+    }
+
+    @Override
+    public Path getGameDirectory() {
+        return FMLPaths.GAMEDIR.get();
     }
 
     @Override
@@ -35,5 +44,10 @@ public class NeoForgeInstance implements CommonInstance {
     @Override
     public boolean isDevelopmentEnvironment() {
         return !FMLLoader.getCurrent().isProduction();
+    }
+
+    @Override
+    public void executeAfter(ResourceKey<? extends Registry<?>> registry, Runnable runnable) {
+        NeoForgeUnifiedRegistries.afterRegistry(registry, runnable);
     }
 }

@@ -83,9 +83,8 @@ public class ColoredItemSet {
         COLORED_ITEM_SETS.add(this);
         ColoredItemSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         ColoredItemSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
-            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
-                    .afterRegistry(net.minecraft.core.registries.Registries.ITEM, () -> ColoredItemSetProperties.init(List.of(this)));
+        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) {
+            UnifiedPlatform.executeAfter(net.minecraft.core.registries.Registries.ITEM, () -> ColoredItemSetProperties.init(List.of(this)));
         }
     }
 

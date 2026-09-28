@@ -8,6 +8,7 @@ import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.Identifier;
@@ -32,7 +33,7 @@ import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.api.asset.ItemAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.core.SuppliedItem;
-import net.rebel459.unified.api.core.UnifiedInstance;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.helper.EquipmentAssetGenerator;
 import net.rebel459.unified.api.data.helper.RecipeGenerator;
@@ -225,9 +226,8 @@ public class EquipmentSet {
         EquipmentSetProperties.CREATIVE_ARMOR_ENTRIES.put(id, settings.precedingArmorCreativeEntries);
         EquipmentSetProperties.CREATIVE_TOOL_ENTRIES.put(id, settings.precedingToolCreativeEntries);
         EquipmentSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
-            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
-                    .afterRegistry(net.minecraft.core.registries.Registries.ITEM, () -> EquipmentSetProperties.init(List.of(this)));
+        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) {
+            UnifiedPlatform.executeAfter(Registries.ITEM, () -> EquipmentSetProperties.init(List.of(this)));
         }
     }
 

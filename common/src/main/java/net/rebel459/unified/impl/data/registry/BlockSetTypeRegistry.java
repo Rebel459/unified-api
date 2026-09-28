@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.RegistryResourceListener;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 
 public class BlockSetTypeRegistry extends RegistryResourceListener<BlockSetTypeRegistry.Definition> {
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -39,26 +39,25 @@ public class BlockSetTypeRegistry extends RegistryResourceListener<BlockSetTypeR
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<BlockSetTypeRegistry.Definition> declaration) {
-        PlatformHandler.INSTANCE.internal().afterRegistry(Registries.SOUND_EVENT, () -> actualRegister(id, declaration.get()));
-    }
-
-    private static void actualRegister(Identifier id, BlockSetTypeRegistry.Definition type) {
-        BlockSetType.register(new BlockSetType(
-                id.toString(),
-                type.canOpenByHand,
-                type.canOpenByWindCharge,
-                type.canButtonBeActivatedByArrows,
-                type.pressurePlateSensitivity,
-                type.soundType.convert(),
-                type.doorClose,
-                type.doorOpen,
-                type.trapdoorClose,
-                type.trapdoorOpen,
-                type.pressurePlateClickOff,
-                type.pressurePlateClickOn,
-                type.buttonClickOff,
-                type.buttonClickOn
-        ));
+        UnifiedPlatform.executeAfter(Registries.SOUND_EVENT, () -> {
+            BlockSetTypeRegistry.Definition type = declaration.get();
+            BlockSetType.register(new BlockSetType(
+                    id.toString(),
+                    type.canOpenByHand,
+                    type.canOpenByWindCharge,
+                    type.canButtonBeActivatedByArrows,
+                    type.pressurePlateSensitivity,
+                    type.soundType.convert(),
+                    type.doorClose,
+                    type.doorOpen,
+                    type.trapdoorClose,
+                    type.trapdoorOpen,
+                    type.pressurePlateClickOff,
+                    type.pressurePlateClickOn,
+                    type.buttonClickOff,
+                    type.buttonClickOn
+            ));
+        });
     }
 
     public record Definition(

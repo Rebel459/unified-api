@@ -7,7 +7,7 @@ import net.rebel459.unified.api.core.RegistryResourceInitializer;
 import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.core.StagedRegistry;
-import net.rebel459.unified.api.core.UnifiedInstance;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
 import net.rebel459.unified.impl.builder.*;
@@ -58,7 +58,7 @@ public class Unified {
     public static void init() {
         BlockRegistry.runLateProperties();
         StructurePacketImpl.init();
-        if (UnifiedInstance.getModLoader() == ModLoader.NEOFORGE) {
+        if (UnifiedPlatform.getModLoader() == ModLoader.NEOFORGE) {
             WoodSetProperties.init(WoodSet.WOOD_SETS);
             StoneSetProperties.init(StoneSet.BLOCK_SETS);
             EquipmentSetProperties.init(EquipmentSet.EQUIPMENT_SETS);

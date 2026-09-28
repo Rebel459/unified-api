@@ -167,7 +167,6 @@ accessible field net/minecraft/world/level/biome/Biome specialEffects Lnet/minec
 mutable field net/minecraft/world/level/biome/Biome specialEffects Lnet/minecraft/world/level/biome/BiomeSpecialEffects;
 accessible class net/minecraft/world/level/biome/Biome$ClimateSettings
 accessible method net/minecraft/world/level/biome/Biome$ClimateSettings <init> (ZFLnet/minecraft/world/level/biome/Biome$TemperatureModifier;F)V
-accessible method net/minecraft/world/level/biome/BiomeGenerationSettings <init> (Lnet/minecraft/core/HolderSet;Ljava/util/List;)V
 accessible field net/minecraft/world/level/biome/MobSpawnSettings mobSpawnCosts Ljava/util/Map;
 
 accessible method net/minecraft/world/level/block/state/properties/WoodType register (Lnet/minecraft/world/level/block/state/properties/WoodType;)Lnet/minecraft/world/level/block/state/properties/WoodType;

@@ -7,7 +7,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
-import net.rebel459.unified.api.core.UnifiedInstance;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import net.rebel459.unified.api.event.EventTiming;
@@ -42,14 +42,14 @@ public class ItemStackMixin {
     @Inject(at = @At("HEAD"), method = "addAttributeTooltips")
     private void passAttributesHead(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
-        if (player instanceof LocalPlayer localPlayer && UnifiedInstance.getModLoader() != ModLoader.NEOFORGE) {
+        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.getModLoader() != ModLoader.NEOFORGE) {
             CommonClientEvents.ItemTooltips.passAddAttributes(EventTiming.PRE, stack, consumer, display, localPlayer);
         }
     }
     @Inject(at = @At("TAIL"), method = "addAttributeTooltips")
     private void passAttributesTail(Consumer<Component> consumer, TooltipDisplay display, @Nullable Player player, CallbackInfo ci) {
         ItemStack stack = ItemStack.class.cast(this);
-        if (player instanceof LocalPlayer localPlayer && UnifiedInstance.getModLoader() != ModLoader.NEOFORGE) {
+        if (player instanceof LocalPlayer localPlayer && UnifiedPlatform.getModLoader() != ModLoader.NEOFORGE) {
             CommonClientEvents.ItemTooltips.passAddAttributes(EventTiming.POST, stack, consumer, display, localPlayer);
         }
     }

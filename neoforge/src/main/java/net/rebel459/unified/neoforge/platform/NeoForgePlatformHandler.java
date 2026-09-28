@@ -2,17 +2,13 @@ package net.rebel459.unified.neoforge.platform;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -20,18 +16,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
-import net.rebel459.unified.impl.core.CommonInstance;
-import net.rebel459.unified.impl.platform.CommonPlatform;
+import net.rebel459.unified.impl.core.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 import net.rebel459.unified.neoforge.core.NeoForgeHelpers;
-import net.rebel459.unified.neoforge.core.NeoForgeInstance;
 import net.rebel459.unified.neoforge.core.NeoForgeUnifiedRegistries;
 
 import java.util.HashMap;
@@ -41,7 +35,7 @@ import java.util.function.UnaryOperator;
 import java.nio.file.Path;
 import java.util.List;
 
-public class NeoForgePlatform implements CommonPlatform {
+public class NeoForgePlatformHandler implements PlatformHandler {
 
     @Override
     public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
@@ -74,13 +68,8 @@ public class NeoForgePlatform implements CommonPlatform {
     }
 
     @Override
-    public CommonInstance getInstance() {
-        return new NeoForgeInstance();
-    }
-
-    @Override
-    public CommonHelpers.CreativeEntries getCreativeEntries() {
-        return new NeoForgeHelpers.CreativeEntries();
+    public CommonPlatform getInstance() {
+        return new net.rebel459.unified.neoforge.core.NeoForgePlatform();
     }
 
     @Override
@@ -108,11 +97,16 @@ public class NeoForgePlatform implements CommonPlatform {
     }
 
     @Override
-    public CommonPlatform.Internal internal() {
+    public CommonHelpers.SpawnPlacements getSpawnPlacements() {
+        return new NeoForgeHelpers.SpawnPlacements();
+    }
+
+    @Override
+    public PlatformHandler.Internal internal() {
         return new Internal();
     }
 
-    public static class Internal implements CommonPlatform.Internal {
+    public static class Internal implements PlatformHandler.Internal {
 
         @Override
         public List<Path> getModResourceRoots() {
@@ -123,18 +117,8 @@ public class NeoForgePlatform implements CommonPlatform {
         }
 
         @Override
-        public Path getGameDirectory() {
-            return FMLPaths.GAMEDIR.get();
-        }
-
-        @Override
         public void prepareRegistryNamespace(String namespace) {
             NeoForgeUnifiedRegistries.prepareNamespace(namespace);
-        }
-
-        @Override
-        public void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
-            NeoForgeUnifiedRegistries.afterRegistry(registry, action);
         }
 
         public static HashMap<Block, Block> OXIDIZABLES = new HashMap<>();

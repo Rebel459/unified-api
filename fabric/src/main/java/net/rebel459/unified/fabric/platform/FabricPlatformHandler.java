@@ -7,31 +7,25 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.rebel459.unified.api.core.UnifiedAttachments;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.fabric.core.FabricHelpers;
-import net.rebel459.unified.fabric.core.FabricInstance;
 import net.rebel459.unified.fabric.core.FabricUnifiedRegistries;
 import net.rebel459.unified.impl.core.CommonHelpers;
-import net.rebel459.unified.impl.core.CommonInstance;
-import net.rebel459.unified.impl.platform.CommonPlatform;
+import net.rebel459.unified.impl.core.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
+import net.rebel459.unified.impl.platform.PlatformHandler;
 
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -39,7 +33,7 @@ import java.util.function.UnaryOperator;
 import java.nio.file.Path;
 import java.util.List;
 
-public class FabricPlatform implements CommonPlatform {
+public class FabricPlatformHandler implements PlatformHandler {
 
     @Override
     public <Y> UnifiedRegistries.DeferredRegistry<Y> createDeferredRegistry(String modId, Registry<Y> registry) {
@@ -72,13 +66,8 @@ public class FabricPlatform implements CommonPlatform {
     }
 
     @Override
-    public CommonInstance getInstance() {
-        return new FabricInstance();
-    }
-
-    @Override
-    public CommonHelpers.CreativeEntries getCreativeEntries() {
-        return new FabricHelpers.CreativeEntries();
+    public CommonPlatform getInstance() {
+        return new net.rebel459.unified.fabric.core.FabricPlatform();
     }
 
     @Override
@@ -111,11 +100,11 @@ public class FabricPlatform implements CommonPlatform {
     }
 
     @Override
-    public CommonPlatform.Internal internal() {
+    public PlatformHandler.Internal internal() {
         return new Internal();
     }
 
-    public static class Internal implements CommonPlatform.Internal {
+    public static class Internal implements PlatformHandler.Internal {
 
         @Override
         public List<Path> getModResourceRoots() {
@@ -126,17 +115,7 @@ public class FabricPlatform implements CommonPlatform {
         }
 
         @Override
-        public Path getGameDirectory() {
-            return FabricLoader.getInstance().getGameDir();
-        }
-
-        @Override
         public void prepareRegistryNamespace(String namespace) {
-        }
-
-        @Override
-        public void afterRegistry(ResourceKey<? extends Registry<?>> registry, Runnable action) {
-            StagedRegistry.afterFinish(registry, action);
         }
 
         @Override

@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.RegistryResourceListener;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 
 public class WoodTypeRegistry extends RegistryResourceListener<WoodTypeRegistry.Definition> {
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -32,7 +32,7 @@ public class WoodTypeRegistry extends RegistryResourceListener<WoodTypeRegistry.
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<WoodTypeRegistry.Definition> declaration) {
-        PlatformHandler.INSTANCE.internal().afterRegistry(Registries.SOUND_EVENT, () -> actualRegister(id, declaration.get()));
+        UnifiedPlatform.executeAfter(Registries.SOUND_EVENT, () -> actualRegister(id, declaration.get()));
     }
 
     private static void actualRegister(Identifier id, WoodTypeRegistry.Definition type) {

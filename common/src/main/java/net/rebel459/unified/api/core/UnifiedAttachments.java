@@ -7,8 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.rebel459.unified.impl.platform.CommonPlatform;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.impl.platform.PlatformLoader;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -70,7 +69,7 @@ public interface UnifiedAttachments<T, H> {
 
             @Override
             public BlockEntity<T> build() {
-                return PlatformHandler.INSTANCE.internal().createBlockEntityAttachment(
+                return PlatformLoader.INSTANCE.internal().createBlockEntityAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,
@@ -93,7 +92,7 @@ public interface UnifiedAttachments<T, H> {
 
             @Override
             public Chunk<T> build() {
-                return PlatformHandler.INSTANCE.internal().createChunkAttachment(
+                return PlatformLoader.INSTANCE.internal().createChunkAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,
@@ -127,7 +126,7 @@ public interface UnifiedAttachments<T, H> {
                     throw new IllegalStateException("copyOnDeath requires a persistent attachment");
                 }
 
-                return PlatformHandler.INSTANCE.internal().createEntityAttachment(
+                return PlatformLoader.INSTANCE.internal().createEntityAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,
@@ -151,7 +150,7 @@ public interface UnifiedAttachments<T, H> {
 
             @Override
             public Level<T> build() {
-                return PlatformHandler.INSTANCE.internal().createLevelAttachment(
+                return PlatformLoader.INSTANCE.internal().createLevelAttachment(
                         this.id,
                         this.defaultValue,
                         this.persistenceCodec,

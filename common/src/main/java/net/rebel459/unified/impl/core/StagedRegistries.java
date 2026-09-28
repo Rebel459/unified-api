@@ -23,7 +23,7 @@ import net.rebel459.unified.api.core.Supplied;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedRegistries;
-import net.rebel459.unified.impl.platform.PlatformHandler;
+import net.rebel459.unified.impl.platform.PlatformLoader;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -55,13 +55,13 @@ public final class StagedRegistries {
             ResourceKey<T> key = ResourceKey.create(registry.key(), id);
             return (Supplied<Y>) StagedRegistry.stage(registry, id,
                     (supplied, holder) -> new Supplied<>(key, supplied, holder),
-                    () -> (Supplied<T>) PlatformHandler.INSTANCE.createDeferredRegistry(modId, registry).register(path, value)
+                    () -> (Supplied<T>) PlatformLoader.INSTANCE.createDeferredRegistry(modId, registry).register(path, value)
             );
         }
 
         @Override
         public void addAlias(Identifier from, Identifier to) {
-            PlatformHandler.INSTANCE.createDeferredRegistry(modId, registry).addAlias(from, to);
+            PlatformLoader.INSTANCE.createDeferredRegistry(modId, registry).addAlias(from, to);
         }
     }
 
@@ -83,7 +83,7 @@ public final class StagedRegistries {
             ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
             return StagedRegistry.stage(BuiltInRegistries.ITEM, id,
                     (value, holder) -> new SuppliedItem(key, value, holder),
-                    () -> PlatformHandler.INSTANCE.createItems(modId).register(path, factory, properties));
+                    () -> PlatformLoader.INSTANCE.createItems(modId).register(path, factory, properties));
         }
 
         @Override
@@ -98,12 +98,12 @@ public final class StagedRegistries {
             Identifier itemId = id.item().identifier();
             return StagedRegistry.stage(BuiltInRegistries.ITEM, itemId,
                     (value, holder) -> new SuppliedItem(id.item(), value, holder),
-                    () -> PlatformHandler.INSTANCE.createItems(modId).registerBlockItem(id, block, factory, properties));
+                    () -> PlatformLoader.INSTANCE.createItems(modId).registerBlockItem(id, block, factory, properties));
         }
 
         @Override
         public void addAlias(Identifier from, Identifier to) {
-            PlatformHandler.INSTANCE.createItems(modId).addAlias(from, to);
+            PlatformLoader.INSTANCE.createItems(modId).addAlias(from, to);
         }
     }
 
@@ -158,7 +158,7 @@ public final class StagedRegistries {
             BlockItemId id = BlockItemId.create(blockId, Identifier.fromNamespaceAndPath(modId, itemPath));
             return StagedRegistry.stage(BuiltInRegistries.BLOCK, blockId,
                     (value, holder) -> new SuppliedBlock(id, value, holder),
-                    () -> actualRegister(PlatformHandler.INSTANCE.createBlocks(modId), id, factory, properties, blockEntity));
+                    () -> actualRegister(PlatformLoader.INSTANCE.createBlocks(modId), id, factory, properties, blockEntity));
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
@@ -174,7 +174,7 @@ public final class StagedRegistries {
 
         @Override
         public void addAlias(Identifier from, Identifier to) {
-            PlatformHandler.INSTANCE.createBlocks(modId).addAlias(from, to);
+            PlatformLoader.INSTANCE.createBlocks(modId).addAlias(from, to);
         }
     }
 
@@ -197,13 +197,13 @@ public final class StagedRegistries {
             ResourceKey<DataComponentType<?>> key = ResourceKey.create(Registries.DATA_COMPONENT_TYPE, id);
             return (Supplied<DataComponentType<T>>) (Supplied<?>) StagedRegistry.stage(BuiltInRegistries.DATA_COMPONENT_TYPE, id,
                     (value, holder) -> new Supplied<>(key, value, holder),
-                    () -> (Supplied<DataComponentType<?>>) (Supplied<?>) PlatformHandler.INSTANCE.createDataComponentTypes(modId).register(path, builder)
+                    () -> (Supplied<DataComponentType<?>>) (Supplied<?>) PlatformLoader.INSTANCE.createDataComponentTypes(modId).register(path, builder)
             );
         }
 
         @Override
         public void addAlias(Identifier from, Identifier to) {
-            PlatformHandler.INSTANCE.createDataComponentTypes(modId).addAlias(from, to);
+            PlatformLoader.INSTANCE.createDataComponentTypes(modId).addAlias(from, to);
         }
     }
 
@@ -238,13 +238,13 @@ public final class StagedRegistries {
             return (Supplied<EntityType<T>>) (Supplied<?>) StagedRegistry.stage(
                     BuiltInRegistries.ENTITY_TYPE, id,
                     (value, holder) -> new Supplied<>(key, value, holder),
-                    () -> (Supplied<EntityType<?>>) (Supplied<?>) registration.apply(PlatformHandler.INSTANCE.createEntityTypes(modId))
+                    () -> (Supplied<EntityType<?>>) (Supplied<?>) registration.apply(PlatformLoader.INSTANCE.createEntityTypes(modId))
             );
         }
 
         @Override
         public void addAlias(Identifier from, Identifier to) {
-            PlatformHandler.INSTANCE.createEntityTypes(modId).addAlias(from, to);
+            PlatformLoader.INSTANCE.createEntityTypes(modId).addAlias(from, to);
         }
     }
 
@@ -275,7 +275,7 @@ public final class StagedRegistries {
             ResourceKey<SoundEvent> key = ResourceKey.create(Registries.SOUND_EVENT, id);
             return StagedRegistry.stage(BuiltInRegistries.SOUND_EVENT, id,
                     (value, holder) -> new Supplied<>(key, value, holder),
-                    () -> registration.apply(PlatformHandler.INSTANCE.createSoundEvents(modId))
+                    () -> registration.apply(PlatformLoader.INSTANCE.createSoundEvents(modId))
             );
         }
     }

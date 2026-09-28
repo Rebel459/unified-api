@@ -1,8 +1,8 @@
 package net.rebel459.unified.api.builder;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
@@ -13,8 +13,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.api.codec.ExtensibleCodecBase;
-import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.helper.RecipeGenerator;
@@ -22,7 +20,6 @@ import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
-import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.QuadConsumer;
 import net.rebel459.unified.impl.builder.ColoredBlockSetProperties;
 import net.rebel459.unified.api.util.RecipeProvider;
@@ -96,9 +93,8 @@ public class ColoredBlockSet {
         COLORED_BLOCK_SETS.add(this);
         ColoredBlockSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         ColoredBlockSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
-            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
-                    .afterRegistry(net.minecraft.core.registries.Registries.ITEM, () -> ColoredBlockSetProperties.init(List.of(this)));
+        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) {
+            UnifiedPlatform.executeAfter(Registries.ITEM, () -> ColoredBlockSetProperties.init(List.of(this)));
         }
     }
 

@@ -1,6 +1,7 @@
 package net.rebel459.unified.api.builder;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
@@ -17,8 +18,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.api.codec.CodecGenerator;
-import net.rebel459.unified.api.core.UnifiedInstance;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
@@ -28,8 +28,6 @@ import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.impl.builder.StoneSetProperties;
-import net.rebel459.unified.impl.data.registry.BlockRegistry;
-import net.rebel459.unified.impl.data.registry.BlockSetTypeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -106,9 +104,8 @@ public class StoneSet {
         BLOCK_SETS.add(this);
         StoneSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         StoneSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
-            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
-                    .afterRegistry(net.minecraft.core.registries.Registries.ITEM, () -> StoneSetProperties.init(List.of(this)));
+        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) {
+            UnifiedPlatform.executeAfter(Registries.ITEM, () -> StoneSetProperties.init(List.of(this)));
         }
     }
 

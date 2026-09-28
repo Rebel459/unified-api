@@ -7,7 +7,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.*;
@@ -31,7 +30,7 @@ import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
-import net.rebel459.unified.api.core.UnifiedInstance;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 import net.rebel459.unified.api.data.helper.BlockConversionGenerator;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.helper.TagGenerator;
@@ -190,9 +189,8 @@ public class WoodSet {
         WoodSetProperties.CREATIVE_ENTRIES.put(id, getSettings().precedingCreativeEntries);
         WoodSetProperties.CREATIVE_ENTRY_GENERATORS.put(id, creativeEntries);
         WoodSetProperties.BLOCK_CONVERSION_GENERATORS.put(id, blockConversions);
-        if (UnifiedInstance.getModLoader() == ModLoader.FABRIC) {
-            net.rebel459.unified.impl.platform.PlatformHandler.INSTANCE.internal()
-                    .afterRegistry(Registries.ITEM, () -> WoodSetProperties.init(List.of(this)));
+        if (UnifiedPlatform.getModLoader() == ModLoader.FABRIC) {
+            UnifiedPlatform.executeAfter(Registries.ITEM, () -> WoodSetProperties.init(List.of(this)));
         }
     }
 
