@@ -136,10 +136,6 @@ public class NeoForgeUnifiedEvents {
             if (event.getLevel() instanceof Level level && !level.isClientSide()) CommonEvents.Levels.passOnUnload(level);
         });
 
-        modEventBus.addListener((ModifyDefaultComponentsEvent event) -> {
-            event.modifyMatching((_, _) -> true, (builder, provider, item) -> CommonEvents.DefaultDataComponents.passModify(item, builder, provider));
-        });
-
         modEventBus.addListener(EventPriority.LOW, (BuildCreativeModeTabContentsEvent event) -> {
             NeoForgeCreativeEntryContext context = new NeoForgeCreativeEntryContext(event);
             CommonEvents.CreativeEntries.passModify(event.getTabKey(), context);
