@@ -3,12 +3,9 @@ package net.rebel459.unified.api.builder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.component.CookingFuel;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
-import net.minecraft.world.level.storage.loot.providers.number.floats.ResolvableFloat;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ResolvableInt;
+import net.rebel459.unified.api.registry.UnifiedDataComponents;
 import net.rebel459.unified.api.util.RecipeProvider;
 
 public final class ColoredBlockPreset {
@@ -33,7 +30,7 @@ public final class ColoredBlockPreset {
                             .tag(BlockTags.SHEARS_MAJOR_BREAKING_SPEED)
                     )
                     .itemProperties(itemProperties -> itemProperties
-                            .component(DataComponents.COOKING_FUEL, new CookingFuel(new ResolvableInt.Constant(100), ResolvableFloat.fromKey(ContextFloatProviders.COOKING_DEFAULT_SPEED_MULTIPLIER)))
+                            .component(UnifiedDataComponents.FURNACE_FUEL.get(), 100)
                     )
             )
             .dyeRecipe((dye, otherBlocks, item, provider) -> {

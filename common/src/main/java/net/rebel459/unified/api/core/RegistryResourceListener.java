@@ -278,18 +278,7 @@ public abstract class RegistryResourceListener<T> {
         if (Files.isDirectory(path)) {
             packs.add(new PackEntry(new PathPackResources(info, path), external));
         } else if (Files.isRegularFile(path)) {
-            packs.add(new PackEntry(
-                    new FilePackResources.FileResourcesSupplier(path)
-                            .openResources(info, new Pack.Metadata(
-                                    Component.literal(id),
-                                    PackCompatibility.COMPATIBLE,
-                                    FeatureFlags.DEFAULT_FLAGS,
-                                    List.of()
-                            ))
-                            .findFirst()
-                            .orElseThrow(),
-                    external
-            ));
+            packs.add(new PackEntry(new FilePackResources.FileResourcesSupplier(path).openPrimary(info), external));
         }
     }
 

@@ -14,9 +14,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -24,7 +22,6 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
@@ -409,7 +406,7 @@ public class WoodSet {
                                 .dropSelf()
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -430,7 +427,7 @@ public class WoodSet {
                                 .dropSelf()
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -452,7 +449,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.woodFromLogs(item, getLog()))
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -474,7 +471,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.woodFromLogs(item, getStrippedLog()))
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -495,8 +492,8 @@ public class WoodSet {
                             .occlusion(false)
                             .validSpawn(VanillaBlockPredicateCodecs.OCELOT_OR_PARROT.entityPredicate().get().create())
                             .suffocating(VanillaBlockPredicateCodecs.NEVER.statePredicate().get().create())
-                            .viewBlocking(VanillaBlockPredicateCodecs.NEVER.collisionPredicate().get().create())
-                            .pushReaction(PushReaction.POPPED)
+                            .viewBlocking(VanillaBlockPredicateCodecs.NEVER.statePredicate().get().create())
+                            .pushReaction(PushReaction.DESTROY)
                             .redstoneConductor(VanillaBlockPredicateCodecs.NEVER.statePredicate().get().create())
                             .flammable(30, 60)
                     )
@@ -505,7 +502,7 @@ public class WoodSet {
                             .tag(BlockItemTags.LEAVES)
                     )
                     .itemProperties(itemProperties -> itemProperties
-                            .compostable(ContextIntProviders.COMPOSTABLE_LOW)
+                            .component(UnifiedDataComponents.COMPOST.get(), 0.3F)
                     )
             );
             leaves.put(entry.prefix, block);
@@ -529,8 +526,8 @@ public class WoodSet {
                                 .tag(BlockItemTags.SAPLINGS)
                         )
                         .itemProperties(itemProperties -> {
-                            itemProperties.compostable(ContextIntProviders.COMPOSTABLE_LOW);
-                            if (settings.isFlammable) itemProperties.cookingFuel(ContextIntProviders.COOKING_TIME_DRY_PLANTS);
+                            itemProperties.component(UnifiedDataComponents.COMPOST.get(), 0.3F);
+                            if (settings.isFlammable) itemProperties.component(UnifiedDataComponents.FURNACE_FUEL.get(), 100);
                         })
         );
     }
@@ -542,7 +539,7 @@ public class WoodSet {
                         .properties(properties -> properties
                                 .instabreak()
                                 .occlusion(false)
-                                .pushReaction(PushReaction.POPPED)
+                                .pushReaction(PushReaction.DESTROY)
                         )
                         .data(data -> data
                                 .dropSelf()
@@ -573,7 +570,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.planksFromLog(item, logTag.item(), getSettings().planksFromLog))
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -597,7 +594,7 @@ public class WoodSet {
                                 )
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -618,7 +615,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.slab(RecipeCategory.BUILDING_BLOCKS, item, getPlanks()))
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_SLABS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 150);
                         })
         );
     }
@@ -639,7 +636,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.mosaicBuilder(RecipeCategory.BUILDING_BLOCKS, item, getSlab()))
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -663,7 +660,7 @@ public class WoodSet {
                                 )
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -684,7 +681,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.slab(RecipeCategory.BUILDING_BLOCKS, item, getMosaic()))
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_SLABS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 150);
                         })
         );
     }
@@ -709,7 +706,7 @@ public class WoodSet {
                                 )
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -734,7 +731,7 @@ public class WoodSet {
                                 )
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -747,7 +744,7 @@ public class WoodSet {
                                 .copyFrom(getPlanks())
                                 .solid(true)
                                 .collision(false)
-                                .pushReaction(PushReaction.POPPED)
+                                .pushReaction(PushReaction.DESTROY)
                         )
                         .assets(assets -> assets
                                 .model(BlockAssets.PRESSURE_PLATE, getPlanks())
@@ -758,7 +755,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.pressurePlate(item, getPlanks()))
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -771,7 +768,7 @@ public class WoodSet {
                                 .copyFrom(getPlanks())
                                 .solid(true)
                                 .collision(false)
-                                .pushReaction(PushReaction.POPPED)
+                                .pushReaction(PushReaction.DESTROY)
                                 .strength(0.5F)
                         )
                         .assets(assets -> assets
@@ -786,7 +783,7 @@ public class WoodSet {
                                 )
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_EXTRA_SMALL);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 100);
                         })
         );
     }
@@ -798,7 +795,7 @@ public class WoodSet {
                         .properties(properties -> properties
                                 .copyFrom(getPlanks())
                                 .occlusion(false)
-                                .pushReaction(PushReaction.POPPED)
+                                .pushReaction(PushReaction.DESTROY)
                                 .strength(3F)
                         )
                         .assets(assets -> assets
@@ -813,7 +810,7 @@ public class WoodSet {
                                 )
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 200);
                         })
         );
     }
@@ -840,7 +837,7 @@ public class WoodSet {
                                 )
                         )
                         .itemProperties(item -> {
-                            if (settings.isFlammable) item.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
+                            if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
         );
     }
@@ -941,7 +938,7 @@ public class WoodSet {
                                 .recipes((item, provider) -> provider.shelf(item, getStrippedLog()))
                         )
                         .itemProperties(itemProperties -> {
-                            if (settings.isFlammable) itemProperties.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+                            if (settings.isFlammable) itemProperties.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
                         .blockEntity(() -> BlockEntityTypes.SHELF)
         );
@@ -953,7 +950,7 @@ public class WoodSet {
                 VanillaItemCodecs.STANDING_AND_WALL_BLOCK_ITEM.create(() -> new VanillaItemCodecs.StandingAndWall(getWallSign().get(), Direction.DOWN)),
                 builder -> builder
                         .properties(properties -> {
-                            if (settings.isFlammable) properties.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
+                            if (settings.isFlammable) properties.component(UnifiedDataComponents.FURNACE_FUEL.get(), 200);
                             properties.stacksTo(16);
                         })
                         .data(data -> data
@@ -970,7 +967,7 @@ public class WoodSet {
                 VanillaItemCodecs.HANGING_SIGN_ITEM.create(getWallHangingSign()),
                 builder -> builder
                         .properties(properties -> {
-                            if (settings.isFlammable) properties.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
+                            if (settings.isFlammable) properties.component(UnifiedDataComponents.FURNACE_FUEL.get(), 800);
                             properties.stacksTo(16);
                         })
                         .data(data -> data
@@ -1008,7 +1005,7 @@ public class WoodSet {
                 VanillaItemCodecs.BOAT.create(getBoat()),
                 builder -> builder
                         .properties(properties -> {
-                            if (settings.isFlammable) properties.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
+                            if (settings.isFlammable) properties.component(UnifiedDataComponents.FURNACE_FUEL.get(), 1200);
                         })
                         .assets(assets -> assets
                                 .generated()
@@ -1025,7 +1022,7 @@ public class WoodSet {
                 VanillaItemCodecs.BOAT.create(getChestBoat()),
                 builder -> builder
                         .properties(properties -> {
-                            if (settings.isFlammable) properties.cookingFuel(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
+                            if (settings.isFlammable) properties.component(UnifiedDataComponents.FURNACE_FUEL.get(), 1200);
                         })
                         .assets(assets -> assets
                                 .generated()

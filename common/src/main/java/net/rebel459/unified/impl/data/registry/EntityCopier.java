@@ -128,8 +128,7 @@ public final class EntityCopier {
                 Util.makeDescriptionId("entity", id),
                 Optional.of(ResourceKey.create(Registries.LOOT_TABLE, id.withPrefix("entities/"))),
                 FeatureFlags.VANILLA_SET,
-                true,
-                false
+                true
         );
     }
 

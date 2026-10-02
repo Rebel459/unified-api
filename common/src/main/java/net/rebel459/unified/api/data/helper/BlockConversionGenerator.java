@@ -6,12 +6,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BlockTransformers;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.api.codec.ExtensibleCodecBase;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.registry.UnifiedItemPredicateCodecs;
 import net.rebel459.unified.api.registry.UnifiedUseContextCodecs;
@@ -40,10 +37,7 @@ public class BlockConversionGenerator extends HelperGenerator {
     }
 
     public void addStrippable(String name, BlockLike log, BlockLike strippedLog) {
-        create(name, registries -> UnifiedItemPredicateCodecs.COMPONENTS.create(() -> Map.of(
-                DataComponents.BLOCK_TRANSFORMER,
-                registries.lookupOrThrow(Registries.BLOCK_TRANSFORMER).getOrThrow(BlockTransformers.AXE)
-        )), log, strippedLog).onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(SoundEvents.AXE_STRIP::value));
+        create(name, _ -> UnifiedItemPredicateCodecs.IS_AXE.create(), log, strippedLog).onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(() -> SoundEvents.AXE_STRIP));
     }
 
     public static final class Builder extends HelperGenerator.Builder {

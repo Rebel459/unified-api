@@ -14,25 +14,22 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
-import net.rebel459.unified.impl.util.LootProviderContext;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 import java.util.Set;
 
 public class BlockLootProvider extends BlockLootSubProvider {
 
-    private final BlockLootSubProvider provider;
 
-    public BlockLootProvider(HolderLookup.Provider registries, BlockLootSubProvider provider) {
-        super(Set.of(), FeatureFlags.REGISTRY.allFlags(), new LootProviderContext(registries));
-        this.provider = provider;
+    public BlockLootProvider(HolderLookup.Provider provider) {
+        super(Set.of(), FeatureFlags.REGISTRY.allFlags(), provider);
     }
 
     @Override public void generate() {}
 
-    @Override public Holder<LootItemCondition> hasSilkTouch() { return super.hasSilkTouch(); }
+    @Override public LootItemCondition.Builder hasSilkTouch() { return super.hasSilkTouch(); }
     @Override public LootItemCondition.Builder doesNotHaveSilkTouch() { return super.doesNotHaveSilkTouch(); }
-    @Override public Holder<LootItemCondition> hasShears() { return super.hasShears(); }
+    @Override public LootItemCondition.Builder hasShears() { return super.hasShears(); }
     @Override public LootItemCondition.Builder hasShearsOrSilkTouch() { return super.hasShearsOrSilkTouch(); }
     @Override public LootItemCondition.Builder doesNotHaveShearsOrSilkTouch() { return super.doesNotHaveShearsOrSilkTouch(); }
 
@@ -46,8 +43,7 @@ public class BlockLootProvider extends BlockLootSubProvider {
 
     @Override public LootTable.Builder createSingleItemTable(ItemLike item) { return super.createSingleItemTable(item); }
 
-    public static LootTable.Builder createSelfDropDispatchTable(Block block, Holder<LootItemCondition> condition,
-            LootPoolEntryContainer.Builder<?> alternative) {
+    public static LootTable.Builder createSelfDropDispatchTable(Block block, LootItemCondition.Builder condition, LootPoolEntryContainer.Builder<?> alternative) {
         return BlockLootSubProvider.createSelfDropDispatchTable(block, condition, alternative);
     }
 
@@ -67,11 +63,11 @@ public class BlockLootProvider extends BlockLootSubProvider {
         return super.createSingleItemTableWithSilkTouch(block, item);
     }
 
-    @Override public LootTable.Builder createSingleItemTable(ItemLike item, Holder<ContextIntProvider> count) {
+    @Override public LootTable.Builder createSingleItemTable(ItemLike item, NumberProvider count) {
         return super.createSingleItemTable(item, count);
     }
 
-    @Override public LootTable.Builder createSingleItemTableWithSilkTouch(Block block, ItemLike item, Holder<ContextIntProvider> count) {
+    @Override public LootTable.Builder createSingleItemTableWithSilkTouch(Block block, ItemLike item, NumberProvider count) {
         return super.createSingleItemTableWithSilkTouch(block, item, count);
     }
 
@@ -102,7 +98,7 @@ public class BlockLootProvider extends BlockLootSubProvider {
     @Override public LootTable.Builder createShearsOnlyDrop(ItemLike item) { return super.createShearsOnlyDrop(item); }
     @Override public LootTable.Builder createShearsOrSilkTouchOnlyDrop(ItemLike item) { return super.createShearsOrSilkTouchOnlyDrop(item); }
 
-    @Override public LootTable.Builder createMultifaceBlockDrops(Block block, Holder<LootItemCondition> condition) {
+    @Override public LootTable.Builder createMultifaceBlockDrops(Block block, LootItemCondition.Builder condition) {
         return super.createMultifaceBlockDrops(block, condition);
     }
 
@@ -123,11 +119,11 @@ public class BlockLootProvider extends BlockLootSubProvider {
     public static LootTable.Builder createCandleCakeDrops(Block block) { return BlockLootSubProvider.createCandleCakeDrops(block); }
     public static LootTable.Builder noDrop() { return BlockLootSubProvider.noDrop(); }
 
-    @Override public void addNetherVinesDropTable(Block head, Block plant) { provider.addNetherVinesDropTable(head, plant); }
+    @Override public void addNetherVinesDropTable(Block head, Block plant) { super.addNetherVinesDropTable(head, plant); }
     @Override public LootTable.Builder createDoorTable(Block block) { return super.createDoorTable(block); }
-    @Override public void dropPottedContents(Block block) { provider.dropPottedContents(block); }
-    @Override public void otherWhenSilkTouch(Block block, Block other) { provider.otherWhenSilkTouch(block, other); }
-    @Override public void dropOther(Block block, ItemLike item) { provider.dropOther(block, item); }
-    @Override public void dropWhenSilkTouch(Block block) { provider.dropWhenSilkTouch(block); }
-    @Override public void dropSelf(Block block) { provider.dropSelf(block); }
+    @Override public void dropPottedContents(Block block) { super.dropPottedContents(block); }
+    @Override public void otherWhenSilkTouch(Block block, Block other) { super.otherWhenSilkTouch(block, other); }
+    @Override public void dropOther(Block block, ItemLike item) { super.dropOther(block, item); }
+    @Override public void dropWhenSilkTouch(Block block) { super.dropWhenSilkTouch(block); }
+    @Override public void dropSelf(Block block) { super.dropSelf(block); }
 }

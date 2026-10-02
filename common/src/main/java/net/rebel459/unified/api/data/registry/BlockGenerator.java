@@ -281,13 +281,13 @@ public class BlockGenerator {
             return suffocating(register(ExtensibleCodecs.STATE_PREDICATE, suffocating));
         }
 
-        public Properties viewBlocking(ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<AABB>> viewBlocking) {
+        public Properties viewBlocking(ExtensibleCodec.Entry<BlockBehaviour.StatePredicate> viewBlocking) {
             definition.viewBlocking = Optional.of(viewBlocking);
             return this;
         }
 
-        public Properties viewBlocking(BlockBehaviour.StateArgumentPredicate<AABB> viewBlocking) {
-            return viewBlocking(register(ExtensibleCodecs.COLLISION_PREDICATE, viewBlocking));
+        public Properties viewBlocking(BlockBehaviour.StatePredicate viewBlocking) {
+            return viewBlocking(register(ExtensibleCodecs.STATE_PREDICATE, viewBlocking));
         }
 
         public Properties postProcess(ExtensibleCodec.Entry<BlockBehaviour.PostProcess> postProcess) {

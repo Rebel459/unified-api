@@ -8,9 +8,9 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.rebel459.unified.Unified;
-import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 

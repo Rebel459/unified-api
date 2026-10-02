@@ -8,6 +8,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -25,9 +26,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BlockTransformers;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -78,7 +79,7 @@ public class CommonHelpers {
     public interface BlockConversions {
 
         default void addStrippable(BlockLike originalBlock, BlockLike convertedBlock) {
-            add(this::hasAxeTransforming, originalBlock, convertedBlock, SoundEvents.AXE_STRIP);
+            add(item -> item.getItem() instanceof AxeItem, originalBlock, convertedBlock, SoundEvents.AXE_STRIP);
         }
 
         default void addWeathering(BlockLike unaffected, BlockLike exposed, BlockLike weathered, BlockLike oxidized, BlockLike waxed, BlockLike waxedExposed, BlockLike waxedWeathered, BlockLike waxedOxidized) {
@@ -99,7 +100,7 @@ public class CommonHelpers {
                         level.levelEvent(player, 3003, neighborPos, 0);
                     }
                 }));
-                add(this::hasAxeTransforming, pair.getSecond(), pair.getFirst(), (context) -> {
+                add(item -> item.getItem() instanceof AxeItem, pair.getSecond(), pair.getFirst(), (context) -> {
                     Player player = context.getPlayer();
                     Level level = context.getLevel();
                     BlockPos pos = context.getClickedPos();
@@ -110,7 +111,7 @@ public class CommonHelpers {
                 });
             }
             for (Pair<BlockLike, BlockLike> pair : oxidizationPairs) {
-                add(this::hasAxeTransforming, pair.getFirst(), pair.getSecond(), (context) -> {
+                add(item -> item.getItem() instanceof AxeItem, pair.getFirst(), pair.getSecond(), (context) -> {
                     Player player = context.getPlayer();
                     Level level = context.getLevel();
                     BlockPos pos = context.getClickedPos();
@@ -126,14 +127,14 @@ public class CommonHelpers {
             oxidizables.add(weathered, oxidized);
         }
 
-        default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, Holder<SoundEvent> sound) {
+        default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, SoundEvent sound) {
             add(item, originalBlock, convertedBlock, sound, 1F, 1F);
         }
-        default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, Holder<SoundEvent> sound, float volume, float pitch) {
+        default void add(Predicate<ItemStack> item, BlockLike originalBlock, BlockLike convertedBlock, SoundEvent sound, float volume, float pitch) {
             BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock.asBlock(), _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock.asBlock(), (context) -> {
                 Player player = context.getPlayer();
                 if (player == null) return;
-                context.getLevel().playSound(player, context.getClickedPos(), sound.value(), SoundSource.BLOCKS, volume, pitch);
+                context.getLevel().playSound(player, context.getClickedPos(), sound, SoundSource.BLOCKS, volume, pitch);
                 context.getItemInHand().hurtAndBreak(1, player, player.getEquipmentSlotForItem(context.getItemInHand()));
             }));
         }
@@ -141,13 +142,8 @@ public class CommonHelpers {
             BlockConversionsImpl.INTERACTIONS.computeIfAbsent(originalBlock.asBlock(), _ -> new ArrayList<>()).add(new BlockConversionsImpl.Record(item, convertedBlock.asBlock(), context));
         }
 
-        private boolean hasAxeTransforming(ItemStack stack) {
-            if (!stack.has(net.minecraft.core.component.DataComponents.BLOCK_TRANSFORMER)) return false;
-            return stack.get(net.minecraft.core.component.DataComponents.BLOCK_TRANSFORMER).is(BlockTransformers.AXE);
-        }
-
-        private void spawnSoundAndParticle(final Level level, final BlockPos pos, final @Nullable Player player, final BlockState oldState, final Holder<SoundEvent> soundEvent, final int particle) {
-            level.playSound(player, pos, soundEvent.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        private void spawnSoundAndParticle(final Level level, final BlockPos pos, final @Nullable Player player, final BlockState oldState, final SoundEvent soundEvent, final int particle) {
+            level.playSound(player, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F);
             level.levelEvent(player, particle, pos, 0);
             if (oldState.getBlock() instanceof ChestBlock && oldState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
                 BlockPos neighborPos = ChestBlock.getConnectedBlockPos(pos, oldState);

@@ -15,6 +15,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricEntityLootSubProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.fabricmc.fabric.api.datagen.v1.recipe.FabricRecipeOutput;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
@@ -28,10 +29,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BootstrapRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
+import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
@@ -55,6 +57,7 @@ import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.asset.ItemAssetRequest;
 import net.rebel459.unified.impl.codec.CodecRequest;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -397,8 +400,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         }
 
         @Override public void generate() {
-            net.rebel459.unified.api.util.BlockLootProvider provider = new net.rebel459.unified.api.util.BlockLootProvider(
-                    registries.join(), this);
+            net.rebel459.unified.api.util.BlockLootProvider provider = new net.rebel459.unified.api.util.BlockLootProvider(registries.join());
             requests.requests(modId).forEach(request -> request.generate(provider, this::add));
         }
     }
@@ -443,44 +445,56 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         }
 
         private CompletableFuture<?> generate(CachedOutput cache, HolderLookup.Provider registries) {
-            ConditionalBootstrapContext<Recipe<?>> recipes = new RecipeBootstrapContext(registries, modId);
-            ConditionalBootstrapContext<Advancement> advancements =
-                    new ConditionalBootstrapContext<>(registries, Registries.ADVANCEMENT);
+            Map<ResourceKey<Recipe<?>>, Generated<Recipe<?>>> recipes = new LinkedHashMap<>();
+            Map<ResourceKey<Advancement>, Generated<Advancement>> advancements = new LinkedHashMap<>();
 
             requests.requests(modId).forEach(request -> {
-                recipes.requirement = request.requirement();
-                advancements.requirement = request.requirement();
-                net.minecraft.data.recipes.RecipeProvider vanilla = new net.minecraft.data.recipes.RecipeProvider(recipes, advancements) {
-                    @Override public void buildRecipes() {}
+                RecipeOutput recipeOutput = new RecipeOutput() {
+                    @Override
+                    public void accept(ResourceKey<Recipe<?>> key, Recipe<?> recipe, @Nullable AdvancementHolder advancement) {
+                        register(recipes, key, recipe, request.requirement());
+                        if (advancement != null) {
+                            register(advancements, ResourceKey.create(Registries.ADVANCEMENT, advancement.id()),
+                                    advancement.value(), request.requirement());
+                        }
+                    }
+
+                    @Override
+                    public Advancement.Builder advancement() {
+                        return Advancement.Builder.recipeAdvancement().parent(RecipeBuilder.ROOT_RECIPE_ADVANCEMENT);
+                    }
+
+                    @Override public void includeRootAdvancement() {}
+
+                    @Override
+                    public Identifier getRecipeIdentifier(Identifier identifier) {
+                        return Identifier.fromNamespaceAndPath(modId, identifier.getPath());
+                    }
                 };
-                request.generator().accept(new RecipeProvider(vanilla, recipes, advancements) {
-                    @Override public void buildRecipes() {}
-                });
+                net.minecraft.data.recipes.RecipeProvider vanilla = new net.minecraft.data.recipes.RecipeProvider(registries, recipeOutput) {
+                    @Override public void buildRecipes() {
+                        request.generator().accept(new RecipeProvider(this, registries, recipeOutput) {
+                            @Override public void buildRecipes() {}
+                        });
+                    }
+                };
+                vanilla.buildRecipes();
             });
 
-            DynamicOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, new RegistryOps.RegistryInfoLookup() {
-                @Override
-                public <T> Optional<HolderGetter<T>> lookup(ResourceKey<? extends Registry<? extends T>> key) {
-                    return localLookup(key, recipes, advancements, registries);
-                }
-            });
+            DynamicOps<JsonElement> ops = registries.createSerializationContext(JsonOps.INSTANCE);
             List<CompletableFuture<?>> writes = new ArrayList<>();
-            recipes.entries.forEach((key, generated) -> writes.add(save(cache, ops, key, generated,
-                    Recipe.DIRECT_CODEC, Registries.RECIPE, "unified/recipes")));
-            advancements.entries.forEach((key, generated) -> writes.add(save(cache, ops, key, generated,
+            recipes.forEach((key, generated) -> writes.add(save(cache, ops, key, generated,
+                    Recipe.CODEC, Registries.RECIPE, "unified/recipes")));
+            advancements.forEach((key, generated) -> writes.add(save(cache, ops, key, generated,
                     Advancement.CODEC, Registries.ADVANCEMENT, "unified/advancements")));
             return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        private static <T> Optional<HolderGetter<T>> localLookup(
-                ResourceKey<? extends Registry<? extends T>> key,
-                ConditionalBootstrapContext<Recipe<?>> recipes,
-                ConditionalBootstrapContext<Advancement> advancements,
-                HolderLookup.Provider registries) {
-            if (key.equals(Registries.RECIPE)) return Optional.of((HolderGetter) recipes.entryLookup);
-            if (key.equals(Registries.ADVANCEMENT)) return Optional.of((HolderGetter) advancements.entryLookup);
-            return (Optional) registries.lookup(key);
+        private static <T> void register(Map<ResourceKey<T>, Generated<T>> entries, ResourceKey<T> key, T value,
+                Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            if (entries.putIfAbsent(key, new Generated<>(value, requirement)) != null) {
+                throw new IllegalStateException("Duplicate generated " + key.registry() + " entry " + key.identifier());
+            }
         }
 
         private <T> CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, ResourceKey<T> key,
@@ -505,61 +519,6 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
 
         private record Generated<T>(T value, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {}
 
-        private static class ConditionalBootstrapContext<T> implements BootstrapContext<T> {
-            private final HolderLookup.Provider registries;
-            private final ResourceKey<? extends Registry<T>> registry;
-            private final Map<ResourceKey<T>, Generated<T>> entries = new LinkedHashMap<>();
-            private final BootstrapRegistry<T> entryLookup;
-            private Optional<ExtensibleCodec.Entry<Boolean>> requirement = Optional.empty();
-
-            private ConditionalBootstrapContext(HolderLookup.Provider registries,
-                    ResourceKey<? extends Registry<T>> registry) {
-                this.registries = registries;
-                this.registry = registry;
-                this.entryLookup = new BootstrapRegistry<>(registry, Lifecycle.stable());
-            }
-
-            @Override
-            public Holder.Reference<T> register(ResourceKey<T> key, T value) {
-                if (entries.putIfAbsent(key, new Generated<>(value, requirement)) != null) {
-                    throw new IllegalStateException("Duplicate generated " + registry.identifier()
-                            + " entry " + key.identifier());
-                }
-                return entryLookup.getOrThrow(key);
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public <S> HolderGetter<S> lookup(ResourceKey<? extends Registry<? extends S>> key) {
-                if (key.equals(registry)) return (HolderGetter<S>) entryLookup;
-                return registries.lookupOrThrow(key);
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public <S> java.util.stream.Stream<Holder.Reference<S>> listContextElements(
-                    ResourceKey<? extends Registry<? extends S>> key) {
-                if (key.equals(registry)) {
-                    return (java.util.stream.Stream<Holder.Reference<S>>) (java.util.stream.Stream<?>) entryLookup.listElements();
-                }
-                return registries.lookupOrThrow(key).listElements();
-            }
-        }
-
-        private static final class RecipeBootstrapContext extends ConditionalBootstrapContext<Recipe<?>>
-                implements FabricRecipeOutput {
-            private final String modId;
-
-            private RecipeBootstrapContext(HolderLookup.Provider registries, String modId) {
-                super(registries, Registries.RECIPE);
-                this.modId = modId;
-            }
-
-            @Override
-            public Identifier getRecipeIdentifier(Identifier identifier) {
-                return Identifier.fromNamespaceAndPath(modId, identifier.getPath());
-            }
-        }
     }
 
     public static final class RegistryTagsProvider<T> extends FabricTagsProvider<T> {

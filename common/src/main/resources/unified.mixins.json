@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "block.BlockMixin",
+    "block.FuelValuesMixin",
     "entity.AnimalMixin",
     "entity.CatMixin",
     "entity.DefaultAttributesMixin",
@@ -17,11 +18,11 @@
     "entity.ServerPlayerMixin",
     "entity.SpawnPlacementsMixin",
     "entity.TamableAnimalMixin",
-    "registry.MappedRegistryMixin",
-    "registry.ResourceManagerRegistryLoadTaskMixin",
     "item.BlockItemMixin",
     "item.ItemMixin",
-    "item.ItemStackMixin"
+    "item.ItemStackMixin",
+    "registry.MappedRegistryMixin",
+    "registry.ResourceManagerRegistryLoadTaskMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin",

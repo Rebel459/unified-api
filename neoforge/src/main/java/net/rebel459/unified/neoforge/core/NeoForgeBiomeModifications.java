@@ -4,6 +4,8 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -11,6 +13,7 @@ import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
 import net.rebel459.unified.impl.event.BiomeModifier;
 import net.rebel459.unified.impl.data.helper.BiomeModifiers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,6 +71,18 @@ public final class NeoForgeBiomeModifications {
 
             generation.getCarvers().clear();
             editor.generation().getCarvers().forEach(generation.getCarvers()::add);
+
+            var spawns = builder.getMobSpawnSettings();
+            for (MobCategory category : MobCategory.values()) {
+                var target = spawns.getSpawner(category);
+                target.removeIf(ignored -> true);
+                for (var entry : editor.mobSpawns().getMobs(category).unwrap()) target.add(entry.value(), entry.weight());
+            }
+
+            List<EntityType<?>> existingCosts = new ArrayList<>(spawns.getEntityTypes());
+            spawns.removeSpawnCost(existingCosts.toArray(EntityType[]::new));
+            editor.spawnCosts().forEach((type, cost) -> spawns.addMobCharge(type, cost.charge(), cost.energyBudget()));
+            spawns.creatureGenerationProbability(editor.mobSpawns().getCreatureProbability());
 
             biome.value().attributes = editor.attributes();
         }

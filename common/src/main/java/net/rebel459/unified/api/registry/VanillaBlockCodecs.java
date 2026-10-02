@@ -29,12 +29,11 @@ import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.piston.PistonHeadBlock;
-import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
-import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.rebel459.unified.api.codec.ExtensibleBlockCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
@@ -61,7 +60,7 @@ public class VanillaBlockCodecs {
     private static final MapCodec<BlockSetType> BLOCK_SET_TYPE_CODEC = UnifiedCodecs.BLOCK_SET_TYPE.fieldOf("block_set_type");
     private static final MapCodec<Block> DEAD_BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("dead_block");
     private static final MapCodec<DyeColor> DYE_COLOR_CODEC = DyeColor.CODEC.fieldOf("color");
-    private static final MapCodec<ResourceKey<Feature>> FEATURE_CODEC = ResourceKey.codec(Registries.FEATURE).fieldOf("feature");
+    public static final MapCodec<ResourceKey<ConfiguredFeature<?, ?>>> CONFIGURED_FEATURE_CODEC = ResourceKey.codec(Registries.CONFIGURED_FEATURE).fieldOf("feature");
     private static final MapCodec<Block> FRUIT_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("fruit");
     private static final MapCodec<Block> HOST_BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("host_block");
     private static final MapCodec<Float> LEAF_PARTICLE_CHANCE_CODEC = ExtraCodecs.floatRange(0.0F, 1.0F).fieldOf("leaf_particle_chance");
@@ -144,6 +143,7 @@ public class VanillaBlockCodecs {
     public static final ExtensibleBlockCodec.Simple DAYLIGHT_DETECTOR = simple("daylight_detector", DaylightDetectorBlock::new);
     public static final ExtensibleBlockCodec.Simple DECORATED_POT = simple("decorated_pot", DecoratedPotBlock::new);
     public static final ExtensibleBlockCodec.Simple DETECTOR_RAIL = simple("detector_rail", DetectorRailBlock::new);
+    public static final ExtensibleBlockCodec.Simple DIRT_PATH = simple("dirt_path", DirtPathBlock::new);
     public static final ExtensibleBlockCodec.Simple DISPENSER = simple("dispenser", DispenserBlock::new);
     public static final ExtensibleBlockCodec.Simple DOUBLE_PLANT = simple("double_plant", DoublePlantBlock::new);
     public static final ExtensibleBlockCodec.Simple DRAGON_EGG = simple("dragon_egg", DragonEggBlock::new);
@@ -156,9 +156,11 @@ public class VanillaBlockCodecs {
     public static final ExtensibleBlockCodec.Simple END_PORTAL = simple("end_portal", EndPortalBlock::new);
     public static final ExtensibleBlockCodec.Simple END_PORTAL_FRAME = simple("end_portal_frame", EndPortalFrameBlock::new);
     public static final ExtensibleBlockCodec.Simple END_ROD = simple("end_rod", EndRodBlock::new);
+    public static final ExtensibleBlockCodec.Simple FARMLAND = simple("farmland", FarmlandBlock::new);
     public static final ExtensibleBlockCodec.Simple FENCE = simple("fence", FenceBlock::new);
     public static final ExtensibleBlockCodec.Simple FIRE = simple("fire", FireBlock::new);
     public static final ExtensibleBlockCodec.Simple FIREFLY_BUSH = simple("firefly_bush", FireflyBushBlock::new);
+    public static final ExtensibleBlockCodec.Simple FLOWER_BED = simple("flower_bed", FlowerBedBlock::new);
     public static final ExtensibleBlockCodec.Simple FROGSPAWN = simple("frogspawn", FrogspawnBlock::new);
     public static final ExtensibleBlockCodec.Simple FROSTED_ICE = simple("frosted_ice", FrostedIceBlock::new);
     public static final ExtensibleBlockCodec.Simple FURNACE = simple("furnace", FurnaceBlock::new);
@@ -219,7 +221,7 @@ public class VanillaBlockCodecs {
     public static final ExtensibleBlockCodec.Simple REDSTONE_ORE = simple("redstone_ore", RedStoneOreBlock::new);
     public static final ExtensibleBlockCodec.Simple REDSTONE_TORCH = simple("redstone_torch", RedstoneTorchBlock::new);
     public static final ExtensibleBlockCodec.Simple REDSTONE_WALL_TORCH = simple("redstone_wall_torch", RedstoneWallTorchBlock::new);
-    public static final ExtensibleBlockCodec.Simple REDSTONE_WIRE = simple("redstone_wire", RedstoneWireBlock::new);
+    public static final ExtensibleBlockCodec.Simple REDSTONE_WIRE = simple("redstone_wire", RedStoneWireBlock::new);
     public static final ExtensibleBlockCodec.Simple REPEATER = simple("repeater", RepeaterBlock::new);
     public static final ExtensibleBlockCodec.Simple RESPAWN_ANCHOR = simple("respawn_anchor", RespawnAnchorBlock::new);
     public static final ExtensibleBlockCodec.Simple ROOTED_DIRT = simple("rooted_dirt", RootedDirtBlock::new);
@@ -233,8 +235,6 @@ public class VanillaBlockCodecs {
     public static final ExtensibleBlockCodec.Simple SEAGRASS = simple("seagrass", SeagrassBlock::new);
     public static final ExtensibleBlockCodec.Simple SEA_PICKLE = simple("sea_pickle", SeaPickleBlock::new);
     public static final ExtensibleBlockCodec.Simple SHELF = simple("shelf", ShelfBlock::new);
-    public static final ExtensibleBlockCodec.Simple SHELF_MUSHROOM = simple("shelf_mushroom", ShelfMushroomBlock::new);
-    public static final ExtensibleBlockCodec.Simple STRAW_BED = simple("straw_bed", StrawBedBlock::new);
     public static final ExtensibleBlockCodec.Simple SHORT_DRY_GRASS = simple("short_dry_grass", ShortDryGrassBlock::new);
     public static final ExtensibleBlockCodec.Simple SLAB = simple("slab", SlabBlock::new);
     public static final ExtensibleBlockCodec.Simple SLIME_BLOCK = simple("slime_block", SlimeBlock::new);
@@ -290,8 +290,8 @@ public class VanillaBlockCodecs {
             "banner", DYE_COLOR_CODEC, BannerBlock::new);
     public static final ExtensibleBlockCodec.Complex<DyeColor> BED = complex(
             "bed", DYE_COLOR_CODEC, BedBlock::new);
-    public static final ExtensibleBlockCodec.Complex<ResourceKey<Feature>> BONEMEALABLE_FEATURE_PLACER_BLOCK = complex(
-            "bonemealable_feature_placer_block", FEATURE_CODEC, BonemealableFeaturePlacerBlock::new);
+    public static final ExtensibleBlockCodec.Complex<ResourceKey<ConfiguredFeature<?, ?>>> BONEMEALABLE_FEATURE_PLACER_BLOCK = complex(
+            "bonemealable_feature_placer_block", CONFIGURED_FEATURE_CODEC, BonemealableFeaturePlacerBlock::new);
     public static final ExtensibleBlockCodec.Complex<Brushable> BRUSHABLE_BLOCK = complex(
             "brushable_block", Brushable.CODEC, (definition, properties) -> new BrushableBlock(definition.turnsInto, definition.brushSound, definition.brushCompletedSound, properties));
     public static final ExtensibleBlockCodec.Complex<Button> BUTTON = complex(
@@ -324,13 +324,10 @@ public class VanillaBlockCodecs {
             "drop_experience_block", IntProviders.codec(0, 10).fieldOf("experience"), DropExperienceBlock::new);
     public static final ExtensibleBlockCodec.Complex<Boolean> EYEBLOSSOM = complex(
             "eyeblossom", Codec.BOOL.fieldOf("open"), EyeblossomBlock::new);
-    public static final ExtensibleBlockCodec.Complex<Block> FARMLAND = complex("farmland", BASE_BLOCK_CODEC, FarmlandBlock::new);
     public static final ExtensibleBlockCodec.Complex<WoodType> FENCE_GATE = complex(
             "fence_gate", WOOD_TYPE_CODEC, FenceGateBlock::new);
     public static final ExtensibleBlockCodec.Complex<SuspiciousStewEffects> FLOWER = complex(
             "flower", SUSPICIOUS_STEW_EFFECTS_CODEC, FlowerBlock::new);
-    public static final ExtensibleBlockCodec.Complex<Integer> FLOWER_BED = complex(
-            "flower_bed", ExtraCodecs.NON_NEGATIVE_INT.fieldOf("height"), (definition, properties) -> new FlowerBedBlock(properties, definition));
     public static final ExtensibleBlockCodec.Complex<Block> FLOWER_POT = complex(
             "flower_pot", BuiltInRegistries.BLOCK.byNameCodec().fieldOf("potted"), FlowerPotBlock::new);
     public static final ExtensibleBlockCodec.Complex<Block> INFESTED_BLOCK = complex("infested_block", HOST_BLOCK_CODEC, InfestedBlock::new);
@@ -343,13 +340,12 @@ public class VanillaBlockCodecs {
             "mangrove_leaves", LEAF_PARTICLE_CHANCE_CODEC, MangroveLeavesBlock::new);
     public static final ExtensibleBlockCodec.Complex<TreeGrower> MANGROVE_PROPAGULE = complex(
             "mangrove_propagule", TREE_CODEC, MangrovePropaguleBlock::new);
-    public static final ExtensibleBlockCodec.Complex<ResourceKey<Feature>> MUSHROOM = complex(
-            "mushroom", FEATURE_CODEC, MushroomBlock::new);
+    public static final ExtensibleBlockCodec.Complex<ResourceKey<ConfiguredFeature<?, ?>>> MUSHROOM = complex(
+            "mushroom", CONFIGURED_FEATURE_CODEC, MushroomBlock::new);
     public static final ExtensibleBlockCodec.Complex<NetherFungus> NETHER_FUNGUS = complex(
             "nether_fungus", NetherFungus.CODEC, (definition, properties) -> new NetherFungusBlock(definition.feature, definition.requiredBlock, definition.supportBlocks, properties));
     public static final ExtensibleBlockCodec.Complex<TagKey<Block>> NETHER_ROOTS = complex(
             "nether_roots", SUPPORT_BLOCKS_CODEC, NetherRootsBlock::new);
-    public static final ExtensibleBlockCodec.Complex<Block> PATH_BLOCK = complex("path_block", BASE_BLOCK_CODEC, PathBlock::new);
     public static final ExtensibleBlockCodec.Complex<Boolean> PISTON_BASE = complex(
             "piston_base", Codec.BOOL.fieldOf("sticky"), PistonBaseBlock::new);
     public static final ExtensibleBlockCodec.Complex<Block> POINTED_DRIPSTONE = complex(
@@ -388,7 +384,7 @@ public class VanillaBlockCodecs {
     public static final ExtensibleBlockCodec.Complex<Block> TRIPWIRE = complex(
             "tripwire", BuiltInRegistries.BLOCK.byNameCodec().fieldOf("hook"), TripWireBlock::new);
     public static final ExtensibleBlockCodec.Complex<ParticleLeaves> UNTINTED_PARTICLE_LEAVES = complex(
-            "untinted_particle_leaves", ParticleLeaves.CODEC, (definition, properties) -> new UntintedParticleLeavesBlock(definition.chance, definition.particle, definition.player, properties));
+            "untinted_particle_leaves", ParticleLeaves.CODEC, (definition, properties) -> new UntintedParticleLeavesBlock(definition.chance, definition.particle, properties));
     public static final ExtensibleBlockCodec.Complex<DyeColor> WALL_BANNER = complex(
             "wall_banner", DYE_COLOR_CODEC, WallBannerBlock::new);
     public static final ExtensibleBlockCodec.Complex<WoodType> WALL_HANGING_SIGN = complex(
@@ -485,9 +481,9 @@ public class VanillaBlockCodecs {
         ).apply(instance, LayeredCauldron::new));
     }
 
-    public record NetherFungus(ResourceKey<Feature> feature, Block requiredBlock, TagKey<Block> supportBlocks) {
+    public record NetherFungus(ResourceKey<ConfiguredFeature<?, ?>> feature, Block requiredBlock, TagKey<Block> supportBlocks) {
         public static final MapCodec<NetherFungus> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                FEATURE_CODEC.forGetter(NetherFungus::feature),
+                CONFIGURED_FEATURE_CODEC.forGetter(NetherFungus::feature),
                 BuiltInRegistries.BLOCK.byNameCodec().fieldOf("grows_on").forGetter(NetherFungus::requiredBlock),
                 SUPPORT_BLOCKS_CODEC.forGetter(NetherFungus::supportBlocks)
         ).apply(instance, NetherFungus::new));
@@ -504,11 +500,10 @@ public class VanillaBlockCodecs {
         ).apply(instance, Stem::new));
     }
 
-    public record ParticleLeaves(float chance, ParticleOptions particle, AmbientLeavesBlockSoundPlayer player) {
+    public record ParticleLeaves(float chance, ParticleOptions particle) {
         public static final MapCodec<ParticleLeaves> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 LEAF_PARTICLE_CHANCE_CODEC.forGetter(ParticleLeaves::chance),
-                ParticleTypes.CODEC.fieldOf("leaf_particle").forGetter(ParticleLeaves::particle),
-                AmbientLeavesBlockSoundPlayer.CODEC.fieldOf("sound_player").forGetter(ParticleLeaves::player)
+                ParticleTypes.CODEC.fieldOf("leaf_particle").forGetter(ParticleLeaves::particle)
         ).apply(instance, ParticleLeaves::new));
     }
 

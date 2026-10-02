@@ -74,7 +74,7 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
             case CodecBase(ExtensibleCodec.Entry<EntityType.Builder<?>> type) -> ExtensibleCodecs.ENTITY.create(type, key);
             case CopiedBase(ResourceKey<EntityType<?>> base) -> {
                 EntityCopier.declare(key, base);
-                yield EntityType.Builder.createNothing(MobCategory.MISC).dontTrackDeltas();
+                yield EntityType.Builder.createNothing(MobCategory.MISC);
             }
         };
         Supplied<? extends EntityType<?>> entity;

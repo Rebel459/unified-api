@@ -29,6 +29,7 @@ public final class FabricBiomeModifications {
                 biome.generationSettings = editor.generation();
                 biome.attributes = editor.attributes();
                 biome.specialEffects = editor.effects();
+                biome.mobSettings = editor.mobSpawns();
                 markForNetworkSync(holder.key(), biomes);
             });
         }

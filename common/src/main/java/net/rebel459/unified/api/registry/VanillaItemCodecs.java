@@ -70,7 +70,6 @@ public class VanillaItemCodecs {
     public static final ExtensibleItemCodec.Simple BUNDLE = simple("bundle", BundleItem::new);
     public static final ExtensibleItemCodec.Simple COMPASS = simple("compass", CompassItem::new);
     public static final ExtensibleItemCodec.Simple CROSSBOW = simple("crossbow", CrossbowItem::new);
-    public static final ExtensibleItemCodec.Simple CUSHION = simple("cushion", CushionItem::new);
     public static final ExtensibleItemCodec.Simple DISC_FRAGMENT = simple("disc_fragment", DiscFragmentItem::new);
     public static final ExtensibleItemCodec.Simple DYE = simple("dye", DyeItem::new);
     public static final ExtensibleItemCodec.Simple EGG = simple("egg", EggItem::new);

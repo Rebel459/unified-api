@@ -7,10 +7,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.modifier.AttributeModifier;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.painting.Painting;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.carver.WorldCarver;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
@@ -36,8 +38,8 @@ public final class BiomeModifierGenerator extends HelperGenerator {
 
         private final List<BiomeModifiers.FeatureEntry> addFeatures = new ArrayList<>();
         private final List<BiomeModifiers.FeatureEntry> removeFeatures = new ArrayList<>();
-        private final List<ResourceKey<WorldCarver>> addCarvers = new ArrayList<>();
-        private final List<ResourceKey<WorldCarver>> removeCarvers = new ArrayList<>();
+        private final List<ResourceKey<ConfiguredWorldCarver<?>>> addCarvers = new ArrayList<>();
+        private final List<ResourceKey<ConfiguredWorldCarver<?>>> removeCarvers = new ArrayList<>();
 
         private Optional<Integer> waterColor = Optional.empty();
         private Optional<Integer> foliageColor = Optional.empty();
@@ -51,6 +53,11 @@ public final class BiomeModifierGenerator extends HelperGenerator {
         private final EnvironmentAttributeMap.Builder setAttributes = EnvironmentAttributeMap.builder();
         private final EnvironmentAttributeMap.Builder modifyAttributes = EnvironmentAttributeMap.builder();
 
+        private final List<BiomeModifiers.SpawnEntry> addSpawns = new ArrayList<>();
+        private final List<EntityType<?>> removeSpawns = new ArrayList<>();
+        private final List<BiomeModifiers.ChargeEntry> addCharges = new ArrayList<>();
+        private final List<EntityType<?>> removeCharges = new ArrayList<>();
+
         private Builder(String name, Function<HolderLookup.Provider, HolderSet<Biome>> targets, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(name, modId, requirement);
             CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/biome_modifiers/" + name), requirement, (provider, ops) ->
@@ -61,7 +68,8 @@ public final class BiomeModifierGenerator extends HelperGenerator {
                                     new BiomeModifiers.Worldgen(addFeatures, removeFeatures, addCarvers, removeCarvers),
                                     new BiomeModifiers.Effects(waterColor, foliageColor, dryFoliageColor, grassColor),
                                     new BiomeModifiers.Climate(temperature, downfall, hasPrecipitation),
-                                    new BiomeModifiers.Attributes(setAttributes.build(), modifyAttributes.build())
+                                    new BiomeModifiers.Attributes(setAttributes.build(), modifyAttributes.build()),
+                                    new BiomeModifiers.Spawns(addSpawns, removeSpawns, addCharges, removeCharges)
                             )).getOrThrow()
             );
         }
@@ -81,12 +89,12 @@ public final class BiomeModifierGenerator extends HelperGenerator {
             return this;
         }
 
-        public Builder addCarver(ResourceKey<WorldCarver> carver) {
+        public Builder addCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
             addCarvers.add(carver);
             return this;
         }
 
-        public Builder removeCarver(ResourceKey<WorldCarver> carver) {
+        public Builder removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
             removeCarvers.add(carver);
             return this;
         }
@@ -133,6 +141,26 @@ public final class BiomeModifierGenerator extends HelperGenerator {
 
         public <Value, Parameter> Builder modifyAttribute(EnvironmentAttribute<Value> attribute, AttributeModifier<Value, Parameter> modifier, Parameter parameter) {
             modifyAttributes.modify(attribute, modifier, parameter);
+            return this;
+        }
+
+        public Builder addSpawn(MobSpawnSettings.SpawnerData data, int weight) {
+            addSpawns.add(new BiomeModifiers.SpawnEntry(data, weight));
+            return this;
+        }
+
+        public Builder removeSpawn(EntityType<?> entity) {
+            removeSpawns.add(entity);
+            return this;
+        }
+
+        public Builder addCharge(EntityType<?> entity, double charge, double energyBudget) {
+            addCharges.add(new BiomeModifiers.ChargeEntry(entity, charge, energyBudget));
+            return this;
+        }
+
+        public Builder removeCharge(EntityType<?> entity) {
+            removeCharges.add(entity);
             return this;
         }
     }

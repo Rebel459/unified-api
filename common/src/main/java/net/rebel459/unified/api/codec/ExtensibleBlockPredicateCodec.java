@@ -17,14 +17,12 @@ public class ExtensibleBlockPredicateCodec {
         Optional<ExtensibleCodec.Simple<Predicate<BlockState>>> predicate();
         Optional<ExtensibleCodec.Simple<BlockBehaviour.StatePredicate>> statePredicate();
         Optional<ExtensibleCodec.Simple<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> entityPredicate();
-        Optional<ExtensibleCodec.Simple<BlockBehaviour.StateArgumentPredicate<AABB>>> collisionPredicate();
     }
 
     public interface Complex<T> {
         Optional<ExtensibleCodec.Complex<Predicate<BlockState>, T>> predicate();
         Optional<ExtensibleCodec.Complex<BlockBehaviour.StatePredicate, T>> statePredicate();
         Optional<ExtensibleCodec.Complex<BlockBehaviour.StateArgumentPredicate<EntityType<?>>, T>> entityPredicate();
-        Optional<ExtensibleCodec.Complex<BlockBehaviour.StateArgumentPredicate<AABB>, T>> collisionPredicate();
     }
 
     public static ExtensibleBlockPredicateCodec.Simple register(Identifier id, Optional<Supplier<Predicate<BlockState>>> predicate, Optional<Supplier<BlockBehaviour.StatePredicate>> statePredicate, Optional<Supplier<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> entityPredicate, Optional<Supplier<BlockBehaviour.StateArgumentPredicate<AABB>>> collisionPredicate) {
@@ -38,8 +36,6 @@ public class ExtensibleBlockPredicateCodec {
         else registeredStatePredicate = Optional.empty();
         if (entityPredicate.isPresent()) registeredEntityPredicate = Optional.of(ExtensibleCodecs.ENTITY_PREDICATE.register(id, entityPredicate.get()));
         else registeredEntityPredicate = Optional.empty();
-        if (collisionPredicate.isPresent()) registeredCollisionPredicate = Optional.of(ExtensibleCodecs.COLLISION_PREDICATE.register(id, collisionPredicate.get()));
-        else registeredCollisionPredicate = Optional.empty();
         return new ExtensibleBlockPredicateCodec.Simple() {
             @Override
             public Optional<ExtensibleCodec.Simple<Predicate<BlockState>>> predicate() {
@@ -55,11 +51,6 @@ public class ExtensibleBlockPredicateCodec {
             public Optional<ExtensibleCodec.Simple<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> entityPredicate() {
                 return registeredEntityPredicate;
             }
-
-            @Override
-            public Optional<ExtensibleCodec.Simple<BlockBehaviour.StateArgumentPredicate<AABB>>> collisionPredicate() {
-                return registeredCollisionPredicate;
-            }
         };
     }
 
@@ -74,8 +65,6 @@ public class ExtensibleBlockPredicateCodec {
         else registeredStatePredicate = Optional.empty();
         if (entityPredicate.isPresent()) registeredEntityPredicate = Optional.of(ExtensibleCodecs.ENTITY_PREDICATE.register(id, codec, entityPredicate.get()));
         else registeredEntityPredicate = Optional.empty();
-        if (collisionPredicate.isPresent()) registeredCollisionPredicate = Optional.of(ExtensibleCodecs.COLLISION_PREDICATE.register(id, codec, collisionPredicate.get()));
-        else registeredCollisionPredicate = Optional.empty();
         return new ExtensibleBlockPredicateCodec.Complex<>() {
             @Override
             public Optional<ExtensibleCodec.Complex<Predicate<BlockState>, T>> predicate() {
@@ -90,11 +79,6 @@ public class ExtensibleBlockPredicateCodec {
             @Override
             public Optional<ExtensibleCodec.Complex<BlockBehaviour.StateArgumentPredicate<EntityType<?>>, T>> entityPredicate() {
                 return registeredEntityPredicate;
-            }
-
-            @Override
-            public Optional<ExtensibleCodec.Complex<BlockBehaviour.StateArgumentPredicate<AABB>, T>> collisionPredicate() {
-                return registeredCollisionPredicate;
             }
         };
     }

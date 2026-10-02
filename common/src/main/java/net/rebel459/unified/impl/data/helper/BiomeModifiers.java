@@ -6,12 +6,15 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.carver.WorldCarver;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
@@ -41,7 +44,8 @@ public final class BiomeModifiers {
                 Worldgen.EMPTY,
                 Effects.EMPTY,
                 Climate.EMPTY,
-                Attributes.EMPTY
+                Attributes.EMPTY,
+                Spawns.EMPTY
         )));
     }
 
@@ -79,7 +83,8 @@ public final class BiomeModifiers {
             Worldgen worldgen,
             Effects effects,
             Climate climate,
-            Attributes attributes
+            Attributes attributes,
+            Spawns spawns
     ) {
         public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Biome.LIST_CODEC.fieldOf("targets").forGetter(Definition::targets),
@@ -87,14 +92,20 @@ public final class BiomeModifiers {
                 Worldgen.CODEC.optionalFieldOf("worldgen", Worldgen.EMPTY).forGetter(Definition::worldgen),
                 Effects.CODEC.optionalFieldOf("effects", Effects.EMPTY).forGetter(Definition::effects),
                 Climate.CODEC.optionalFieldOf("climate", Climate.EMPTY).forGetter(Definition::climate),
-                Attributes.CODEC.optionalFieldOf("attributes", Attributes.EMPTY).forGetter(Definition::attributes)
+                Attributes.CODEC.optionalFieldOf("attributes", Attributes.EMPTY).forGetter(Definition::attributes),
+                Spawns.CODEC.optionalFieldOf("spawns", Spawns.EMPTY).forGetter(Definition::spawns)
         ).apply(instance, Definition::new));
 
         private void apply(BiomeModifier context) {
             for (FeatureEntry entry : worldgen.addFeatures()) context.getFeatures().addFeature(entry.feature(), entry.step());
             for (FeatureEntry entry : worldgen.removeFeatures()) context.getFeatures().removeFeature(entry.feature(), entry.step());
-            for (ResourceKey<WorldCarver> carver : worldgen.addCarvers()) context.getFeatures().addCarver(carver);
-            for (ResourceKey<WorldCarver> carver : worldgen.removeCarvers()) context.getFeatures().removeCarver(carver);
+            for (ResourceKey<ConfiguredWorldCarver<?>> carver : worldgen.addCarvers()) context.getFeatures().addCarver(carver);
+            for (ResourceKey<ConfiguredWorldCarver<?>> carver : worldgen.removeCarvers()) context.getFeatures().removeCarver(carver);
+
+            for (SpawnEntry entry : spawns.addSpawns()) context.getSpawns().addSpawn(entry.data(), entry.weight());
+            for (EntityType<?> type : spawns.removeSpawns()) context.getSpawns().removeSpawn(type);
+            for (ChargeEntry entry : spawns.addCharges()) context.getSpawns().addCharge(entry.type(), entry.charge(), entry.energyBudget());
+            for (EntityType<?> type : spawns.removeCharges()) context.getSpawns().removeCharge(type);
 
             effects.waterColor().ifPresent(context.getEffects()::setWaterColor);
             effects.foliageColor().ifPresent(context.getEffects()::setFoliageColor);
@@ -116,15 +127,15 @@ public final class BiomeModifiers {
         ).apply(instance, FeatureEntry::new));
     }
 
-    public record Worldgen(List<FeatureEntry> addFeatures, List<FeatureEntry> removeFeatures, List<ResourceKey<WorldCarver>> addCarvers, List<ResourceKey<WorldCarver>> removeCarvers) {
+    public record Worldgen(List<FeatureEntry> addFeatures, List<FeatureEntry> removeFeatures, List<ResourceKey<ConfiguredWorldCarver<?>>> addCarvers, List<ResourceKey<ConfiguredWorldCarver<?>>> removeCarvers) {
         public static final Worldgen EMPTY = new Worldgen(List.of(), List.of(), List.of(), List.of());
-        private static final Codec<ResourceKey<WorldCarver>> CARVER_CODEC = ResourceKey.codec(Registries.CARVER);
+        private static final Codec<ResourceKey<ConfiguredWorldCarver<?>>> CONFIGURED_CARVER_CODEC = ResourceKey.codec(Registries.CONFIGURED_CARVER);
 
         public static final Codec<Worldgen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 FeatureEntry.CODEC.listOf().optionalFieldOf("add_features", List.of()).forGetter(Worldgen::addFeatures),
                 FeatureEntry.CODEC.listOf().optionalFieldOf("remove_features", List.of()).forGetter(Worldgen::removeFeatures),
-                CARVER_CODEC.listOf().optionalFieldOf("add_carvers", List.of()).forGetter(Worldgen::addCarvers),
-                CARVER_CODEC.listOf().optionalFieldOf("remove_carvers", List.of()).forGetter(Worldgen::removeCarvers)
+                CONFIGURED_CARVER_CODEC.listOf().optionalFieldOf("add_carvers", List.of()).forGetter(Worldgen::addCarvers),
+                CONFIGURED_CARVER_CODEC.listOf().optionalFieldOf("remove_carvers", List.of()).forGetter(Worldgen::removeCarvers)
         ).apply(instance, Worldgen::new));
     }
 
@@ -161,5 +172,32 @@ public final class BiomeModifiers {
             context.getAttributes().set(set);
             context.getAttributes().modify(modify);
         }
+    }
+
+    public record SpawnEntry(MobSpawnSettings.SpawnerData data, int weight) {
+        public static final Codec<SpawnEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                MobSpawnSettings.SpawnerData.CODEC.forGetter(SpawnEntry::data),
+                Codec.intRange(1, Integer.MAX_VALUE).fieldOf("weight").forGetter(SpawnEntry::weight)
+        ).apply(instance, SpawnEntry::new));
+    }
+
+    public record ChargeEntry(EntityType<?> type, double charge, double energyBudget) {
+        public static final Codec<ChargeEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(ChargeEntry::type),
+                Codec.DOUBLE.fieldOf("charge").forGetter(ChargeEntry::charge),
+                Codec.DOUBLE.fieldOf("energy_budget").forGetter(ChargeEntry::energyBudget)
+        ).apply(instance, ChargeEntry::new));
+    }
+
+    public record Spawns(List<SpawnEntry> addSpawns, List<EntityType<?>> removeSpawns, List<ChargeEntry> addCharges, List<EntityType<?>> removeCharges) {
+        public static final Spawns EMPTY = new Spawns(List.of(), List.of(), List.of(), List.of());
+        private static final Codec<EntityType<?>> ENTITY_TYPE_CODEC = BuiltInRegistries.ENTITY_TYPE.byNameCodec();
+
+        public static final Codec<Spawns> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                SpawnEntry.CODEC.listOf().optionalFieldOf("add_spawns", List.of()).forGetter(Spawns::addSpawns),
+                ENTITY_TYPE_CODEC.listOf().optionalFieldOf("remove_spawns", List.of()).forGetter(Spawns::removeSpawns),
+                ChargeEntry.CODEC.listOf().optionalFieldOf("add_charges", List.of()).forGetter(Spawns::addCharges),
+                ENTITY_TYPE_CODEC.listOf().optionalFieldOf("remove_charges", List.of()).forGetter(Spawns::removeCharges)
+        ).apply(instance, Spawns::new));
     }
 }

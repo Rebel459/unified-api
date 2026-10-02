@@ -56,7 +56,7 @@ public class StructurePacketImpl {
                             boxStructureIds.add(structure.unwrapKey().get());
                             boxStructureTags.addAll(structure.tags().toList());
                         }
-                        if (structureManager.getStructureWithPieceAt(pos.getX(), pos.getY(), pos.getZ(), structure.value()).isValid()) {
+                        if (structureManager.getStructureWithPieceAt(pos, structure.value()).isValid()) {
                             pieceStructureIds.add(structure.unwrapKey().get());
                             pieceStructureTags.addAll(structure.tags().toList());
                         }

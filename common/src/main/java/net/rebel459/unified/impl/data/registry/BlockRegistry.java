@@ -118,7 +118,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public Optional<ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> validSpawn = Optional.empty();
         public Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> redstoneConductor = Optional.empty();
         public Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> suffocating = Optional.empty();
-        public Optional<ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<AABB>>> viewBlocking = Optional.empty();
+        public Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> viewBlocking = Optional.empty();
         public Optional<ExtensibleCodec.Entry<BlockBehaviour.PostProcess>> postProcess = Optional.empty();
         public Optional<ExtensibleCodec.Entry<Predicate<BlockState>>> emissiveRendering = Optional.empty();
         public Optional<Boolean> requiresCorrectToolForDrops = Optional.empty();
@@ -159,7 +159,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 ExtensibleCodecs.ENTITY_PREDICATE.codec().optionalFieldOf("valid_spawn").forGetter(Second::validSpawn),
                 ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("redstone_conductor").forGetter(Second::redstoneConductor),
                 ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("suffocating").forGetter(Second::suffocating),
-                ExtensibleCodecs.COLLISION_PREDICATE.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
+                ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
                 ExtensibleCodecs.POST_PROCESS.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
                 ExtensibleCodecs.BLOCK_PREDICATE.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
                 Codec.BOOL.optionalFieldOf("requires_correct_tool_for_drops").forGetter(Second::requiresCorrectToolForDrops),
@@ -291,7 +291,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 Optional<ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<EntityType<?>>>> validSpawn,
                 Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> redstoneConductor,
                 Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> suffocating,
-                Optional<ExtensibleCodec.Entry<BlockBehaviour.StateArgumentPredicate<AABB>>> viewBlocking,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> viewBlocking,
                 Optional<ExtensibleCodec.Entry<BlockBehaviour.PostProcess>> postProcess,
                 Optional<ExtensibleCodec.Entry<Predicate<BlockState>>> emissiveRendering,
                 Optional<Boolean> requiresCorrectToolForDrops,

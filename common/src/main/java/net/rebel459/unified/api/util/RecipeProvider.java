@@ -7,6 +7,7 @@ import net.minecraft.advancements.triggers.BredAnimalsTrigger;
 import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.advancements.triggers.EnterBlockTrigger;
 import net.minecraft.advancements.triggers.InventoryChangeTrigger;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.data.recipes.*;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -27,11 +28,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public abstract class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
-    
+
     private final net.minecraft.data.recipes.RecipeProvider recipeProvider;
-    
-    public RecipeProvider(final net.minecraft.data.recipes.RecipeProvider recipeProvider, final BootstrapContext<Recipe<?>> recipeOutput, final BootstrapContext<Advancement> advancementOutput) {
-        super(recipeOutput, advancementOutput);
+
+    public RecipeProvider(net.minecraft.data.recipes.RecipeProvider recipeProvider, HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
         this.recipeProvider = recipeProvider;
     }
 
