@@ -14,23 +14,23 @@ public class VanillaEntityRenderers {
     public static void init() {
         VanillaEntityCodecs.BOAT.bind((entity, id) -> {
             ModelLayerLocation location = new ModelLayerLocation(getLayerName(id, "boat"), "main");
-            UnifiedClientHelpers.ENTITY_RENDERERS.addModel(location, BoatModel::createBoatModel);
-            UnifiedClientHelpers.ENTITY_RENDERERS.addRenderer(entity::get, ctx -> new BoatRenderer(ctx, location));
+            UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(location, BoatModel::createBoatModel);
+            UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(entity::get, ctx -> new BoatRenderer(ctx, location));
         });
         VanillaEntityCodecs.CHEST_BOAT.bind((entity, id) -> {
             ModelLayerLocation location = new ModelLayerLocation(getLayerName(id, "chest_boat"), "main");
-            UnifiedClientHelpers.ENTITY_RENDERERS.addModel(location, BoatModel::createChestBoatModel);
-            UnifiedClientHelpers.ENTITY_RENDERERS.addRenderer(entity::get, ctx -> new BoatRenderer(ctx, location));
+            UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(location, BoatModel::createChestBoatModel);
+            UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(entity::get, ctx -> new BoatRenderer(ctx, location));
         });
         VanillaEntityCodecs.RAFT.bind((entity, id) -> {
             ModelLayerLocation location = new ModelLayerLocation(getLayerName(id, "raft"), "main");
-            UnifiedClientHelpers.ENTITY_RENDERERS.addModel(location, RaftModel::createRaftModel);
-            UnifiedClientHelpers.ENTITY_RENDERERS.addRenderer(entity::get, ctx -> new RaftRenderer(ctx, location));
+            UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(location, RaftModel::createRaftModel);
+            UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(entity::get, ctx -> new RaftRenderer(ctx, location));
         });
         VanillaEntityCodecs.CHEST_RAFT.bind((entity, id) -> {
             ModelLayerLocation location = new ModelLayerLocation(getLayerName(id, "chest_raft"), "main");
-            UnifiedClientHelpers.ENTITY_RENDERERS.addModel(location, RaftModel::createChestRaftModel);
-            UnifiedClientHelpers.ENTITY_RENDERERS.addRenderer(entity::get, ctx -> new RaftRenderer(ctx, location));
+            UnifiedClientHelpers.ENTITY_RENDERERS.addLayerDefinition(location, RaftModel::createChestRaftModel);
+            UnifiedClientHelpers.ENTITY_RENDERERS.addEntityRenderer(entity::get, ctx -> new RaftRenderer(ctx, location));
         });
     }
 

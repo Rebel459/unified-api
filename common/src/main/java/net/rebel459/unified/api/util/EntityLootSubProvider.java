@@ -2,7 +2,6 @@ package net.rebel459.unified.api.util;
 
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.frog.FrogVariant;
@@ -14,16 +13,16 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.Map;
 
-public class EntityLootProvider extends EntityLootSubProvider {
+public class EntityLootSubProvider extends net.minecraft.data.loot.EntityLootSubProvider {
 
-    public EntityLootProvider(HolderLookup.Provider registries) {
+    public EntityLootSubProvider(HolderLookup.Provider registries) {
         super(FeatureFlags.REGISTRY.allFlags(), registries);
     }
 
     @Override public void generate() {}
 
     public static LootPool.Builder createSheepDispatchPool(Map<DyeColor, ResourceKey<LootTable>> tableNames) {
-        return EntityLootSubProvider.createSheepDispatchPool(tableNames);
+        return net.minecraft.data.loot.EntityLootSubProvider.createSheepDispatchPool(tableNames);
     }
 
     @Override public LootItemCondition.Builder killedByFrog(HolderGetter<EntityType<?>> entityTypes) { return super.killedByFrog(entityTypes); }

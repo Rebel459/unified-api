@@ -43,9 +43,9 @@ public class CommonClientHelpers {
 
     public interface EntityRenderers {
 
-        void addModel(ModelLayerLocation location, Supplier<LayerDefinition> definition);
+        void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition);
 
-        <T extends Entity> void addRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider);
+        <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider);
 
         <T extends BlockEntity, S extends BlockEntityRenderState> void addBlockEntityRenderer(Supplier<BlockEntityType<? extends T>> blockEntityType, BlockEntityRendererProvider<T, S> blockEntityRendererProvider);
 

@@ -26,7 +26,7 @@ import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.data.helper.RecipeGenerator;
 import net.rebel459.unified.api.data.helper.TagGenerator;
 import net.rebel459.unified.api.registry.VanillaItemCodecs;
-import net.rebel459.unified.api.util.BlockLootProvider;
+import net.rebel459.unified.api.util.BlockLootSubProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
@@ -382,7 +382,7 @@ public class BlockGenerator {
         private final Supplier<Block> block;
         private final TagGenerator tagGenerator;
         private final RecipeGenerator recipeGenerator;
-        private BiFunction<Block, BlockLootProvider, LootTable.Builder> loot;
+        private BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot;
         private BiConsumer<Item, RecipeProvider> recipes;
 
         private Data(String modId, BlockItemId key, Supplier<Block> block, TagGenerator tagGenerator, RecipeGenerator recipeGenerator) {
@@ -423,7 +423,7 @@ public class BlockGenerator {
             return this;
         }
 
-        public Data loot(BiFunction<Block, BlockLootProvider, LootTable.Builder> factory) {
+        public Data loot(BiFunction<Block, BlockLootSubProvider, LootTable.Builder> factory) {
             loot = factory;
             return this;
         }

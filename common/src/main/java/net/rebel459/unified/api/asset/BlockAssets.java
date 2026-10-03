@@ -35,11 +35,13 @@ public final class BlockAssets {
     public static final BlockAsset<BlockLike> FENCE = create("fence");
     public static final BlockAsset<BlockLike> FENCE_GATE = create("fence_gate");
     public static final BlockAsset<BlockLike> PRESSURE_PLATE = create("pressure_plate");
-    public static final BlockAsset<BlockLike> SIGN = create("sign");
+    public static final BlockAsset<Sign> SIGN = create("sign");
 
     public record Crop(Property<Integer> property, int stages) {}
 
     public record HangingSign(BlockLike strippedLog, BlockLike wallHangingSign) {}
+
+    public record Sign(BlockLike base, BlockLike wallSign) {}
 
     public record PottedPlant(BlockLike potted, PlantType type) {}
 

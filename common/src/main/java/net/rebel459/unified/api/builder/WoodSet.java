@@ -34,7 +34,7 @@ import net.rebel459.unified.api.data.helper.TagGenerator;
 import net.rebel459.unified.api.data.registry.*;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
-import net.rebel459.unified.api.util.BlockLootProvider;
+import net.rebel459.unified.api.util.BlockLootSubProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.builder.WoodSetProperties;
 import net.rebel459.unified.impl.util.BlockItemTagId;
@@ -853,7 +853,7 @@ public class WoodSet {
                                 .strength(1F)
                         )
                         .assets(assets -> assets
-                                .model(BlockAssets.SIGN, getPlanks())
+                                .model(BlockAssets.SIGN, new BlockAssets.Sign(getPlanks(), getWallSign()))
                         )
                         .data(data -> data
                                 .tag(new BlockItemTagId(BlockTags.SIGNS, ItemTags.SIGNS))
@@ -1436,27 +1436,27 @@ public class WoodSet {
         private final ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type;
         private final MapColor mapColor;
         private final BlockAsset<Void> model;
-        private final BiFunction<Block, BlockLootProvider, LootTable.Builder> loot;
+        private final BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot;
         private final @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem;
 
-        public Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootProvider, LootTable.Builder> loot) {
+        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot) {
             return variant("",  type, mapColor, model, loot);
         }
-        public Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
+        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
             return variant("", type, mapColor, model, loot, precedingCreativeItem);
         }
 
-        public Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootProvider, LootTable.Builder> loot) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot) {
             return new Leaves(prefix, type, mapColor,  model, loot, null);
         }
-        public Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootProvider, LootTable.Builder> loot, String precedingLeavesVariant) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, String precedingLeavesVariant) {
             return new Leaves(prefix, type, mapColor, model, loot, Either.left(precedingLeavesVariant));
         }
-        public Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
             return new Leaves(prefix, type, mapColor, model, loot, Either.right(precedingCreativeItem));
         }
 
-        private Leaves(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootProvider, LootTable.Builder> loot, @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem) {
+        private Leaves(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem) {
             this.prefix = prefix;
             this.type = type;
             this.mapColor = mapColor;
