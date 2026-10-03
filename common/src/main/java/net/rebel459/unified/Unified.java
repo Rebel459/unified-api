@@ -1,6 +1,7 @@
 package net.rebel459.unified;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.Registries;
 import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.RegistryResourceInitializer;
@@ -19,12 +20,11 @@ import java.util.ServiceLoader;
 
 public class Unified {
 
-    public static void initRegistries() {
+    private static boolean codecsInitialized;
+
+    public static synchronized void initCodecs() {
+        if (codecsInitialized) return;
         ExtensibleCodecs.init();
-        LootInjections.init();
-        ComponentModifiers.init();
-        MobVariants.init();
-        BiomeModifiers.init();
         VanillaItemCodecs.init();
         VanillaBlockCodecs.init();
         VanillaBlockPredicateCodecs.init();
@@ -42,6 +42,16 @@ public class Unified {
         UnifiedItemPredicateCodecs.init();
         UnifiedUseContextCodecs.init();
         UnifiedDisplayItemCodecs.init();
+        codecsInitialized = true;
+    }
+
+    public static void initRegistries() {
+        initCodecs();
+        UnifiedDataComponents.init();
+        LootInjections.init();
+        ComponentModifiers.init();
+        MobVariants.init();
+        BiomeModifiers.init();
         new SoundEventRegistry().init();
         new BlockSetTypeRegistry().init();
         new WoodTypeRegistry().init();
@@ -50,9 +60,18 @@ public class Unified {
         new ItemRegistry().init();
         new CreativeTabRegistry().init();
         ServiceLoader.load(RegistryResourceInitializer.class, Unified.class.getClassLoader()).forEach(RegistryResourceInitializer::initializeRegistryResources);
+        UnifiedHelpers.RELOAD_LISTENERS.addListener(BlockConversions.ID, new BlockConversions());
+    }
+
+    /** Called by the loader after mod registry initialization, before static registries close. */
+    public static void completeRegistries() {
+        // Block/item definitions can decode particles, attributes and data components registered
+        // by mods. Fabric commits these now; NeoForge queues them for its earlier RegisterEvents.
+        StagedRegistry.finish(Registries.ATTRIBUTE);
+        StagedRegistry.finish(Registries.DATA_COMPONENT_TYPE);
+        StagedRegistry.finish(Registries.PARTICLE_TYPE);
         RegistryResourceListener.completeRegistration();
         StagedRegistry.finish();
-        UnifiedHelpers.RELOAD_LISTENERS.addListener(BlockConversions.ID, new BlockConversions());
     }
 
     public static void init() {

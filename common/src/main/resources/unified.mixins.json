@@ -21,7 +21,10 @@
     "registry.ResourceManagerRegistryLoadTaskMixin",
     "item.BlockItemMixin",
     "item.ItemMixin",
-    "item.ItemStackMixin"
+    "item.ItemStackMixin",
+    "registry.BootstrapMixin",
+    "registry.MappedRegistryMixin",
+    "registry.ResourceManagerRegistryLoadTaskMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin",
