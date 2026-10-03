@@ -6,6 +6,7 @@
   "mixins": [
     "block.WeatheringCopperMixin",
     "server.PlayerListMixin",
+    "server.RegistryDataLoaderMixin",
     "server.ServerLifecycleHooksMixin"
   ],
   "client": [

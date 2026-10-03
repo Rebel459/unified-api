@@ -144,7 +144,6 @@ public final class BiomeModifier extends BiomeModificationContext {
         this.generationSettings = generationSettings;
         this.attributeMap = attributeMap;
         this.specialEffects = specialEffects;
-        this.mobSpawnSettings = Objects.requireNonNull(mobSpawnSettings, "mobSpawnSettings");
     }
 
     @Override public Worldgen getFeatures() { return worldgen; }

@@ -47,7 +47,6 @@ public class Unified {
 
     public static void initRegistries() {
         initCodecs();
-        UnifiedDataComponents.init();
         LootInjections.init();
         ComponentModifiers.init();
         MobVariants.init();
@@ -63,10 +62,7 @@ public class Unified {
         UnifiedHelpers.RELOAD_LISTENERS.addListener(BlockConversions.ID, new BlockConversions());
     }
 
-    /** Called by the loader after mod registry initialization, before static registries close. */
     public static void completeRegistries() {
-        // Block/item definitions can decode particles, attributes and data components registered
-        // by mods. Fabric commits these now; NeoForge queues them for its earlier RegisterEvents.
         StagedRegistry.finish(Registries.ATTRIBUTE);
         StagedRegistry.finish(Registries.DATA_COMPONENT_TYPE);
         StagedRegistry.finish(Registries.PARTICLE_TYPE);

@@ -1,5 +1,6 @@
 package net.rebel459.unified.api.util;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.flag.FeatureFlags;

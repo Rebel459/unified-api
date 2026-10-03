@@ -1,7 +1,9 @@
 package net.rebel459.unified.neoforge.core;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,51 +59,6 @@ public class NeoForgeUnifiedEvents {
             CommonEvents.Server.passOnStop(event.getServer());
         });
 
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, (LootTableLoadEvent event) -> {
-            LootTable originalTable = event.getTable();
-            List<LootPool.Builder> pools = new ArrayList<>();
-            for (LootPool pool : originalTable.pools) {
-                pools.add(LootTableProvider.poolBuilder(pool));
-            }
-
-            boolean changed = CommonEvents.LootTables.passModify(event.getKey(), new CommonEvents.LootTables.PoolAccess() {
-                private boolean changed;
-
-                @Override
-                public List<LootPool.Builder> pools() {
-                    return pools;
-                }
-
-                @Override
-                public void addPool(LootPool.Builder pool) {
-                    pools.add(pool);
-                    this.changed = true;
-                }
-
-                @Override
-                public void markChanged() {
-                    this.changed = true;
-                }
-
-                @Override
-                public boolean hasChanged() {
-                    return this.changed;
-                }
-            }, event.getRegistries());
-
-            if (!changed) {
-                return;
-            }
-
-            LootTable.Builder rebuilt = LootTable.lootTable().setParamSet(originalTable.getParamSet());
-            originalTable.randomSequence.ifPresent(rebuilt::setRandomSequence);
-            for (LootPool.Builder pool : pools) {
-                rebuilt.withPool(pool);
-            }
-            rebuilt.functions = LootTableProvider.immutableBuilder(originalTable.functions);
-            event.setTable(rebuilt.build());
-        });
-
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> {
             CommonEvents.Server.passOnTick(EventTiming.PRE, event.getServer());
         });
@@ -141,6 +98,43 @@ public class NeoForgeUnifiedEvents {
             CommonEvents.CreativeEntries.passModify(event.getTabKey(), context);
             context.apply();
         });
+    }
+
+    public static void modifyLootTable(ResourceKey<LootTable> key, LootTable originalTable, HolderLookup.Provider registries) {
+        List<LootPool.Builder> pools = new ArrayList<>();
+        for (LootPool pool : originalTable.pools) {
+            pools.add(LootTableProvider.poolBuilder(pool));
+        }
+
+        boolean changed = CommonEvents.LootTables.passModify(key, new CommonEvents.LootTables.PoolAccess() {
+            private boolean changed;
+
+            @Override
+            public List<LootPool.Builder> pools() {
+                return pools;
+            }
+
+            @Override
+            public void addPool(LootPool.Builder pool) {
+                pools.add(pool);
+                this.changed = true;
+            }
+
+            @Override
+            public void markChanged() {
+                this.changed = true;
+            }
+
+            @Override
+            public boolean hasChanged() {
+                return this.changed;
+            }
+        }, registries);
+
+        if (!changed) {
+            return;
+        }
+        originalTable.pools = pools.stream().map(LootPool.Builder::build).toList();
     }
 
     private static final class NeoForgeCreativeEntryContext implements CreativeEntryContext {

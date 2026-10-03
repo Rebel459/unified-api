@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -13,12 +14,15 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricEntityLootSubProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
+import net.fabricmc.fabric.api.datagen.v1.recipe.FabricRecipeOutput;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.model.*;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BootstrapRegistry;
@@ -27,6 +31,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -67,6 +72,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -293,18 +299,17 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             this.requests = requests;
         }
 
-        @Override public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder translations) {
+        @Override
+        public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder translations) {
             addTranslations(modId, language, requests, translations);
         }
 
-        public static void addTranslations(String modId, String language,
-                DataProvider<DataProviders.LanguageRequest> requests, TranslationBuilder translations) {
+        public static void addTranslations(String modId, String language, DataProvider<DataProviders.LanguageRequest> requests, TranslationBuilder translations) {
             Map<String, String> entries = new LinkedHashMap<>();
-            TranslationBuilder collected = (key, value) -> {
+            BiConsumer<String, String> collected = (key, value) -> {
                 String previous = entries.putIfAbsent(key, value);
                 if (previous != null && !previous.equals(value)) {
-                    throw new IllegalArgumentException("Conflicting Unified translation for " + language + ": " + key
-                            + " (" + previous + " / " + value + ")");
+                    throw new IllegalArgumentException("Conflicting Unified translation for " + language + ": " + key + " (" + previous + " / " + value + ")");
                 }
             };
             requests.requests(modId).forEach(request -> {
@@ -322,19 +327,19 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                     case ITEM -> "item";
                     case ENTITY -> "entity";
                 };
-                collected.add(kind + "." + translation.id().getNamespace() + "." + translation.id().getPath(),
+                collected.accept(kind + "." + translation.id().getNamespace() + "." + translation.id().getPath(),
                         name != null ? name : autoName(translation.id().getPath()));
             });
             entries.forEach(translations::add);
         }
 
-        private static void injectTranslations(TranslationBuilder translations, String path) {
+        private static void injectTranslations(BiConsumer<String, String> translations, String path) {
             String normalized = path.startsWith("/") ? path.substring(1) : path;
             try (InputStream stream = FabricDatagenProvider.class.getClassLoader().getResourceAsStream(normalized)) {
                 if (stream == null) throw new IllegalArgumentException("Injected translation resource does not exist: " + path);
                 try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                     JsonObject injected = JsonParser.parseReader(reader).getAsJsonObject();
-                    injected.entrySet().forEach(entry -> translations.add(entry.getKey(), entry.getValue().getAsString()));
+                    injected.entrySet().forEach(entry -> translations.accept(entry.getKey(), entry.getValue().getAsString()));
                 }
             } catch (IOException exception) {
                 throw new IllegalStateException("Failed to read injected translations " + path, exception);
@@ -554,8 +559,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             }
         }
 
-        private static final class RecipeBootstrapContext extends ConditionalBootstrapContext<Recipe<?>>
-                implements FabricRecipeOutput {
+        private static final class RecipeBootstrapContext extends ConditionalBootstrapContext<Recipe<?>> implements FabricRecipeOutput {
             private final String modId;
 
             private RecipeBootstrapContext(HolderLookup.Provider registries, String modId) {

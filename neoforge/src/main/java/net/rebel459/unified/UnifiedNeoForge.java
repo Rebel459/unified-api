@@ -19,7 +19,6 @@ public class UnifiedNeoForge {
         Unified.initRegistries();
         modEventBus.addListener((NewRegistryEvent _) -> Unified.completeRegistries());
         modEventBus.addListener(UnifiedNeoForge::commonSetup);
-        modEventBus.addListener(NeoForgeHelpers.CreativeEntries::buildContents);
         modEventBus.addListener(NeoForgeHelpers.DataPacks::addFeaturePacks);
         modEventBus.addListener(NeoForgeUnifiedRegistries.Blocks::modifyBlockEntities);
         modEventBus.addListener(NeoForgeHelpers.Networking::register);
