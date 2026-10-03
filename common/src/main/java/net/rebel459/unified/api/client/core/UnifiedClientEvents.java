@@ -53,16 +53,16 @@ public class UnifiedClientEvents {
         }
     }
 
-    public static class Hud {
+    public static class Gui {
 
-        private Hud() {}
+        private Gui() {}
 
-        public static void renderCrosshair(CommonClientEvents.Hud.Entry entry) {
-            CommonClientEvents.Hud.CROSSHAIR_ENTRIES.add(entry);
+        public static void renderCrosshair(CommonClientEvents.Gui.Entry entry) {
+            CommonClientEvents.Gui.CROSSHAIR_ENTRIES.add(entry);
         }
 
-        public static void renderHotbar(CommonClientEvents.Hud.Entry entry) {
-            CommonClientEvents.Hud.HOTBAR_ENTRIES.add(entry);
+        public static void renderHotbar(CommonClientEvents.Gui.Entry entry) {
+            CommonClientEvents.Gui.HOTBAR_ENTRIES.add(entry);
         }
     }
 

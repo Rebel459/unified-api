@@ -1,7 +1,7 @@
 package net.rebel459.unified.api.core;
 
 import net.minecraft.core.Holder;
-import net.minecraft.references.BlockItemId;
+import net.rebel459.unified.impl.util.BlockItemId;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;

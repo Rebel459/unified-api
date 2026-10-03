@@ -1,18 +1,18 @@
 package net.rebel459.unified.api.util;
 
-import net.minecraft.advancements.predicates.DamageSourcePredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Holder;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.frog.FrogVariant;
 import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.level.block.ColorCollection;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+
+import java.util.Map;
 
 public class EntityLootProvider extends EntityLootSubProvider {
 
@@ -22,7 +22,7 @@ public class EntityLootProvider extends EntityLootSubProvider {
 
     @Override public void generate() {}
 
-    public static LootPool.Builder createSheepDispatchPool(ColorCollection<ResourceKey<LootTable>> tableNames) {
+    public static LootPool.Builder createSheepDispatchPool(Map<DyeColor, ResourceKey<LootTable>> tableNames) {
         return EntityLootSubProvider.createSheepDispatchPool(tableNames);
     }
 

@@ -1,10 +1,8 @@
 package net.rebel459.unified.api.data.registry;
 
 import com.mojang.datafixers.util.Either;
-import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlag;
@@ -19,7 +17,6 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.phys.AABB;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
@@ -34,6 +31,8 @@ import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.data.registry.BlockRegistry;
+import net.rebel459.unified.impl.util.BlockItemId;
+import net.rebel459.unified.impl.util.BlockItemTagId;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -299,13 +298,13 @@ public class BlockGenerator {
             return postProcess(register(ExtensibleCodecs.POST_PROCESS, postProcess));
         }
 
-        public Properties emissiveRendering(ExtensibleCodec.Entry<Predicate<BlockState>> emissiveRendering) {
+        public Properties emissiveRendering(ExtensibleCodec.Entry<BlockBehaviour.StatePredicate> emissiveRendering) {
             definition.emissiveRendering = Optional.of(emissiveRendering);
             return this;
         }
 
-        public Properties emissiveRendering(Predicate<BlockState> emissiveRendering) {
-            return emissiveRendering(register(ExtensibleCodecs.BLOCK_PREDICATE, emissiveRendering));
+        public Properties emissiveRendering(BlockBehaviour.StatePredicate emissiveRendering) {
+            return emissiveRendering(register(ExtensibleCodecs.STATE_PREDICATE, emissiveRendering));
         }
 
         public Properties requiresCorrectToolForDrops(boolean requiresCorrectToolForDrops) {

@@ -180,11 +180,29 @@ public class ColoredItemSet {
         else itemType = ExtensibleCodecs.ITEM.register(Identifier.fromNamespaceAndPath(id.getNamespace(), name), () -> getSettings().type.right().get().apply(dye)).create();
         SuppliedItem item = items.register(name, itemType, builder -> {
             getSettings().builder.accept(dye, builder);
-            if (getSettings().dyeRecipe != null) builder.data(data -> data.recipes((currentItem, provider) -> {
+            if (getSettings().dyeRecipe != null && dye != null) builder.data(data -> data.recipes((currentItem, provider) -> {
                 List<SuppliedItem> otherItems = registeredItems.stream()
                         .filter(otherItem -> getDyeFromItem(otherItem) != dye)
                         .toList();
-                getSettings().dyeRecipe.accept(Items.DYE.pick(dye), otherItems, currentItem, provider);
+                Item dyeItem = switch (dye) {
+                    case WHITE -> Items.WHITE_DYE;
+                    case ORANGE -> Items.ORANGE_DYE;
+                    case MAGENTA -> Items.MAGENTA_DYE;
+                    case LIGHT_BLUE -> Items.LIGHT_BLUE_DYE;
+                    case YELLOW -> Items.YELLOW_DYE;
+                    case LIME -> Items.LIME_DYE;
+                    case PINK -> Items.PINK_DYE;
+                    case GRAY -> Items.GRAY_DYE;
+                    case LIGHT_GRAY -> Items.LIGHT_GRAY_DYE;
+                    case CYAN -> Items.CYAN_DYE;
+                    case PURPLE -> Items.PURPLE_DYE;
+                    case BLUE -> Items.BLUE_DYE;
+                    case BROWN -> Items.BROWN_DYE;
+                    case GREEN -> Items.GREEN_DYE;
+                    case RED -> Items.RED_DYE;
+                    case BLACK -> Items.BLACK_DYE;
+                };
+                getSettings().dyeRecipe.accept(dyeItem, otherItems, currentItem, provider);
             }));
         });
         dyesByItem.put(item, dye);

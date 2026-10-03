@@ -98,26 +98,26 @@ public class CommonClientEvents {
         }
     }
 
-    public static class Hud {
+    public static class Gui {
 
-        private Hud() {}
+        private Gui() {}
 
         public interface Entry {
-            void register(net.minecraft.client.gui.Hud hud, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
+            void register(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
         }
 
-        public static final List<CommonClientEvents.Hud.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
+        public static final List<Gui.Entry> CROSSHAIR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void passRenderCrosshair(net.minecraft.client.gui.Hud hud, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
-            for (Hud.Entry entry : CROSSHAIR_ENTRIES) {
-                entry.register(hud, graphics, deltaTracker);
+        public static void passRenderCrosshair(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+            for (Gui.Entry entry : CROSSHAIR_ENTRIES) {
+                entry.register(gui, graphics, deltaTracker);
             }
         }
-        public static final List<CommonClientEvents.Hud.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
+        public static final List<Gui.Entry> HOTBAR_ENTRIES = new CopyOnWriteArrayList<>();
 
-        public static void passRenderHotbar(net.minecraft.client.gui.Hud hud, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
-            for (Hud.Entry entry : HOTBAR_ENTRIES) {
-                entry.register(hud, graphics, deltaTracker);
+        public static void passRenderHotbar(net.minecraft.client.gui.Gui gui, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+            for (Gui.Entry entry : HOTBAR_ENTRIES) {
+                entry.register(gui, graphics, deltaTracker);
             }
         }
     }

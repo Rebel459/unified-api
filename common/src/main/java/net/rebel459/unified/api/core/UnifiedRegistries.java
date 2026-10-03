@@ -2,7 +2,7 @@ package net.rebel459.unified.api.core;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.references.BlockItemId;
+import net.rebel459.unified.impl.util.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;

@@ -103,13 +103,13 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.CROP, (definition, context) -> context.generator().createCropBlock(context.block, definition.property(), IntStream.range(0, definition.stages()).toArray()));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.COPIED_PARTICLE_ONLY, (definition, context) -> context.generator().createParticleOnlyBlock(context.block, definition.asBlock()));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.WOOD, (definition, context) -> context.generator().woodProvider(definition.asBlock()).wood(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.HANGING_SIGN, FabricDatagenProvider::createHangingSignModels);
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.HANGING_SIGN, (definition, context) -> context.generator().createHangingSign(definition.strippedLog().asBlock(), context.block, definition.wallHangingSign().asBlock()));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SHELF, (definition, context) -> context.generator().createShelf(context.block, definition.asBlock()));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.BUTTON, (definition, context) -> context.family(definition.asBlock()).button(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE, (definition, context) -> context.family(definition.asBlock()).fence(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.FENCE_GATE, (definition, context) -> context.family(definition.asBlock()).fenceGate(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PRESSURE_PLATE, (definition, context) -> context.family(definition.asBlock()).pressurePlate(context.block));
-        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SIGN, FabricDatagenProvider::createSignModels);
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.SIGN, (definition, context) -> context.family(definition.asBlock()).sign(context.block));
 
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.GENERATED, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_ITEM));
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.HANDHELD, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_ITEM));
@@ -162,53 +162,6 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             case NOT_TINTED -> BlockModelGenerators.PlantType.NOT_TINTED;
             case EMISSIVE_NOT_TINTED -> BlockModelGenerators.PlantType.EMISSIVE_NOT_TINTED;
         };
-    }
-
-    private static void createHangingSignModels(BlockAssets.HangingSign definition, BlockModelContext context) {
-        TextureMapping textures = new TextureMapping()
-                .put(TextureSlot.ALL, TextureMapping.getBlockTexture(context.block()))
-                .put(TextureSlot.PARTICLE, TextureMapping.getBlockTexture(definition.strippedLog().asBlock()));
-        MultiVariant hanging0 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_0.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_0"), textures, context.generator().modelOutput));
-        MultiVariant hanging1 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_1.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_1"), textures, context.generator().modelOutput));
-        MultiVariant hanging2 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_2.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_2"), textures, context.generator().modelOutput));
-        MultiVariant hanging3 = BlockModelGenerators.plainVariant(ModelTemplates.HANGING_SIGN_ROT_3.create(ModelLocationUtils.getModelLocation(context.block(), "_rot_3"), textures, context.generator().modelOutput));
-        MultiVariant attached0 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_0.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_0"), textures, context.generator().modelOutput));
-        MultiVariant attached1 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_1.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_1"), textures, context.generator().modelOutput));
-        MultiVariant attached2 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_2.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_2"), textures, context.generator().modelOutput));
-        MultiVariant attached3 = BlockModelGenerators.plainVariant(ModelTemplates.ATTACHED_HANGING_SIGN_ROT_3.create(ModelLocationUtils.getModelLocation(context.block(), "_attached_rot_3"), textures, context.generator().modelOutput));
-        context.generator().blockStateOutput.accept(BlockModelGenerators.createHangingSign(
-                context.block(), hanging0, hanging1, hanging2, hanging3, attached0, attached1, attached2, attached3
-        ));
-
-        Identifier wallModel = ModelTemplates.WALL_HANGING_SIGN.create(definition.wallHangingSign().asBlock(), textures, context.generator().modelOutput);
-        context.generator().blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                definition.wallHangingSign().asBlock(), BlockModelGenerators.plainVariant(wallModel)
-        ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING_ALT));
-        context.generator().registerSimpleFlatItemModel(context.block().asItem());
-    }
-
-    private static void createSignModels(BlockAssets.Sign definition, BlockModelContext context) {
-        TextureMapping textures = new TextureMapping()
-                .put(TextureSlot.ALL, TextureMapping.getBlockTexture(context.block()))
-                .put(TextureSlot.PARTICLE, TextureMapping.getBlockTexture(definition.base().asBlock()));
-        MultiVariant sign0 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_0.create(
-                ModelLocationUtils.getModelLocation(context.block(), "_rot_0"), textures, context.generator().modelOutput));
-        MultiVariant sign1 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_1.create(
-                ModelLocationUtils.getModelLocation(context.block(), "_rot_1"), textures, context.generator().modelOutput));
-        MultiVariant sign2 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_2.create(
-                ModelLocationUtils.getModelLocation(context.block(), "_rot_2"), textures, context.generator().modelOutput));
-        MultiVariant sign3 = BlockModelGenerators.plainVariant(ModelTemplates.SIGN_ROT_3.create(
-                ModelLocationUtils.getModelLocation(context.block(), "_rot_3"), textures, context.generator().modelOutput));
-        context.generator().blockStateOutput.accept(BlockModelGenerators.createSign(
-                context.block(), sign0, sign1, sign2, sign3
-        ));
-
-        Block wallSign = definition.wallSign().asBlock();
-        Identifier wallModel = ModelTemplates.WALL_SIGN.create(wallSign, textures, context.generator().modelOutput);
-        context.generator().blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                wallSign, BlockModelGenerators.plainVariant(wallModel)
-        ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING_ALT));
-        context.generator().registerSimpleFlatItemModel(context.block().asItem());
     }
 
     @Override

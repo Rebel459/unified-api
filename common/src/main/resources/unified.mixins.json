@@ -28,7 +28,7 @@
     "client.AbstractContainerScreenMixin",
     "client.ClientLevelMixin",
     "client.EntityRenderersMixin",
-    "client.HudMixin",
+    "client.GuiMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemStackMixin",
     "client.LivingEntityRendererMixin",

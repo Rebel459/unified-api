@@ -3,11 +3,9 @@ package net.rebel459.unified.api.registry;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.rebel459.unified.api.codec.ExtensibleBlockPredicateCodec;
 
 import java.util.Optional;
@@ -31,7 +29,7 @@ public class VanillaBlockPredicateCodecs {
     public static final ExtensibleBlockPredicateCodec.Simple NOT_EXTENDED_PISTON = simple("not_extended_piston", Blocks.NOT_EXTENDED_PISTON);
     public static final ExtensibleBlockPredicateCodec.Simple DEFAULT = simple("default", (state, level, pos) -> state.isFaceSturdy(level, pos, Direction.UP) && state.getLightEmission() < 14);
     public static final ExtensibleBlockPredicateCodec.Simple OCELOT_OR_PARROT = simpleEntity("ocelot_or_parrot", Blocks::ocelotOrParrot);
-    public static final ExtensibleBlockPredicateCodec.Simple POLAR_BEAR = simpleEntity("polar_bear", (_, _, _, entity) -> entity == EntityTypes.POLAR_BEAR);
+    public static final ExtensibleBlockPredicateCodec.Simple POLAR_BEAR = simpleEntity("polar_bear", (_, _, _, entity) -> entity == EntityType.POLAR_BEAR);
 
     public static void init() {}
 }

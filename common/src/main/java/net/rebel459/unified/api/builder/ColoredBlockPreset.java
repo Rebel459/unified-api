@@ -22,12 +22,12 @@ public final class ColoredBlockPreset {
     public static final ColoredBlockPreset WOOL = create()
             .builder((_, builder) -> builder
                     .properties(properties -> properties
-                            .copyFrom(Blocks.WOOL::white)
+                            .copyFrom(() -> Blocks.WHITE_WOOL)
                             .flammable(30, 60)
                     )
                     .data(data -> data
                             .dropSelf()
-                            .tag(BlockTags.SHEARS_MAJOR_BREAKING_SPEED)
+                            .tag(BlockTags.WOOL)
                     )
                     .itemProperties(itemProperties -> itemProperties
                             .component(UnifiedDataComponents.FURNACE_FUEL.get(), 100)
@@ -46,7 +46,7 @@ public final class ColoredBlockPreset {
     public static final ColoredBlockPreset DYED_TERRACOTTA = create()
             .builder((_, builder) ->
                     builder.properties(properties -> properties
-                                    .copyFrom(Blocks.DYED_TERRACOTTA::white)
+                                    .copyFrom(() -> Blocks.WHITE_TERRACOTTA)
                             )
                             .data(data -> data
                                     .dropSelf()
@@ -59,7 +59,7 @@ public final class ColoredBlockPreset {
     public static final ColoredBlockPreset CONCRETE = create()
             .builder((_, builder) -> builder
                     .properties(properties -> properties
-                            .copyFrom(Blocks.CONCRETE::white)
+                            .copyFrom(() -> Blocks.WHITE_CONCRETE)
                     )
                     .data(data -> data
                             .dropSelf()
@@ -71,7 +71,7 @@ public final class ColoredBlockPreset {
     public static final ColoredBlockPreset CONCRETE_POWDER = create()
             .builder((_, builder) -> builder
                     .properties(properties -> properties
-                            .copyFrom(Blocks.CONCRETE_POWDER::white)
+                            .copyFrom(() -> Blocks.WHITE_CONCRETE_POWDER)
                     )
                     .data(data -> data
                             .dropSelf()

@@ -15,7 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
@@ -37,6 +37,7 @@ import net.rebel459.unified.api.registry.*;
 import net.rebel459.unified.api.util.BlockLootProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.builder.WoodSetProperties;
+import net.rebel459.unified.impl.util.BlockItemTagId;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,7 +105,6 @@ public class WoodSet {
         var logTag = tags.create(this.logTag);
 
         planks = createPlanks();
-        tags.create(BlockItemTags.PLANKS).add(planks.blockItemId());
 
         log = createLog();
         logTag.add(log.blockItemId());
@@ -499,7 +499,7 @@ public class WoodSet {
                     )
                     .data(data -> data
                             .loot(entry.loot)
-                            .tag(BlockItemTags.LEAVES)
+                            .tag(new BlockItemTagId(BlockTags.LEAVES, ItemTags.LEAVES))
                     )
                     .itemProperties(itemProperties -> itemProperties
                             .component(UnifiedDataComponents.COMPOST.get(), 0.3F)
@@ -523,7 +523,7 @@ public class WoodSet {
                         )
                         .data(data -> data
                                 .dropSelf()
-                                .tag(BlockItemTags.SAPLINGS)
+                                .tag(new BlockItemTagId(BlockTags.SAPLINGS, ItemTags.SAPLINGS))
                         )
                         .itemProperties(itemProperties -> {
                             itemProperties.component(UnifiedDataComponents.COMPOST.get(), 0.3F);
@@ -565,7 +565,7 @@ public class WoodSet {
                                 .simpleCube()
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.PLANKS)
+                                .tag(new BlockItemTagId(BlockTags.PLANKS, ItemTags.PLANKS))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.planksFromLog(item, logTag.item(), getSettings().planksFromLog))
                         )
@@ -586,7 +586,7 @@ public class WoodSet {
                                 .model(BlockAssets.STAIRS, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_STAIRS)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_STAIRS, ItemTags.WOODEN_STAIRS))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.stairBuilder(item, Ingredient.of(getPlanks()))
                                         .unlockedBy(RecipeProvider.getHasName(getPlanks()), provider.has(getPlanks()))
@@ -610,7 +610,7 @@ public class WoodSet {
                                 .model(BlockAssets.SLAB, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_SLABS)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_SLABS, ItemTags.WOODEN_SLABS))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.slab(RecipeCategory.BUILDING_BLOCKS, item, getPlanks()))
                         )
@@ -676,7 +676,7 @@ public class WoodSet {
                                 .model(BlockAssets.SLAB, getMosaic())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_SLABS)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_SLABS, ItemTags.WOODEN_SLABS))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.slab(RecipeCategory.BUILDING_BLOCKS, item, getMosaic()))
                         )
@@ -698,7 +698,7 @@ public class WoodSet {
                                 .model(BlockAssets.FENCE, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_FENCES)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_FENCES, ItemTags.WOODEN_FENCES))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.fenceBuilder(item, Ingredient.of(getPlanks()))
                                         .unlockedBy(RecipeProvider.getHasName(getPlanks()), provider.has(getPlanks()))
@@ -723,7 +723,7 @@ public class WoodSet {
                                 .model(BlockAssets.FENCE_GATE, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.FENCE_GATES)
+                                .tag(new BlockItemTagId(BlockTags.FENCE_GATES, ItemTags.FENCE_GATES))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.fenceGateBuilder(item, Ingredient.of(getPlanks()))
                                         .unlockedBy(RecipeProvider.getHasName(getPlanks()), provider.has(getPlanks()))
@@ -750,7 +750,7 @@ public class WoodSet {
                                 .model(BlockAssets.PRESSURE_PLATE, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_PRESSURE_PLATES)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_PRESSURE_PLATES, ItemTags.WOODEN_PRESSURE_PLATES))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.pressurePlate(item, getPlanks()))
                         )
@@ -775,7 +775,7 @@ public class WoodSet {
                                 .model(BlockAssets.BUTTON, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_BUTTONS)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_BUTTONS, ItemTags.WOODEN_BUTTONS))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.buttonBuilder(item, Ingredient.of(getPlanks()))
                                         .unlockedBy(RecipeProvider.getHasName(getPlanks()), provider.has(getPlanks()))
@@ -802,7 +802,7 @@ public class WoodSet {
                                 .model(BlockAssets.DOOR)
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_DOORS)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_DOORS, ItemTags.WOODEN_DOORS))
                                 .loot((block, provider) -> provider.createDoorTable(block))
                                 .recipes((item, provider) -> provider.doorBuilder(item, Ingredient.of(getPlanks()))
                                         .unlockedBy(RecipeProvider.getHasName(getPlanks()), provider.has(getPlanks()))
@@ -829,7 +829,7 @@ public class WoodSet {
                                 .model(BlockAssets.TRAPDOOR)
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_TRAPDOORS)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_TRAPDOORS, ItemTags.WOODEN_TRAPDOORS))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.trapdoorBuilder(item, Ingredient.of(getPlanks()))
                                         .unlockedBy(RecipeProvider.getHasName(getPlanks()), provider.has(getPlanks()))
@@ -853,14 +853,14 @@ public class WoodSet {
                                 .strength(1F)
                         )
                         .assets(assets -> assets
-                                .model(BlockAssets.SIGN, new BlockAssets.Sign(getPlanks(), getWallSign()))
+                                .model(BlockAssets.SIGN, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.SIGNS)
+                                .tag(new BlockItemTagId(BlockTags.SIGNS, ItemTags.SIGNS))
                                 .tag(BlockTags.STANDING_SIGNS)
                                 .dropSelf()
                         )
-                        .blockEntity(() -> BlockEntityTypes.SIGN)
+                        .blockEntity(() -> BlockEntityType.SIGN)
         );
     }
     private SuppliedBlock createWallSign(){
@@ -876,7 +876,7 @@ public class WoodSet {
                                 .tag(BlockTags.WALL_SIGNS)
                                 .dropSelf()
                         )
-                        .blockEntity(() -> BlockEntityTypes.SIGN)
+                        .blockEntity(() -> BlockEntityType.SIGN)
         );
     }
 
@@ -895,11 +895,10 @@ public class WoodSet {
                                 .model(BlockAssets.HANGING_SIGN, new BlockAssets.HangingSign(getStrippedLog(), getWallHangingSign()))
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.HANGING_SIGNS)
                                 .tag(BlockTags.CEILING_HANGING_SIGNS)
                                 .dropSelf()
                         )
-                        .blockEntity(() -> BlockEntityTypes.HANGING_SIGN)
+                        .blockEntity(() -> BlockEntityType.HANGING_SIGN)
         );
     }
     private SuppliedBlock createWallHangingSign() {
@@ -915,7 +914,7 @@ public class WoodSet {
                                 .tag(BlockTags.WALL_HANGING_SIGNS)
                                 .dropSelf()
                         )
-                        .blockEntity(() -> BlockEntityTypes.HANGING_SIGN)
+                        .blockEntity(() -> BlockEntityType.HANGING_SIGN)
         );
     }
 
@@ -933,14 +932,14 @@ public class WoodSet {
                                 .model(BlockAssets.SHELF, getPlanks())
                         )
                         .data(data -> data
-                                .tag(BlockItemTags.WOODEN_SHELVES)
+                                .tag(new BlockItemTagId(BlockTags.WOODEN_SHELVES, ItemTags.WOODEN_SHELVES))
                                 .dropSelf()
                                 .recipes((item, provider) -> provider.shelf(item, getStrippedLog()))
                         )
                         .itemProperties(itemProperties -> {
                             if (settings.isFlammable) itemProperties.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
                         })
-                        .blockEntity(() -> BlockEntityTypes.SHELF)
+                        .blockEntity(() -> BlockEntityType.SHELF)
         );
     }
 
@@ -971,10 +970,7 @@ public class WoodSet {
                             properties.stacksTo(16);
                         })
                         .data(data -> data
-                                .recipes((item, provider) -> provider.hangingSignBuilder(item, Ingredient.of(getStrippedLog()))
-                                        .unlockedBy(RecipeProvider.getHasName(getPlanks()), provider.has(getPlanks()))
-                                        .save(provider.output)
-                                )
+                                .recipes((item, provider) -> provider.hangingSign(item, getStrippedLog()))
                         )
         );
     }

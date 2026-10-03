@@ -24,7 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.SuspiciousStewEffects;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
@@ -210,8 +210,8 @@ public class VanillaBlockCodecs {
     public static final ExtensibleBlockCodec.Simple PITCHER_CROP = simple("pitcher_crop", PitcherCropBlock::new);
     public static final ExtensibleBlockCodec.Simple PLAYER_HEAD = simple("player_head", PlayerHeadBlock::new);
     public static final ExtensibleBlockCodec.Simple PLAYER_WALL_HEAD = simple("player_wall_head", PlayerWallHeadBlock::new);
+    public static final ExtensibleBlockCodec.Simple POINTED_DRIPSTONE = simple("pointed_dripstone", PointedDripstoneBlock::new);
     public static final ExtensibleBlockCodec.Simple POTATO = simple("potato", PotatoBlock::new);
-    public static final ExtensibleBlockCodec.Simple POTENT_SULFUR = simple("potent_sulfur", PotentSulfurBlock::new);
     public static final ExtensibleBlockCodec.Simple POWDER_SNOW = simple("powder_snow", PowderSnowBlock::new);
     public static final ExtensibleBlockCodec.Simple POWERED_BLOCK = simple("powered_block", PoweredBlock::new);
     public static final ExtensibleBlockCodec.Simple POWERED_RAIL = simple("powered_rail", PoweredRailBlock::new);
@@ -303,7 +303,7 @@ public class VanillaBlockCodecs {
     public static final ExtensibleBlockCodec.Complex<WoodType> CEILING_HANGING_SIGN = complex(
             "ceiling_hanging_sign", WOOD_TYPE_CODEC, CeilingHangingSignBlock::new);
     public static final ExtensibleBlockCodec.Complex<Chest> CHEST = complex(
-            "chest", Chest.CODEC, (definition, properties) -> new ChestBlock(() -> BlockEntityTypes.CHEST, definition.openSound, definition.closeSound, properties));
+            "chest", Chest.CODEC, (definition, properties) -> new ChestBlock(() -> BlockEntityType.CHEST, definition.openSound, definition.closeSound, properties));
     public static final ExtensibleBlockCodec.Complex<Block> CHORUS_FLOWER = complex(
             "chorus_flower", BuiltInRegistries.BLOCK.byNameCodec().fieldOf("plant"), ChorusFlowerBlock::new);
     public static final ExtensibleBlockCodec.Complex<ColorRGBA> COLORED_FALLING_BLOCK = complex(
@@ -348,8 +348,6 @@ public class VanillaBlockCodecs {
             "nether_roots", SUPPORT_BLOCKS_CODEC, NetherRootsBlock::new);
     public static final ExtensibleBlockCodec.Complex<Boolean> PISTON_BASE = complex(
             "piston_base", Codec.BOOL.fieldOf("sticky"), PistonBaseBlock::new);
-    public static final ExtensibleBlockCodec.Complex<Block> POINTED_DRIPSTONE = complex(
-            "pointed_dripstone", BASE_BLOCK_CODEC, (definition, properties) -> new PointedDripstoneBlock(definition.defaultBlockState(), properties));
     public static final ExtensibleBlockCodec.Complex<BlockSetType> PRESSURE_PLATE = complex(
             "pressure_plate", BLOCK_SET_TYPE_CODEC, PressurePlateBlock::new);
     public static final ExtensibleBlockCodec.Complex<ColorRGBA> SAND = complex(
@@ -373,8 +371,6 @@ public class VanillaBlockCodecs {
                     definition.fruit.builtInRegistryHolder().key(), definition.attachedStem.builtInRegistryHolder().key(),
                     definition.seed.builtInRegistryHolder().key(), definition.stemSupportBlocks,
                     definition.fruitSupportBlocks, properties));
-    public static final ExtensibleBlockCodec.Complex<BlockState> SULFUR_SPIKE = complex(
-            "sulfur_spike", BlockState.CODEC.fieldOf("block_state_to_grow_on"), SulfurSpikeBlock::new);
     public static final ExtensibleBlockCodec.Complex<Float> TINTED_PARTICLE_LEAVES = complex(
             "tinted_particle_leaves", LEAF_PARTICLE_CHANCE_CODEC, TintedParticleLeavesBlock::new);
     public static final ExtensibleBlockCodec.Complex<SimpleParticleType> TORCH = complex(

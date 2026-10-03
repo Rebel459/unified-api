@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.references.BlockItemId;
+import net.rebel459.unified.impl.util.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -120,7 +120,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
         public Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> suffocating = Optional.empty();
         public Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> viewBlocking = Optional.empty();
         public Optional<ExtensibleCodec.Entry<BlockBehaviour.PostProcess>> postProcess = Optional.empty();
-        public Optional<ExtensibleCodec.Entry<Predicate<BlockState>>> emissiveRendering = Optional.empty();
+        public Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> emissiveRendering = Optional.empty();
         public Optional<Boolean> requiresCorrectToolForDrops = Optional.empty();
         public Optional<BlockBehaviour.OffsetType> offset = Optional.empty();
         public Optional<Boolean> spawnTerrainParticles = Optional.empty();
@@ -161,7 +161,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("suffocating").forGetter(Second::suffocating),
                 ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("view_blocking").forGetter(Second::viewBlocking),
                 ExtensibleCodecs.POST_PROCESS.codec().optionalFieldOf("post_process").forGetter(Second::postProcess),
-                ExtensibleCodecs.BLOCK_PREDICATE.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
+                ExtensibleCodecs.STATE_PREDICATE.codec().optionalFieldOf("emissive_rendering").forGetter(Second::emissiveRendering),
                 Codec.BOOL.optionalFieldOf("requires_correct_tool_for_drops").forGetter(Second::requiresCorrectToolForDrops),
                 UnifiedCodecs.named(BlockBehaviour.OffsetType.class).optionalFieldOf("offset").forGetter(Second::offset),
                 Codec.BOOL.optionalFieldOf("spawn_terrain_particles").forGetter(Second::spawnTerrainParticles),
@@ -293,7 +293,7 @@ public class BlockRegistry extends RegistryResourceListener<BlockRegistry.Defini
                 Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> suffocating,
                 Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> viewBlocking,
                 Optional<ExtensibleCodec.Entry<BlockBehaviour.PostProcess>> postProcess,
-                Optional<ExtensibleCodec.Entry<Predicate<BlockState>>> emissiveRendering,
+                Optional<ExtensibleCodec.Entry<BlockBehaviour.StatePredicate>> emissiveRendering,
                 Optional<Boolean> requiresCorrectToolForDrops,
                 Optional<BlockBehaviour.OffsetType> offset,
                 Optional<Boolean> spawnTerrainParticles,

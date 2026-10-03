@@ -10,10 +10,11 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.api.core.*;
+import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.helper.RecipeGenerator;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
@@ -21,14 +22,17 @@ import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.api.util.QuadConsumer;
-import net.rebel459.unified.impl.builder.ColoredBlockSetProperties;
 import net.rebel459.unified.api.util.RecipeProvider;
+import net.rebel459.unified.impl.builder.ColoredBlockSetProperties;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ColoredBlockSet {
 
@@ -195,10 +199,28 @@ public class ColoredBlockSet {
             ExtensibleCodec.Entry<BiFunction<Block, Item.Properties, Item>> itemType = getSettings().separateItems.getMiddle().apply(dye);
             items.registerBlockItem(block, itemType, builder -> getSettings().separateItems.getRight().accept(dye, builder));
         }
-        if (getSettings().dyeRecipe != null) {
+        if (getSettings().dyeRecipe != null && dye != null) {
             recipes.add(provider -> {
                 List<SuppliedBlock> otherBlocks = registeredBlocks.stream().filter(otherBlock -> otherBlock != block).toList();
-                getSettings().dyeRecipe.accept(Items.DYE.pick(dye), otherBlocks, BuiltInRegistries.ITEM.getOrThrow(block.blockItemId().item()).value(), provider);
+                Item dyeItem = switch (dye) {
+                    case WHITE -> Items.WHITE_DYE;
+                    case ORANGE -> Items.ORANGE_DYE;
+                    case MAGENTA -> Items.MAGENTA_DYE;
+                    case LIGHT_BLUE -> Items.LIGHT_BLUE_DYE;
+                    case YELLOW -> Items.YELLOW_DYE;
+                    case LIME -> Items.LIME_DYE;
+                    case PINK -> Items.PINK_DYE;
+                    case GRAY -> Items.GRAY_DYE;
+                    case LIGHT_GRAY -> Items.LIGHT_GRAY_DYE;
+                    case CYAN -> Items.CYAN_DYE;
+                    case PURPLE -> Items.PURPLE_DYE;
+                    case BLUE -> Items.BLUE_DYE;
+                    case BROWN -> Items.BROWN_DYE;
+                    case GREEN -> Items.GREEN_DYE;
+                    case RED -> Items.RED_DYE;
+                    case BLACK -> Items.BLACK_DYE;
+                };
+                getSettings().dyeRecipe.accept(dyeItem, otherBlocks, BuiltInRegistries.ITEM.getOrThrow(block.blockItemId().item()).value(), provider);
             });
         }
 
@@ -258,7 +280,7 @@ public class ColoredBlockSet {
         }
     }
 
-    public static class PresetBuilder extends ColoredBlockSet.Builder<PresetBuilder> {
+    public static class PresetBuilder extends Builder<PresetBuilder> {
 
         public PresetBuilder() {
             super();

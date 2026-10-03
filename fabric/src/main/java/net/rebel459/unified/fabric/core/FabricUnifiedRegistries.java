@@ -6,7 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.references.BlockItemId;
+import net.rebel459.unified.impl.util.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -68,7 +68,7 @@ public class FabricUnifiedRegistries {
         public <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             SuppliedItem existing = StagedRegistry.getClaimed(id.item());
             if (existing != null) return existing;
-            Item item = net.minecraft.world.item.Items.registerBlock(id, block.get(), function, properties.get());
+            Item item = net.minecraft.world.item.Items.registerBlock(block.get(), function, properties.get());
             return new SuppliedItem(id.item(), () -> item, () -> BuiltInRegistries.ITEM.getOrThrow(id.item()));
         }
 
@@ -87,7 +87,7 @@ public class FabricUnifiedRegistries {
             SuppliedBlock existing = StagedRegistry.getClaimed(blockItemId.block());
             if (existing != null) return existing;
             Block block = Registry.register(BuiltInRegistries.BLOCK, blockItemId.block(), function.apply(blockProperties.get().setId(blockItemId.block())));
-            net.minecraft.world.item.Items.registerBlock(blockItemId, block, BlockItem::new, new Item.Properties());
+            net.minecraft.world.item.Items.registerBlock(block, BlockItem::new, new Item.Properties());
             return new SuppliedBlock(blockItemId, () -> block, () -> BuiltInRegistries.BLOCK.getOrThrow(blockItemId.block()));
         }
 

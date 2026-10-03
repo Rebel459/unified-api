@@ -1,5 +1,6 @@
 package net.rebel459.unified.impl.data.registry;
 
+import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.Holder;
@@ -114,13 +115,13 @@ public final class EntityCopier {
     private static EntityType<?> placeholder(ResourceKey<EntityType<?>> key) {
         Identifier id = key.identifier();
         return new EntityType<>(
-                (type, level) -> null,
+                (_, _) -> null,
                 MobCategory.MISC,
                 false,
                 false,
                 false,
                 false,
-                BlockTags.ANIMALS_SPAWNABLE_ON,
+                ImmutableSet.of(),
                 EntityDimensions.fixed(0.6F, 1.8F),
                 1F,
                 5,

@@ -1,13 +1,13 @@
 package net.rebel459.unified.api.data.helper;
 
-import net.minecraft.references.BlockItemId;
+import net.rebel459.unified.impl.util.BlockItemId;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.impl.core.DataProviders;
+import net.rebel459.unified.impl.util.BlockItemTagId;
 
 import java.util.ArrayList;
 import java.util.List;

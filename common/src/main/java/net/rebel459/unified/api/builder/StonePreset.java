@@ -114,24 +114,6 @@ public final class StonePreset {
             .baseBlockSuffix("block")
             .build();
 
-    public static final StonePreset SULFUR = create()
-            .setSoundType(() -> SoundType.SULFUR)
-            .hasChiseled(true)
-            .build();
-
-    public static final StonePreset POLISHED_SULFUR = createFrom(SULFUR)
-            .hasChiseled(false)
-            .build();
-
-    public static final StonePreset CINNABAR = create()
-            .setSoundType(() -> SoundType.CINNABAR)
-            .hasChiseled(true)
-            .build();
-
-    public static final StonePreset POLISHED_CINNABAR = createFrom(CINNABAR)
-            .hasChiseled(false)
-            .build();
-
     public static StoneSet.PresetBuilder create() {
         return createFrom(DEFAULT);
     }
