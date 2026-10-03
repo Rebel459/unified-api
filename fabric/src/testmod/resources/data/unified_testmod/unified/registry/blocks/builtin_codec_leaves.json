@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:untinted_particle_leaves",
+  "leaf_particle_chance": 0.01,
+  "leaf_particle": { "type": "unified_testmod:late_particle" }
+}

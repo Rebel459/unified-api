@@ -27,6 +27,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.rebel459.unified.fabric.util.FabricInitializerState;
 import net.rebel459.unified.impl.client.core.CommonClientHelpers;
 
 import java.util.function.Function;
@@ -51,7 +52,7 @@ public class FabricClientHelpers {
 
         @Override
         public <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
-            net.minecraft.client.renderer.entity.EntityRenderers.register(entityType.get(), entityRendererProvider);
+            FabricInitializerState.register(() -> net.minecraft.client.renderer.entity.EntityRenderers.register(entityType.get(), entityRendererProvider));
         }
 
         @Override

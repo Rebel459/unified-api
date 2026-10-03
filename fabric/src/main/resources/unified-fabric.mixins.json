@@ -6,6 +6,7 @@
     "block.ComposterBlockInputContainerMixin",
     "block.FabricComposterBlockMixin",
     "datagen.FabricLanguageProviderMixin",
+    "registry.BuiltInRegistriesMixin",
     "server.MinecraftServerMixin"
   ],
   "client": [

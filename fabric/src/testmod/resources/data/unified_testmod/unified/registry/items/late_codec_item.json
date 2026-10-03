@@ -1,0 +1,4 @@
+{
+  "type": "unified_testmod:late_item",
+  "properties": { "unified:furnace_fuel": 100 }
+}
