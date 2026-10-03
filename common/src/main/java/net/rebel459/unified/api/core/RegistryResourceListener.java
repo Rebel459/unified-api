@@ -123,7 +123,6 @@ public abstract class RegistryResourceListener<T> {
             return value.get();
         }
 
-        /** Decodes only priority & dependency metadata which must be known before registry factories are queued. */
         public <R> R decode(com.mojang.serialization.MapCodec<R> codec) {
             return decodeMetadata(codec.codec());
         }
