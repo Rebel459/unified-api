@@ -401,3 +401,4 @@ accessible method net/minecraft/world/level/block/WoolCarpetBlock <init> (Lnet/m
 accessible class net/minecraft/world/item/CreativeModeTab$TabVisibility
 
 accessible field net/minecraft/world/entity/ai/attributes/AttributeSupplier instances Ljava/util/Map;
+accessible method net/minecraft/world/level/biome/BiomeGenerationSettings <init> (Lnet/minecraft/core/HolderSet;Ljava/util/List;)V
