@@ -44,7 +44,7 @@ public final class NeoForgeBiomeModifications {
             if (phase != Phase.AFTER_EVERYTHING || !(biome instanceof Holder.Reference<Biome> reference) || !modification.targets().test(reference)) return;
 
             ModifiableBiomeInfo.BiomeInfo current = builder.build();
-            BiomeModifier editor = new BiomeModifier(provider, current.climateSettings(), current.generationSettings(), biome.value().getAttributes(), current.effects());
+            BiomeModifier editor = new BiomeModifier(provider, current.climateSettings(), current.generationSettings(), biome.value().getAttributes(), current.effects(), current.mobSpawnSettings());
 
             editor.apply(modification, reference);
             if (!editor.changed()) return;

@@ -180,12 +180,13 @@ public final class BiomeModifier extends BiomeModificationContext {
         }
     };
 
-    public BiomeModifier(HolderLookup.Provider provider, Biome.ClimateSettings climateSettings, BiomeGenerationSettings generationSettings, EnvironmentAttributeMap attributeMap, BiomeSpecialEffects specialEffects) {
+    public BiomeModifier(HolderLookup.Provider provider, Biome.ClimateSettings climateSettings, BiomeGenerationSettings generationSettings, EnvironmentAttributeMap attributeMap, BiomeSpecialEffects specialEffects, MobSpawnSettings mobSpawnSettings) {
         this.provider = provider;
         this.climateSettings = climateSettings;
         this.generationSettings = generationSettings;
         this.attributeMap = attributeMap;
         this.specialEffects = specialEffects;
+        this.mobSpawnSettings = Objects.requireNonNull(mobSpawnSettings, "mobSpawnSettings");
     }
 
     @Override public Worldgen getFeatures() { return worldgen; }

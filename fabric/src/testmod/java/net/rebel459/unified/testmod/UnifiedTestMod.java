@@ -5,13 +5,17 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.BlockItemTagId;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.rebel459.unified.impl.util.BlockItemTagId;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.UntintedParticleLeavesBlock;
+import net.minecraft.core.particles.SimpleParticleType;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.builder.StonePreset;
 import net.rebel459.unified.api.builder.StoneSet;
@@ -31,6 +35,8 @@ import net.rebel459.unified.fabric.FabricUnifiedInitializer;
 public final class UnifiedTestMod implements ModInitializer {
     public static final String MOD_ID = "unified_testmod";
 
+    private static final MapCodec<VanillaBlockCodecs.ParticleLeaves> LEAVES_CODEC = VanillaBlockCodecs.ParticleLeaves.CODEC;
+
     public static final UnifiedData DATA = UnifiedData.create(MOD_ID).autoName().build();
 
     public static final TagKey<Block> TEST_BLOCKS = TagKey.create(Registries.BLOCK, id("test_blocks"));
@@ -46,8 +52,20 @@ public final class UnifiedTestMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ExtensibleCodecs.BLOCK.register(id("late_block"), () -> Block::new);
+        ExtensibleCodecs.BLOCK.register(id("late_leaves"), LEAVES_CODEC, definition -> properties -> new UntintedParticleLeavesBlock(definition.chance(), definition.particle(), properties));
+        ExtensibleCodecs.ITEM.register(id("late_item"), () -> Item::new);
+        UnifiedRegistries.DeferredRegistry.create(MOD_ID, BuiltInRegistries.PARTICLE_TYPE).register("late_particle", () -> new SimpleParticleType(false) {});
+        UnifiedRegistries.Blocks.create(MOD_ID).registerWithoutItem("late_codec_leaves", Block::new, BlockBehaviour.Properties::of);
         FabricUnifiedInitializer.register(this::onInitializeCommon);
     }
 
-    private void onInitializeCommon() {}
+    private void onInitializeCommon() {
+        if (!BuiltInRegistries.BLOCK.containsKey(id("late_codec_block"))
+                || !BuiltInRegistries.ITEM.containsKey(id("late_codec_item"))
+                || !(BuiltInRegistries.BLOCK.getValue(id("late_codec_leaves")) instanceof UntintedParticleLeavesBlock)
+                || !(BuiltInRegistries.BLOCK.getValue(id("builtin_codec_leaves")) instanceof UntintedParticleLeavesBlock)) {
+            throw new IllegalStateException("Normal initializer codecs were not loaded before common initialization");
+        }
+    }
 }

@@ -127,7 +127,7 @@ public class WoodSet {
         }
         if (this.settings.sapling != null){
             sapling = createSapling();
-            pottedSapling = createPottedSapling(sapling);
+            pottedSapling = createPottedSapling();
         }
         stairs = createStairs();
         slab = createSlab();
@@ -531,7 +531,7 @@ public class WoodSet {
                         })
         );
     }
-    private SuppliedBlock createPottedSapling(SuppliedBlock sapling) {
+    private SuppliedBlock createPottedSapling() {
         return registerBlockWithoutItem(
                 "potted_" + this.getId().getPath() + "_sapling",
                 VanillaBlockCodecs.FLOWER_POT.create(() -> getSapling().get()),
@@ -542,7 +542,7 @@ public class WoodSet {
                                 .pushReaction(PushReaction.DESTROY)
                         )
                         .data(data -> data
-                                .dropSelf()
+                                .loot((_, provider) -> provider.createPotFlowerItemTable(sapling.get()))
                                 .tag(BlockTags.FLOWER_POTS)
                         )
         );

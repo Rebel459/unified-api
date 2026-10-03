@@ -47,10 +47,10 @@ public class BlockConversionGenerator extends HelperGenerator {
         Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, BlockLike original, BlockLike converted, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(name, modId, requirement);
             CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/block_conversions/" + name), requirement, (registries, ops) ->
-                    BlockConversions.Definition.CODEC.encodeStart(ops,
-                            new BlockConversions.Definition(
+                    BlockConversions.Definition.LIST_CODEC.encodeStart(ops,
+                            List.of(new BlockConversions.Definition(
                                     predicate.apply(registries), original.asBlock(), converted.asBlock(), List.copyOf(useOnContext)
-                            )).getOrThrow()
+                            ))).getOrThrow()
             );
         }
 

@@ -22,7 +22,7 @@ public final class FabricBiomeModifications {
         for (BiomeModifiers.PreparedModification modification : BiomeModifiers.prepare(provider)) {
             biomes.listElements().filter(modification.targets()).forEach(holder -> {
                 Biome biome = holder.value();
-                BiomeModifier editor = new BiomeModifier(provider, biome.climateSettings, biome.generationSettings, biome.attributes, biome.specialEffects);
+                BiomeModifier editor = new BiomeModifier(provider, biome.climateSettings, biome.generationSettings, biome.attributes, biome.specialEffects, biome.getMobSettings());
                 editor.apply(modification, holder);
                 if (!editor.changed()) return;
                 biome.climateSettings = editor.climate();
