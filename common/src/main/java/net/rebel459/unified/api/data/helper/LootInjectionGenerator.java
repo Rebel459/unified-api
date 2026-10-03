@@ -43,21 +43,21 @@ public final class LootInjectionGenerator extends HelperGenerator {
                                     modifiers.stream().map(modifier -> modifier.apply(provider)).toList())).getOrThrow());
         }
 
-        public Builder addPool(LootPool.Builder pool) {
+        public LootInjectionGenerator.Builder addPool(LootPool.Builder pool) {
             return addPool(pool.build());
         }
 
-        public Builder addPool(LootPool pool) {
+        public LootInjectionGenerator.Builder addPool(LootPool pool) {
             pools.add(pool);
             return this;
         }
 
-        public Builder addModifier(Function<HolderLookup.Provider, HolderSet<Item>> items, LootEntry entry) {
+        public LootInjectionGenerator.Builder addModifier(Function<HolderLookup.Provider, HolderSet<Item>> items, LootEntry entry) {
             modifiers.add(provider -> new LootInjections.Modifier(items.apply(provider), entry));
             return this;
         }
 
-        public Builder addModifier(ItemLike item, LootEntry entry) {
+        public LootInjectionGenerator.Builder addModifier(ItemLike item, LootEntry entry) {
             return addModifier(provider -> HolderSet.direct(provider.getOrThrow(ResourceKey.create(Registries.ITEM, BuiltInRegistries.ITEM.getKey(item.asItem())))), entry);
         }
     }

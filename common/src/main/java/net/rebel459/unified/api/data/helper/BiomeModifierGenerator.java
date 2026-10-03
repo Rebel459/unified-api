@@ -74,92 +74,92 @@ public final class BiomeModifierGenerator extends HelperGenerator {
             );
         }
 
-        public Builder setPriority(int priority) {
+        public BiomeModifierGenerator.Builder setPriority(int priority) {
             this.priority = priority;
             return this;
         }
 
-        public Builder addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+        public BiomeModifierGenerator.Builder addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
             addFeatures.add(new BiomeModifiers.FeatureEntry(feature, step));
             return this;
         }
 
-        public Builder removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+        public BiomeModifierGenerator.Builder removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
             removeFeatures.add(new BiomeModifiers.FeatureEntry(feature, step));
             return this;
         }
 
-        public Builder addCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
+        public BiomeModifierGenerator.Builder addCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
             addCarvers.add(carver);
             return this;
         }
 
-        public Builder removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
+        public BiomeModifierGenerator.Builder removeCarver(ResourceKey<ConfiguredWorldCarver<?>> carver) {
             removeCarvers.add(carver);
             return this;
         }
 
-        public Builder setWaterColor(int color) {
+        public BiomeModifierGenerator.Builder setWaterColor(int color) {
             waterColor = Optional.of(color);
             return this;
         }
 
-        public Builder setFoliageColor(int color) {
+        public BiomeModifierGenerator.Builder setFoliageColor(int color) {
             foliageColor = Optional.of(color);
             return this;
         }
 
-        public Builder setDryFoliageColor(int color) {
+        public BiomeModifierGenerator.Builder setDryFoliageColor(int color) {
             dryFoliageColor = Optional.of(color);
             return this;
         }
 
-        public Builder setGrassColor(int color) {
+        public BiomeModifierGenerator.Builder setGrassColor(int color) {
             grassColor = Optional.of(color);
             return this;
         }
 
-        public Builder setTemperature(float value) {
+        public BiomeModifierGenerator.Builder setTemperature(float value) {
             temperature = Optional.of(value);
             return this;
         }
 
-        public Builder setDownfall(float value) {
+        public BiomeModifierGenerator.Builder setDownfall(float value) {
             downfall = Optional.of(value);
             return this;
         }
 
-        public Builder setPrecipitation(boolean hasPrecipitation) {
+        public BiomeModifierGenerator.Builder setPrecipitation(boolean hasPrecipitation) {
             this.hasPrecipitation = Optional.of(hasPrecipitation);
             return this;
         }
 
-        public <Value> Builder setAttribute(EnvironmentAttribute<Value> attribute, Value value) {
+        public <Value> BiomeModifierGenerator.Builder setAttribute(EnvironmentAttribute<Value> attribute, Value value) {
             setAttributes.set(attribute, value);
             return this;
         }
 
-        public <Value, Parameter> Builder modifyAttribute(EnvironmentAttribute<Value> attribute, AttributeModifier<Value, Parameter> modifier, Parameter parameter) {
+        public <Value, Parameter> BiomeModifierGenerator.Builder modifyAttribute(EnvironmentAttribute<Value> attribute, AttributeModifier<Value, Parameter> modifier, Parameter parameter) {
             modifyAttributes.modify(attribute, modifier, parameter);
             return this;
         }
 
-        public Builder addSpawn(MobSpawnSettings.SpawnerData data, int weight) {
+        public BiomeModifierGenerator.Builder addSpawn(MobSpawnSettings.SpawnerData data, int weight) {
             addSpawns.add(new BiomeModifiers.SpawnEntry(data, weight));
             return this;
         }
 
-        public Builder removeSpawn(EntityType<?> entity) {
+        public BiomeModifierGenerator.Builder removeSpawn(EntityType<?> entity) {
             removeSpawns.add(entity);
             return this;
         }
 
-        public Builder addCharge(EntityType<?> entity, double charge, double energyBudget) {
+        public BiomeModifierGenerator.Builder addCharge(EntityType<?> entity, double charge, double energyBudget) {
             addCharges.add(new BiomeModifiers.ChargeEntry(entity, charge, energyBudget));
             return this;
         }
 
-        public Builder removeCharge(EntityType<?> entity) {
+        public BiomeModifierGenerator.Builder removeCharge(EntityType<?> entity) {
             removeCharges.add(entity);
             return this;
         }

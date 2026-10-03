@@ -38,7 +38,7 @@ public class ComponentModifierGenerator extends HelperGenerator {
                     ComponentModifiers.Definition.CODEC.encodeStart(ops, new ComponentModifiers.Definition(predicate.apply(provider), Map.copyOf(components))).getOrThrow());
         }
 
-        public <T> Builder set(DataComponentType<T> type, T value) {
+        public <T> ComponentModifierGenerator.Builder set(DataComponentType<T> type, T value) {
             components.put(type, value);
             return this;
         }

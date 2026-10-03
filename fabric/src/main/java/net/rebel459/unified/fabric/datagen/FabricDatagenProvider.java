@@ -5,28 +5,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricEntityLootSubProvider;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
-import net.fabricmc.fabric.api.datagen.v1.recipe.FabricRecipeOutput;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.MultiVariant;
-import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,14 +27,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Block;
+import net.rebel459.unified.api.util.BlockLootSubProvider;
+import net.rebel459.unified.api.util.EntityLootSubProvider;
 import net.rebel459.unified.fabric.FabricUnifiedDatagen;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
@@ -67,7 +60,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -119,7 +111,9 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         FabricUnifiedDatagen.registerDataProvider(CodecRequest.FILES, (pack, modId, requests) ->
                 pack.addProvider((output, registries) -> new JsonProvider(output, registries, modId, requests)));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.LANGUAGES, (pack, modId, requests) ->
-                pack.addProvider((FabricDataGenerator.Pack.Factory<LanguageProvider>) output -> new LanguageProvider(output, modId, requests)));
+                requests.requests(modId).stream().map(request -> request.settings().language()).distinct()
+                        .forEach(language -> pack.addProvider((output, registries) ->
+                                new LanguageProvider(output, registries, modId, requests, language))));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.MODELS, (pack, modId, requests) ->
                 pack.addProvider((FabricDataGenerator.Pack.Factory<ModelsProvider>) output -> new ModelsProvider(output, modId, requests)));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.BLOCK_LOOT, (pack, modId, requests) ->
@@ -135,23 +129,29 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                         .forEach(registry -> registerTagProvider(pack, modId, registry, requests)));
     }
 
-    public static void register(FabricDataGenerator generator) {
+    private static final Map<FabricDataGenerator, FabricUnifiedDatagen.Pack> PACKS = new WeakHashMap<>();
+
+    public static synchronized FabricUnifiedDatagen.Pack register(FabricDataGenerator generator) {
+        FabricUnifiedDatagen.Pack existing = PACKS.get(generator);
+        if (existing != null) return existing;
         String modId = generator.getModId();
-        FabricDataGenerator.Pack pack = generator.createPack();
+        FabricUnifiedDatagen.Pack pack = new FabricUnifiedDatagen.Pack(generator.createPack());
         dataProviderAdapters().forEach((provider, factory) -> registerDataProvider(pack, modId, provider, factory));
+        PACKS.put(generator, pack);
+        return pack;
     }
 
     private static synchronized Map<DataProvider<?>, FabricUnifiedDatagen.ProviderFactory<?>> dataProviderAdapters() {
         return new LinkedHashMap<>(DATA_PROVIDER_ADAPTERS);
     }
 
-    private static <T> void registerTagProvider(FabricDataGenerator.Pack pack, String modId,
+    private static <T> void registerTagProvider(FabricUnifiedDatagen.Pack pack, String modId,
             ResourceKey<? extends Registry<T>> registry, DataProvider<DataProviders.TagRequest<?>> requests) {
         pack.addProvider((output, registries) -> new RegistryTagsProvider<>(output, registries, modId, registry, requests));
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> void registerDataProvider(FabricDataGenerator.Pack pack, String modId,
+    private static <T> void registerDataProvider(FabricUnifiedDatagen.Pack pack, String modId,
             DataProvider<?> provider, FabricUnifiedDatagen.ProviderFactory<?> factory) {
         ((FabricUnifiedDatagen.ProviderFactory<T>) factory).register(pack, modId, (DataProvider<T>) provider);
     }
@@ -273,67 +273,66 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         }
     }
 
-    public static final class LanguageProvider implements net.minecraft.data.DataProvider {
-
-        private final FabricPackOutput output;
+    public static final class LanguageProvider extends FabricLanguageProvider {
         private final String modId;
+        private final String language;
         private final DataProvider<DataProviders.LanguageRequest> requests;
-        public LanguageProvider(FabricPackOutput output, String modId, DataProvider<DataProviders.LanguageRequest> requests) {
-            this.output = output;
+
+        public LanguageProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries,
+                String modId, DataProvider<DataProviders.LanguageRequest> requests, String language) {
+            super(output, language, registries);
+            this.language = language;
             this.modId = modId;
             this.requests = requests;
         }
 
-        @Override public CompletableFuture<?> run(CachedOutput cache) {
-            Map<String, JsonObject> translations = new LinkedHashMap<>();
+        @Override public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder translations) {
+            addTranslations(modId, language, requests, translations);
+        }
+
+        public static void addTranslations(String modId, String language,
+                DataProvider<DataProviders.LanguageRequest> requests, TranslationBuilder translations) {
+            Map<String, String> entries = new LinkedHashMap<>();
+            TranslationBuilder collected = (key, value) -> {
+                String previous = entries.putIfAbsent(key, value);
+                if (previous != null && !previous.equals(value)) {
+                    throw new IllegalArgumentException("Conflicting Unified translation for " + language + ": " + key
+                            + " (" + previous + " / " + value + ")");
+                }
+            };
             requests.requests(modId).forEach(request -> {
                 var settings = request.settings();
-                JsonObject language = translations.computeIfAbsent(settings.language(), _ -> new JsonObject());
+                if (!settings.language().equals(language)) return;
                 if (request.translation().isEmpty()) {
-                    settings.injectedTranslations().ifPresent(path -> injectTranslations(language, path));
+                    settings.injectedTranslations().ifPresent(path -> injectTranslations(collected, path));
                     return;
                 }
                 DataProviders.Translation translation = request.translation().orElseThrow();
                 String name = translation.name().get().orElse(null);
+                if (name == null && !settings.autoName()) return;
                 String kind = switch (translation.type()) {
                     case BLOCK -> "block";
                     case ITEM -> "item";
                     case ENTITY -> "entity";
                 };
-                addTranslation(language, settings, translation.id(), kind, name);
+                collected.add(kind + "." + translation.id().getNamespace() + "." + translation.id().getPath(),
+                        name != null ? name : autoName(translation.id().getPath()));
             });
-
-            List<CompletableFuture<?>> writes = new ArrayList<>();
-            translations.forEach((language, values) -> {
-                Path path = output.getOutputFolder().resolve("assets").resolve(modId)
-                        .resolve("lang").resolve(language + ".json");
-                writes.add(net.minecraft.data.DataProvider.saveStable(cache, values, path));
-            });
-            return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
+            entries.forEach(translations::add);
         }
 
-        @Override public String getName() { return "Unified translations for " + modId; }
-
-        private void injectTranslations(JsonObject translations, String path) {
+        private static void injectTranslations(TranslationBuilder translations, String path) {
             String normalized = path.startsWith("/") ? path.substring(1) : path;
             try (InputStream stream = FabricDatagenProvider.class.getClassLoader().getResourceAsStream(normalized)) {
-                if (stream == null) {
-                    throw new IllegalArgumentException("Injected translation resource does not exist: " + path);
-                }
+                if (stream == null) throw new IllegalArgumentException("Injected translation resource does not exist: " + path);
                 try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                     JsonObject injected = JsonParser.parseReader(reader).getAsJsonObject();
-                    injected.entrySet().forEach(entry -> translations.add(entry.getKey(), entry.getValue()));
+                    injected.entrySet().forEach(entry -> translations.add(entry.getKey(), entry.getValue().getAsString()));
                 }
             } catch (IOException exception) {
                 throw new IllegalStateException("Failed to read injected translations " + path, exception);
             }
         }
-
-        private void addTranslation(JsonObject translations, DataProviders.GenerationSettings settings, Identifier id, String kind, String explicitName) {
-            if (explicitName == null && !settings.autoName()) return;
-            translations.addProperty(kind + "." + id.getNamespace() + "." + id.getPath(), explicitName != null ? explicitName : autoName(id.getPath()));
-        }
-
     }
 
     public static final class ModelsProvider extends FabricModelProvider {
@@ -400,7 +399,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         }
 
         @Override public void generate() {
-            net.rebel459.unified.api.util.BlockLootProvider provider = new net.rebel459.unified.api.util.BlockLootProvider(registries.join());
+            BlockLootSubProvider provider = new BlockLootSubProvider(registries.join());
             requests.requests(modId).forEach(request -> request.generate(provider, this::add));
         }
     }
@@ -418,7 +417,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         }
 
         @Override public void generate() {
-            net.rebel459.unified.api.util.EntityLootProvider provider = new net.rebel459.unified.api.util.EntityLootProvider(
+            EntityLootSubProvider provider = new EntityLootSubProvider(
                     registries.join());
             requests.requests(modId).forEach(request -> request.generate(provider, this::add));
         }

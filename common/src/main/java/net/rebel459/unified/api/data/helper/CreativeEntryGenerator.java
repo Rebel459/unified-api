@@ -36,47 +36,47 @@ public final class CreativeEntryGenerator extends HelperGenerator {
                     CreativeEntries.Definition.LIST_CODEC.encodeStart(ops, List.copyOf(entries)).getOrThrow());
         }
 
-        public Builder insert(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
+        public CreativeEntryGenerator.Builder insert(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
             return add(tab, new CreativeEntries.Insertion.Insert(), items(items));
         }
 
-        public Builder insert(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
+        public CreativeEntryGenerator.Builder insert(ResourceKey<CreativeModeTab> tab, ItemStack... items) {
             return add(tab, new CreativeEntries.Insertion.Insert(), itemStacks(items));
         }
 
-        public Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemLike... items) {
+        public CreativeEntryGenerator.Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemLike... items) {
             return add(tab, new CreativeEntries.Insertion.After(Either.left(target.asItem())), items(items));
         }
 
-        public Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemStack... items) {
+        public CreativeEntryGenerator.Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemStack... items) {
             return add(tab, new CreativeEntries.Insertion.After(Either.left(target.asItem())), itemStacks(items));
         }
 
-        public Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemLike... items) {
+        public CreativeEntryGenerator.Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemLike... items) {
             return add(tab, new CreativeEntries.Insertion.After(Either.right(target.copy())), items(items));
         }
 
-        public Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemStack... items) {
+        public CreativeEntryGenerator.Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemStack... items) {
             return add(tab, new CreativeEntries.Insertion.After(Either.right(target.copy())), itemStacks(items));
         }
 
-        public Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemLike... items) {
+        public CreativeEntryGenerator.Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemLike... items) {
             return add(tab, new CreativeEntries.Insertion.Before(Either.left(target.asItem())), items(items));
         }
 
-        public Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemStack... items) {
+        public CreativeEntryGenerator.Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemStack... items) {
             return add(tab, new CreativeEntries.Insertion.Before(Either.left(target.asItem())), itemStacks(items));
         }
 
-        public Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemLike... items) {
+        public CreativeEntryGenerator.Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemLike... items) {
             return add(tab, new CreativeEntries.Insertion.Before(Either.right(target.copy())), items(items));
         }
 
-        public Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemStack... items) {
+        public CreativeEntryGenerator.Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemStack... items) {
             return add(tab, new CreativeEntries.Insertion.Before(Either.right(target.copy())), itemStacks(items));
         }
 
-        private Builder add(ResourceKey<CreativeModeTab> tab, CreativeEntries.Insertion insertion, List<Either<Item, ItemStack>> items) {
+        private CreativeEntryGenerator.Builder add(ResourceKey<CreativeModeTab> tab, CreativeEntries.Insertion insertion, List<Either<Item, ItemStack>> items) {
             entries.add(new CreativeEntries.Definition(tab, insertion, items));
             return this;
         }

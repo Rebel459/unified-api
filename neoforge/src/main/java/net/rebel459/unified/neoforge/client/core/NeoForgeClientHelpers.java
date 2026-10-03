@@ -68,12 +68,12 @@ public class NeoForgeClientHelpers {
         public static List<Consumer<EntityRenderersEvent.RegisterRenderers>> RENDERERS = new ArrayList<>();
 
         @Override
-        public void addModel(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
+        public void addLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
             MODELS.add(model -> model.registerLayerDefinition(location, definition));
         }
 
         @Override
-        public <T extends Entity> void addRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
+        public <T extends Entity> void addEntityRenderer(Supplier<EntityType<? extends T>> entityType, EntityRendererProvider<T> entityRendererProvider) {
             RENDERERS.add(renderer -> renderer.registerEntityRenderer(entityType.get(), entityRendererProvider));
         }
 
