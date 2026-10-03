@@ -19,7 +19,7 @@ public final class FabricUnifiedDatagen {
         private final DatagenPack providers;
 
         public Pack(FabricDataGenerator.Pack pack) {
-            providers = pack.addProvider((output, registries) -> new DatagenPack(output, registries));
+            providers = pack.addProvider(DatagenPack::new);
         }
 
         public <T extends net.minecraft.data.DataProvider> T addProvider(FabricDataGenerator.Pack.Factory<T> factory) {
