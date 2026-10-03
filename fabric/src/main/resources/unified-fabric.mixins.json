@@ -3,6 +3,7 @@
   "package": "net.rebel459.unified.fabric.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "datagen.FabricLanguageProviderMixin",
     "server.MinecraftServerMixin"
   ],
   "client": [

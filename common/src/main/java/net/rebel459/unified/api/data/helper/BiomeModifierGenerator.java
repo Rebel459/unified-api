@@ -66,72 +66,72 @@ public final class BiomeModifierGenerator extends HelperGenerator {
             );
         }
 
-        public Builder setPriority(int priority) {
+        public BiomeModifierGenerator.Builder setPriority(int priority) {
             this.priority = priority;
             return this;
         }
 
-        public Builder addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+        public BiomeModifierGenerator.Builder addFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
             addFeatures.add(new BiomeModifiers.FeatureEntry(feature, step));
             return this;
         }
 
-        public Builder removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
+        public BiomeModifierGenerator.Builder removeFeature(ResourceKey<PlacedFeature> feature, GenerationStep.Decoration step) {
             removeFeatures.add(new BiomeModifiers.FeatureEntry(feature, step));
             return this;
         }
 
-        public Builder addCarver(ResourceKey<WorldCarver> carver) {
+        public BiomeModifierGenerator.Builder addCarver(ResourceKey<WorldCarver> carver) {
             addCarvers.add(carver);
             return this;
         }
 
-        public Builder removeCarver(ResourceKey<WorldCarver> carver) {
+        public BiomeModifierGenerator.Builder removeCarver(ResourceKey<WorldCarver> carver) {
             removeCarvers.add(carver);
             return this;
         }
 
-        public Builder setWaterColor(int color) {
+        public BiomeModifierGenerator.Builder setWaterColor(int color) {
             waterColor = Optional.of(color);
             return this;
         }
 
-        public Builder setFoliageColor(int color) {
+        public BiomeModifierGenerator.Builder setFoliageColor(int color) {
             foliageColor = Optional.of(color);
             return this;
         }
 
-        public Builder setDryFoliageColor(int color) {
+        public BiomeModifierGenerator.Builder setDryFoliageColor(int color) {
             dryFoliageColor = Optional.of(color);
             return this;
         }
 
-        public Builder setGrassColor(int color) {
+        public BiomeModifierGenerator.Builder setGrassColor(int color) {
             grassColor = Optional.of(color);
             return this;
         }
 
-        public Builder setTemperature(float value) {
+        public BiomeModifierGenerator.Builder setTemperature(float value) {
             temperature = Optional.of(value);
             return this;
         }
 
-        public Builder setDownfall(float value) {
+        public BiomeModifierGenerator.Builder setDownfall(float value) {
             downfall = Optional.of(value);
             return this;
         }
 
-        public Builder setPrecipitation(boolean hasPrecipitation) {
+        public BiomeModifierGenerator.Builder setPrecipitation(boolean hasPrecipitation) {
             this.hasPrecipitation = Optional.of(hasPrecipitation);
             return this;
         }
 
-        public <Value> Builder setAttribute(EnvironmentAttribute<Value> attribute, Value value) {
+        public <Value> BiomeModifierGenerator.Builder setAttribute(EnvironmentAttribute<Value> attribute, Value value) {
             setAttributes.set(attribute, value);
             return this;
         }
 
-        public <Value, Parameter> Builder modifyAttribute(EnvironmentAttribute<Value> attribute, AttributeModifier<Value, Parameter> modifier, Parameter parameter) {
+        public <Value, Parameter> BiomeModifierGenerator.Builder modifyAttribute(EnvironmentAttribute<Value> attribute, AttributeModifier<Value, Parameter> modifier, Parameter parameter) {
             modifyAttributes.modify(attribute, modifier, parameter);
             return this;
         }

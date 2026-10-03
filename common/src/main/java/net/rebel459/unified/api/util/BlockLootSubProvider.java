@@ -1,8 +1,6 @@
 package net.rebel459.unified.api.util;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
@@ -19,11 +17,13 @@ import net.rebel459.unified.impl.util.LootProviderContext;
 
 import java.util.Set;
 
-public class BlockLootProvider extends BlockLootSubProvider {
+public class BlockLootSubProvider extends net.minecraft.data.loot.BlockLootSubProvider {
 
-    private final BlockLootSubProvider provider;
+    public static final float[] NORMAL_LEAVES_SAPLING_CHANCES = new float[]{0.05F, 0.0625F, 0.083333336F, 0.1F};
 
-    public BlockLootProvider(HolderLookup.Provider registries, BlockLootSubProvider provider) {
+    private final net.minecraft.data.loot.BlockLootSubProvider provider;
+
+    public BlockLootSubProvider(HolderLookup.Provider registries, net.minecraft.data.loot.BlockLootSubProvider provider) {
         super(Set.of(), FeatureFlags.REGISTRY.allFlags(), new LootProviderContext(registries));
         this.provider = provider;
     }
@@ -120,8 +120,8 @@ public class BlockLootProvider extends BlockLootSubProvider {
     @Override public LootTable.Builder createDoublePlantWithSeedDrops(Block block, Block seedDrop) { return super.createDoublePlantWithSeedDrops(block, seedDrop); }
     @Override public LootTable.Builder createCandleDrops(Block block) { return super.createCandleDrops(block); }
     @Override public LootTable.Builder createSegmentedBlockDrops(Block block) { return super.createSegmentedBlockDrops(block); }
-    public static LootTable.Builder createCandleCakeDrops(Block block) { return BlockLootSubProvider.createCandleCakeDrops(block); }
-    public static LootTable.Builder noDrop() { return BlockLootSubProvider.noDrop(); }
+    public static LootTable.Builder createCandleCakeDrops(Block block) { return net.minecraft.data.loot.BlockLootSubProvider.createCandleCakeDrops(block); }
+    public static LootTable.Builder noDrop() { return net.minecraft.data.loot.BlockLootSubProvider.noDrop(); }
 
     @Override public void addNetherVinesDropTable(Block head, Block plant) { provider.addNetherVinesDropTable(head, plant); }
     @Override public LootTable.Builder createDoorTable(Block block) { return super.createDoorTable(block); }

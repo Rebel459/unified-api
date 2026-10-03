@@ -54,75 +54,75 @@ public final class MobVariantGenerator extends HelperGenerator {
                     () -> new MobVariants.Definition(Optional.of(BuiltInRegistries.ENTITY_TYPE.getKey(target)), texture, babyTexture, new MobVariants.Sounds(ambientSound, hurtSound, eatSound, deathSound, stepSound), new SpawnPrioritySelectors(spawnConditions), spawnChance, attributes, attackEffects, burnInDaylight, lootTable));
         }
 
-        public Builder setTexture(Identifier replacement) {
+        public MobVariantGenerator.Builder setTexture(Identifier replacement) {
             texture = Optional.of(new MobVariants.TextureReplacement(Optional.empty(), replacement));
             return this;
         }
-        public Builder setTexture(Identifier target, Identifier replacement) {
+        public MobVariantGenerator.Builder setTexture(Identifier target, Identifier replacement) {
             texture = Optional.of(new MobVariants.TextureReplacement(Optional.of(target), replacement));
             return this;
         }
 
-        public Builder setBabyTexture(Identifier replacement) {
+        public MobVariantGenerator.Builder setBabyTexture(Identifier replacement) {
             babyTexture = Optional.of(new MobVariants.TextureReplacement(Optional.empty(), replacement));
             return this;
         }
-        public Builder setBabyTexture(Identifier target, Identifier replacement) {
+        public MobVariantGenerator.Builder setBabyTexture(Identifier target, Identifier replacement) {
             babyTexture = Optional.of(new MobVariants.TextureReplacement(Optional.of(target), replacement));
             return this;
         }
 
-        public Builder setAmbientSound(SoundEvent sound) {
+        public MobVariantGenerator.Builder setAmbientSound(SoundEvent sound) {
             ambientSound = Optional.of(sound);
             return this;
         }
-        public Builder setHurtSound(SoundEvent sound) {
+        public MobVariantGenerator.Builder setHurtSound(SoundEvent sound) {
             hurtSound = Optional.of(sound);
             return this;
         }
-        public Builder setEatSound(SoundEvent sound) {
+        public MobVariantGenerator.Builder setEatSound(SoundEvent sound) {
             eatSound = Optional.of(sound);
             return this;
         }
-        public Builder setDeathSound(SoundEvent sound) {
+        public MobVariantGenerator.Builder setDeathSound(SoundEvent sound) {
             deathSound = Optional.of(sound);
             return this;
         }
-        public Builder setStepSound(SoundEvent sound) {
+        public MobVariantGenerator.Builder setStepSound(SoundEvent sound) {
             stepSound = Optional.of(sound);
             return this;
         }
 
-        public Builder setSpawnConditions(List<PriorityProvider.Selector<SpawnContext, SpawnCondition>> conditions) {
+        public MobVariantGenerator.Builder setSpawnConditions(List<PriorityProvider.Selector<SpawnContext, SpawnCondition>> conditions) {
             spawnConditions = new ArrayList<>(conditions);
             return this;
         }
-        public Builder addSpawnCondition(PriorityProvider.Selector<SpawnContext, SpawnCondition> condition) {
+        public MobVariantGenerator.Builder addSpawnCondition(PriorityProvider.Selector<SpawnContext, SpawnCondition> condition) {
             spawnConditions.add(condition);
             return this;
         }
 
-        public Builder setSpawnChance(float chance) {
+        public MobVariantGenerator.Builder setSpawnChance(float chance) {
             spawnChance = chance;
             return this;
         }
 
-        public Builder addAttribute(Holder<Attribute> attribute, AttributeModifier modifier) {
+        public MobVariantGenerator.Builder addAttribute(Holder<Attribute> attribute, AttributeModifier modifier) {
             attributes.add(new MobVariants.AttributeEntry(attribute, modifier));
             return this;
         }
 
-        public Builder addAttackEffect(MobEffectInstance effect) {
+        public MobVariantGenerator.Builder addAttackEffect(MobEffectInstance effect) {
             attackEffects.add(effect);
             return this;
         }
 
-        public Builder shouldBurnInDaylight(boolean burnInDaylight) {
+        public MobVariantGenerator.Builder shouldBurnInDaylight(boolean burnInDaylight) {
             this.burnInDaylight = Optional.of(burnInDaylight);
             return this;
         }
 
-        public Builder setLootTable(ResourceKey<LootTable> lootTable) {
+        public MobVariantGenerator.Builder setLootTable(ResourceKey<LootTable> lootTable) {
             this.lootTable = Optional.of(lootTable);
             return this;
         }

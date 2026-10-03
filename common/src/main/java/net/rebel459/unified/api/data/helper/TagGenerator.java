@@ -43,20 +43,24 @@ public final class TagGenerator extends HelperGenerator {
             }));
         }
 
-        public void add(ResourceKey<T> entry) {
+        public TagGenerator.Builder<T> add(ResourceKey<T> entry) {
             entries.add(entry);
+            return this;
         }
 
-        public void addOptional(ResourceKey<T> entry) {
+        public TagGenerator.Builder<T> addOptional(ResourceKey<T> entry) {
             optionalEntries.add(entry);
+            return this;
         }
 
-        public void add(TagKey<T> entry) {
+        public TagGenerator.Builder<T> add(TagKey<T> entry) {
             tags.add(entry);
+            return this;
         }
 
-        public void addOptional(TagKey<T> entry) {
+        public TagGenerator.Builder<T> addOptional(TagKey<T> entry) {
             optionalTags.add(entry);
+            return this;
         }
     }
 
@@ -70,24 +74,28 @@ public final class TagGenerator extends HelperGenerator {
             items = new TagGenerator.Builder<>(tag.item(), modId, requirement);
         }
 
-        public void add(BlockItemId entry) {
+        public BlockItemBuilder add(BlockItemId entry) {
             blocks.add(entry.block());
             items.add(entry.item());
+            return this;
         }
 
-        public void addOptional(BlockItemId entry) {
+        public BlockItemBuilder addOptional(BlockItemId entry) {
             blocks.addOptional(entry.block());
             items.addOptional(entry.item());
+            return this;
         }
 
-        public void add(BlockItemTagId entry) {
+        public BlockItemBuilder add(BlockItemTagId entry) {
             blocks.add(entry.block());
             items.add(entry.item());
+            return this;
         }
 
-        public void addOptional(BlockItemTagId entry) {
+        public BlockItemBuilder addOptional(BlockItemTagId entry) {
             blocks.addOptional(entry.block());
             items.addOptional(entry.item());
+            return this;
         }
     }
 }

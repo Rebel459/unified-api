@@ -3,7 +3,6 @@ package net.rebel459.unified.api.util;
 import net.minecraft.advancements.predicates.DamageSourcePredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Holder;
-import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.animal.frog.FrogVariant;
 import net.minecraft.world.flag.FeatureFlags;
@@ -13,9 +12,11 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.rebel459.unified.impl.util.LootProviderContext;
 
-public class EntityLootProvider extends EntityLootSubProvider {
+import java.util.Map;
 
-    public EntityLootProvider(HolderLookup.Provider registries) {
+public class EntityLootSubProvider extends net.minecraft.data.loot.EntityLootSubProvider {
+
+    public EntityLootSubProvider(HolderLookup.Provider registries) {
         super(FeatureFlags.REGISTRY.allFlags(), new LootProviderContext(registries));
     }
 

@@ -60,11 +60,11 @@ public class BlockConversionGenerator extends HelperGenerator {
             );
         }
 
-        public Builder onUse(Consumer<UseOnContext> context) {
+        public BlockConversionGenerator.Builder onUse(Consumer<UseOnContext> context) {
             return onUse(ExtensibleCodecs.USE_CONTEXT.register(Identifier.fromNamespaceAndPath(modId, "block_conversions/" + name), () -> context).create());
         }
 
-        public Builder onUse(ExtensibleCodec.Entry<Consumer<UseOnContext>> context) {
+        public BlockConversionGenerator.Builder onUse(ExtensibleCodec.Entry<Consumer<UseOnContext>> context) {
             useOnContext.add(context);
             return this;
         }

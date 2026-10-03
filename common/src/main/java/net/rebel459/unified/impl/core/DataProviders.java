@@ -13,8 +13,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
-import net.rebel459.unified.api.util.BlockLootProvider;
-import net.rebel459.unified.api.util.EntityLootProvider;
+import net.rebel459.unified.api.util.BlockLootSubProvider;
+import net.rebel459.unified.api.util.EntityLootSubProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.asset.ItemAssetRequest;
@@ -61,12 +61,12 @@ public final class DataProviders {
 
     @FunctionalInterface
     public interface BlockLootRequest {
-        void generate(BlockLootProvider provider, BiConsumer<Block, LootTable.Builder> output);
+        void generate(BlockLootSubProvider provider, BiConsumer<Block, LootTable.Builder> output);
     }
 
     @FunctionalInterface
     public interface EntityLootRequest {
-        void generate(EntityLootProvider provider, BiConsumer<EntityType<?>, LootTable.Builder> output);
+        void generate(EntityLootSubProvider provider, BiConsumer<EntityType<?>, LootTable.Builder> output);
     }
 
     public interface TagGenerator<T> {

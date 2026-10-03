@@ -1,9 +1,12 @@
 package net.rebel459.unified.fabric;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider.TranslationBuilder;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.ItemAsset;
 import net.rebel459.unified.impl.core.DataProvider;
+import net.rebel459.unified.impl.core.DataProviders;
+import net.rebel459.unified.fabric.datagen.DatagenPack;
 import net.rebel459.unified.fabric.datagen.FabricDatagenProvider;
 
 import java.util.Objects;
@@ -11,8 +14,33 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class FabricUnifiedDatagen {
-    public static void register(FabricDataGenerator generator) {
-        FabricDatagenProvider.register(generator);
+    /** Composes model providers and runs other Fabric providers in registration order. */
+    public static final class Pack {
+        private final DatagenPack providers;
+
+        public Pack(FabricDataGenerator.Pack pack) {
+            providers = pack.addProvider((output, registries) -> new DatagenPack(output, registries));
+        }
+
+        public <T extends net.minecraft.data.DataProvider> T addProvider(FabricDataGenerator.Pack.Factory<T> factory) {
+            return providers.add(factory);
+        }
+
+        public <T extends net.minecraft.data.DataProvider> T addProvider(FabricDataGenerator.Pack.RegistryDependentFactory<T> factory) {
+            return providers.add(factory);
+        }
+    }
+
+    /**
+     * Add Unified's entries inside a language provider registered outside Unified's pack.
+     * Providers added to the pack returned by register already receive these automatically.
+     */
+    public static void addTranslations(String modId, String language, TranslationBuilder translations) {
+        FabricDatagenProvider.LanguageProvider.addTranslations(modId, language, DataProviders.LANGUAGES, translations);
+    }
+
+    public static Pack register(FabricDataGenerator generator) {
+        return FabricDatagenProvider.register(generator);
     }
 
     /**
@@ -44,6 +72,6 @@ public final class FabricUnifiedDatagen {
 
     @FunctionalInterface
     public interface ProviderFactory<T> {
-        void register(FabricDataGenerator.Pack pack, String modId, DataProvider<T> requests);
+        void register(Pack pack, String modId, DataProvider<T> requests);
     }
 }

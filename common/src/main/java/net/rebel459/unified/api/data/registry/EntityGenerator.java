@@ -22,7 +22,7 @@ import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.codec.ExtensibleSpawnPredicate;
 import net.rebel459.unified.api.core.Supplied;
 import net.rebel459.unified.api.data.helper.TagGenerator;
-import net.rebel459.unified.api.util.EntityLootProvider;
+import net.rebel459.unified.api.util.EntityLootSubProvider;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.data.registry.EntityRegistry;
@@ -203,7 +203,7 @@ public class EntityGenerator {
         private final ResourceKey<EntityType<?>> key;
         private final Supplier<? extends EntityType<?>> entity;
         private final TagGenerator tagGenerator;
-        private BiFunction<EntityType<?>, EntityLootProvider, LootTable.Builder> loot;
+        private BiFunction<EntityType<?>, EntityLootSubProvider, LootTable.Builder> loot;
 
         private Data(String modId, ResourceKey<EntityType<?>> key, Supplier<? extends EntityType<?>> entity, TagGenerator tags) {
             this.modId = modId;
@@ -222,7 +222,7 @@ public class EntityGenerator {
             return this;
         }
 
-        public Data loot(BiFunction<EntityType<?>, EntityLootProvider, LootTable.Builder> lootTable) {
+        public Data loot(BiFunction<EntityType<?>, EntityLootSubProvider, LootTable.Builder> lootTable) {
             loot = lootTable;
             return this;
         }
