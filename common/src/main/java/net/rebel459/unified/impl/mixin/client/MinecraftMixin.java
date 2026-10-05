@@ -12,6 +12,7 @@ import net.rebel459.unified.api.client.helper.ClientStructureReceiver;
 import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import net.rebel459.unified.impl.client.helper.StructureMusicImpl;
 import net.rebel459.unified.impl.core.CommonEvents;
+import net.rebel459.unified.impl.network.StructurePacketImpl;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -61,14 +62,15 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "setLevel", at = @At(value = "HEAD"))
     private void stopClientLevel(ClientLevel level, CallbackInfo ci) {
-        if (level != null) {
-            CommonClientEvents.Instance.passOnLevelUnload(level);
-            CommonEvents.Levels.passOnUnload(level);
+        if (this.level != null) {
+            CommonClientEvents.Instance.passOnLevelUnload(this.level);
+            CommonEvents.Levels.passOnUnload(this.level);
         }
     }
 
     @WrapOperation(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;onDisconnected()V"))
     private void stopClientLevel(Gui gui, Operation<Void> original) {
+        StructurePacketImpl.resetClientStructures();
         if (this.level != null) {
             CommonClientEvents.Instance.passOnLevelUnload(this.level);
             CommonEvents.Levels.passOnUnload(this.level);

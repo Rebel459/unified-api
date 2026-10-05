@@ -1,5 +1,6 @@
 package net.rebel459.unified.impl.data.registry;
 
+import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -54,54 +55,56 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<Definition> declaration) {
-        ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
-
         StagedRegistry.register(Registries.ENTITY_TYPE, id, () -> {
-            Definition definition = declaration.get();
-            EntityCopier.setDefaultVariant(key, definition.variantProperties());
-
-            Supplied<? extends EntityType<?>> entity = registerDefinition(key.identifier(), declaration, Optional.empty());
-
-            createLateProperties(entity, definition.properties());
+            boolean hasAttributes = declaration.decode(Codec.PASSTHROUGH.optionalFieldOf("default_attributes").codec()
+                    .optionalFieldOf("properties", Optional.empty())).isPresent();
+            Optional<Supplier<Attributes>> attributes = hasAttributes
+                    ? Optional.of(() -> declaration.get().properties().attributes.orElseThrow())
+                    : Optional.empty();
+            Supplied<? extends EntityType<?>> entity = registerDefinition(id, declaration, attributes);
+            UnifiedPlatform.executeAfter(Registries.ENTITY_TYPE, () -> createLateProperties(entity, declaration.get().properties()));
             return entity;
         });
     }
 
     public static Supplied<? extends EntityType<?>> registerDefinition(Identifier id, Supplier<Definition> suppliedDefinition, Optional<Supplier<Attributes>> optionalAttributes) {
         ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
-        Definition definition = suppliedDefinition.get();
-        EntityType.Builder<?> entityBuilder = switch (definition.base()) {
-            case CodecBase(ExtensibleCodec.Entry<EntityType.Builder<?>> type) -> ExtensibleCodecs.ENTITY.create(type, key);
-            case CopiedBase(ResourceKey<EntityType<?>> base) -> {
-                EntityCopier.declare(key, base);
-                yield EntityType.Builder.createNothing(MobCategory.MISC);
-            }
+        Supplier<Definition> definition = Suppliers.memoize(suppliedDefinition::get);
+        Supplier<EntityType.Builder<?>> builder = () -> {
+            Definition value = definition.get();
+            EntityCopier.setDefaultVariant(key, value.variantProperties());
+            EntityType.Builder<?> entityBuilder = switch (value.base()) {
+                case CodecBase(ExtensibleCodec.Entry<EntityType.Builder<?>> type) -> ExtensibleCodecs.ENTITY.create(type, key);
+                case CopiedBase(ResourceKey<EntityType<?>> base) -> {
+                    EntityCopier.declare(key, base);
+                    yield EntityType.Builder.createNothing(MobCategory.MISC);
+                }
+            };
+            return entityBuilder;
         };
-        Supplied<? extends EntityType<?>> entity;
-        if (optionalAttributes.isPresent() || definition.properties.attributes.isPresent()) entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(
-                id.getPath(),
-                (EntityType.Builder<? extends LivingEntity>) entityBuilder,
-                () -> {
-                    Attributes attributes;
-                    if (optionalAttributes.isPresent()) attributes = optionalAttributes.get().get();
-                    else attributes = definition.properties.attributes.get();
-                    AttributeSupplier.Builder builder = AttributeSupplier.builder();
-                    Set<Holder<Attribute>> overrides = attributes.values().stream().map(AttributeEntry::attribute).collect(Collectors.toSet());
+        UnifiedRegistries.EntityTypes registry = UnifiedRegistries.EntityTypes.create(id.getNamespace());
+        if (optionalAttributes.isPresent()) {
+            EntityCopier.markAttributeOverride(key);
+            return registry.register(id.getPath(), () -> (EntityType.Builder<LivingEntity>) builder.get(),
+                    () -> createAttributes(optionalAttributes.get().get()));
+        }
+        return registry.register(id.getPath(), () -> (EntityType.Builder<Entity>) builder.get());
+    }
 
-                    if (attributes.baseAttributes.isPresent()) {
-                        AttributeSupplier base = DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) BuiltInRegistries.ENTITY_TYPE.getValue(attributes.baseAttributes.get()));
+    private static AttributeSupplier createAttributes(Attributes attributes) {
+        AttributeSupplier.Builder builder = AttributeSupplier.builder();
+        Set<Holder<Attribute>> overrides = attributes.values().stream().map(AttributeEntry::attribute).collect(Collectors.toSet());
 
-                        BuiltInRegistries.ATTRIBUTE.listElements().filter(base::hasAttribute).filter(attribute -> !overrides.contains(attribute)).forEach(attribute -> builder.add(attribute, base.getBaseValue(attribute)));
-                    }
+        if (attributes.baseAttributes.isPresent()) {
+            AttributeSupplier base = DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) BuiltInRegistries.ENTITY_TYPE.getValue(attributes.baseAttributes.get()));
+            BuiltInRegistries.ATTRIBUTE.listElements().filter(base::hasAttribute).filter(attribute -> !overrides.contains(attribute)).forEach(attribute -> builder.add(attribute, base.getBaseValue(attribute)));
+        }
 
-                    for (AttributeEntry entry : attributes.values()) {
-                        if (entry.value().isPresent()) builder.add(entry.attribute(), entry.value().get());
-                        else builder.add(entry.attribute());
-                    }
-                    return builder.build();
-                });
-        else entity = UnifiedRegistries.EntityTypes.create(id.getNamespace()).register(id.getPath(), entityBuilder);
-        return entity;
+        for (AttributeEntry entry : attributes.values()) {
+            if (entry.value().isPresent()) builder.add(entry.attribute(), entry.value().get());
+            else builder.add(entry.attribute());
+        }
+        return builder.build();
     }
 
     public sealed interface Base permits CodecBase, CopiedBase {}
@@ -172,6 +175,7 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
     private static <T extends Mob> void createLateProperties(Supplied<? extends EntityType<?>> entity, Properties properties) {
         if (properties.spawnPlacement.isPresent()) {
             SpawnPlacement spawnPlacement = properties.spawnPlacement.get();
+            EntityCopier.markSpawnPlacementOverride(entity.get());
             UnifiedHelpers.SPAWN_PLACEMENTS.register((Supplied<EntityType<T>>) entity, spawnPlacement.placementType.get(), spawnPlacement.heightmap, spawnPlacement.spawnPredicate.get()::test);
         }
     }

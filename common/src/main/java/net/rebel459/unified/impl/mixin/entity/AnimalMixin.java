@@ -30,8 +30,10 @@ public class AnimalMixin {
         if (animal instanceof LivingEntityVariant firstParent && partner instanceof LivingEntityVariant secondParent && offspring instanceof LivingEntityVariant child) {
             Identifier offspringType = EntityType.getKey(offspring.getType());
             List<Holder<MobVariants.Definition>> inherited = new ArrayList<>(2);
-            firstParent.getVariant().filter(variant -> appliesTo(variant, offspring.getType(), offspringType)).ifPresent(inherited::add);
-            secondParent.getVariant().filter(variant -> appliesTo(variant, offspring.getType(), offspringType)).ifPresent(inherited::add);
+            firstParent.getVariant().filter(variant -> variant.unwrapKey().isPresent())
+                    .filter(variant -> appliesTo(variant, offspring.getType(), offspringType)).ifPresent(inherited::add);
+            secondParent.getVariant().filter(variant -> variant.unwrapKey().isPresent())
+                    .filter(variant -> appliesTo(variant, offspring.getType(), offspringType)).ifPresent(inherited::add);
 
             if (!inherited.isEmpty()) {
                 child.setVariant(Optional.of(inherited.get(animal.getRandom().nextInt(inherited.size()))));

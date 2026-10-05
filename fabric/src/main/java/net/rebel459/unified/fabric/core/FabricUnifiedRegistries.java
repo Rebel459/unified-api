@@ -68,7 +68,11 @@ public class FabricUnifiedRegistries {
         public <T extends Block> SuppliedItem registerBlockItem(BlockItemId id, Supplier<T> block, BiFunction<Block, Item.Properties, Item> function, Supplier<Item.Properties> properties) {
             SuppliedItem existing = StagedRegistry.getClaimed(id.item());
             if (existing != null) return existing;
-            Item item = net.minecraft.world.item.Items.registerBlock(block.get(), function, properties.get());
+            Block value = block.get();
+            Item item = net.minecraft.world.item.Items.registerItem(
+                    id.item(),
+                    settings -> function.apply(value, settings),
+                    properties.get().useBlockDescriptionPrefix().requiredFeatures(value.requiredFeatures()));
             return new SuppliedItem(id.item(), () -> item, () -> BuiltInRegistries.ITEM.getOrThrow(id.item()));
         }
 
@@ -152,16 +156,16 @@ public class FabricUnifiedRegistries {
     public record EntityTypes(String modId) implements UnifiedRegistries.EntityTypes {
 
         @Override
-        public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
+        public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull Supplier<EntityType.Builder<T>> builder) {
             ResourceKey<EntityType<?>> resourceKey = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
             Supplied<EntityType<T>> existing = StagedRegistry.getClaimed(resourceKey);
             if (existing != null) return existing;
-            EntityType<T> entity = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.build(resourceKey));
+            EntityType<T> entity = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceKey, builder.get().build(resourceKey));
             return new Supplied<>(resourceKey, () -> entity, () -> BuiltInRegistries.ENTITY_TYPE.getOrThrow(resourceKey));
         }
 
         @Override
-        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes) {
+        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, Supplier<EntityType.Builder<T>> builder, Supplier<AttributeSupplier> attributes) {
             Supplied<EntityType<T>> entity = register(path, builder);
             FabricDefaultAttributeRegistry.register(entity.get(), attributes.get());
             return entity;

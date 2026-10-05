@@ -15,13 +15,15 @@ public class DefaultAttributesMixin {
     @Inject(method = "getSupplier", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("unchecked")
     private static void copiedSupplier(EntityType<? extends LivingEntity> type, CallbackInfoReturnable<AttributeSupplier> cir) {
-        EntityCopier.template(type).ifPresent(template ->
+        if (!EntityCopier.hasAttributeOverride(type)) EntityCopier.template(type).ifPresent(template ->
                 cir.setReturnValue(DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) template))
         );
     }
 
     @Inject(method = "hasSupplier", at = @At("HEAD"), cancellable = true)
     private static void copiedHasSupplier(EntityType<?> type, CallbackInfoReturnable<Boolean> cir) {
-        EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(DefaultAttributes.hasSupplier(template)));
+        if (!EntityCopier.hasAttributeOverride(type)) {
+            EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(DefaultAttributes.hasSupplier(template)));
+        }
     }
 }

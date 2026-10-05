@@ -86,8 +86,8 @@ public class UnifiedRegistries {
     public interface EntityTypes {
         String modId();
 
-        <T extends Entity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder);
-        <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes);
+        <T extends Entity> Supplied<EntityType<T>> register(String path, Supplier<EntityType.Builder<T>> builder);
+        <T extends LivingEntity> Supplied<EntityType<T>> register(String path, Supplier<EntityType.Builder<T>> builder, Supplier<AttributeSupplier> attributes);
 
         void addAlias(Identifier convertedFrom, Identifier convertedTo);
 

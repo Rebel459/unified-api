@@ -11,6 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.variant.PriorityProvider;
 import net.minecraft.world.entity.variant.SpawnContext;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -20,15 +21,23 @@ import net.rebel459.unified.impl.data.helper.MobVariants;
 import net.rebel459.unified.impl.data.registry.EntityCopier;
 import net.rebel459.unified.impl.util.LivingEntityVariant;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin implements LivingEntityVariant {
+
+    @Unique
+    private final Map<Holder<Attribute>, Set<Identifier>> unified$variantModifiers = new HashMap<>();
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void preTick(CallbackInfo ci) {
@@ -71,11 +80,27 @@ public class LivingEntityMixin implements LivingEntityVariant {
 
     @Override
     public void setVariant(Optional<Holder<MobVariants.Definition>> variant) {
+        if (variant.filter(holder -> holder.unwrapKey().isEmpty()).isPresent()) {
+            throw new IllegalArgumentException("Selected mob variants must be registered; inline entity defaults are resolved from the entity type");
+        }
         LivingEntity entity = LivingEntity.class.cast(this);
         MobVariants.MOB_VARIANT_ATTEMPTED.set(entity, true);
         MobVariants.MOB_VARIANT.set(entity, variant);
+        refreshVariantAttributes();
+    }
+
+    @Override
+    public void refreshVariantAttributes() {
+        LivingEntity entity = LivingEntity.class.cast(this);
+        AttributeMap attributes = entity.getAttributes();
+        unified$variantModifiers.forEach((attribute, modifiers) -> {
+            AttributeInstance instance = attributes.attributes.get(attribute);
+            if (instance != null) modifiers.forEach(instance::removeModifier);
+        });
+        unified$variantModifiers.clear();
+
+        Optional<Holder<MobVariants.Definition>> variant = getVariant();
         if (variant.isPresent()) {
-            AttributeMap attributes = entity.getAttributes();
             for (MobVariants.AttributeEntry entry : variant.get().value().attributes()) {
                 AttributeInstance instance = attributes.attributes.computeIfAbsent(
                         entry.attribute(),
@@ -86,13 +111,16 @@ public class LivingEntityMixin implements LivingEntityVariant {
                 );
 
                 instance.addOrUpdateTransientModifier(entry.modifier());
+                unified$variantModifiers.computeIfAbsent(entry.attribute(), ignored -> new HashSet<>())
+                        .add(entry.modifier().id());
             }
         }
     }
 
     @Override
     public Optional<Holder<MobVariants.Definition>> getVariant() {
-        return MobVariants.MOB_VARIANT.get(LivingEntity.class.cast(this));
+        LivingEntity entity = LivingEntity.class.cast(this);
+        return MobVariants.MOB_VARIANT.get(entity).or(() -> EntityCopier.resolveDefaultVariant(entity.getType(), entity.level().registryAccess().lookupOrThrow(MobVariants.KEY)));
     }
 
     @Override
@@ -121,6 +149,7 @@ public class LivingEntityMixin implements LivingEntityVariant {
                         .filter(holder -> random.nextFloat() < holder.value().spawnChance());
 
         Optional<Holder<MobVariants.Definition>> selected = PriorityProvider.pick(candidates, Holder::value, random, SpawnContext.create(level, entity.blockPosition())).map(holder -> holder);
-        selected.or(() -> defaultVariant).ifPresent(holder -> setVariant(Optional.of(holder)));
+        selected.or(() -> defaultVariant.filter(holder -> holder.unwrapKey().isPresent()))
+                .ifPresent(holder -> setVariant(Optional.of(holder)));
     }
 }

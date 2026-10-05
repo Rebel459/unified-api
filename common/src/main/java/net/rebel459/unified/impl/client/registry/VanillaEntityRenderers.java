@@ -35,6 +35,9 @@ public class VanillaEntityRenderers {
     }
 
     private static Identifier getLayerName(Identifier id, String type) {
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), type + "/" + id.getPath().substring(0, id.getPath().length() - ("_" + type).length()));
+        String path = id.getPath();
+        int suffixStart = path.lastIndexOf('_');
+        String name = suffixStart >= 0 ? path.substring(0, suffixStart) : path;
+        return Identifier.fromNamespaceAndPath(id.getNamespace(), type + "/" + name);
     }
 }

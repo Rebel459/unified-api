@@ -156,28 +156,31 @@ public class NeoForgeHelpers {
 
         private static final List<HandledToServer<?>> HANDLED_TO_SERVER_LIST = new ArrayList<>();
         private static final List<HandledToClient<?>> HANDLED_TO_CLIENT_LIST = new ArrayList<>();
+        private static final List<HandledConfig<?>> HANDLED_CONFIG_TO_SERVER_LIST = new ArrayList<>();
+        private static final List<HandledConfig<?>> HANDLED_CONFIG_TO_CLIENT_LIST = new ArrayList<>();
 
-        private record HandledToServer<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler, boolean play) {}
-        private record HandledToClient<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, Player> handler, boolean play) {}
+        private record HandledToServer<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ServerPlayer> handler) {}
+        private record HandledToClient<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, Player> handler) {}
+        private record HandledConfig<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec, Consumer<T> handler) {}
 
         @Override
         public void registerPlayToServer(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            HANDLED_TO_SERVER_LIST.add(new HandledToServer<>(type, codec, handler, true));
+            HANDLED_TO_SERVER_LIST.add(new HandledToServer<>(type, codec, handler));
         }
 
         @Override
         public void registerPlayToClient(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            HANDLED_TO_CLIENT_LIST.add(new HandledToClient<>(type, codec, handler, true));
+            HANDLED_TO_CLIENT_LIST.add(new HandledToClient<>(type, codec, handler));
         }
 
         @Override
-        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            HANDLED_TO_SERVER_LIST.add(new HandledToServer<>(type, codec, handler, false));
+        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+            HANDLED_CONFIG_TO_SERVER_LIST.add(new HandledConfig<>(type, codec, handler));
         }
 
         @Override
-        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
-            HANDLED_TO_CLIENT_LIST.add(new HandledToClient<>(type, codec, handler, false));
+        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
+            HANDLED_CONFIG_TO_CLIENT_LIST.add(new HandledConfig<>(type, codec, handler));
         }
 
         @SubscribeEvent
@@ -185,41 +188,29 @@ public class NeoForgeHelpers {
             final PayloadRegistrar registrar = event.registrar("1");
 
             for (HandledToServer handled : HANDLED_TO_SERVER_LIST) {
-
-                if (handled.play) {
-                    registrar.playToServer(
-                            handled.type,
-                            handled.codec,
-                            (payload, context) -> {
-                                handled.handler.accept(payload, context.player());
-                            }
-                    );
-                } else {
-                    registrar.configurationToServer(
-                            handled.type,
-                            handled.codec,
-                            (payload, context) -> {
-                                handled.handler.accept(payload, context.player());
-                            }
-                    );
-                }
+                registrar.playToServer(
+                        handled.type,
+                        handled.codec,
+                        (payload, context) -> handled.handler.accept(payload, context.player())
+                );
             }
 
             for (HandledToClient handled : HANDLED_TO_CLIENT_LIST) {
+                registrar.playToClient(
+                        handled.type,
+                        handled.codec,
+                        (payload, context) -> handled.handler.accept(payload, context.player())
+                );
+            }
 
-                if (handled.play) {
-                    registrar.playToClient(
-                            handled.type,
-                            handled.codec,
-                            (payload, context) -> handled.handler.accept(payload, context.player())
-                    );
-                } else {
-                    registrar.configurationToClient(
-                            handled.type,
-                            handled.codec,
-                            (payload, context) -> handled.handler.accept(payload, context.player())
-                    );
-                }
+            for (HandledConfig handled : HANDLED_CONFIG_TO_SERVER_LIST) {
+                registrar.configurationToServer(handled.type, handled.codec,
+                        (payload, context) -> handled.handler.accept(payload));
+            }
+
+            for (HandledConfig handled : HANDLED_CONFIG_TO_CLIENT_LIST) {
+                registrar.configurationToClient(handled.type, handled.codec,
+                        (payload, context) -> handled.handler.accept(payload));
             }
         }
     }

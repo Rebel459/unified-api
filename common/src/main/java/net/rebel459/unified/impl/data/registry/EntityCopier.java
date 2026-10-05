@@ -17,9 +17,11 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.rebel459.unified.impl.data.helper.MobVariants;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public final class EntityCopier {
     private static final Map<ResourceKey<EntityType<?>>, Declaration> DECLARATIONS = new LinkedHashMap<>();
@@ -28,6 +30,9 @@ public final class EntityCopier {
     private static final Map<EntityType<?>, MobVariants.Definition> INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
     private static final Map<ResourceKey<EntityType<?>>, ResourceKey<MobVariants.Definition>> PENDING_DEFAULT_VARIANTS = new LinkedHashMap<>();
     private static final Map<ResourceKey<EntityType<?>>, MobVariants.Definition> PENDING_INLINE_DEFAULT_VARIANTS = new LinkedHashMap<>();
+    private static final Set<ResourceKey<EntityType<?>>> PENDING_ATTRIBUTE_OVERRIDES = new LinkedHashSet<>();
+    private static final Set<EntityType<?>> ATTRIBUTE_OVERRIDES = new LinkedHashSet<>();
+    private static final Set<EntityType<?>> SPAWN_PLACEMENT_OVERRIDES = new LinkedHashSet<>();
 
     private EntityCopier() {}
 
@@ -47,6 +52,22 @@ public final class EntityCopier {
         PENDING_INLINE_DEFAULT_VARIANTS.put(entityType, defaultVariant);
     }
 
+    public static void markAttributeOverride(ResourceKey<EntityType<?>> entityType) {
+        PENDING_ATTRIBUTE_OVERRIDES.add(entityType);
+    }
+
+    public static void markSpawnPlacementOverride(EntityType<?> entityType) {
+        SPAWN_PLACEMENT_OVERRIDES.add(entityType);
+    }
+
+    public static boolean hasAttributeOverride(EntityType<?> entityType) {
+        return ATTRIBUTE_OVERRIDES.contains(entityType);
+    }
+
+    public static boolean hasSpawnPlacementOverride(EntityType<?> entityType) {
+        return SPAWN_PLACEMENT_OVERRIDES.contains(entityType);
+    }
+
     public static void declare(ResourceKey<EntityType<?>> key, ResourceKey<EntityType<?>> base) {
         Declaration previous = DECLARATIONS.put(key, new Declaration(base));
         if (previous != null) throw new IllegalStateException("Duplicate copied entity declaration for " + key.identifier());
@@ -60,6 +81,7 @@ public final class EntityCopier {
     }
 
     public static void onRegistered(ResourceKey<EntityType<?>> key, EntityType<?> entityType) {
+        if (PENDING_ATTRIBUTE_OVERRIDES.remove(key)) ATTRIBUTE_OVERRIDES.add(entityType);
         ResourceKey<MobVariants.Definition> defaultVariant = PENDING_DEFAULT_VARIANTS.remove(key);
         if (defaultVariant != null) DEFAULT_VARIANTS.put(entityType, defaultVariant);
         MobVariants.Definition inlineDefaultVariant = PENDING_INLINE_DEFAULT_VARIANTS.remove(key);

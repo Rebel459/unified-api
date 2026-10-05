@@ -18,6 +18,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.rebel459.unified.api.codec.ExtensibleBlockItemCodec;
 import net.rebel459.unified.api.codec.ExtensibleItemCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.core.UnifiedEvents;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
@@ -46,6 +47,18 @@ public class VanillaItemCodecs {
         );
     }
 
+    private static Item tool(Item.Properties properties, Function<Item.Properties, Item> factory) {
+        var suppliedComponents = properties.componentInitializer;
+        Item item = factory.apply(properties);
+
+        // Tool constructors install defaults; restore the caller's component overrides afterward.
+        UnifiedEvents.DefaultDataComponents.modifyWithFilter(
+                tested -> tested == item,
+                (tested, components, provider) -> suppliedComponents.run(
+                        components, provider, BuiltInRegistries.ITEM.getResourceKey(tested).orElseThrow()));
+        return item;
+    }
+
     private static ExtensibleBlockItemCodec.Simple simpleBlock(String id, BiFunction<Block, Item.Properties, Item> factory) {
         return ExtensibleCodecs.BLOCK_ITEM.register(Identifier.withDefaultNamespace(id), () -> factory);
     }
@@ -60,6 +73,12 @@ public class VanillaItemCodecs {
     // Simple Items
 
     public static final ExtensibleItemCodec.Simple ITEM = simple("item", Item::new);
+    public static final ExtensibleItemCodec.Simple AXE = simple("axe", properties -> tool(properties,
+            p -> new AxeItem(ToolMaterial.WOOD, 0F, 0F, p)));
+    public static final ExtensibleItemCodec.Simple SHOVEL = simple("shovel", properties -> tool(properties,
+            p -> new ShovelItem(ToolMaterial.WOOD, 0F, 0F, p)));
+    public static final ExtensibleItemCodec.Simple HOE = simple("hoe", properties -> tool(properties,
+            p -> new HoeItem(ToolMaterial.WOOD, 0F, 0F, p)));
 
     public static final ExtensibleItemCodec.Simple ARMOR_STAND = simple("armor_stand", ArmorStandItem::new);
     public static final ExtensibleItemCodec.Simple ARROW = simple("arrow", ArrowItem::new);
