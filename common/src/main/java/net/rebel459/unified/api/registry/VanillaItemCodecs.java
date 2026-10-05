@@ -1,12 +1,15 @@
 package net.rebel459.unified.api.registry;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ItemSteerable;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -18,11 +21,11 @@ import net.minecraft.world.level.material.Fluid;
 import net.rebel459.unified.api.codec.ExtensibleBlockItemCodec;
 import net.rebel459.unified.api.codec.ExtensibleItemCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
-import net.rebel459.unified.api.core.UnifiedEvents;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.Optional;
 
 public class VanillaItemCodecs {
 
@@ -32,6 +35,14 @@ public class VanillaItemCodecs {
     private static final MapCodec<Fluid> FLUID_CODEC = BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid");
     private static final MapCodec<SoundEvent> PLACE_SOUND_CODEC = BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("place_sound");
     private static final MapCodec<Block> WALL_BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec().fieldOf("wall_block");
+    private static final MapCodec<ToolMaterial> TOOL_MATERIAL_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            TagKey.codec(Registries.BLOCK).fieldOf("incorrect_blocks_for_drops").forGetter(ToolMaterial::incorrectBlocksForDrops),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("durability").forGetter(ToolMaterial::durability),
+            com.mojang.serialization.Codec.FLOAT.fieldOf("speed").forGetter(ToolMaterial::speed),
+            com.mojang.serialization.Codec.FLOAT.fieldOf("attack_damage_bonus").forGetter(ToolMaterial::attackDamageBonus),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("enchantment_value").forGetter(ToolMaterial::enchantmentValue),
+            TagKey.codec(Registries.ITEM).fieldOf("repair_items").forGetter(ToolMaterial::repairItems)
+    ).apply(instance, ToolMaterial::new));
 
     // Registration Helpers
 
@@ -45,18 +56,6 @@ public class VanillaItemCodecs {
                 codec,
                 definition -> properties -> factory.apply(definition, properties)
         );
-    }
-
-    private static Item tool(Item.Properties properties, Function<Item.Properties, Item> factory) {
-        var suppliedComponents = properties.componentInitializer;
-        Item item = factory.apply(properties);
-
-        // Tool constructors install defaults; restore the caller's component overrides afterward.
-        UnifiedEvents.DefaultDataComponents.modifyWithFilter(
-                tested -> tested == item,
-                (tested, components, provider) -> suppliedComponents.run(
-                        components, provider, BuiltInRegistries.ITEM.getResourceKey(tested).orElseThrow()));
-        return item;
     }
 
     private static ExtensibleBlockItemCodec.Simple simpleBlock(String id, BiFunction<Block, Item.Properties, Item> factory) {
@@ -73,12 +72,6 @@ public class VanillaItemCodecs {
     // Simple Items
 
     public static final ExtensibleItemCodec.Simple ITEM = simple("item", Item::new);
-    public static final ExtensibleItemCodec.Simple AXE = simple("axe", properties -> tool(properties,
-            p -> new AxeItem(ToolMaterial.WOOD, 0F, 0F, p)));
-    public static final ExtensibleItemCodec.Simple SHOVEL = simple("shovel", properties -> tool(properties,
-            p -> new ShovelItem(ToolMaterial.WOOD, 0F, 0F, p)));
-    public static final ExtensibleItemCodec.Simple HOE = simple("hoe", properties -> tool(properties,
-            p -> new HoeItem(ToolMaterial.WOOD, 0F, 0F, p)));
 
     public static final ExtensibleItemCodec.Simple ARMOR_STAND = simple("armor_stand", ArmorStandItem::new);
     public static final ExtensibleItemCodec.Simple ARROW = simple("arrow", ArrowItem::new);
@@ -127,6 +120,8 @@ public class VanillaItemCodecs {
 
     // Complex Items
 
+    public static final ExtensibleItemCodec.Complex<Tool> AXE = complex("axe", Tool.CODEC,
+            (tool, properties) -> new AxeItem(tool.material(), tool.damageBaseline(), tool.speedBaseline(), properties));
     public static final ExtensibleItemCodec.Complex<EntityType<?>> BOAT = complex(
             "boat", BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("boat_entity"),
             (definition, properties) -> new BoatItem((EntityType<? extends AbstractBoat>) definition, properties));
@@ -136,13 +131,16 @@ public class VanillaItemCodecs {
             "food_on_a_stick", FoodOnAStick.CODEC, (definition, properties) -> new FoodOnAStickItem<>((EntityType<? extends ItemSteerable>) definition.canInteractWith, definition.consumeItemDamage, properties));
     public static final ExtensibleItemCodec.Complex<EntityType<?>> HANGING_ENTITY_ITEM = complex(
             "hanging_entity_item", ENTITY_TYPE_CODEC, (definition, properties) -> new HangingEntityItem((EntityType<? extends HangingEntity>) definition, properties));
+    public static final ExtensibleItemCodec.Complex<Tool> HOE = complex("hoe", Tool.CODEC,
+            (tool, properties) -> new HoeItem(tool.material(), tool.damageBaseline(), tool.speedBaseline(), properties));
     public static final ExtensibleItemCodec.Complex<EntityType<?>> ITEM_FRAME = complex(
             "item_frame", ENTITY_TYPE_CODEC, (definition, properties) -> new ItemFrameItem((EntityType<? extends HangingEntity>) definition, properties));
     public static final ExtensibleItemCodec.Complex<EntityType<?>> MINECART = complex(
             "minecart", ENTITY_TYPE_CODEC, (definition, properties) -> new MinecartItem((EntityType<? extends AbstractMinecart>) definition, properties));
     public static final ExtensibleItemCodec.Complex<MobBucket> MOB_BUCKET = complex(
             "mob_bucket", MobBucket.CODEC, (definition, properties) -> new MobBucketItem((EntityType<? extends net.minecraft.world.entity.Mob>) definition.entityType, definition.fluid, definition.emptySound, properties));
-
+    public static final ExtensibleItemCodec.Complex<Tool> SHOVEL = complex("shovel", Tool.CODEC,
+            (tool, properties) -> new ShovelItem(tool.material(), tool.damageBaseline(), tool.speedBaseline(), properties));
     // Simple Block Items
 
     public static final ExtensibleBlockItemCodec.Simple BLOCK_ITEM = simpleBlock("block_item", BlockItem::new);
@@ -175,6 +173,14 @@ public class VanillaItemCodecs {
                     block, definition.wallBlock, definition.attachmentDirection, properties));
 
     // Codec Definitions
+
+    public record Tool(ToolMaterial material, float damageBaseline, float speedBaseline) {
+        public static final MapCodec<Tool> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                TOOL_MATERIAL_CODEC.fieldOf("tool_material").forGetter(Tool::material),
+                Codec.FLOAT.fieldOf("damage_baseline").forGetter(Tool::damageBaseline),
+                Codec.FLOAT.fieldOf("speed_baseline").forGetter(Tool::speedBaseline)
+        ).apply(instance, Tool::new));
+    }
 
     public record MobBucket(EntityType<?> entityType, Fluid fluid, SoundEvent emptySound) {
         public static final MapCodec<MobBucket> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
