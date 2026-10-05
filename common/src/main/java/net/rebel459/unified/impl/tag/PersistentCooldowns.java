@@ -14,6 +14,7 @@ public class PersistentCooldowns {
 	public static final Codec<List<Record>> CODEC = PersistentCooldowns.Record.CODEC.listOf();
 
 	public static HashMap<ServerPlayer, List<Record>> PENDING_COOLDOWNS = new HashMap<>();
+	private static boolean initialized;
 
 	public static int getCooldown(ServerPlayer player, Identifier id) {
 		var cooldowns = player.getCooldowns();
@@ -24,14 +25,16 @@ public class PersistentCooldowns {
 		return 0;
 	}
 
-	public static void init() {
+	public static synchronized void init() {
+		if (initialized) return;
 		UnifiedEvents.Players.onJoin(player -> {
-			if (!(player instanceof ServerPlayer serverPlayer)) return;
-			List<Record> list = PENDING_COOLDOWNS.get(serverPlayer);
+			List<Record> list = PENDING_COOLDOWNS.remove(player);
 			if (list != null) {
-				list.forEach(record -> player.getCooldowns().addCooldown(record.id, record.remainingCooldown));
+				list.forEach(record -> player.getCooldowns().addCooldown(record.id(), record.remainingCooldown()));
 			}
 		});
+		UnifiedEvents.Players.onLeave(PENDING_COOLDOWNS::remove);
+		initialized = true;
 	}
 
 	public record Record(Identifier id, int remainingCooldown) {

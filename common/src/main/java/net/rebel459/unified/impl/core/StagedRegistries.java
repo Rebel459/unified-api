@@ -220,14 +220,12 @@ public final class StagedRegistries {
         }
 
         @Override
-        public <T extends Entity> Supplied<EntityType<T>> register(String path,
-                EntityType.Builder<T> builder) {
+        public <T extends Entity> Supplied<EntityType<T>> register(String path, Supplier<EntityType.Builder<T>> builder) {
             return register(path, registry -> registry.register(path, builder));
         }
 
         @Override
-        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path,
-                EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes) {
+        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, Supplier<EntityType.Builder<T>> builder, Supplier<AttributeSupplier> attributes) {
             return register(path, registry -> registry.register(path, builder, attributes));
         }
 

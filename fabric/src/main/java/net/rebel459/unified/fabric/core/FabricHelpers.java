@@ -2,10 +2,12 @@ package net.rebel459.unified.fabric.core;
 
 import com.mojang.serialization.Codec;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -33,6 +35,7 @@ import net.rebel459.unified.impl.core.CommonHelpers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FabricHelpers {
@@ -105,24 +108,22 @@ public class FabricHelpers {
         }
 
         @Override
-        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+        public void registerConfigToServer(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
 
             PayloadTypeRegistry.serverboundConfiguration().register(type, codec);
 
-            ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
-                handler.accept(payload, context.player());
-            });
+            ServerConfigurationNetworking.registerGlobalReceiver(type, (payload, context) ->
+                    context.server().execute(() -> handler.accept(payload)));
         }
 
         @Override
-        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec, BiConsumer handler) {
+        public void registerConfigToClient(CustomPacketPayload.Type type, StreamCodec codec, Consumer handler) {
 
             PayloadTypeRegistry.clientboundConfiguration().register(type, codec);
 
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-                ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> {
-                    handler.accept(payload, context.player());
-                });
+                ClientConfigurationNetworking.registerGlobalReceiver(type, (payload, context) ->
+                        context.client().execute(() -> handler.accept(payload)));
             }
         }
 

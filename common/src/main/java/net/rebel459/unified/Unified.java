@@ -15,6 +15,7 @@ import net.rebel459.unified.impl.builder.*;
 import net.rebel459.unified.impl.data.helper.*;
 import net.rebel459.unified.impl.data.registry.*;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
+import net.rebel459.unified.impl.tag.PersistentCooldowns;
 
 import java.util.ServiceLoader;
 
@@ -48,6 +49,7 @@ public class Unified {
     public static void initRegistries() {
         initCodecs();
         LootInjections.init();
+        BlockConversions.init();
         ComponentModifiers.init();
         MobVariants.init();
         BiomeModifiers.init();
@@ -59,7 +61,6 @@ public class Unified {
         new ItemRegistry().init();
         new CreativeTabRegistry().init();
         ServiceLoader.load(RegistryResourceInitializer.class, Unified.class.getClassLoader()).forEach(RegistryResourceInitializer::initializeRegistryResources);
-        UnifiedHelpers.RELOAD_LISTENERS.addListener(BlockConversions.ID, new BlockConversions());
     }
 
     public static void completeRegistries() {
@@ -71,6 +72,7 @@ public class Unified {
     }
 
     public static void init() {
+        PersistentCooldowns.init();
         BlockRegistry.runLateProperties();
         StructurePacketImpl.init();
         if (UnifiedPlatform.getModLoader() == ModLoader.NEOFORGE) {

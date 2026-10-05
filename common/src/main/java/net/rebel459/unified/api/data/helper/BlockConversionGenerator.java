@@ -43,7 +43,7 @@ public class BlockConversionGenerator extends HelperGenerator {
         create(name, registries -> UnifiedItemPredicateCodecs.COMPONENTS.create(() -> Map.of(
                 DataComponents.BLOCK_TRANSFORMER,
                 registries.lookupOrThrow(Registries.BLOCK_TRANSFORMER).getOrThrow(BlockTransformers.AXE)
-        )), log, strippedLog).onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(SoundEvents.AXE_STRIP::value));
+        )), log, strippedLog).onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(SoundEvents.AXE_STRIP::value)).onUse(UnifiedUseContextCodecs.DAMAGE_ITEM.create(() -> 1));
     }
 
     public static final class Builder extends HelperGenerator.Builder {

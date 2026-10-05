@@ -235,17 +235,17 @@ public class NeoForgeUnifiedRegistries {
         private static final List<Pair<Supplied<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>>> ENTITY_ATTRIBUTES = new ArrayList<>();
 
         @Override
-        public @NotNull <T extends Entity> Supplied<EntityType<T>> register(String path, @NotNull EntityType.Builder<T> builder) {
+        public <T extends Entity> Supplied<EntityType<T>> register(String path, Supplier<EntityType.Builder<T>> builder) {
             ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(modId, path));
             Supplied<EntityType<T>> existing = StagedRegistry.getClaimed(key);
             if (existing != null) return existing;
             DeferredRegister<EntityType<T>> registry = DEFERRED.get(Pair.of(modId, BuiltInRegistries.ENTITY_TYPE));
-            var entityType = registry.register(path, () -> builder.build(key));
+            var entityType = registry.register(path, () -> builder.get().build(key));
             return new Supplied<>(entityType.getKey(), entityType, () -> entityType);
         }
 
         @Override
-        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> builder, Supplier<AttributeSupplier> attributes) {
+        public <T extends LivingEntity> Supplied<EntityType<T>> register(String path, Supplier<EntityType.Builder<T>> builder, Supplier<AttributeSupplier> attributes) {
             Supplied<EntityType<T>> entity = register(path, builder);
             ENTITY_ATTRIBUTES.add(Pair.of(entity, attributes));
             return entity;

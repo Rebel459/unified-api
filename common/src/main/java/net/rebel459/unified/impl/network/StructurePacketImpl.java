@@ -27,6 +27,8 @@ public class StructurePacketImpl {
         UnifiedHelpers.NETWORKING.registerPlayToClient(StructurePacket.TYPE, StructurePacket.CODEC, (packet, player) -> {
             clientStructures = new Info(Pair.of(packet.pieceStructures(), packet.pieceStructureTags()), Pair.of(packet.boxStructures(), packet.boxStructureTags()));
         });
+        UnifiedEvents.Players.onJoin(player -> clearPlayerState(player.getUUID()));
+        UnifiedEvents.Players.onLeave(player -> clearPlayerState(player.getUUID()));
         UnifiedEvents.Server.onDatapackLoad(server -> {
             shouldUpdateStructures = true;
             STRUCTURES.clear();
@@ -43,9 +45,9 @@ public class StructurePacketImpl {
                 if (levelStructures == null) return;
 
                 for (ServerPlayer player : level.players()) {
-                    UUID playerId = player.getUUID();
+                    PlayerKey playerKey = new PlayerKey(player.getUUID(), level.dimension());
                     BlockPos pos = BlockPos.containing(player.position());
-                    if (LAST_POSITION.get(playerId) != null && LAST_POSITION.get(playerId).equals(player.blockPosition())) continue;
+                    if (LAST_POSITION.get(playerKey) != null && LAST_POSITION.get(playerKey).equals(player.blockPosition())) continue;
                     HashSet<ResourceKey<Structure>> boxStructureIds = new HashSet<>();
                     HashSet<TagKey<Structure>> boxStructureTags = new HashSet<>();
                     HashSet<ResourceKey<Structure>> pieceStructureIds = new HashSet<>();
@@ -62,10 +64,10 @@ public class StructurePacketImpl {
                         }
                     }
                     Info info = new Info(Pair.of(pieceStructureIds, pieceStructureTags), Pair.of(boxStructureIds, boxStructureTags));
-                    LAST_POSITION.put(playerId, player.blockPosition());
-                    if (LAST_STRUCTURES.get(playerId) == null || !LAST_STRUCTURES.get(playerId).equals(info)) {
+                    LAST_POSITION.put(playerKey, player.blockPosition());
+                    if (LAST_STRUCTURES.get(playerKey) == null || !LAST_STRUCTURES.get(playerKey).equals(info)) {
                         UnifiedHelpers.NETWORKING.send(new StructurePacket(info.piece.getFirst(), info.piece.getSecond(), info.box.getFirst(), info.box.getSecond()), player);
-                        LAST_STRUCTURES.put(playerId, info);
+                        LAST_STRUCTURES.put(playerKey, info);
                     }
                 }
             });
@@ -80,13 +82,24 @@ public class StructurePacketImpl {
         return STRUCTURES;
     }
 
-    private static final Map<UUID, Info> LAST_STRUCTURES = new HashMap<>();
-    private static final Map<UUID, BlockPos> LAST_POSITION = new HashMap<>();
+    private record PlayerKey(UUID id, ResourceKey<Level> dimension) {}
+
+    private static final Map<PlayerKey, Info> LAST_STRUCTURES = new HashMap<>();
+    private static final Map<PlayerKey, BlockPos> LAST_POSITION = new HashMap<>();
 
     private static Info clientStructures = new Info(Pair.of(Set.of(), Set.of()), (Pair.of(Set.of(), Set.of())));
 
     public static Info getClientStructures() {
         return clientStructures;
+    }
+
+    public static void resetClientStructures() {
+        clientStructures = new Info(Pair.of(Set.of(), Set.of()), Pair.of(Set.of(), Set.of()));
+    }
+
+    private static void clearPlayerState(UUID playerId) {
+        LAST_STRUCTURES.keySet().removeIf(key -> key.id().equals(playerId));
+        LAST_POSITION.keySet().removeIf(key -> key.id().equals(playerId));
     }
 
     public record Info(Pair<Set<ResourceKey<Structure>>, Set<TagKey<Structure>>> piece, Pair<Set<ResourceKey<Structure>>, Set<TagKey<Structure>>> box) {}

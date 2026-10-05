@@ -2,6 +2,7 @@ package net.rebel459.unified.impl.helper;
 
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.rebel459.unified.api.util.BlockLike;
+import net.rebel459.unified.impl.data.helper.BlockConversions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +49,19 @@ public class BlockConversionsImpl {
     }
 
     private static Optional<BlockState> evaluateNewBlockState(UseOnContext context, BlockState oldState) {
-        List<Record> interactions = INTERACTIONS.get(oldState.getBlock());
-        if (context.getPlayer() == null || interactions == null) return Optional.empty();
+        if (context.getPlayer() == null) return Optional.empty();
+        List<Record> interactions = new java.util.ArrayList<>(
+                INTERACTIONS.getOrDefault(oldState.getBlock(), List.of()));
+        context.getLevel().registryAccess().lookup(BlockConversions.KEY).ifPresent(definitions ->
+                definitions.listElements().map(Holder.Reference::value)
+                        .flatMap(List::stream)
+                        .filter(definition -> definition.original().equals(oldState.getBlock()))
+                        .forEach(definition -> interactions.add(new Record(
+                                stack -> definition.predicate().get().test(stack),
+                                definition.converted(),
+                                useContext -> definition.useContext().forEach(entry ->
+                                        entry.get().accept(useContext))))));
+        if (interactions.isEmpty()) return Optional.empty();
 
         Record interaction = null;
         for (int i = interactions.size() - 1; i >= 0; i--) {

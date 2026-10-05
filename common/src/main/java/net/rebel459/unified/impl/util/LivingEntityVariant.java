@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface LivingEntityVariant {
     void setVariant(Optional<Holder<MobVariants.Definition>> variant);
     Optional<Holder<MobVariants.Definition>> getVariant();
+    void refreshVariantAttributes();
     void spawnVariant(ServerLevelAccessor level);
 }

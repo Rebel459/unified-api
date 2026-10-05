@@ -21,8 +21,9 @@ public abstract class ServerLevelEntityCallbacksMixin {
 
 	@Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
 	private void selectMissingVariant(Entity entity, CallbackInfo ci) {
-		if (entity instanceof Mob && entity instanceof LivingEntityVariant variant && variant.getVariant().isEmpty()) {
+		if (entity instanceof Mob && entity instanceof LivingEntityVariant variant) {
 			variant.spawnVariant(this$0);
+			variant.refreshVariantAttributes();
 		}
 	}
 
