@@ -73,12 +73,6 @@ public class VanillaItemCodecs {
     // Simple Items
 
     public static final ExtensibleItemCodec.Simple ITEM = simple("item", Item::new);
-    public static final ExtensibleItemCodec.Simple AXE = simple("axe", properties -> tool(properties,
-            p -> new AxeItem(ToolMaterial.WOOD, 0F, 0F, p)));
-    public static final ExtensibleItemCodec.Simple SHOVEL = simple("shovel", properties -> tool(properties,
-            p -> new ShovelItem(ToolMaterial.WOOD, 0F, 0F, p)));
-    public static final ExtensibleItemCodec.Simple HOE = simple("hoe", properties -> tool(properties,
-            p -> new HoeItem(ToolMaterial.WOOD, 0F, 0F, p)));
 
     public static final ExtensibleItemCodec.Simple ARMOR_STAND = simple("armor_stand", ArmorStandItem::new);
     public static final ExtensibleItemCodec.Simple ARROW = simple("arrow", ArrowItem::new);
