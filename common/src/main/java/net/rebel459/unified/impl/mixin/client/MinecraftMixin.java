@@ -17,6 +17,7 @@ import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.attribute.EnvironmentAttributeProbe;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.rebel459.unified.api.client.helper.ClientStructureReceiver;
+import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import net.rebel459.unified.impl.client.helper.StructureMusicImpl;
 import net.rebel459.unified.impl.core.CommonEvents;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
