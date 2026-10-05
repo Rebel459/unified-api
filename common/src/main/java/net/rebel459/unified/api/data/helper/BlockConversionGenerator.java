@@ -37,7 +37,9 @@ public class BlockConversionGenerator extends HelperGenerator {
     }
 
     public void addStrippable(String name, BlockLike log, BlockLike strippedLog) {
-        create(name, _ -> UnifiedItemPredicateCodecs.IS_AXE.create(), log, strippedLog).onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(() -> SoundEvents.AXE_STRIP));
+        create(name, _ -> UnifiedItemPredicateCodecs.IS_AXE.create(), log, strippedLog)
+                .onUse(UnifiedUseContextCodecs.PLAY_SOUND.create(() -> SoundEvents.AXE_STRIP))
+                .onUse(UnifiedUseContextCodecs.DAMAGE_ITEM.create(() -> 1));
     }
 
     public static final class Builder extends HelperGenerator.Builder {

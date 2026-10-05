@@ -18,7 +18,7 @@ public class FoxMixin {
     private void variantEatSound(CallbackInfo ci) {
         Fox fox = Fox.class.cast(this);
         if (fox instanceof LivingEntityVariant variant && variant.getVariant().isPresent()) {
-            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().hurtSound();
+            Optional<SoundEvent> sound = variant.getVariant().get().value().sounds().eatSound();
             if (sound.isPresent()) {
                 fox.playSound(sound.get());
                 ci.cancel();

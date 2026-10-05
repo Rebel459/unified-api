@@ -32,16 +32,16 @@ public abstract class MobMixin {
 
     @Inject(method = "finalizeSpawn", at = @At("TAIL"))
     private void selectVariant(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, SpawnGroupData groupData, CallbackInfoReturnable<SpawnGroupData> cir) {
-        if (Mob.class.cast(this) instanceof LivingEntityVariant variant && variant.getVariant().isEmpty()) {
+        if (Mob.class.cast(this) instanceof LivingEntityVariant variant) {
             variant.spawnVariant(level);
         }
     }
 
-    @Inject(method = "doHurtTarget", at = @At("HEAD"))
+    @Inject(method = "doHurtTarget", at = @At("RETURN"))
     private void applyVariantMeleeEffects(ServerLevel level, Entity target, CallbackInfoReturnable<Boolean> cir) {
-        if (Mob.class.cast(this) instanceof LivingEntityVariant variant && variant.getVariant().isPresent() && target instanceof LivingEntity livingEntity) {
+        if (cir.getReturnValueZ() && Mob.class.cast(this) instanceof LivingEntityVariant variant && variant.getVariant().isPresent() && target instanceof LivingEntity livingEntity) {
             for (MobEffectInstance effect : variant.getVariant().get().value().attackEffects()) {
-                livingEntity.addEffect(effect);
+                livingEntity.addEffect(new MobEffectInstance(effect));
             }
         }
     }

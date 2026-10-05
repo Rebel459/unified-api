@@ -20,24 +20,32 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class SpawnPlacementsMixin {
     @Inject(method = "getPlacementType", at = @At("HEAD"), cancellable = true)
     private static void copiedPlacement(EntityType<?> type, CallbackInfoReturnable<SpawnPlacementType> cir) {
-        EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getPlacementType(template)));
+        if (!EntityCopier.hasSpawnPlacementOverride(type)) {
+            EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getPlacementType(template)));
+        }
     }
 
     @Inject(method = "isSpawnPositionOk", at = @At("HEAD"), cancellable = true)
     private static void copiedPosition(EntityType<?> type, LevelReader level, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.isSpawnPositionOk(template, level, pos)));
+        if (!EntityCopier.hasSpawnPlacementOverride(type)) {
+            EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.isSpawnPositionOk(template, level, pos)));
+        }
     }
 
     @Inject(method = "getHeightmapType", at = @At("HEAD"), cancellable = true)
     private static void copiedHeightmap(EntityType<?> type, CallbackInfoReturnable<Heightmap.Types> cir) {
-        EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getHeightmapType(template)));
+        if (!EntityCopier.hasSpawnPlacementOverride(type)) {
+            EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(SpawnPlacements.getHeightmapType(template)));
+        }
     }
 
     @Inject(method = "checkSpawnRules", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T extends Entity> void copiedRules(EntityType<T> type, ServerLevelAccessor level, EntitySpawnReason reason, BlockPos pos, RandomSource random, CallbackInfoReturnable<Boolean> cir) {
-        EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(
-                SpawnPlacements.checkSpawnRules((EntityType) template, level, reason, pos, random)
-        ));
+        if (!EntityCopier.hasSpawnPlacementOverride(type)) {
+            EntityCopier.template(type).ifPresent(template -> cir.setReturnValue(
+                    SpawnPlacements.checkSpawnRules((EntityType) template, level, reason, pos, random)
+            ));
+        }
     }
 }

@@ -407,7 +407,7 @@ public class EquipmentSet {
     private SuppliedItem createAxe() {
         return register(
                 this.getId().getPath() + "_axe",
-                VanillaItemCodecs.ITEM.create(),
+                VanillaItemCodecs.AXE.create(),
                 builder -> builder
                         .properties(properties -> {
                             properties.axe(getToolMaterial(), 5F, -4F + getSettings().axeSwingSpeed);
@@ -439,7 +439,7 @@ public class EquipmentSet {
     private SuppliedItem createShovel() {
         return register(
                 this.getId().getPath() + "_shovel",
-                VanillaItemCodecs.ITEM.create(),
+                VanillaItemCodecs.SHOVEL.create(),
                 builder -> builder
                         .properties(properties -> {
                             properties.shovel(getToolMaterial(), 1.5F, -3F);
@@ -455,7 +455,7 @@ public class EquipmentSet {
     private SuppliedItem createHoe() {
         return register(
                 this.getId().getPath() + "_hoe",
-                VanillaItemCodecs.ITEM.create(),
+                VanillaItemCodecs.HOE.create(),
                 builder -> builder
                         .properties(properties -> {
                             properties.hoe(getToolMaterial(), -4F, 0F);
