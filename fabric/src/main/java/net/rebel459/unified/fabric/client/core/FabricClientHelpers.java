@@ -1,5 +1,6 @@
 package net.rebel459.unified.fabric.client.core;
 
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
@@ -7,6 +8,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -122,6 +124,19 @@ public class FabricClientHelpers {
         @Override
         public void addOrdering(Identifier first, Identifier second) {
             ResourceLoader.get(PackType.CLIENT_RESOURCES).addListenerOrdering(first, second);
+        }
+    }
+
+    public static class KeyMappings implements CommonClientHelpers.KeyMappings {
+
+        @Override
+        public void register(KeyMapping keyMapping) {
+            KeyMappingHelper.registerKeyMapping(keyMapping);
+        }
+
+        @Override
+        public void registerCategory(KeyMapping.Category category) {
+            KeyMapping.Category.register(category.id());
         }
     }
 }
