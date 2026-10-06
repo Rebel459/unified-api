@@ -22,7 +22,7 @@ public class ComponentModifiers {
     public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("component_modifiers"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(ExtensibleCodecs.ITEM_PREDICATES.never.create(), Map.of())));
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(ExtensibleCodecs.ITEM_PREDICATES.never().create(), Map.of())));
         UnifiedEvents.DefaultDataComponents.modify((item, builder, provider) -> {
             ItemStack defaultStack = item.getDefaultInstance();
             provider.lookup(KEY).ifPresent(modifiers -> modifiers.listElements().forEach(modifier -> {
