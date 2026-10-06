@@ -1,8 +1,6 @@
 package net.rebel459.unified.api.data.helper;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +15,6 @@ import net.rebel459.unified.impl.data.helper.BlockConversions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -29,7 +26,7 @@ public class BlockConversionGenerator extends HelperGenerator {
     }
 
     public Builder createAndRegister(String name, Function<HolderLookup.Provider, Predicate<ItemStack>> predicate, BlockLike original, BlockLike converted) {
-        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATES.register(Identifier.fromNamespaceAndPath(modId, "block_conversion/" + name), () -> predicate.apply(provider)).create(), original, converted);
+        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATE.register(Identifier.fromNamespaceAndPath(modId, "block_conversion/" + name), () -> predicate.apply(provider)).create(), original, converted);
     }
 
     public Builder create(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, BlockLike original, BlockLike converted) {
