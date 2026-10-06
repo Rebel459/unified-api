@@ -321,7 +321,7 @@ public abstract class RegistryResourceListener<T> {
                             DataProviders.PriorityAndRequirement metadata = DataProviders.PriorityAndRequirement.CODEC.parse(JsonOps.INSTANCE, definition)
                                     .getOrThrow(error -> new IllegalArgumentException(resourceId + ": " + error));
                             definition.remove("priority");
-                            definition.remove("load_requirements");
+                            definition.remove("load_requirement");
                             Candidate candidate = new Candidate(definition, metadata.priority(), metadata.requirement(), pack.external(), sequence[0]++, pack.resources().packId());
                             Candidate previous = indexed.get(resourceId);
                             if (previous == null || candidate.supersedes(previous)) indexed.put(resourceId, candidate);
