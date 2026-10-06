@@ -1,7 +1,6 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.SoundType;

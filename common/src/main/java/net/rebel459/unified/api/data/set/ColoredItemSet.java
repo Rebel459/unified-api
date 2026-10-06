@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
@@ -15,7 +15,7 @@ import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.QuadConsumer;
 import net.rebel459.unified.api.util.RecipeProvider;
-import net.rebel459.unified.impl.builder.ColoredItemSetProperties;
+import net.rebel459.unified.impl.data.set.ColoredItemSetProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;

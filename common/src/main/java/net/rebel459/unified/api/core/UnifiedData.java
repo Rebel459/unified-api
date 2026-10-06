@@ -3,11 +3,11 @@ package net.rebel459.unified.api.core;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.world.level.material.MapColor;
-import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.data.helper.*;
 import net.rebel459.unified.api.data.registry.*;
+import net.rebel459.unified.api.data.set.*;
 import net.rebel459.unified.impl.core.DataProviders;
 
 import java.util.Optional;

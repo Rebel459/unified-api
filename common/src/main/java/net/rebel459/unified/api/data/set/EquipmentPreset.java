@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.DamageTypeTags;
