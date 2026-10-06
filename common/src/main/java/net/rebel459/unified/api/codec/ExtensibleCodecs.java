@@ -27,7 +27,7 @@ public class ExtensibleCodecs {
 
     public static final ExtensiblePredicateCodec<Predicate<BlockState>> BLOCK_PREDICATE = ExtensiblePredicateCodec.predicate();
 
-    public static final ExtensiblePredicateCodec<Predicate<ItemStack>> ITEM_PREDICATES = ExtensiblePredicateCodec.predicate();
+    public static final ExtensiblePredicateCodec<Predicate<ItemStack>> ITEM_PREDICATE = ExtensiblePredicateCodec.predicate();
 
     public static final ExtensiblePredicateCodec<BlockBehaviour.StatePredicate> STATE_PREDICATE = new ExtensiblePredicateCodec<>(evaluation ->
             (state, level, pos) -> evaluation.evaluate(predicate -> predicate.test(state, level, pos)));

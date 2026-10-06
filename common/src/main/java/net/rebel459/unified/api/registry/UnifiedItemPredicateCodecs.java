@@ -17,20 +17,20 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class UnifiedItemPredicateCodecs {
-    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, HolderSet<Item>> ITEMS = ExtensibleCodecs.ITEM_PREDICATES.register(
+    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, HolderSet<Item>> ITEMS = ExtensibleCodecs.ITEM_PREDICATE.register(
             Unified.id("items"),
             RegistryCodecs.homogeneousList(Registries.ITEM).fieldOf("items"),
             items -> stack -> items.contains(stack.typeHolder())
     );
 
-    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, Map<DataComponentType<?>, Object>> COMPONENTS = ExtensibleCodecs.ITEM_PREDICATES.register(
+    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, Map<DataComponentType<?>, Object>> COMPONENTS = ExtensibleCodecs.ITEM_PREDICATE.register(
             Unified.id("components"),
             DataComponentType.VALUE_MAP_CODEC.fieldOf("components"),
             components -> stack -> components.entrySet().stream()
                     .allMatch(entry -> Objects.equals(stack.get(entry.getKey()), entry.getValue()))
     );
 
-    public static final ExtensibleCodecBase.Simple<Predicate<ItemStack>> IS_AXE = ExtensibleCodecs.ITEM_PREDICATES.register(
+    public static final ExtensibleCodecBase.Simple<Predicate<ItemStack>> IS_AXE = ExtensibleCodecs.ITEM_PREDICATE.register(
             Unified.id("is_axe"),
             () -> stack -> stack.getItem() instanceof AxeItem
     );
