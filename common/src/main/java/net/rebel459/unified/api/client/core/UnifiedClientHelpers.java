@@ -14,4 +14,5 @@ public class UnifiedClientHelpers {
     public static CommonClientHelpers.ResourcePacks RESOURCE_PACKS = ClientPlatformHandler.INSTANCE.getResourcePacks();
     public static CommonClientHelpers.ReloadListeners RELOAD_LISTENERS = ClientPlatformHandler.INSTANCE.getReloadListeners();
     public static CommonClientHelpers.StructureMusic STRUCTURE_MUSIC = new CommonClientHelpers.StructureMusic() {};
+    public static CommonClientHelpers.KeyMappings KEY_MAPPINGS = ClientPlatformHandler.INSTANCE.getKeyMappings();
 }

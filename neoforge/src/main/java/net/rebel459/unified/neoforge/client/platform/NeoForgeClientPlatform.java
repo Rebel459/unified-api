@@ -1,17 +1,10 @@
 package net.rebel459.unified.neoforge.client.platform;
 
-import net.rebel459.unified.api.client.core.UnifiedClientRegistries;
 import net.rebel459.unified.impl.client.core.CommonClientHelpers;
 import net.rebel459.unified.impl.client.platform.CommonClientPlatform;
 import net.rebel459.unified.neoforge.client.core.NeoForgeClientHelpers;
-import net.rebel459.unified.neoforge.client.core.NeoForgeUnifiedClientRegistries;
 
 public class NeoForgeClientPlatform implements CommonClientPlatform {
-
-    @Override
-    public UnifiedClientRegistries.KeyMappings createKeyMappings(String modId) {
-        return new NeoForgeUnifiedClientRegistries.KeyMappings(modId);
-    }
 
     @Override
     public CommonClientHelpers.Networking getNetworking() {
@@ -41,5 +34,10 @@ public class NeoForgeClientPlatform implements CommonClientPlatform {
     @Override
     public CommonClientHelpers.ReloadListeners getReloadListeners() {
         return new NeoForgeClientHelpers.ReloadListeners();
+    }
+
+    @Override
+    public CommonClientHelpers.KeyMappings getKeyMappings() {
+        return new NeoForgeClientHelpers.KeyMappings();
     }
 }
