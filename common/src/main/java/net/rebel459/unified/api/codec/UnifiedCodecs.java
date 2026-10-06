@@ -40,7 +40,7 @@ public final class UnifiedCodecs {
     ).xmap(either -> either.map(
             value -> (value ? ExtensibleCodecs.LOAD_REQUIREMENT.always() : ExtensibleCodecs.LOAD_REQUIREMENT.never()).create(),
             entry -> entry
-    ), Either::right).optionalFieldOf("load_requirements");
+    ), Either::right).optionalFieldOf("load_requirement");
 
     /** Wraps a completed codec to make it safely configurable */
     public static <T> Codec<T> loadRequirements(Codec<T> codec, Supplier<? extends T> disabled) {
@@ -58,7 +58,7 @@ public final class UnifiedCodecs {
                         ));
                     }
 
-                    O definition = ops.remove(input, "load_requirements");
+                    O definition = ops.remove(input, "load_requirement");
                     return codec.decode(ops, definition);
                 });
             }

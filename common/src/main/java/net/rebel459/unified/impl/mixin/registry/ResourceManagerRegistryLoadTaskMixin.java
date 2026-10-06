@@ -56,7 +56,7 @@ public abstract class ResourceManagerRegistryLoadTaskMixin {
                     .map(ExtensibleCodec.Entry::get).orElse(true);
             if (!enabled) return null;
 
-            json.remove("load_requirements");
+            json.remove("load_requirement");
             byte[] contents = json.toString().getBytes(StandardCharsets.UTF_8);
             return new Resource(resource.source(), () -> new ByteArrayInputStream(contents), resource::metadata);
         } catch (Exception exception) {
