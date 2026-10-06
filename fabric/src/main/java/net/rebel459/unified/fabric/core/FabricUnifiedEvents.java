@@ -57,7 +57,7 @@ public class FabricUnifiedEvents {
                 }
 
                 @Override
-                public void modifyPool(Predicate<Holder<Item>> predicate, LootEntry entry) {
+                public void modifyPool(Predicate<Item> predicate, LootEntry entry) {
                     switch (entry.getType()) {
                         case INSERT -> {
                             if (entry.getEntry().isEmpty()) {
@@ -99,12 +99,6 @@ public class FabricUnifiedEvents {
                             CommonEvents.LootTables.handlePoolRemovals(entries, predicate, pool);
                         });
                     }
-                }
-
-                @Override
-                @Deprecated
-                public void editPool(Predicate<Item> predicate, LootEntry entry) {
-                    this.modifyPool(holder -> predicate.test(holder.value()), entry);
                 }
             }, registries);
         });

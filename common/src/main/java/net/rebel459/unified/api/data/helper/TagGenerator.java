@@ -28,27 +28,27 @@ public final class TagGenerator extends HelperGenerator {
     }
 
     public static final class Builder<T> extends HelperGenerator {
-        private final List<ResourceKey<T>> entries = new ArrayList<>();
-        private final List<ResourceKey<T>> optionalEntries = new ArrayList<>();
+        private final List<ResourceKey<? extends T>> entries = new ArrayList<>();
+        private final List<ResourceKey<? extends T>> optionalEntries = new ArrayList<>();
         private final List<TagKey<T>> tags = new ArrayList<>();
         private final List<TagKey<T>> optionalTags = new ArrayList<>();
 
         Builder(TagKey<T> tag, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(modId, requirement);
             DataProviders.TAGS.add(modId, new DataProviders.TagRequest<>(tag.registry(), provider -> {
-                entries.forEach(entry -> provider.add(tag, entry));
-                optionalEntries.forEach(entry -> provider.addOptional(tag, entry));
+                entries.forEach(entry -> provider.add(tag, castKey(entry)));
+                optionalEntries.forEach(entry -> provider.addOptional(tag, castKey(entry)));
                 tags.forEach(entry -> provider.addTag(tag, entry));
                 optionalTags.forEach(entry -> provider.addOptionalTag(tag, entry));
             }));
         }
 
-        public TagGenerator.Builder<T> add(ResourceKey<T> entry) {
+        public TagGenerator.Builder<T> add(ResourceKey<? extends T> entry) {
             entries.add(entry);
             return this;
         }
 
-        public TagGenerator.Builder<T> addOptional(ResourceKey<T> entry) {
+        public TagGenerator.Builder<T> addOptional(ResourceKey<? extends T> entry) {
             optionalEntries.add(entry);
             return this;
         }
@@ -61,6 +61,11 @@ public final class TagGenerator extends HelperGenerator {
         public TagGenerator.Builder<T> addOptional(TagKey<T> entry) {
             optionalTags.add(entry);
             return this;
+        }
+
+        @SuppressWarnings("unchecked")
+        private ResourceKey<T> castKey(ResourceKey<? extends T> key) {
+            return (ResourceKey<T>) key;
         }
     }
 
