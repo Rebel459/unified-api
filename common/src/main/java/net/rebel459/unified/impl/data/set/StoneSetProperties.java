@@ -1,9 +1,8 @@
-package net.rebel459.unified.impl.builder;
+package net.rebel459.unified.impl.data.set;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.rebel459.unified.api.builder.StoneSet;
-import net.rebel459.unified.api.core.UnifiedHelpers;
+import net.rebel459.unified.api.data.set.StoneSet;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.registry.CreativeModeTabIds;
 

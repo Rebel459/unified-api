@@ -1,7 +1,7 @@
-package net.rebel459.unified.impl.builder;
+package net.rebel459.unified.impl.data.set;
 
 import net.minecraft.resources.Identifier;
-import net.rebel459.unified.api.builder.EquipmentSet;
+import net.rebel459.unified.api.data.set.EquipmentSet;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.registry.CreativeModeTabIds;
 

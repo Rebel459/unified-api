@@ -1,8 +1,8 @@
-package net.rebel459.unified.impl.builder;
+package net.rebel459.unified.impl.data.set;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.rebel459.unified.api.builder.ColoredBlockSet;
+import net.rebel459.unified.api.data.set.ColoredBlockSet;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 
 import java.util.Collections;

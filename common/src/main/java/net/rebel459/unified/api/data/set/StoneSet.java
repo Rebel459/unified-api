@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.registries.Registries;
@@ -27,7 +27,7 @@ import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
-import net.rebel459.unified.impl.builder.StoneSetProperties;
+import net.rebel459.unified.impl.data.set.StoneSetProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

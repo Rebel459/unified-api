@@ -1,10 +1,8 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-
-import java.util.Optional;
 
 public final class StonePreset {
 
