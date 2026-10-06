@@ -1,6 +1,7 @@
 package net.rebel459.unified.impl.client.core;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -120,5 +121,11 @@ public class CommonClientHelpers {
         default void addFullBox(TagKey<Structure> structures, BackgroundMusic music) {
             StructureMusicImpl.STRUCTURE_TAG_MUSIC.put(structures, new StructureMusicImpl.MusicAndRequirement(music, true));
         }
+    }
+
+    public interface KeyMappings {
+
+        void register(KeyMapping keyMapping);
+        void registerCategory(KeyMapping.Category category);
     }
 }

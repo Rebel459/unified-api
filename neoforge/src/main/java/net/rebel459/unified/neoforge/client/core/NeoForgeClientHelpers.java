@@ -1,6 +1,7 @@
 package net.rebel459.unified.neoforge.client.core;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -25,10 +26,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.rebel459.unified.impl.client.core.CommonClientHelpers;
 
@@ -182,6 +180,28 @@ public class NeoForgeClientHelpers {
         public static void addClientReloadListeners(final AddClientReloadListenersEvent event) {
             LISTENERS.forEach(pair -> event.addListener(pair.getFirst(), pair.getSecond()));
             ORDERING.forEach(pair -> event.addDependency(pair.getFirst(), pair.getSecond()));
+        }
+    }
+
+    public static class KeyMappings implements CommonClientHelpers.KeyMappings {
+
+        private static final List<Consumer<RegisterKeyMappingsEvent>> EVENTS = new ArrayList<>();
+
+        @Override
+        public void register(KeyMapping keyMapping) {
+            EVENTS.add(event -> event.register(keyMapping));
+        }
+
+        @Override
+        public void registerCategory(KeyMapping.Category category) {
+            EVENTS.add(event -> event.registerCategory(category));
+        }
+
+        @SubscribeEvent
+        public static void registerKeysAndCategories(RegisterKeyMappingsEvent event) {
+            for (Consumer<RegisterKeyMappingsEvent> consumer : EVENTS) {
+                consumer.accept(event);
+            }
         }
     }
 }
