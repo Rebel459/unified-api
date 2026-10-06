@@ -461,7 +461,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
             JsonObject json = codec.encodeStart(ops, generated.value()).getOrThrow().getAsJsonObject();
             Path path;
             if (generated.requirement().isPresent()) {
-                json.add("load_requirements", ExtensibleCodecs.LOAD_REQUIREMENT.codec()
+                json.add("load_requirement", ExtensibleCodecs.LOAD_REQUIREMENT.codec()
                         .encodeStart(ops, generated.requirement().orElseThrow()).getOrThrow());
                 path = output.getOutputFolder().resolve("data").resolve(key.identifier().getNamespace())
                         .resolve(conditionalDirectory).resolve(key.identifier().getPath() + ".json");
