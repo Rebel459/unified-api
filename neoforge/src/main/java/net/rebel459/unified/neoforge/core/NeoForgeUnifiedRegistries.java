@@ -106,7 +106,7 @@ public class NeoForgeUnifiedRegistries {
             if (existing != null) return existing;
             var deferredRegistry = DEFERRED.get(Pair.of(modId, registry));
             var deferred = deferredRegistry.register(path, value);
-            return new Supplied<T>(deferred.getKey(), deferred, deferred);
+            return new Supplied<T>(deferred.getKey(), deferred, () -> deferred);
         }
 
         @Override
