@@ -38,7 +38,7 @@ public final class UnifiedCodecs {
             Codec.BOOL,
             ExtensibleCodecs.LOAD_REQUIREMENT.codec()
     ).xmap(either -> either.map(
-            value -> (value ? ExtensibleCodecs.LOAD_REQUIREMENT.always : ExtensibleCodecs.LOAD_REQUIREMENT.never).create(),
+            value -> (value ? ExtensibleCodecs.LOAD_REQUIREMENT.always() : ExtensibleCodecs.LOAD_REQUIREMENT.never()).create(),
             entry -> entry
     ), Either::right).optionalFieldOf("load_requirements");
 
