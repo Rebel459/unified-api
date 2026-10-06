@@ -3,10 +3,8 @@ package net.rebel459.unified.fabric.core;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.biome.Biome;
 import net.rebel459.unified.impl.event.BiomeModifier;
 import net.rebel459.unified.impl.data.helper.BiomeModifiers;
@@ -16,9 +14,8 @@ import java.util.Optional;
 public final class FabricBiomeModifications {
     private FabricBiomeModifications() {}
 
-    public static void apply(MinecraftServer server) {
-        HolderLookup.Provider provider = server.registryAccess();
-        Registry<Biome> biomes = server.registryAccess().lookupOrThrow(Registries.BIOME);
+    public static void apply(HolderLookup.Provider provider) {
+        HolderLookup.RegistryLookup<Biome> biomes = provider.lookupOrThrow(Registries.BIOME);
         for (BiomeModifiers.PreparedModification modification : BiomeModifiers.prepare(provider)) {
             biomes.listElements().filter(modification.targets()).forEach(holder -> {
                 Biome biome = holder.value();
@@ -36,7 +33,7 @@ public final class FabricBiomeModifications {
     }
 
     @SuppressWarnings("unchecked")
-    private static void markForNetworkSync(ResourceKey<Biome> key, Registry<Biome> registry) {
+    private static void markForNetworkSync(ResourceKey<Biome> key, HolderLookup.RegistryLookup<Biome> registry) {
         if (registry instanceof MappedRegistry<?> mapped) {
             MappedRegistry<Biome> biomes = (MappedRegistry<Biome>) mapped;
             biomes.registrationInfos.computeIfPresent(key,

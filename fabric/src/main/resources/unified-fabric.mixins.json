@@ -7,7 +7,7 @@
     "block.FabricComposterBlockMixin",
     "datagen.FabricLanguageProviderMixin",
     "registry.BuiltInRegistriesMixin",
-    "server.MinecraftServerMixin"
+    "server.WorldLoaderDataLoadContextMixin"
   ],
   "client": [
     "client.FabricHudMixin",
