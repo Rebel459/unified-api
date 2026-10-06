@@ -21,7 +21,7 @@ public class ComponentModifierGenerator extends HelperGenerator {
     }
 
     public Builder createAndRegister(String name, Function<HolderLookup.Provider, Predicate<ItemStack>> predicate) {
-        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATES.register(Identifier.fromNamespaceAndPath(modId, "component_modifier/" + name), () -> predicate.apply(provider)).create());
+        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATE.register(Identifier.fromNamespaceAndPath(modId, "component_modifier/" + name), () -> predicate.apply(provider)).create());
     }
 
     public Builder create(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate) {

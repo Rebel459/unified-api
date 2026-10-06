@@ -15,13 +15,13 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class UnifiedItemPredicateCodecs {
-    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, HolderSet<Item>> ITEMS = ExtensibleCodecs.ITEM_PREDICATES.register(
+    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, HolderSet<Item>> ITEMS = ExtensibleCodecs.ITEM_PREDICATE.register(
             Unified.id("items"),
             RegistryCodecs.holderSet(Registries.ITEM).fieldOf("items"),
             items -> stack -> items.contains(stack.typeHolder())
     );
 
-    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, Map<DataComponentType<?>, Object>> COMPONENTS = ExtensibleCodecs.ITEM_PREDICATES.register(
+    public static final ExtensibleCodec.Complex<Predicate<ItemStack>, Map<DataComponentType<?>, Object>> COMPONENTS = ExtensibleCodecs.ITEM_PREDICATE.register(
             Unified.id("components"),
             DataComponentType.VALUE_MAP_CODEC.fieldOf("components"),
             components -> stack -> components.entrySet().stream()
