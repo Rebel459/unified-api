@@ -9,7 +9,5 @@ import java.util.function.Predicate;
 
 public interface LootTableContext {
     void addPool(LootPool.Builder pool);
-    void modifyPool(Predicate<Holder<Item>> predicate, LootEntry entry);
-    @Deprecated
-    void editPool(Predicate<Item> predicate, LootEntry entry);
+    void modifyPool(Predicate<Item> predicate, LootEntry entry);
 }

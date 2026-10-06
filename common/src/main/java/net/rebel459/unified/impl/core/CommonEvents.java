@@ -230,9 +230,9 @@ public class CommonEvents {
             void modify(LootTableContext table, ResourceKey<net.minecraft.world.level.storage.loot.LootTable> key, HolderLookup.Provider provider);
         }
 
-        public static boolean matches(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate) {
+        public static boolean matches(LootPoolEntryContainer entry, Predicate<Item> itemPredicate) {
             if (entry instanceof LootItem lootItem) {
-                return itemPredicate.test(lootItem.item);
+                return itemPredicate.test(lootItem.item.value());
             }
             if (entry instanceof CompositeEntryBase compositeEntry) {
                 for (LootPoolEntryContainer child : compositeEntry.children) {
@@ -244,7 +244,7 @@ public class CommonEvents {
             return false;
         }
 
-        public static boolean handlePoolReplacements(List<LootPoolEntryContainer> entries, Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
+        public static boolean handlePoolReplacements(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPoolEntryContainer builtEntry, LootPool.Builder pool) {
             boolean changed = false;
             List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
 
@@ -262,7 +262,7 @@ public class CommonEvents {
             return changed;
         }
 
-        public static boolean handlePoolRemovals(List<LootPoolEntryContainer> entries, Predicate<Holder<Item>> itemPredicate, LootPool.Builder pool) {
+        public static boolean handlePoolRemovals(List<LootPoolEntryContainer> entries, Predicate<Item> itemPredicate, LootPool.Builder pool) {
             boolean changed = false;
             List<LootPoolEntryContainer> rewrittenEntries = new ArrayList<>(entries.size());
 
@@ -280,9 +280,9 @@ public class CommonEvents {
             return changed;
         }
 
-        private static Result replaceEntry(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate, LootPoolEntryContainer replacement) {
+        private static Result replaceEntry(LootPoolEntryContainer entry, Predicate<Item> itemPredicate, LootPoolEntryContainer replacement) {
             if (entry instanceof LootItem lootItem) {
-                return itemPredicate.test(lootItem.item) ? new Result(replacement, true) : new Result(entry, false);
+                return itemPredicate.test(lootItem.item.value()) ? new Result(replacement, true) : new Result(entry, false);
             }
             if (entry instanceof CompositeEntryBase compositeEntry) {
                 boolean changed = false;
@@ -308,9 +308,9 @@ public class CommonEvents {
             return new Result(entry, false);
         }
 
-        private static Result removeEntry(LootPoolEntryContainer entry, Predicate<Holder<Item>> itemPredicate) {
+        private static Result removeEntry(LootPoolEntryContainer entry, Predicate<Item> itemPredicate) {
             if (entry instanceof LootItem lootItem) {
-                return itemPredicate.test(lootItem.item) ? new Result(null, true) : new Result(entry, false);
+                return itemPredicate.test(lootItem.item.value()) ? new Result(null, true) : new Result(entry, false);
             }
             if (entry instanceof CompositeEntryBase compositeEntry) {
                 boolean changed = false;
@@ -361,7 +361,7 @@ public class CommonEvents {
             }
 
             @Override
-            public void modifyPool(Predicate<Holder<Item>> predicate, LootEntry entry) {
+            public void modifyPool(Predicate<Item> predicate, LootEntry entry) {
                 switch (entry.getType()) {
                     case INSERT -> {
                         if (entry.getEntry().isEmpty()) {
@@ -410,12 +410,6 @@ public class CommonEvents {
                         }
                     }
                 }
-            }
-
-            @Override
-            @Deprecated
-            public void editPool(Predicate<Item> predicate, LootEntry entry) {
-                this.modifyPool(holder -> predicate.test(holder.value()), entry);
             }
         }
     }

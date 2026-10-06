@@ -18,7 +18,9 @@ import net.rebel459.unified.api.event.LootEntry;
 import net.rebel459.unified.api.event.LootTableContext;
 import net.rebel459.unified.impl.event.LootTableProvider;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LootInjections {
 
@@ -46,7 +48,9 @@ public class LootInjections {
             table.addPool(LootTableProvider.poolBuilder(pool));
         }
         for (Modifier modifier : definition.modifiers()) {
-            table.modifyPool(modifier.items::contains, modifier.entry());
+            Set<Item> items = new HashSet<>();
+            modifier.items().forEach(item -> items.add(item.value()));
+            table.modifyPool(items::contains, modifier.entry());
         }
     }
 

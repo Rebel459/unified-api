@@ -215,5 +215,11 @@ public class UnifiedEvents {
         public static void modify(BiConsumer<ResourceKey<CreativeModeTab>, CreativeEntryContext> consumer) {
             CommonEvents.CreativeEntries.LISTENERS.add(consumer);
         }
+
+        public static void modifyForTab(ResourceKey<CreativeModeTab> tab, Consumer<CreativeEntryContext> consumer) {
+            modify((tabKey, context) -> {
+                if (tab.equals(tabKey)) consumer.accept(context);
+            });
+        }
     }
 }
