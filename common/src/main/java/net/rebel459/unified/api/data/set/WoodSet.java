@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
@@ -39,7 +39,7 @@ import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
 import net.rebel459.unified.api.util.BlockLootSubProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
-import net.rebel459.unified.impl.builder.WoodSetProperties;
+import net.rebel459.unified.impl.data.set.WoodSetProperties;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 

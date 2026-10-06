@@ -7,11 +7,31 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class ExtensiblePredicateCodec<P> extends ExtensibleCodec<P> {
-    public final Simple<P> always;
-    public final Simple<P> never;
-    public final Complex<P, List<Entry<P>>> allOf;
-    public final Complex<P, List<Entry<P>>> anyOf;
-    public final Complex<P, Entry<P>> not;
+    private final Simple<P> always;
+    private final Simple<P> never;
+    private final Complex<P, List<Entry<P>>> allOf;
+    private final Complex<P, List<Entry<P>>> anyOf;
+    private final Complex<P, Entry<P>> not;
+
+    public Simple<P> always() {
+        return always;
+    }
+
+    public Simple<P> never() {
+        return never;
+    }
+
+    public Complex<P, List<Entry<P>>> allOf() {
+        return allOf;
+    }
+
+    public Complex<P, List<Entry<P>>> anyOf() {
+        return anyOf;
+    }
+
+    public Complex<P, Entry<P>> not() {
+        return not;
+    }
 
     public ExtensiblePredicateCodec(Adapter<P> adapter) {
         super();

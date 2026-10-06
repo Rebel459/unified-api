@@ -2,18 +2,17 @@ package net.rebel459.unified;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.core.registries.Registries;
-import net.rebel459.unified.api.builder.*;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.RegistryResourceInitializer;
 import net.rebel459.unified.api.core.RegistryResourceListener;
-import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.core.UnifiedPlatform;
+import net.rebel459.unified.api.data.set.*;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.*;
-import net.rebel459.unified.impl.builder.*;
 import net.rebel459.unified.impl.data.helper.*;
 import net.rebel459.unified.impl.data.registry.*;
+import net.rebel459.unified.impl.data.set.*;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
 import net.rebel459.unified.impl.tag.PersistentCooldowns;
 

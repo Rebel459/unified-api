@@ -1,11 +1,9 @@
-package net.rebel459.unified.impl.builder;
+package net.rebel459.unified.impl.data.set;
 
 import com.mojang.datafixers.util.Either;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.WoodType;
-import net.rebel459.unified.api.builder.WoodSet;
+import net.rebel459.unified.api.data.set.WoodSet;
 import net.rebel459.unified.api.data.helper.BlockConversionGenerator;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.registry.CreativeModeTabIds;

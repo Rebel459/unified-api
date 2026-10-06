@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.builder;
+package net.rebel459.unified.impl.data.set;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
@@ -7,7 +7,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
-import net.rebel459.unified.api.builder.ColoredItemSet;
+import net.rebel459.unified.api.data.set.ColoredItemSet;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedHelpers;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;

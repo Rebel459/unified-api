@@ -1,6 +1,5 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.component.CookingFuel;

@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.builder;
+package net.rebel459.unified.api.data.set;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
@@ -43,7 +43,7 @@ import net.rebel459.unified.api.data.registry.ItemGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaItemCodecs;
 import net.rebel459.unified.api.util.RecipeProvider;
-import net.rebel459.unified.impl.builder.EquipmentSetProperties;
+import net.rebel459.unified.impl.data.set.EquipmentSetProperties;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
