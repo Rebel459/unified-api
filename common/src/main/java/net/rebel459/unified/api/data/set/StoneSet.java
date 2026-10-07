@@ -7,21 +7,24 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.MapColor;
-import net.rebel459.unified.api.codec.ExtensibleCodec;
-import net.rebel459.unified.api.core.UnifiedPlatform;
-import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
+import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.UnifiedPlatform;
 import net.rebel459.unified.api.data.helper.CreativeEntryGenerator;
 import net.rebel459.unified.api.data.registry.BlockGenerator;
 import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
@@ -177,8 +180,8 @@ public class StoneSet {
                 )
                 .assets(getSettings().baseBlockModel)
                 .data(data -> {
-                    getSettings().baseBlockTag.ifPresent(data::tag);
-                            getSettings().baseBlockTag.ifPresent(data::tag);
+                            getSettings().baseBlockTags.getFirst().ifPresent(data::tag);
+                            getSettings().baseBlockTags.getSecond().ifPresent(data::itemTag);
                             data.dropSelf();
                             data.tag(BlockTags.MINEABLE_WITH_PICKAXE);
                         }
@@ -398,7 +401,7 @@ public class StoneSet {
 
         private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockCodecs.BLOCK.create();
         private Consumer<BlockGenerator.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
-        private Optional<BlockItemTagId> baseBlockTag = Optional.empty();
+        private Pair<Optional<TagKey<Block>>, Optional<TagKey<Item>>> baseBlockTags = Pair.of(Optional.empty(), Optional.empty());
         private String baseBlockSuffix = "";
 
         private Supplier<SoundType> soundType = () -> SoundType.STONE;
@@ -620,8 +623,8 @@ public class StoneSet {
             return self();
         }
 
-        public T baseBlockTag(Optional<BlockItemTagId> tag) {
-            settings.baseBlockTag = tag;
+        public T baseBlockTags(Optional<TagKey<Block>> blockTag, Optional<TagKey<Item>> itemTag) {
+            settings.baseBlockTags = Pair.of(blockTag, itemTag);
             return self();
         }
 
