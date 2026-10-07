@@ -4,6 +4,9 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.rebel459.unified.impl.util.BlockItemTagId;
 import net.minecraft.tags.TagKey;
@@ -34,6 +37,29 @@ public final class UnifiedTestMod implements ModInitializer {
     public static final WoodSet TEST_SET =  DATA.sets().woodSet("test", WoodPreset.DEFAULT, new BlockItemTagId(TEST_BLOCKS, TEST_ITEMS), MapColor.WOOD, MapColor.COLOR_BROWN)
             .creativeInventoryPlacement(() -> Blocks.OAK_PLANKS, () -> Blocks.OAK_LOG, () -> Blocks.OAK_SHELF, () -> Blocks.OAK_SIGN)
             .build();
+
+    public static final SuppliedBlock EXAMPLE_BLOCK = DATA.registries().blocks().register(
+            "example_block",
+            VanillaBlockCodecs.BLOCK.create(),
+            builder -> builder
+                    .properties(properties -> properties
+                            .copyFrom(() -> Blocks.STONE)
+                            .soundType(SoundType.AMETHYST)
+                            .flammable(5, 10)
+                    )
+                    .assets(assets -> assets
+                            .simpleCube()
+                    )
+                    .data(data -> data
+                            .dropSelf()
+                            .tag(TEST_BLOCKS)
+                    )
+                    .itemProperties(itemProperties -> itemProperties
+                            .stacksTo(16)
+                            .rarity(Rarity.UNCOMMON)
+                    )
+                    .blockEntity(() -> BlockEntityType.CHEST)
+    );
 
     private static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);

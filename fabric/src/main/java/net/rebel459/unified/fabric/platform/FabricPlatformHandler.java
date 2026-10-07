@@ -90,8 +90,8 @@ public class FabricPlatformHandler implements PlatformHandler {
     }
 
     @Override
-    public CommonHelpers.EntityData getEntityData() {
-        return new FabricHelpers.EntityData();
+    public CommonHelpers.EntityDataSerializers getEntityData() {
+        return new FabricHelpers.EntityDataSerializers();
     }
 
     @Override

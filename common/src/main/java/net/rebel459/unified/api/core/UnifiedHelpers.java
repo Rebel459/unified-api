@@ -8,9 +8,8 @@ public class UnifiedHelpers {
     public static CommonHelpers.DataPacks DATA_PACKS = PlatformLoader.INSTANCE.getDataPacks();
     public static CommonHelpers.Networking NETWORKING = PlatformLoader.INSTANCE.getNetworking();
     public static CommonHelpers.BlockConversions BLOCK_CONVERSIONS = new CommonHelpers.BlockConversions() {};
-    public static CommonHelpers.DataComponents DATA_COMPONENTS = new CommonHelpers.DataComponents() {};
     public static CommonHelpers.ReloadListeners RELOAD_LISTENERS = PlatformLoader.INSTANCE.getReloadListeners();
     public static CommonHelpers.DataRegistries DATA_REGISTRIES = PlatformLoader.INSTANCE.getDataRegistries();
-    public static CommonHelpers.EntityData ENTITY_DATA = PlatformLoader.INSTANCE.getEntityData();
+    public static CommonHelpers.EntityDataSerializers ENTITY_DATA_SERIALIZERS = PlatformLoader.INSTANCE.getEntityData();
     public static CommonHelpers.SpawnPlacements SPAWN_PLACEMENTS = PlatformLoader.INSTANCE.getSpawnPlacements();
 }

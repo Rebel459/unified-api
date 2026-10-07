@@ -1,4 +1,4 @@
-package net.rebel459.unified.api.helper;
+package net.rebel459.unified.api.event;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.attribute.EnvironmentAttribute;
@@ -42,8 +42,6 @@ public abstract class BiomeModificationContext {
     public interface Attributes {
         <Value> void set(EnvironmentAttribute<Value> attribute, Value value);
         <Value> void modify(EnvironmentAttribute<Value> attribute, UnaryOperator<Value> modifier);
-        void set(EnvironmentAttributeMap attributes);
-        void modify(EnvironmentAttributeMap attributes);
     }
 
     public interface Spawns {

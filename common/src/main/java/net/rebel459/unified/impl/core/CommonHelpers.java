@@ -3,11 +3,7 @@ package net.rebel459.unified.impl.core;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponentInitializers;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -29,7 +25,6 @@ import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.ChestBlock;
@@ -37,8 +32,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.rebel459.unified.api.core.UnifiedEvents;
-import net.rebel459.unified.api.helper.BiomeModificationContext;
+import net.rebel459.unified.api.event.BiomeModificationContext;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import net.rebel459.unified.impl.platform.PlatformLoader;
@@ -152,31 +146,6 @@ public class CommonHelpers {
         }
     }
 
-    public interface DataComponents {
-
-        default <T> void add(ItemLike itemLike, DataComponentType<T> type, T value) {
-            UnifiedEvents.DefaultDataComponents.modify((testedItem, builder, provider) -> {
-                if (testedItem == itemLike.asItem()) {
-                    builder.set(type, value);
-                }
-            });
-        }
-        default <T> void addWithProvider(ItemLike itemLike, DataComponentType<T> type, DataComponentInitializers.SingleComponentInitializer<T> initializer) {
-            UnifiedEvents.DefaultDataComponents.modify((testedItem, builder, provider) -> {
-                if (testedItem == itemLike.asItem()) {
-                    builder.addAll(DataComponentMap.builder().set(type, initializer.create(provider)).build());
-                }
-            });
-        }
-        default <T> void addWithKey(ItemLike itemLike, DataComponentType<Holder<T>> type, ResourceKey<T> valueKey) {
-            UnifiedEvents.DefaultDataComponents.modify((testedItem, builder, provider) -> {
-                if (testedItem == itemLike.asItem()) {
-                    builder.addAll(DataComponentMap.builder().set(type, provider.getOrThrow(valueKey)).build());
-                }
-            });
-        }
-    }
-
     public interface BiomeModifications {
 
         void register(ResourceKey<Biome> biome, Consumer<BiomeModificationContext> context);
@@ -196,8 +165,8 @@ public class CommonHelpers {
         <T> void registerSynced(ResourceKey<Registry<T>> key, Codec<T> serverCodec, Codec<T> clientCodec);
     }
 
-    public interface EntityData {
-        void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer);
+    public interface EntityDataSerializers {
+        void register(Identifier id, Supplier<EntityDataSerializer<?>> serializer);
     }
 
     public interface SpawnPlacements {

@@ -39,7 +39,7 @@ public interface PlatformHandler {
     CommonHelpers.Networking getNetworking();
     CommonHelpers.ReloadListeners getReloadListeners();
     CommonHelpers.DataRegistries getDataRegistries();
-    CommonHelpers.EntityData getEntityData();
+    CommonHelpers.EntityDataSerializers getEntityData();
     CommonHelpers.SpawnPlacements getSpawnPlacements();
 
     @ApiStatus.Internal

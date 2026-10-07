@@ -292,11 +292,7 @@ public class ColoredItemSet {
             return self();
         }
 
-        public T typeFunction(Function<DyeColor, Function<Item.Properties, Item>> type) {
-            settings.type = Either.right(type);
-            return self();
-        }
-        public T typeCodec(Function<DyeColor, ExtensibleCodec.Entry<Function<Item.Properties, Item>>> type) {
+        public T type(Function<DyeColor, ExtensibleCodec.Entry<Function<Item.Properties, Item>>> type) {
             settings.type = Either.left(type);
             return self();
         }
