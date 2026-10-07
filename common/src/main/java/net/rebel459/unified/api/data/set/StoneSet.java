@@ -7,6 +7,7 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
@@ -27,7 +28,6 @@ import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.impl.data.set.StoneSetProperties;
-import net.rebel459.unified.impl.util.BlockItemTagId;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -398,7 +398,7 @@ public class StoneSet {
 
         private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockCodecs.BLOCK.create();
         private Consumer<BlockGenerator.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
-        private  Optional<BlockItemTagId> baseBlockTag = Optional.empty();
+        private Optional<BlockItemTagId> baseBlockTag = Optional.empty();
         private String baseBlockSuffix = "";
 
         private Supplier<SoundType> soundType = () -> SoundType.STONE;
