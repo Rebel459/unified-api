@@ -1,7 +1,0 @@
-{
-  "type": "minecraft:stairs",
-  "base_block": "unified_testmod:test_planks",
-  "properties": {
-    "copy_from": "unified_testmod:test_planks"
-  }
-}

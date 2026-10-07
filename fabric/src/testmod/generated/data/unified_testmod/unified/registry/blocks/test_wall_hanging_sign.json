@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:wall_hanging_sign",
-  "block_entity": "minecraft:hanging_sign",
-  "properties": {
-    "copy_from": "unified_testmod:test_hanging_sign",
-    "loot_table": "unified_testmod:blocks/test_hanging_sign"
-  },
-  "wood_type": "unified_testmod:test"
-}

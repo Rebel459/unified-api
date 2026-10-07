@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:wall_sign",
-  "block_entity": "minecraft:sign",
-  "properties": {
-    "copy_from": "unified_testmod:test_sign",
-    "loot_table": "unified_testmod:blocks/test_sign"
-  },
-  "wood_type": "unified_testmod:test"
-}

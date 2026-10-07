@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/template_hanging_sign_rot_1",
-  "textures": {
-    "all": "unified_testmod:block/test_hanging_sign",
-    "particle": "unified_testmod:block/stripped_test_log"
-  }
-}
