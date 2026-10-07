@@ -8,6 +8,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -16,7 +17,7 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedHelpers;
-import net.rebel459.unified.api.helper.BiomeModificationContext;
+import net.rebel459.unified.api.event.BiomeModificationContext;
 import net.rebel459.unified.impl.event.BiomeModifier;
 
 import java.util.ArrayList;
@@ -158,8 +159,20 @@ public final class BiomeModifiers {
         ).apply(instance, Attributes::new));
 
         private void apply(BiomeModifier context) {
-            context.getAttributes().set(set);
-            context.getAttributes().modify(modify);
+            set.keySet().forEach((attribute) -> {
+                set(context.getAttributes(), attribute, set);
+            });
+            modify.keySet().forEach((attribute) -> {
+                modify(context.getAttributes(), attribute, modify);
+            });
+        }
+
+        private <Value> void set(BiomeModificationContext.Attributes attributes, EnvironmentAttribute<Value> attribute, EnvironmentAttributeMap values) {
+            attributes.set(attribute, values.applyModifier(attribute, attribute.defaultValue()));
+        }
+
+        private <Value> void modify(BiomeModificationContext.Attributes attributes, EnvironmentAttribute<Value> attribute, EnvironmentAttributeMap modifiers) {
+            attributes.modify(attribute, current -> modifiers.applyModifier(attribute, current));
         }
     }
 }

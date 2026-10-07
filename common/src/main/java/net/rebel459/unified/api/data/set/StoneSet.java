@@ -9,7 +9,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
@@ -28,6 +27,7 @@ import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.impl.data.set.StoneSetProperties;
+import net.rebel459.unified.impl.util.BlockItemTagId;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -48,7 +48,6 @@ public class StoneSet {
     private final MapColor color;
 
     private final BlockGenerator blocks;
-    private final BlockSetTypeGenerator blockSetTypes;
 
     private SuppliedBlock base;
     private @Nullable SuppliedBlock stairs;
@@ -83,7 +82,6 @@ public class StoneSet {
         this.id = id;
         this.color = color;
         this.blocks = blocks;
-        this.blockSetTypes = blockSetTypes;
         blockSetTypes.register(id.getPath(), () -> new BlockSetType(
                 id.toString(),
                 true,
@@ -179,6 +177,7 @@ public class StoneSet {
                 )
                 .assets(getSettings().baseBlockModel)
                 .data(data -> {
+                    getSettings().baseBlockTag.ifPresent(data::tag);
                             getSettings().baseBlockTag.ifPresent(data::tag);
                             data.dropSelf();
                             data.tag(BlockTags.MINEABLE_WITH_PICKAXE);
@@ -397,11 +396,9 @@ public class StoneSet {
 
         private Pair<Supplier<? extends ItemLike>, Integer> fenceStickReplacement = Pair.of(() -> Items.STICK, 3);
 
-        @Deprecated private Function<BlockBehaviour.Properties, Block> baseBlockFunction = Block::new;
-
         private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockCodecs.BLOCK.create();
         private Consumer<BlockGenerator.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
-        private Optional<TagKey<Block>> baseBlockTag = Optional.empty();
+        private  Optional<BlockItemTagId> baseBlockTag = Optional.empty();
         private String baseBlockSuffix = "";
 
         private Supplier<SoundType> soundType = () -> SoundType.STONE;
@@ -612,12 +609,6 @@ public class StoneSet {
             return self();
         }
 
-        @Deprecated
-        public T baseBlockFunction(Function<BlockBehaviour.Properties, Block> baseBlockFunction) {
-            settings.baseBlockFunction = baseBlockFunction;
-            return self();
-        }
-
         public T baseBlockType(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, BlockAsset<Void> model) {
             settings.baseBlockType = type;
             settings.baseBlockModel = assets -> assets.model(model);
@@ -629,9 +620,8 @@ public class StoneSet {
             return self();
         }
 
-        public <Y> T baseBlockTag(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, BlockAsset<Y> model, Y value) {
-            settings.baseBlockType = type;
-            settings.baseBlockModel = assets -> assets.model(model, value);
+        public T baseBlockTag(Optional<BlockItemTagId> tag) {
+            settings.baseBlockTag = tag;
             return self();
         }
 

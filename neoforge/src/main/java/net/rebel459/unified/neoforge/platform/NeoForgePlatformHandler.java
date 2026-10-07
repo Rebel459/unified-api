@@ -92,8 +92,8 @@ public class NeoForgePlatformHandler implements PlatformHandler {
     }
 
     @Override
-    public CommonHelpers.EntityData getEntityData() {
-        return new NeoForgeHelpers.EntityData();
+    public CommonHelpers.EntityDataSerializers getEntityData() {
+        return new NeoForgeHelpers.EntityDataSerializers();
     }
 
     @Override

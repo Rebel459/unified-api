@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
@@ -26,14 +25,9 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementType;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.rebel459.unified.impl.core.CommonHelpers;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -164,10 +158,10 @@ public class FabricHelpers {
         }
     }
 
-    public static class EntityData implements CommonHelpers.EntityData {
+    public static class EntityDataSerializers implements CommonHelpers.EntityDataSerializers {
 
         @Override
-        public void registerSerializer(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {
+        public void register(Identifier id, Supplier<EntityDataSerializer<?>> serializer) {
             FabricEntityDataRegistry.register(id, serializer.get());
         }
     }
