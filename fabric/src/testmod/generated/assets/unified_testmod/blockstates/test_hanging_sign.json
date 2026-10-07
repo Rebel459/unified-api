@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "unified_testmod:block/test_hanging_sign"
+    }
+  }
+}

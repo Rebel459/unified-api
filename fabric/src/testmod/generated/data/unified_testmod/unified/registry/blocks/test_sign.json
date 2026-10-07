@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:standing_sign",
+  "block_entity": "minecraft:sign",
+  "properties": {
+    "collision": false,
+    "copy_from": "unified_testmod:test_planks",
+    "destroy_time": 1.0,
+    "explosion_resistance": 1.0,
+    "solid": true
+  },
+  "wood_type": "unified_testmod:test"
+}

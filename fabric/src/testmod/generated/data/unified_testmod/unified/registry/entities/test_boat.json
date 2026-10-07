@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:boat",
+  "drop_item": "unified_testmod:test_boat",
+  "properties": {}
+}

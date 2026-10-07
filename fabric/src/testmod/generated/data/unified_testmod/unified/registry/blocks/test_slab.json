@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:slab",
+  "properties": {
+    "copy_from": "unified_testmod:test_planks"
+  }
+}

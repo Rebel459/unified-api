@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "unified_testmod:item/test_hanging_sign"
+  }
+}

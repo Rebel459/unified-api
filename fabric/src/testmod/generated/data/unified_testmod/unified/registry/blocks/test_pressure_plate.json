@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:pressure_plate",
+  "block_set_type": "unified_testmod:test",
+  "properties": {
+    "collision": false,
+    "copy_from": "unified_testmod:test_planks",
+    "push_reaction": "destroy",
+    "solid": true
+  }
+}

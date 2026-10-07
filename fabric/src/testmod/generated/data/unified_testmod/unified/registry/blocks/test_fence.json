@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:fence",
+  "properties": {
+    "copy_from": "unified_testmod:test_planks",
+    "solid": true
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "entries": [
+    {
+      "converted_block": "unified_testmod:stripped_test_log",
+      "original_block": "unified_testmod:test_log",
+      "predicate": "unified:is_axe",
+      "use_context": [
+        {
+          "type": "unified:play_sound",
+          "sound": "minecraft:item.axe.strip"
+        },
+        {
+          "type": "unified:damage_item"
+        }
+      ]
+    }
+  ]
+}

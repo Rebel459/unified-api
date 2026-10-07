@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_shelf_unpowered",
+  "textures": {
+    "all": "unified_testmod:block/test_shelf",
+    "particle": "unified_testmod:block/test_planks"
+  }
+}
