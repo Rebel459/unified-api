@@ -398,7 +398,7 @@ public class StoneSet {
 
         private ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> baseBlockType = VanillaBlockCodecs.BLOCK.create();
         private Consumer<BlockGenerator.Assets> baseBlockModel = assets -> assets.model(BlockAssets.SIMPLE_CUBE);
-        private  Optional<BlockItemTagId> baseBlockTag = Optional.empty();
+        private Optional<BlockItemTagId> baseBlockTag = Optional.empty();
         private String baseBlockSuffix = "";
 
         private Supplier<SoundType> soundType = () -> SoundType.STONE;
