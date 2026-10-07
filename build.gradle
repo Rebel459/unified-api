@@ -4,3 +4,10 @@ plugins {
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
     id 'net.neoforged.moddev' version '2.0.141' apply false
 }
+
+tasks.register('generateCodecDocs', net.rebel459.build.CodecDocsTask) {
+    group = 'documentation'
+    description = 'Generate Markdown JSON5 skeletons for registered Unified codecs.'
+    sourceDirectory.set(layout.projectDirectory.dir('common/src/main/java'))
+    outputDirectory.set(layout.buildDirectory.dir('generated/codec-docs'))
+}
