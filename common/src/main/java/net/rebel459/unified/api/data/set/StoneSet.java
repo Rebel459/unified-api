@@ -31,7 +31,6 @@ import net.rebel459.unified.api.data.registry.BlockSetTypeGenerator;
 import net.rebel459.unified.api.platform.ModLoader;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.impl.data.set.StoneSetProperties;
-import net.rebel459.unified.impl.util.BlockItemTagId;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
