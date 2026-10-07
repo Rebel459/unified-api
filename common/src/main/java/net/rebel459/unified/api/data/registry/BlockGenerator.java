@@ -175,8 +175,8 @@ public class BlockGenerator {
             return this;
         }
 
-        public Properties soundType(SoundType soundType) {
-            definition.soundType = Optional.of(BlockRegistry.SoundType.create(soundType));
+        public Properties soundType(SoundType sounds) {
+            definition.soundType = Optional.of(BlockRegistry.SoundType.create(sounds));
             return this;
         }
 

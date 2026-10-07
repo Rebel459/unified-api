@@ -24,44 +24,12 @@ public class ColoredItemSetProperties {
     public static Map<Identifier, ColoredItemSet.PrecedingCreativeEntries> CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, CreativeEntryGenerator> CREATIVE_ENTRY_GENERATORS = Collections.synchronizedMap(new HashMap<>());
 
-    public static Map<Identifier, List<Pair<Supplier<? extends DataComponentType<?>>, ?>>> COMPONENTS = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, List<Pair<Supplier<? extends DataComponentType<?>>, Function<DyeColor, ?>>>> DYED_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, List<Pair<Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>>>> PROVIDED_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, List<Pair<Supplier<? extends DataComponentType<?>>, ResourceKey<?>>>> KEYED_COMPONENTS = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<ColoredItemSet> coloredItemSets) {
         creativeEntries(coloredItemSets);
-        components(coloredItemSets);
-    }
-
-    private static <T, Y> void components(List<ColoredItemSet> coloredItemSets) {
-        for (ColoredItemSet coloredItemSet : coloredItemSets) {
-            var components = COMPONENTS.get(coloredItemSet.getId());
-            if (components != null) for (Pair<Supplier<? extends DataComponentType<?>>, ?> entry : components) {
-                for (SuppliedItem item : coloredItemSet.getRegisteredItems()) {
-                    UnifiedHelpers.DATA_COMPONENTS.add(item, (DataComponentType<T>) entry.getFirst().get(), (T) entry.getSecond());
-                }
-            }
-            var dyedComponents = DYED_COMPONENTS.get(coloredItemSet.getId());
-            if (dyedComponents != null) for (Pair<Supplier<? extends DataComponentType<?>>, Function<DyeColor, ?>> entry : dyedComponents) {
-                for (SuppliedItem item : coloredItemSet.getRegisteredItems()) {
-                    DyeColor dye = coloredItemSet.getDyeFromItem(item);
-                    UnifiedHelpers.DATA_COMPONENTS.add(item, (DataComponentType<T>) entry.getFirst().get(), (T) entry.getSecond().apply(dye));
-                }
-            }
-            var providedComponents = PROVIDED_COMPONENTS.get(coloredItemSet.getId());
-            if (providedComponents != null) for (Pair<Supplier<? extends DataComponentType<?>>, DataComponentInitializers.SingleComponentInitializer<?>> entry : providedComponents) {
-                for (SuppliedItem item : coloredItemSet.getRegisteredItems()) {
-                    UnifiedHelpers.DATA_COMPONENTS.addWithProvider(item, (DataComponentType<T>) entry.getFirst().get(), (DataComponentInitializers.SingleComponentInitializer<T>) entry.getSecond());
-                }
-            }
-            var keyedComponents = KEYED_COMPONENTS.get(coloredItemSet.getId());
-            if (keyedComponents != null) for (Pair<Supplier<? extends DataComponentType<?>>, ResourceKey<?>> entry : keyedComponents) {
-                for (SuppliedItem item : coloredItemSet.getRegisteredItems()) {
-                    UnifiedHelpers.DATA_COMPONENTS.addWithKey(item, (DataComponentType<Holder<Y>>) entry.getFirst().get(), (ResourceKey<Y>) entry.getSecond());
-                }
-            }
-        }
     }
 
     private static void creativeEntries(List<ColoredItemSet> coloredItemSets) {

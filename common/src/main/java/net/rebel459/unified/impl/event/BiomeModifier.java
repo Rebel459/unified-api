@@ -18,7 +18,7 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.rebel459.unified.api.helper.BiomeModificationContext;
+import net.rebel459.unified.api.event.BiomeModificationContext;
 import net.rebel459.unified.impl.data.helper.BiomeModifiers;
 
 import java.util.*;
@@ -117,28 +117,6 @@ public final class BiomeModifier extends BiomeModificationContext {
         public <Value> void modify(EnvironmentAttribute<Value> attribute, UnaryOperator<Value> modifier) {
             Value current = attributeMap.applyModifier(attribute, attribute.defaultValue());
             set(attribute, modifier.apply(current));
-        }
-
-        @Override
-        public void set(EnvironmentAttributeMap attributes) {
-            for (EnvironmentAttribute<?> attribute : attributes.keySet()) {
-                set(attribute, attributes);
-            }
-        }
-
-        @Override
-        public void modify(EnvironmentAttributeMap attributes) {
-            for (EnvironmentAttribute<?> attribute : attributes.keySet()) {
-                modify(attribute, attributes);
-            }
-        }
-
-        private <Value> void set(EnvironmentAttribute<Value> attribute, EnvironmentAttributeMap values) {
-            set(attribute, values.applyModifier(attribute, attribute.defaultValue()));
-        }
-
-        private <Value> void modify(EnvironmentAttribute<Value> attribute, EnvironmentAttributeMap modifiers) {
-            modify(attribute, current -> modifiers.applyModifier(attribute, current));
         }
     };
 
