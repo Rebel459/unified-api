@@ -222,7 +222,7 @@ public class ColoredItemSet {
 
         Settings() {}
 
-        public Settings copy() {
+        Settings copy() {
             try {
                 return (Settings) super.clone();
             } catch (CloneNotSupportedException e) {
