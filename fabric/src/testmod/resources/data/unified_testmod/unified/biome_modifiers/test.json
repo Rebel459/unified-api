@@ -1,0 +1,10 @@
+{
+  "targets": "#minecraft:is_overworld",
+  "priority": 10,
+  "attributes": {
+    "set": {
+      "minecraft:gameplay/water_evaporates": true,
+      "minecraft:visual/fog_end_distance": 16
+    }
+  }
+}
