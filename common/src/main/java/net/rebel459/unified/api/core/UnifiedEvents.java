@@ -208,7 +208,7 @@ public class UnifiedEvents {
         }
     }
 
-    public static class CreativeEntries{
+    public static class CreativeEntries {
 
         private CreativeEntries() {}
 
