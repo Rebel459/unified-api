@@ -32,7 +32,9 @@ class CodecDocsTaskTest {
                         COUNT.forGetter(x -> null),
                         Codec.either(Codec.STRING, Codec.INT).listOf().fieldOf("choices").forGetter(x -> null),
                         Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("weights").forGetter(x -> null),
-                        Codec.BOOL.fieldOf("enabled").forGetter(x -> null)
+                        Codec.BOOL.fieldOf("enabled").forGetter(x -> null),
+                        RegistryCodecs.homogeneousList(Registries.ITEM).fieldOf("entities").forGetter(x -> null),
+                        IntProviders.codec(0, 10).fieldOf("experience").forGetter(x -> null)
                     ).apply(i, X::new)), null);
                     static Object simple(String id, Object factory) { return null; }
                     static Object complex(String id, MapCodec<?> codec, Object factory) { return null; }
@@ -45,12 +47,15 @@ class CodecDocsTaskTest {
         assertEquals(2, entries.size());
         assertEquals("unified:example", entries.get(0).id());
         assertEquals("unified:one", entries.get(1).id());
-        assertEquals(List.of("name", "count", "choices", "weights", "enabled"), entries.get(0).fields().stream().map(CodecDocsTask.Field::name).toList());
+        assertEquals(List.of("name", "count", "choices", "weights", "enabled", "entities", "experience"), entries.get(0).fields().stream().map(CodecDocsTask.Field::name).toList());
         assertEquals("<string>", entries.get(0).fields().get(0).type());
         assertEquals("optional, defaults to `DEFAULT_COUNT`, range: `1` to `12`", entries.get(0).fields().get(1).detail());
-        assertEquals("[<string or int>]", entries.get(0).fields().get(2).type());
+        assertEquals("[]", entries.get(0).fields().get(2).type());
+        assertEquals(List.of("<string>", "<int>"), entries.get(0).fields().get(2).alternatives().stream().map(CodecDocsTask.Value::type).toList());
         assertEquals("{<string>: <int>}", entries.get(0).fields().get(3).type());
         assertEquals("<bool>", entries.get(0).fields().get(4).type());
+        assertEquals(List.of("\"#<identifier>\"", "<identifier>", "[<identifier>]"), entries.get(0).fields().get(5).alternatives().stream().map(CodecDocsTask.Value::type).toList());
+        assertEquals(List.of("<int>", "<object>"), entries.get(0).fields().get(6).alternatives().stream().map(CodecDocsTask.Value::type).toList());
     }
 
     @Test

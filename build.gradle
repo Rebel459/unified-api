@@ -10,4 +10,5 @@ tasks.register('generateCodecDocs', net.rebel459.build.CodecDocsTask) {
     description = 'Generate Markdown JSON5 skeletons for registered Unified codecs.'
     sourceDirectory.set(layout.projectDirectory.dir('common/src/main/java'))
     outputDirectory.set(layout.buildDirectory.dir('generated/codec-docs'))
+    enumClasspath.from(project(':common').tasks.named('compileJava').map { it.classpath })
 }
