@@ -1186,7 +1186,7 @@ public class WoodSet {
             return leavesName;
         }
 
-        public Settings copy() {
+        Settings copy() {
             try {
                 return (Settings) super.clone();
             } catch (CloneNotSupportedException e) {
