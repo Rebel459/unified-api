@@ -318,7 +318,7 @@ public abstract class CodecDocsTask extends DefaultTask {
                             new Field("if_false", valueType, "", List.of())));
                 }
                 if (method.equals("lazyInitialized")) return Value.of("<codec>");
-                if (method.equals("homogeneousList")) return Value.choice(
+                if (method.equals("homogeneousList") || method.equals("holderSet")) return Value.choice(
                         Value.of("\"#<identifier>\""), Value.of("<identifier>"), Value.of("[<identifier>]")
                 );
                 if (method.equals("list") || method.equals("listOf")) {
@@ -392,6 +392,16 @@ public abstract class CodecDocsTask extends DefaultTask {
                     return Value.stringEnum(enumValues(packageName + owner));
                 }
                 if (leaf.equals("CODEC") && owner.equals("TreeGrower")) return Value.stringEnum(enumValues("net.minecraft.world.level.block.grower.TreeGrower"));
+                if (leaf.equals("CODEC") && owner.equals("AmbientLeavesBlockSoundPlayer")) return Value.object(List.of(
+                        new Field("ambient_sound", "", "optional", List.of(), List.of(
+                                Value.of("<identifier>"),
+                                Value.object(List.of(
+                                        new Field("sound_id", "<identifier>", "", List.of()),
+                                        new Field("range", "<float>", "optional", List.of()))))),
+                        new Field("chance", "<int>", "optional, defaults to `300`, range: `0` or greater", List.of()),
+                        new Field("satisfying_blocks", "<identifier>", "optional", List.of()),
+                        new Field("nearby_satisfying_blocks_required", "<int>", "optional, defaults to `1`, range: `0` or greater", List.of()),
+                        new Field("nearby_same_leaves_required", "<int>", "optional, defaults to `3`, range: `0` or greater", List.of())));
                 if (leaf.equals("CODEC") && owner.equals("ParticleTypes")) return Value.of("<identifier>");
                 if (leaf.equals("CODEC") && owner.equals("SuspiciousStewEffects")) return Value.list(Value.object(List.of(
                         new Field("id", "<identifier>", "", List.of()),
@@ -436,9 +446,7 @@ public abstract class CodecDocsTask extends DefaultTask {
     private static List<List<Field>> fieldVariants(List<Field> fields) {
         List<List<Field>> variants = List.of(List.of());
         for (Field field : fields) {
-            List<Field> options = field.type.equals("[]") || field.alternatives.isEmpty()
-                    ? List.of(field)
-                    : field.alternatives.stream().map(value -> new Field(field.name, value.type, field.detail, value.children, value.alternatives, value.enumValues)).toList();
+            List<Field> options = field.type.equals("[]") ? List.of(field) : fieldVariants(field);
             List<List<Field>> expanded = new ArrayList<>();
             for (List<Field> variant : variants) for (Field option : options) {
                 List<Field> copy = new ArrayList<>(variant);
@@ -448,6 +456,25 @@ public abstract class CodecDocsTask extends DefaultTask {
             variants = expanded;
         }
         return variants;
+    }
+
+    private static List<Field> fieldVariants(Field field) {
+        if (!field.alternatives.isEmpty()) {
+            List<Field> variants = new ArrayList<>();
+            for (Value value : field.alternatives) {
+                Field alternative = new Field(field.name, value.type, field.detail, value.children, value.alternatives, value.enumValues);
+                variants.addAll(fieldVariants(alternative));
+            }
+            return variants;
+        }
+        if (field.type.equals("<object>")) {
+            List<Field> variants = new ArrayList<>();
+            for (List<Field> children : fieldVariants(field.children)) {
+                variants.add(new Field(field.name, field.type, field.detail, children));
+            }
+            return variants;
+        }
+        return List.of(field);
     }
 
     private static void collectEnumFields(Field field, String path, List<String> result) {
