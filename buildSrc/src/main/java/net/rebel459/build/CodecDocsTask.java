@@ -92,7 +92,7 @@ public abstract class CodecDocsTask extends DefaultTask {
                 }
                 List<String> enumFields = new ArrayList<>();
                 for (Field field : registration.fields) collectEnumFields(field, field.name, enumFields);
-                if (!enumFields.isEmpty()) markdown.append("\n<details>\n<summary>Enum values</summary>\n\n")
+                if (!enumFields.isEmpty()) markdown.append("\n<details>\n<summary>Values</summary>\n\n")
                         .append(String.join("\n", enumFields)).append("\n\n</details>\n");
                 markdown.append('\n');
             }
