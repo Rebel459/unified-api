@@ -25,6 +25,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.BlockAssets;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedPlatform;
@@ -491,10 +492,10 @@ public class WoodSet {
                             .soundType(settings.leavesSoundType.get())
                             .occlusion(false)
                             .validSpawn(VanillaBlockPredicateCodecs.OCELOT_OR_PARROT.entityPredicate().get().create())
-                            .suffocating(VanillaBlockPredicateCodecs.NEVER.statePredicate().get().create())
-                            .viewBlocking(VanillaBlockPredicateCodecs.NEVER.statePredicate().get().create())
+                            .suffocating(ExtensibleCodecs.STATE_PREDICATE.never().create())
+                            .viewBlocking(ExtensibleCodecs.STATE_PREDICATE.never().create())
                             .pushReaction(PushReaction.DESTROY)
-                            .redstoneConductor(VanillaBlockPredicateCodecs.NEVER.statePredicate().get().create())
+                            .redstoneConductor(ExtensibleCodecs.STATE_PREDICATE.never().create())
                             .flammable(30, 60)
                     )
                     .data(data -> data
@@ -823,7 +824,7 @@ public class WoodSet {
                                 .copyFrom(getPlanks())
                                 .occlusion(false)
                                 .strength(3F)
-                                .validSpawn(VanillaBlockPredicateCodecs.NEVER.entityPredicate().get().create())
+                                .validSpawn(ExtensibleCodecs.ENTITY_PREDICATE.never().create())
                         )
                         .assets(assets -> assets
                                 .model(BlockAssets.TRAPDOOR)
