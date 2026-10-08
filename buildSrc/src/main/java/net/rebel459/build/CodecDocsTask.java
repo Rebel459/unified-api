@@ -148,19 +148,105 @@ public abstract class CodecDocsTask extends DefaultTask {
                 for (FieldDeclaration declaration : unit.findAll(FieldDeclaration.class)) {
                     for (var variable : declaration.getVariables()) {
                         if (variable.getInitializer().isEmpty()) continue;
-                        registration(variable.getInitializer().get(), source, category).ifPresent(found::add);
+                        Expression initializer = variable.getInitializer().get();
+                        List<Registration> registrations = registrations(initializer, source, category);
+                        found.addAll(registrations);
                     }
                 }
                 for (VariableDeclarationExpr declaration : unit.findAll(VariableDeclarationExpr.class)) {
                     for (var variable : declaration.getVariables()) {
                         if (variable.getInitializer().isEmpty()) continue;
-                        Optional<Registration> registration = registration(variable.getInitializer().get(), source, category);
-                        registration.ifPresent(found::add);
+                        found.addAll(registrations(variable.getInitializer().get(), source, category));
                     }
                 }
             }
+            addPredicateBuiltins();
             found.sort(Comparator.comparing((Registration r) -> r.category).thenComparing(r -> r.id));
             return found;
+        }
+
+        private List<Registration> registrations(Expression initializer, Path source, String sourceCategory) {
+            if (!(initializer instanceof MethodCallExpr call)) return List.of();
+            if (call.getNameAsString().equals("register") && call.getScope().map(scope -> scope.toString().endsWith("ExtensibleBlockPredicateCodec")).orElse(false)) {
+                return blockPredicateRegistrations(call, source);
+            }
+            if (source.getFileName().toString().equals("VanillaBlockPredicateCodecs.java")
+                    && Set.of("simple", "simpleEntity", "simpleCollision").contains(call.getNameAsString())) {
+                return vanillaBlockPredicateRegistration(call, source);
+            }
+            return registration(initializer, source, sourceCategory).map(List::of).orElseGet(List::of);
+        }
+
+        private List<Registration> blockPredicateRegistrations(MethodCallExpr call, Path source) {
+            List<Expression> args = call.getArguments();
+            if (args.size() < 6) return List.of();
+            Optional<String> id = registrationId(args.get(0), source);
+            if (id.isEmpty()) return List.of();
+            String[] categories = {"block-predicate", "state-predicate", "entity-predicate", "collision-predicate"};
+            List<Registration> registrations = new ArrayList<>();
+            for (int i = 0; i < categories.length; i++) {
+                if (isPresentOptional(args.get(i + 2))) {
+                    List<Field> fields = resolve(args.get(1), new LinkedHashSet<>(), source, id.get());
+                    registrations.add(new Registration(id.get(), categories[i], fields, source));
+                }
+            }
+            return registrations;
+        }
+
+        private List<Registration> vanillaBlockPredicateRegistration(MethodCallExpr call, Path source) {
+            List<Expression> args = call.getArguments();
+            if (args.size() < 2 || !(args.get(0) instanceof StringLiteralExpr path)) return List.of();
+            String category;
+            if (call.getNameAsString().equals("simpleEntity")) category = "entity-predicate";
+            else if (call.getNameAsString().equals("simpleCollision")) category = "collision-predicate";
+            else {
+                String predicateType = call.getArgument(1).toString();
+                boolean statePredicate = predicateType.contains("StatePredicate")
+                        || predicateType.contains("NOT_CLOSED_SHULKER")
+                        || predicateType.contains("NOT_EXTENDED_PISTON")
+                        || call.getArgument(1).findFirst(com.github.javaparser.ast.expr.LambdaExpr.class)
+                                .map(lambda -> lambda.getParameters().size() > 1).orElse(false);
+                category = statePredicate ? "state-predicate" : "block-predicate";
+            }
+            List<Registration> registrations = new ArrayList<>();
+            String id = "minecraft:" + path.asString();
+            registrations.add(new Registration(id, category, List.of(), source));
+            // The vanilla helper also adapts block predicates into state and entity predicates.
+            if (call.getNameAsString().equals("simple") && category.equals("block-predicate")) {
+                registrations.add(new Registration(id, "state-predicate", List.of(), source));
+                registrations.add(new Registration(id, "entity-predicate", List.of(), source));
+            } else if (call.getNameAsString().equals("simple") && category.equals("state-predicate")) {
+                registrations.add(new Registration(id, "entity-predicate", List.of(), source));
+            }
+            return registrations;
+        }
+
+        private Optional<String> registrationId(Expression expression, Path source) {
+            if (expression instanceof StringLiteralExpr literal) {
+                return Optional.of((source.getFileName().toString().startsWith("Vanilla") ? "minecraft:" : "unified:") + literal.asString());
+            }
+            if (expression instanceof MethodCallExpr idCall && !idCall.getArguments().isEmpty() && idCall.getArgument(0) instanceof StringLiteralExpr literal) {
+                return Optional.of((idCall.toString().startsWith("Identifier.withDefaultNamespace") ? "minecraft:" : "unified:") + literal.asString());
+            }
+            return Optional.empty();
+        }
+
+        private boolean isPresentOptional(Expression expression) {
+            return expression instanceof MethodCallExpr call && call.getNameAsString().equals("of");
+        }
+
+        private void addPredicateBuiltins() {
+            String[] categories = {"block-predicate", "item-predicate", "state-predicate", "entity-predicate", "collision-predicate", "load-requirement", "spawn-predicate"};
+            for (String category : categories) {
+                found.add(new Registration("unified:always", category, List.of(), root));
+                found.add(new Registration("unified:never", category, List.of(), root));
+                Field nestedPredicate = new Field("type", "<identifier>", "", List.of());
+                Field predicateList = new Field("predicates", "[]", "", List.of(), List.of(Value.object(List.of(nestedPredicate))));
+                Field predicate = new Field("predicate", "<object>", "", List.of(nestedPredicate));
+                found.add(new Registration("unified:all_of", category, List.of(predicateList), root));
+                found.add(new Registration("unified:any_of", category, List.of(predicateList), root));
+                found.add(new Registration("unified:not", category, List.of(predicate), root));
+            }
         }
 
         private void indexDeclarations() {

@@ -28,8 +28,6 @@ public class VanillaBlockPredicateCodecs {
         return ExtensibleBlockPredicateCodec.register(Identifier.withDefaultNamespace(path), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(() -> predicate));
     }
 
-    public static final ExtensibleBlockPredicateCodec.Simple NEVER = simple("never", _ -> false);
-    public static final ExtensibleBlockPredicateCodec.Simple ALWAYS = simple("always", _ -> true);
     public static final ExtensibleBlockPredicateCodec.Simple NOT_CLOSED_SHULKER = simple("not_closed_shulker", Blocks.NOT_CLOSED_SHULKER);
     public static final ExtensibleBlockPredicateCodec.Simple NOT_EXTENDED_PISTON = simple("not_extended_piston", Blocks.NOT_EXTENDED_PISTON);
     public static final ExtensibleBlockPredicateCodec.Simple NEAR_PLANE_INTERSECTS_OUTLINE = simpleCollision("near_plane_intersects_outline", Blocks.NEAR_PLANE_INTERSECTS_OUTLINE);
