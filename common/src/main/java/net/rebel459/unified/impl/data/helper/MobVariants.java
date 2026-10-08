@@ -100,7 +100,7 @@ public class MobVariants {
                     target.forGetter(Definition::target),
                     TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Definition::texture),
                     TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Definition::babyTexture),
-                    Sounds.CODEC.optionalFieldOf("sound_type", Sounds.EMPTY).forGetter(Definition::sounds),
+                    Sounds.CODEC.optionalFieldOf("sounds", Sounds.EMPTY).forGetter(Definition::sounds),
                     spawnConditions.forGetter(Definition::spawnConditions),
                     spawnChance.forGetter(Definition::spawnChance),
                     attributes.forGetter(Definition::attributes),
@@ -118,7 +118,7 @@ public class MobVariants {
                 Identifier.CODEC.optionalFieldOf("target").forGetter(Definition::target),
                 TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Definition::texture),
                 TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Definition::babyTexture),
-                Sounds.CODEC.optionalFieldOf("soundType", new Sounds(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Definition::sounds)
+                Sounds.CODEC.optionalFieldOf("sounds", new Sounds(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Definition::sounds)
         ).apply(instance, Definition::new));
         public static final Codec<Holder<Definition>> REGISTRY_CODEC = RegistryFixedCodec.create(RegistryKeyHolder.KEY);
         public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Definition>>> STREAM_CODEC = ByteBufCodecs.optional(
