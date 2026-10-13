@@ -508,7 +508,7 @@ public class VanillaBlockCodecs {
         public static final MapCodec<ParticleLeaves> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 LEAF_PARTICLE_CHANCE_CODEC.forGetter(ParticleLeaves::chance),
                 ParticleTypes.CODEC.fieldOf("leaf_particle").forGetter(ParticleLeaves::particle),
-                AmbientLeavesBlockSoundPlayer.CODEC.fieldOf("sound_player").forGetter(ParticleLeaves::player)
+                AmbientLeavesBlockSoundPlayer.CODEC.optionalFieldOf("sound_player", AmbientLeavesBlockSoundPlayer.noAmbientSound()).forGetter(ParticleLeaves::player)
         ).apply(instance, ParticleLeaves::new));
     }
 

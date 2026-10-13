@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block_item",
+  "block": "unified_testmod:example_block",
+  "properties": {
+    "minecraft:attack_animation": {},
+    "minecraft:attribute_modifiers": [],
+    "minecraft:break_sound": "minecraft:entity.item.break",
+    "minecraft:enchantments": {},
+    "minecraft:interact_animation": {},
+    "minecraft:jukebox_playable": "unified_testmod:placeholder_song",
+    "minecraft:lore": [],
+    "minecraft:max_stack_size": 16,
+    "minecraft:rarity": "uncommon",
+    "minecraft:repair_cost": 0,
+    "minecraft:tooltip_display": {},
+    "minecraft:use_effects": {}
+  }
+}
