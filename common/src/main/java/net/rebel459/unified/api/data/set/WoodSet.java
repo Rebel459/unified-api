@@ -9,9 +9,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.*;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -43,6 +41,7 @@ import net.rebel459.unified.api.registry.*;
 import net.rebel459.unified.api.util.BlockLootSubProvider;
 import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.data.set.WoodSetProperties;
+import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
