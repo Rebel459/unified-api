@@ -1,4 +1,5 @@
 {
+  "block.unified_testmod.example_block": "Example Block",
   "block.unified_testmod.stripped_test_log": "Stripped Test Log",
   "block.unified_testmod.stripped_test_wood": "Stripped Test Wood",
   "block.unified_testmod.test_button": "Test Button",

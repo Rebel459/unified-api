@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipes": "unified_testmod:test_slab"
+        "recipe": "unified_testmod:test_slab"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -2,23 +2,27 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "condition": {
-        "type": "minecraft:survives_explosion"
-      },
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:item",
-          "condition": {
-            "type": "minecraft:match_block",
-            "blocks": "unified_testmod:test_door",
-            "state": {
-              "half": "lower"
+          "conditions": [
+            {
+              "block": "unified_testmod:test_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "lower"
+              }
             }
-          },
+          ],
           "name": "unified_testmod:test_door"
         }
       ],
-      "rolls": 1
+      "rolls": 1.0
     }
   ]
 }

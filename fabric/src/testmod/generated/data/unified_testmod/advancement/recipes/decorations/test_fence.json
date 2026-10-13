@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipes": "unified_testmod:test_fence"
+        "recipe": "unified_testmod:test_fence"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

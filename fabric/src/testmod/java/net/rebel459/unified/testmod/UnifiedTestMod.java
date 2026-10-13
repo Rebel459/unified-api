@@ -1,27 +1,29 @@
 package net.rebel459.unified.testmod;
 
+import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.rebel459.unified.impl.util.BlockItemTagId;
+import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.UntintedParticleLeavesBlock;
-import net.minecraft.core.particles.SimpleParticleType;
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.rebel459.unified.api.codec.ExtensibleCodecs;
+import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.UnifiedData;
+import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.data.set.WoodPreset;
 import net.rebel459.unified.api.data.set.WoodSet;
-import net.rebel459.unified.api.core.*;
-import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.registry.VanillaBlockCodecs;
 import net.rebel459.unified.fabric.FabricUnifiedInitializer;
 
@@ -60,7 +62,7 @@ public final class UnifiedTestMod implements ModInitializer {
                             .rarity(Rarity.UNCOMMON)
                             .jukeboxPlayable(ResourceKey.create(Registries.JUKEBOX_SONG, id("placeholder_song")))
                     )
-                    .blockEntity(() -> BlockEntityType.CHEST)
+                    .blockEntity(() -> BlockEntityTypes.CHEST)
     );
 
     public static Identifier id(String path) {

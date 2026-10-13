@@ -6,6 +6,6 @@
     "destroy_time": 3.0,
     "explosion_resistance": 3.0,
     "occlusion": false,
-    "push_reaction": "popped"
+    "push_reaction": "destroy"
   }
 }

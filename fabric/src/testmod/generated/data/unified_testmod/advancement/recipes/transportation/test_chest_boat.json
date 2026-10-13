@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipes": "unified_testmod:test_chest_boat"
+        "recipe": "unified_testmod:test_chest_boat"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

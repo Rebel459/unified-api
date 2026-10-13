@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipes": "unified_testmod:test_stairs"
+        "recipe": "unified_testmod:test_stairs"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -3,13 +3,13 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipes": "unified_testmod:test_boat"
+        "recipe": "unified_testmod:test_boat"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
     "in_water": {
       "conditions": {
-        "blocks": "minecraft:water"
+        "block": "minecraft:water"
       },
       "trigger": "minecraft:enter_block"
     }
