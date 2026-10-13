@@ -548,7 +548,7 @@ public class WoodSet {
                         data.tag(BlockItemTags.LEAVES);
                     })
                     .itemProperties(itemProperties -> itemProperties
-                            .component(UnifiedDataComponents.COMPOST.get(), 0.3F)
+                            .compostable(ContextIntProviders.COMPOSTABLE_LOW)
                     )
             );
             leaves.put(entry.prefix, block);
