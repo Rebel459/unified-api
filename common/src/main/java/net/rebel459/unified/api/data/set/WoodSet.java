@@ -540,8 +540,8 @@ public class WoodSet {
                             .flammable(30, 60)
                     )
                     .data(data -> {
-                        @Nullable final Item sapling;
-                        if (hasSapling()) sapling = getSapling().asItem();
+                        @Nullable final Block sapling;
+                        if (hasSapling()) sapling = getSapling().get();
                         else sapling = null;
                         data.loot((leavesBlock, provider) -> entry.loot.apply(leavesBlock, sapling, provider));
                         data.tag(BlockItemTags.LEAVES);
@@ -1447,27 +1447,27 @@ public class WoodSet {
         private final ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type;
         private final MapColor mapColor;
         private final BlockAsset<Void> model;
-        private final TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot;
+        private final TriFunction<Block, Block, BlockLootSubProvider, LootTable.Builder> loot;
         private final @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem;
 
-        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot) {
+        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Block, BlockLootSubProvider, LootTable.Builder> loot) {
             return variant("",  type, mapColor, model, loot);
         }
-        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
+        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Block, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
             return variant("", type, mapColor, model, loot, precedingCreativeItem);
         }
 
-        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Block, BlockLootSubProvider, LootTable.Builder> loot) {
             return new Leaves(prefix, type, mapColor,  model, loot, null);
         }
-        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, String precedingLeavesVariant) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Block, BlockLootSubProvider, LootTable.Builder> loot, String precedingLeavesVariant) {
             return new Leaves(prefix, type, mapColor, model, loot, Either.left(precedingLeavesVariant));
         }
-        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Block, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
             return new Leaves(prefix, type, mapColor, model, loot, Either.right(precedingCreativeItem));
         }
 
-        private Leaves(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem) {
+        private Leaves(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Block, BlockLootSubProvider, LootTable.Builder> loot, @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem) {
             this.prefix = prefix;
             this.type = type;
             this.mapColor = mapColor;
