@@ -5,6 +5,7 @@
     "minecraft:attribute_modifiers": [],
     "minecraft:break_sound": "minecraft:entity.item.break",
     "minecraft:enchantments": {},
+    "minecraft:jukebox_playable": "unified_testmod:placeholder_song",
     "minecraft:lore": [],
     "minecraft:max_stack_size": 16,
     "minecraft:rarity": "uncommon",

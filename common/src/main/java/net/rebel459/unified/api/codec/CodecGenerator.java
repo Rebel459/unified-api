@@ -24,6 +24,16 @@ public final class CodecGenerator {
         });
     }
 
+    public static <T> void registry(String modId, Identifier id, String directory, int priority, Optional<ExtensibleCodec.Entry<Boolean>> requirement, Codec<T> codec, BiFunction<HolderLookup.Provider, DynamicOps<JsonElement>, T> value) {
+        data(modId, Identifier.fromNamespaceAndPath(id.getNamespace(), "unified/registry/" + directory + "/" + id.getPath()), requirement, (registries, ops) -> {
+            DynamicOps<JsonElement> registryOps = registries.createSerializationContext(ops);
+            JsonObject json = codec.encodeStart(registryOps, value.apply(registries, registryOps)).getOrThrow(
+                    error -> new IllegalStateException("Failed to encode generated registry data for " + id + "; component values must be codec-serializable, and holders must have registry keys: " + error)).getAsJsonObject();
+            if (priority != 0) json.addProperty("priority", priority);
+            return json;
+        });
+    }
+
     public static <T> void data(String modId, Identifier file, Optional<ExtensibleCodec.Entry<Boolean>> requirement, Codec<T> codec, Supplier<T> value) {
         data(modId, file, requirement, (_, ops) -> codec.encodeStart(ops, value.get()).getOrThrow());
     }
@@ -53,6 +63,7 @@ public final class CodecGenerator {
                     json.add("load_requirement", ExtensibleCodecs.LOAD_REQUIREMENT.codec()
                             .encodeStart(ops, requirement.orElseThrow()).getOrThrow());
                     return json;
-                }));
+                }
+        ));
     }
 }

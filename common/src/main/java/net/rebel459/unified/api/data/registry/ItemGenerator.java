@@ -1,9 +1,8 @@
 package net.rebel459.unified.api.data.registry;
 
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -52,11 +51,11 @@ public class ItemGenerator {
         builder.accept(finalBuilder);
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
         ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
-        Supplier<ItemRegistry.Definition> definition = () -> ItemRegistry.Definition.item(
-                type, componentValues(finalBuilder.properties, key));
-        SuppliedItem registered = ItemRegistry.registerDefinition(id, definition);
+        Supplier<ItemRegistry.Definition> definition = () -> ItemRegistry.Definition.item(type, Map.of());
+        SuppliedItem registered = ItemRegistry.registerDefinition(id, definition, () -> itemProperties(finalBuilder.properties));
         CodecGenerator.registry(modId, id, "items", settings.metadata().priority(), settings.metadata().requirement(),
-                ItemRegistry.CODEC, definition);
+                ItemRegistry.CODEC, (registries, ops) -> ItemRegistry.Definition.item(type,
+                        componentValues(finalBuilder.properties, key, registries)));
         DataProviders.MODELS.add(modId, new DataProviders.ItemModels(id, finalBuilder::buildAssets));
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(id, DataProviders.TranslationType.ITEM,
@@ -74,11 +73,13 @@ public class ItemGenerator {
         Builder finalBuilder = new Builder();
         builder.accept(finalBuilder);
         Identifier id = block.blockItemId().item().identifier();
-        Supplier<ItemRegistry.Definition> definition = () -> ItemRegistry.Definition.blockItem(
-                block, type, componentValues(finalBuilder.properties, block.blockItemId().item()));
-        SuppliedItem registered = ItemRegistry.registerBlockItem(block.blockItemId(), definition);
+        ResourceKey<Item> key = block.blockItemId().item();
+        Supplier<ItemRegistry.Definition> definition = () -> ItemRegistry.Definition.blockItem(block, type, Map.of());
+        SuppliedItem registered = ItemRegistry.registerBlockItem(block.blockItemId(), definition,
+                () -> itemProperties(finalBuilder.properties));
         CodecGenerator.registry(modId, id, "items", settings.metadata().priority(), settings.metadata().requirement(),
-                ItemRegistry.CODEC, definition);
+                ItemRegistry.CODEC, (registries, ops) -> ItemRegistry.Definition.blockItem(block, type,
+                        componentValues(finalBuilder.properties, key, registries)));
         DataProviders.MODELS.add(modId, new DataProviders.ItemModels(id, finalBuilder::buildAssets));
         DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.of(
                 new DataProviders.Translation(block.blockItemId().block().identifier(), DataProviders.TranslationType.BLOCK,
@@ -87,15 +88,17 @@ public class ItemGenerator {
         return registered;
     }
 
-    private static Map<DataComponentType<?>, Object> componentValues(Consumer<Item.Properties> properties, ResourceKey<Item> key) {
+    private static Item.Properties itemProperties(Consumer<Item.Properties> properties) {
         Item.Properties finalProperties = new Item.Properties();
         properties.accept(finalProperties);
+        return finalProperties;
+    }
+
+    private static Map<DataComponentType<?>, Object> componentValues(Consumer<Item.Properties> properties,
+            ResourceKey<Item> key, HolderLookup.Provider registries) {
+        Item.Properties finalProperties = itemProperties(properties);
         DataComponentMap.Builder componentBuilder = DataComponentMap.builder();
-        finalProperties.componentInitializer.run(
-                componentBuilder,
-                RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY),
-                key
-        );
+        finalProperties.componentInitializer.run(componentBuilder, registries, key);
         Map<DataComponentType<?>, Object> components = new LinkedHashMap<>();
         componentBuilder.build().forEach(component -> components.put(component.type(), component.value()));
         return components;

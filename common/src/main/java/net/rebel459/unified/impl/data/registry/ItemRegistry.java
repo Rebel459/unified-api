@@ -61,29 +61,22 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
             boolean blockItem = typeId.map(ExtensibleCodecs.BLOCK_ITEM::contains).orElseGet(blockId::isPresent);
             if (blockItem) {
                 Identifier registeredBlockId = blockId.orElseThrow(() -> new IllegalArgumentException("Block item declaration " + id + " is missing its block"));
-                return registerBlockItem(BlockItemId.create(registeredBlockId, id), declaration);
+                return registerBlockItem(BlockItemId.create(registeredBlockId, id), declaration,
+                        () -> createProperties(declaration.get().properties()));
             }
-            return registerDefinition(id, declaration);
+            return registerDefinition(id, declaration, () -> createProperties(declaration.get().properties()));
         });
     }
 
-    public static SuppliedItem registerDefinition(Identifier id, Supplier<Definition> suppliedDefinition) {
+    public static SuppliedItem registerDefinition(Identifier id, Supplier<Definition> suppliedDefinition, Supplier<Item.Properties> properties) {
         UnifiedRegistries.Items items = UnifiedRegistries.Items.create(id.getNamespace());
-        Supplier<Item.Properties> properties = () -> createProperties(suppliedDefinition.get().properties());
         return items.register(id.getPath(), itemProperties -> suppliedDefinition.get().factoryType.right().orElseThrow().get().apply(itemProperties), properties);
     }
 
-    public static SuppliedItem registerBlockItem(BlockItemId id,
-            Supplier<Definition> suppliedDefinition) {
-        UnifiedRegistries.Items items = UnifiedRegistries.Items.create(
-                id.item().identifier().getNamespace());
-        Supplier<Item.Properties> properties = () ->
-                createProperties(suppliedDefinition.get().properties());
-        Supplier<Block> block = () -> suppliedDefinition.get().factoryType.left()
-                .orElseThrow().block().get();
-        return items.registerBlockItem(id, block,
-                (registeredBlock, itemProperties) -> suppliedDefinition.get().factoryType.left()
-                        .orElseThrow().factory().apply(registeredBlock, itemProperties), properties);
+    public static SuppliedItem registerBlockItem(BlockItemId id, Supplier<Definition> suppliedDefinition, Supplier<Item.Properties> properties) {
+        UnifiedRegistries.Items items = UnifiedRegistries.Items.create(id.item().identifier().getNamespace());
+        Supplier<Block> block = () -> suppliedDefinition.get().factoryType.left().orElseThrow().block().get();
+        return items.registerBlockItem(id, block, (registeredBlock, itemProperties) -> suppliedDefinition.get().factoryType.left().orElseThrow().factory().apply(registeredBlock, itemProperties), properties);
     }
 
     public record Definition(Either<BlockItemDefinition, ExtensibleCodec.Entry<Function<Item.Properties, Item>>> factoryType, Map<DataComponentType<?>, Object> properties) {

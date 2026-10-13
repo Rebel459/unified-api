@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -57,11 +58,12 @@ public final class UnifiedTestMod implements ModInitializer {
                     .itemProperties(itemProperties -> itemProperties
                             .stacksTo(16)
                             .rarity(Rarity.UNCOMMON)
+                            .jukeboxPlayable(ResourceKey.create(Registries.JUKEBOX_SONG, id("placeholder_song")))
                     )
                     .blockEntity(() -> BlockEntityType.CHEST)
     );
 
-    private static Identifier id(String path) {
+    public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
