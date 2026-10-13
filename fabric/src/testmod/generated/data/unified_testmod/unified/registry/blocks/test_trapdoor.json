@@ -6,6 +6,6 @@
     "destroy_time": 3.0,
     "explosion_resistance": 3.0,
     "occlusion": false,
-    "valid_spawn": "minecraft:never"
+    "valid_spawn": "unified:never"
   }
 }
