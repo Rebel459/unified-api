@@ -9,7 +9,9 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.*;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -126,12 +128,12 @@ public class WoodSet {
             mosaicStairs = createMosaicStairs();
             mosaicSlab = createMosaicSlab();
         }
-        if (this.settings.leaves != null){
-            leaves = createLeaves();
-        }
         if (this.settings.sapling != null){
             sapling = createSapling();
             pottedSapling = createPottedSapling();
+        }
+        if (this.settings.leaves != null){
+            leaves = createLeaves();
         }
         stairs = createStairs();
         slab = createSlab();
@@ -479,40 +481,6 @@ public class WoodSet {
                         })
         );
     }
-    private Map<String, SuppliedBlock> createLeaves() {
-        Map<String, SuppliedBlock> leaves = new HashMap<>();
-        for (Leaves entry : getAllLeaves()) {
-            String name = this.getId().getPath() + "_" + this.settings.getLeavesName();
-            if (!entry.getPrefix().isEmpty()) name = entry.getPrefix() + "_" + name;
-            SuppliedBlock block = registerBlock(name, entry.type, builder -> builder
-                    .assets(assets -> assets
-                            .model(entry.model)
-                    )
-                    .properties(properties -> properties
-                            .mapColor(entry.getMapColor())
-                            .strength(0.2F)
-                            .randomTicks(true)
-                            .soundType(settings.leavesSoundType.get())
-                            .occlusion(false)
-                            .validSpawn(VanillaBlockPredicateCodecs.OCELOT_OR_PARROT.entityPredicate().get().create())
-                            .suffocating(ExtensibleCodecs.STATE_PREDICATE.never().create())
-                            .viewBlocking(ExtensibleCodecs.COLLISION_PREDICATE.never().create())
-                            .pushReaction(PushReaction.POPPED)
-                            .redstoneConductor(ExtensibleCodecs.STATE_PREDICATE.never().create())
-                            .flammable(30, 60)
-                    )
-                    .data(data -> data
-                            .loot(entry.loot)
-                            .tag(BlockItemTags.LEAVES)
-                    )
-                    .itemProperties(itemProperties -> itemProperties
-                            .compostable(ContextIntProviders.COMPOSTABLE_LOW)
-                    )
-            );
-            leaves.put(entry.prefix, block);
-        }
-        return leaves;
-    }
     private SuppliedBlock createSapling() {
         return registerBlock(
                 this.getId().getPath() + "_" + this.settings.getSaplingName(),
@@ -550,6 +518,43 @@ public class WoodSet {
                                 .tag(BlockTags.FLOWER_POTS)
                         )
         );
+    }
+    private Map<String, SuppliedBlock> createLeaves() {
+        Map<String, SuppliedBlock> leaves = new HashMap<>();
+        for (Leaves entry : getAllLeaves()) {
+            String name = this.getId().getPath() + "_" + this.settings.getLeavesName();
+            if (!entry.getPrefix().isEmpty()) name = entry.getPrefix() + "_" + name;
+            SuppliedBlock block = registerBlock(name, entry.type, builder -> builder
+                    .assets(assets -> assets
+                            .model(entry.model)
+                    )
+                    .properties(properties -> properties
+                            .mapColor(entry.getMapColor())
+                            .strength(0.2F)
+                            .randomTicks(true)
+                            .soundType(settings.leavesSoundType.get())
+                            .occlusion(false)
+                            .validSpawn(VanillaBlockPredicateCodecs.OCELOT_OR_PARROT.entityPredicate().get().create())
+                            .suffocating(ExtensibleCodecs.STATE_PREDICATE.never().create())
+                            .viewBlocking(ExtensibleCodecs.COLLISION_PREDICATE.never().create())
+                            .pushReaction(PushReaction.POPPED)
+                            .redstoneConductor(ExtensibleCodecs.STATE_PREDICATE.never().create())
+                            .flammable(30, 60)
+                    )
+                    .data(data -> {
+                        @Nullable final Item sapling;
+                        if (hasSapling()) sapling = getSapling().asItem();
+                        else sapling = null;
+                        data.loot((leavesBlock, provider) -> entry.loot.apply(leavesBlock, sapling, provider));
+                        data.tag(BlockItemTags.LEAVES);
+                    })
+                    .itemProperties(itemProperties -> itemProperties
+                            .component(UnifiedDataComponents.COMPOST.get(), 0.3F)
+                    )
+            );
+            leaves.put(entry.prefix, block);
+        }
+        return leaves;
     }
     private SuppliedBlock createPlanks() {
         return registerBlock(
@@ -1444,27 +1449,27 @@ public class WoodSet {
         private final ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type;
         private final MapColor mapColor;
         private final BlockAsset<Void> model;
-        private final BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot;
+        private final TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot;
         private final @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem;
 
-        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot) {
+        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot) {
             return variant("",  type, mapColor, model, loot);
         }
-        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
+        public static Leaves base(ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
             return variant("", type, mapColor, model, loot, precedingCreativeItem);
         }
 
-        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot) {
             return new Leaves(prefix, type, mapColor,  model, loot, null);
         }
-        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, String precedingLeavesVariant) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, String precedingLeavesVariant) {
             return new Leaves(prefix, type, mapColor, model, loot, Either.left(precedingLeavesVariant));
         }
-        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
+        public static Leaves variant(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, Supplier<? extends ItemLike> precedingCreativeItem) {
             return new Leaves(prefix, type, mapColor, model, loot, Either.right(precedingCreativeItem));
         }
 
-        private Leaves(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, BiFunction<Block, BlockLootSubProvider, LootTable.Builder> loot, @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem) {
+        private Leaves(String prefix, ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>> type, MapColor mapColor, BlockAsset<Void> model, TriFunction<Block, Item, BlockLootSubProvider, LootTable.Builder> loot, @Nullable Either<String, Supplier<? extends ItemLike>> precedingCreativeItem) {
             this.prefix = prefix;
             this.type = type;
             this.mapColor = mapColor;
