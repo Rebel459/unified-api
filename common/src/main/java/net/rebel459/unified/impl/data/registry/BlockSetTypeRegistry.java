@@ -41,8 +41,11 @@ public class BlockSetTypeRegistry extends RegistryResourceListener<BlockSetTypeR
     protected void register(Identifier id, DeferredDeclaration<BlockSetTypeRegistry.Definition> declaration) {
         UnifiedPlatform.executeAfter(Registries.SOUND_EVENT, () -> {
             BlockSetTypeRegistry.Definition type = declaration.get();
+            String actualId;
+            if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) actualId = id.getPath();
+            else actualId = id.toString();
             BlockSetType.register(new BlockSetType(
-                    id.toString(),
+                    actualId,
                     type.canOpenByHand,
                     type.canOpenByWindCharge,
                     type.canButtonBeActivatedByArrows,

@@ -32,18 +32,20 @@ public class WoodTypeRegistry extends RegistryResourceListener<WoodTypeRegistry.
 
     @Override
     protected void register(Identifier id, DeferredDeclaration<WoodTypeRegistry.Definition> declaration) {
-        UnifiedPlatform.executeAfter(Registries.SOUND_EVENT, () -> actualRegister(id, declaration.get()));
-    }
-
-    private static void actualRegister(Identifier id, WoodTypeRegistry.Definition type) {
-        WoodType.register(new WoodType(
-                id.toString(),
-                type.blockSet,
-                type.soundType.convert(),
-                type.hangingSignSoundType.convert(),
-                type.fenceGateClose,
-                type.fenceGateOpen
-        ));
+        UnifiedPlatform.executeAfter(Registries.SOUND_EVENT, () -> {
+            Definition type = declaration.get();
+            String actualId;
+            if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) actualId = id.getPath();
+            else actualId = id.toString();
+            WoodType.register(new WoodType(
+                    actualId,
+                    type.blockSet,
+                    type.soundType.convert(),
+                    type.hangingSignSoundType.convert(),
+                    type.fenceGateClose,
+                    type.fenceGateOpen
+            ));
+        });
     }
 
     public record Definition(BlockSetType blockSet, BlockRegistry.SoundType soundType, BlockRegistry.SoundType hangingSignSoundType, SoundEvent fenceGateClose, SoundEvent fenceGateOpen) {}
