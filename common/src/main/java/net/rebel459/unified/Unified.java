@@ -67,6 +67,7 @@ public class Unified {
         StagedRegistry.finish(Registries.ATTRIBUTE);
         StagedRegistry.finish(Registries.DATA_COMPONENT_TYPE);
         StagedRegistry.finish(Registries.PARTICLE_TYPE);
+        StagedRegistry.finish(Registries.BLOCK_ENTITY_TYPE);
         RegistryResourceListener.completeRegistration();
         StagedRegistry.finish();
     }
