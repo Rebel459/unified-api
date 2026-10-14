@@ -48,15 +48,16 @@ public class EntityGenerator {
         this.tags = tags;
     }
 
-    public <T extends Entity> Supplied<? extends EntityType<?>> register(String path, EntityType.Builder<T> type, Consumer<Builder> builder) {
+    public <T extends Entity> Supplied<EntityType<T>> register(String path, EntityType.Builder<T> type, Consumer<Builder> builder) {
         return register(path, ExtensibleCodecs.ENTITY.register(Identifier.fromNamespaceAndPath(namespace, path), () -> type).create(), builder);
     }
 
-    public Supplied<? extends EntityType<?>> register(String path, ExtensibleCodec.Entry<EntityType.Builder<?>> type, Consumer<Builder> builder) {
+    public <T extends Entity> Supplied<EntityType<T>> register(String path, ExtensibleCodec.Entry<EntityType.Builder<?>> type, Consumer<Builder> builder) {
         return register(path, new EntityRegistry.CodecBase(type), builder);
     }
 
-    private Supplied<? extends EntityType<?>> register(String path, EntityRegistry.Base base, Consumer<Builder> builder) {
+    @SuppressWarnings("unchecked")
+    private <T extends Entity> Supplied<EntityType<T>> register(String path, EntityRegistry.Base base, Consumer<Builder> builder) {
         Builder finalBuilder = new Builder(namespace, path);
         builder.accept(finalBuilder);
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
@@ -75,7 +76,7 @@ public class EntityGenerator {
                     Optional.empty()
             ));
         };
-        Supplied<? extends EntityType<?>> entity = EntityRegistry.registerDefinition(id, definition, finalBuilder.properties.attributes);
+        Supplied<EntityType<T>> entity = (Supplied<EntityType<T>>) EntityRegistry.registerDefinition(id, definition, finalBuilder.properties.attributes);
         CodecGenerator.registry(modId, id, "entities", settings.metadata().priority(), settings.metadata().requirement(), EntityRegistry.CODEC, () -> {
             finalBuilder.properties.attributes.ifPresent(attributes -> finalBuilder.properties.properties.attributes = Optional.of(attributes.get()));
             return definition.get();
@@ -85,7 +86,7 @@ public class EntityGenerator {
         return entity;
     }
 
-    public Supplied<? extends EntityType<?>> registerCopy(String path, ResourceKey<EntityType<?>> base, Consumer<Builder> builder) {
+    public <T extends Entity> Supplied<EntityType<T>> registerCopy(String path, ResourceKey<EntityType<?>> base, Consumer<Builder> builder) {
         return register(path, new EntityRegistry.CopiedBase(base), builder);
     }
 
