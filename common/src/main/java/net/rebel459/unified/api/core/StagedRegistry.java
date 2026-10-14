@@ -122,7 +122,7 @@ public final class StagedRegistry<T> {
         if (actions != null) actions.forEach(Runnable::run);
     }
 
-    /** Call UnifiedInstance.executeAfter instead */
+    /** Call UnifiedPlatform.executeAfter instead */
     @ApiStatus.Internal
     public static synchronized void afterFinish(ResourceKey<? extends Registry<?>> registry, Runnable runnable) {
         if (!staging || FINISHED.contains(registry)) {
