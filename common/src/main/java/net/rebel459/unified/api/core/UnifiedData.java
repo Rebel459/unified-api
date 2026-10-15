@@ -64,6 +64,7 @@ public final class UnifiedData {
         public Builder priority(int value) {
             priority = value; return this;
         }
+
         public Builder requirement(String path, Supplier<Boolean> value) {
             requirement = Optional.of(ExtensibleCodecs.LOAD_REQUIREMENT
                     .register(Identifier.fromNamespaceAndPath(modId, path), value)
@@ -74,14 +75,23 @@ public final class UnifiedData {
             this.requirement = Optional.of(requirement);
             return this;
         }
+
         public Builder autoName() {
-            autoName = true; injectedTranslations = Optional.empty(); return this;
+            autoName = true;
+            return this;
         }
+        @Deprecated(forRemoval = true)
         public Builder autoName(String injectedTranslations) {
             autoName = true;
             this.injectedTranslations = Optional.of(injectedTranslations);
             return this;
         }
+
+        public Builder injectTranslations(String path) {
+            injectedTranslations = Optional.of(path);
+            return this;
+        }
+
         public Builder language(String language) {
             this.language = language; return this;
         }
