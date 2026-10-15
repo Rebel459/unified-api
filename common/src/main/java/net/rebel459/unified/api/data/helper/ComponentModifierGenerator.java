@@ -30,15 +30,26 @@ public class ComponentModifierGenerator extends HelperGenerator {
 
     public static final class Builder extends HelperGenerator.Builder {
 
-        private final Map<DataComponentType<?>, Object> components = new HashMap<>();
+        private final Map<DataComponentType<?>, Function<HolderLookup.Provider, ?>> components = new HashMap<>();
 
         Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/component_modifiers/" + name), requirement, (provider, ops) ->
-                    ComponentModifiers.Definition.CODEC.encodeStart(ops, new ComponentModifiers.Definition(predicate.apply(provider), Map.copyOf(components))).getOrThrow());
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/component_modifiers/" + name), requirement, (provider, ops) -> {
+                var providedComponents = new HashMap<DataComponentType<?>, Object>();
+                for (DataComponentType<?> component : Map.copyOf(components).keySet()) {
+                    Object value = components.get(component).apply(provider);
+                    providedComponents.put(component, value);
+                }
+                return ComponentModifiers.Definition.CODEC.encodeStart(ops, new ComponentModifiers.Definition(predicate.apply(provider), Map.copyOf(providedComponents))).getOrThrow();
+            });
         }
 
         public <T> ComponentModifierGenerator.Builder set(DataComponentType<T> type, T value) {
+            components.put(type, _ -> value);
+            return this;
+        }
+
+        public <T> ComponentModifierGenerator.Builder set(DataComponentType<T> type, Function<HolderLookup.Provider, T> value) {
             components.put(type, value);
             return this;
         }
