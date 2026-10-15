@@ -541,10 +541,7 @@ public class WoodSet {
                             .flammable(30, 60)
                     )
                     .data(data -> {
-                        @Nullable final Block sapling;
-                        if (hasSapling()) sapling = getSapling().get();
-                        else sapling = null;
-                        data.loot((leavesBlock, provider) -> entry.loot.apply(leavesBlock, sapling, provider));
+                        data.loot((leavesBlock, provider) -> entry.loot.apply(leavesBlock, getSapling() == null ? null : getSapling().get(), provider));
                         data.tag(BlockItemTags.LEAVES);
                     })
                     .itemProperties(itemProperties -> itemProperties
