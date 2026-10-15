@@ -49,7 +49,7 @@ public class ComponentModifierGenerator extends HelperGenerator {
             return this;
         }
 
-        public <T> ComponentModifierGenerator.Builder set(DataComponentType<T> type, Function<HolderLookup.Provider, T> value) {
+        public <T> ComponentModifierGenerator.Builder setDelayed(DataComponentType<T> type, Function<HolderLookup.Provider, T> value) {
             components.put(type, value);
             return this;
         }
