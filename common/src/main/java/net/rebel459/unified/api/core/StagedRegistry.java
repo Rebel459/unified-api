@@ -85,6 +85,8 @@ public final class StagedRegistry<T> {
                 return supplied;
             }
 
+            if (existing.registered.get() != null) return cast(existing.supplied);
+
             if (!StagedRegistry.isRegistering(registryKey, id)) {
                 throw new IllegalStateException("Duplicate code registration in " + registryKey.identifier() + ": " + id);
             }
@@ -133,10 +135,16 @@ public final class StagedRegistry<T> {
     }
 
     private void flush() {
-        while (!registrations.isEmpty()) {
-            Map.Entry<Identifier, Registration<T>> entry = registrations.entrySet().iterator().next();
-            registrations.remove(entry.getKey());
-            register(entry.getKey(), entry.getValue());
+        while (true) {
+            Map.Entry<Identifier, Registration<T>> pending = null;
+            for (Map.Entry<Identifier, Registration<T>> entry : registrations.entrySet()) {
+                if (entry.getValue().registered.get() == null) {
+                    pending = entry;
+                    break;
+                }
+            }
+            if (pending == null) return;
+            register(pending.getKey(), pending.getValue());
         }
     }
 
@@ -157,16 +165,22 @@ public final class StagedRegistry<T> {
     }
 
     private Supplied<T> resolve(AtomicReference<Supplied<T>> reference, Identifier id) {
-        Supplied<T> supplied = reference.get();
-        if (supplied == null) {
-            Registration<T> registration = registrations.remove(id);
-            if (registration == null) {
-                throw new IllegalStateException("Requested staged registry value while it was being registered: " + id);
+        synchronized (StagedRegistry.class) {
+            Supplied<T> supplied = reference.get();
+            if (supplied == null) {
+                Registration<T> registration = registrations.get(id);
+                if (registration == null) {
+                    throw new IllegalStateException("Requested staged registry value while it was being registered: " + id);
+                }
+                StagedRegistry.PlatformRegistration active = PLATFORM_REGISTRATION.get();
+                if (active != null && active.registry.equals(registry) && active.id.equals(id)) {
+                    throw new IllegalStateException("Requested staged registry value while it was being registered: " + id);
+                }
+                register(id, registration);
+                supplied = reference.get();
             }
-            register(id, registration);
-            supplied = reference.get();
+            return supplied;
         }
-        return supplied;
     }
 
     private static final class Registration<T> {

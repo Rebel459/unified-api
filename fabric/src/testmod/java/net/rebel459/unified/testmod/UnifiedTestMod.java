@@ -74,6 +74,9 @@ public final class UnifiedTestMod implements ModInitializer {
         ExtensibleCodecs.BLOCK.register(id("late_block"), () -> Block::new);
         ExtensibleCodecs.BLOCK.register(id("late_leaves"), LEAVES_CODEC, definition -> properties -> new UntintedParticleLeavesBlock(definition.chance(), definition.particle(), properties));
         ExtensibleCodecs.ITEM.register(id("late_item"), () -> Item::new);
+        SuppliedItem earlyResolvedItem = UnifiedRegistries.Items.create(MOD_ID)
+                .register("early_resolved_item", Item::new, Item.Properties::new);
+        earlyResolvedItem.get();
         UnifiedRegistries.DeferredRegistry.create(MOD_ID, BuiltInRegistries.PARTICLE_TYPE).register("late_particle", () -> new SimpleParticleType(false) {});
         UnifiedRegistries.Blocks.create(MOD_ID).registerWithoutItem("late_codec_leaves", Block::new, BlockBehaviour.Properties::of);
         FabricUnifiedInitializer.register(this::onInitializeCommon);
