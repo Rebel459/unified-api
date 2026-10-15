@@ -1,5 +1,6 @@
 package net.rebel459.unified.fabric.datagen;
 
+import com.google.gson.JsonParser;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -9,6 +10,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +83,7 @@ public final class DatagenPack implements DataProvider {
             }
         }
         CachedOutput defaults = (path, bytes, hash) -> {
-            if (!written.contains(path)) cache.writeIfNeeded(path, bytes, hash);
+            if (!written.contains(path) && !isEmptyJson(bytes)) cache.writeIfNeeded(path, bytes, hash);
         };
         for (DataProvider provider : providers) {
             if (provider instanceof FabricDatagenProvider.LanguageProvider) {
@@ -89,5 +91,14 @@ public final class DatagenPack implements DataProvider {
             }
         }
         return result;
+    }
+
+    private static boolean isEmptyJson(byte[] bytes) {
+        try {
+            var json = JsonParser.parseString(new String(bytes, StandardCharsets.UTF_8));
+            return json.isJsonObject() && json.getAsJsonObject().isEmpty();
+        } catch (RuntimeException ignored) {
+            return false;
+        }
     }
 }
