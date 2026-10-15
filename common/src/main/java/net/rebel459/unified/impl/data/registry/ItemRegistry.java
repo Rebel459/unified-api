@@ -1,12 +1,20 @@
 package net.rebel459.unified.impl.data.registry;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Decoder;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonElement;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryOps;
 import net.rebel459.unified.impl.util.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
@@ -20,6 +28,7 @@ import net.rebel459.unified.api.core.RegistryResourceListener;
 import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -30,7 +39,22 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
     private static final MapCodec<Optional<Identifier>> BLOCK_ID_CODEC = Identifier.CODEC.optionalFieldOf("block");
     private static final MapCodec<Optional<Identifier>> TYPE_ID_CODEC = Identifier.CODEC.optionalFieldOf("type");
     private static final MapCodec<Map<DataComponentType<?>, Object>> PROPERTIES_CODEC =
-            DataComponentType.VALUE_MAP_CODEC.optionalFieldOf("properties")
+            Codec.of(DataComponentType.VALUE_MAP_CODEC, new Decoder<>() {
+                @Override
+                public <O> DataResult<Pair<Map<DataComponentType<?>, Object>, O>> decode(DynamicOps<O> ops, O input) {
+                    return ops.getMap(input).flatMap(map -> {
+                        DataResult<Map<DataComponentType<?>, Object>> components = DataResult.success(new HashMap<>());
+                        for (Pair<O, O> entry : map.entries().toList()) {
+                            components = components.flatMap(values -> DataComponentType.CODEC.parse(ops, entry.getFirst())
+                                    .map(type -> {
+                                        values.put(type, new DeferredComponent(ops.convertTo(JsonOps.INSTANCE, entry.getSecond())));
+                                        return values;
+                                    }));
+                        }
+                        return components.map(values -> Pair.of(Map.copyOf(values), ops.empty()));
+                    });
+                }
+            }).optionalFieldOf("properties")
                     .xmap(properties -> properties.orElse(Map.of()),
                             properties -> properties.isEmpty() ? Optional.empty() : Optional.of(properties));
     private static final Codec<Definition> ITEM_CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -98,7 +122,21 @@ public class ItemRegistry extends RegistryResourceListener<ItemRegistry.Definiti
     @SuppressWarnings("unchecked")
     public static <T> Item.Properties createProperties(Map<DataComponentType<?>, Object> components) {
         Item.Properties properties = new Item.Properties();
-        components.forEach((type, value) -> properties.component((DataComponentType<T>) type, (T) value));
+        components.forEach((type, value) -> {
+            if (value instanceof DeferredComponent deferred) {
+                properties.delayedComponent((DataComponentType<T>) type, provider -> decodeComponent(type, deferred, provider));
+            } else {
+                properties.component((DataComponentType<T>) type, (T) value);
+            }
+        });
         return properties;
     }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T decodeComponent(DataComponentType<?> type, DeferredComponent component, HolderLookup.Provider provider) {
+        return (T) type.codecOrThrow().parse(RegistryOps.create(JsonOps.INSTANCE, provider), component.value())
+                .getOrThrow(error -> new IllegalArgumentException("Failed to decode item component " + type + ": " + error));
+    }
+
+    private record DeferredComponent(JsonElement value) {}
 }
