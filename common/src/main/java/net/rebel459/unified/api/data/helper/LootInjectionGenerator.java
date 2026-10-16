@@ -22,12 +22,12 @@ import java.util.function.Function;
 
 public final class LootInjectionGenerator extends HelperGenerator {
 
-    public LootInjectionGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public LootInjectionGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
     
     public Builder create(String name, ResourceKey<LootTable> target) {
-        return new Builder(name, target, modId, requirement);
+        return new Builder(name, target, modId, namespace, requirement);
     }
     
     public static final class Builder extends HelperGenerator.Builder {
@@ -35,9 +35,9 @@ public final class LootInjectionGenerator extends HelperGenerator {
         private final List<LootPool> pools = new ArrayList<>();
         private final List<Function<HolderLookup.Provider, LootInjections.Modifier>> modifiers = new ArrayList<>();
 
-        Builder(String name, ResourceKey<LootTable> target, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/loot_injections/" + name), requirement, (provider, ops) ->
+        Builder(String name, ResourceKey<LootTable> target, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(name, modId, namespace, requirement);
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/loot_injections/" + name), requirement, (provider, ops) ->
                     LootInjections.Definition.CODEC.encodeStart(ops,
                             new LootInjections.Definition(target.identifier(), List.copyOf(pools),
                                     modifiers.stream().map(modifier -> modifier.apply(provider)).toList())).getOrThrow());

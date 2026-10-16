@@ -27,16 +27,17 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class BlockConversionGenerator extends HelperGenerator {
-    public BlockConversionGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+
+    public BlockConversionGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public Builder createAndRegister(String name, Function<HolderLookup.Provider, Predicate<ItemStack>> predicate, BlockLike original, BlockLike converted) {
-        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATE.register(Identifier.fromNamespaceAndPath(modId, "block_conversion/" + name), () -> predicate.apply(provider)).create(), original, converted);
+        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATE.register(Identifier.fromNamespaceAndPath(namespace, "block_conversion/" + name), () -> predicate.apply(provider)).create(), original, converted);
     }
 
     public Builder create(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, BlockLike original, BlockLike converted) {
-        return new Builder(name, predicate, original, converted, modId, requirement);
+        return new Builder(name, predicate, original, converted, modId, namespace, requirement);
     }
 
     public void addStrippable(String name, BlockLike log, BlockLike strippedLog) {
@@ -50,9 +51,9 @@ public class BlockConversionGenerator extends HelperGenerator {
 
         private final List<ExtensibleCodec.Entry<Consumer<UseOnContext>>> useOnContext = new ArrayList<>();
 
-        Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, BlockLike original, BlockLike converted, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/block_conversions/" + name), requirement, (registries, ops) ->
+        Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, BlockLike original, BlockLike converted, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(name, modId, namespace, requirement);
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/block_conversions/" + name), requirement, (registries, ops) ->
                     BlockConversions.Definition.LIST_CODEC.encodeStart(ops,
                             List.of(new BlockConversions.Definition(
                                     predicate.apply(registries), original.asBlock(), converted.asBlock(), List.copyOf(useOnContext)
@@ -61,7 +62,7 @@ public class BlockConversionGenerator extends HelperGenerator {
         }
 
         public BlockConversionGenerator.Builder onUse(Consumer<UseOnContext> context) {
-            return onUse(ExtensibleCodecs.USE_CONTEXT.register(Identifier.fromNamespaceAndPath(modId, "block_conversions/" + name), () -> context).create());
+            return onUse(ExtensibleCodecs.USE_CONTEXT.register(Identifier.fromNamespaceAndPath(namespace, "block_conversions/" + name), () -> context).create());
         }
 
         public BlockConversionGenerator.Builder onUse(ExtensibleCodec.Entry<Consumer<UseOnContext>> context) {

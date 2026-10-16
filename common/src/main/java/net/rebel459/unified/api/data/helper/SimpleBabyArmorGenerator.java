@@ -14,8 +14,8 @@ import java.util.Optional;
 
 public final class SimpleBabyArmorGenerator extends HelperGenerator {
 
-    public SimpleBabyArmorGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public SimpleBabyArmorGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public void add(String name, ResourceKey<EquipmentAsset> asset) {
@@ -30,6 +30,6 @@ public final class SimpleBabyArmorGenerator extends HelperGenerator {
     }
 
     private void add(String name, ResourceKey<EquipmentAsset> asset, boolean downscale, int cutoff) {
-        CodecGenerator.assets(modId, Identifier.fromNamespaceAndPath(modId, "unified/simple_baby_armor/" + name), requirement, SimpleBabyArmor.Definition.CODEC, () -> new SimpleBabyArmor.Definition(asset, downscale, cutoff));
+        CodecGenerator.assets(modId, Identifier.fromNamespaceAndPath(namespace, "unified/simple_baby_armor/" + name), requirement, SimpleBabyArmor.Definition.CODEC, () -> new SimpleBabyArmor.Definition(asset, downscale, cutoff));
     }
 }

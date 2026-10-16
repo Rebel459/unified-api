@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 
 public final class RecipeGenerator extends HelperGenerator {
 
-    public RecipeGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public RecipeGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public void add(Consumer<RecipeProvider> recipes) {

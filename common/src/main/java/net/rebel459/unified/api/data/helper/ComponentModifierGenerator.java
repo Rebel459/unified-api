@@ -16,25 +16,26 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ComponentModifierGenerator extends HelperGenerator {
-    public ComponentModifierGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+
+    public ComponentModifierGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public Builder createAndRegister(String name, Function<HolderLookup.Provider, Predicate<ItemStack>> predicate) {
-        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATE.register(Identifier.fromNamespaceAndPath(modId, "component_modifier/" + name), () -> predicate.apply(provider)).create());
+        return create(name, provider -> ExtensibleCodecs.ITEM_PREDICATE.register(Identifier.fromNamespaceAndPath(namespace, "component_modifier/" + name), () -> predicate.apply(provider)).create());
     }
 
     public Builder create(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate) {
-        return new Builder(name, predicate, modId, requirement);
+        return new Builder(name, predicate, modId, namespace, requirement);
     }
 
     public static final class Builder extends HelperGenerator.Builder {
 
         private final Map<DataComponentType<?>, Function<HolderLookup.Provider, ?>> components = new HashMap<>();
 
-        Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/component_modifiers/" + name), requirement, (provider, ops) -> {
+        Builder(String name, Function<HolderLookup.Provider, ExtensibleCodec.Entry<Predicate<ItemStack>>> predicate, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(name, modId, namespace, requirement);
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/component_modifiers/" + name), requirement, (provider, ops) -> {
                 var providedComponents = new HashMap<DataComponentType<?>, Object>();
                 for (DataComponentType<?> component : Map.copyOf(components).keySet()) {
                     Object value = components.get(component).apply(provider);

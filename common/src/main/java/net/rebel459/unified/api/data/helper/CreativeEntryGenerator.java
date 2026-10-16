@@ -18,21 +18,21 @@ import java.util.Optional;
 
 public final class CreativeEntryGenerator extends HelperGenerator {
 
-    public CreativeEntryGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public CreativeEntryGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public Builder create(String name) {
-        return new Builder(name, modId, requirement);
+        return new Builder(name, modId, namespace, requirement);
     }
 
     public static final class Builder extends HelperGenerator.Builder {
 
         private final List<CreativeEntries.Definition> entries = new ArrayList<>();
 
-        Builder(String name, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(name, modId, requirement);
-            CodecGenerator.assets(modId, Identifier.fromNamespaceAndPath(modId, "unified/creative_entries/" + name), requirement, (_, ops) ->
+        Builder(String name, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(name, modId, namespace, requirement);
+            CodecGenerator.assets(modId, Identifier.fromNamespaceAndPath(namespace, "unified/creative_entries/" + name), requirement, (_, ops) ->
                     CreativeEntries.Definition.LIST_CODEC.encodeStart(ops, List.copyOf(entries)).getOrThrow());
         }
 

@@ -520,7 +520,7 @@ public class WoodSet {
         );
     }
     private Map<String, SuppliedBlock> createLeaves() {
-        Map<String, SuppliedBlock> leaves = new HashMap<>();
+        Map<String, SuppliedBlock> leaves = new LinkedHashMap<>();
         for (Leaves entry : getAllLeaves()) {
             String name = this.getId().getPath() + "_" + this.settings.getLeavesName();
             if (!entry.getPrefix().isEmpty()) name = entry.getPrefix() + "_" + name;
@@ -1106,7 +1106,7 @@ public class WoodSet {
         private String woodName = "wood";
         private String saplingName = "sapling";
         private String leavesName = "leaves";
-        private Set<Leaves> leaves = new HashSet<>();
+        private Set<Leaves> leaves = new LinkedHashSet<>();
         private @Nullable Triple<ExtensibleCodec.Entry<Function<BlockBehaviour.Properties, ? extends Block>>, MapColor, BlockAssets.PlantType> sapling = null;
         private Boats boats = Boats.BOATS;
 
@@ -1220,7 +1220,7 @@ public class WoodSet {
         private final BlockConversionGenerator blockConversions;
 
         public RegistryBuilder createLeaves(Leaves... leaves) {
-            Set<Leaves> set = new HashSet<>(List.of(leaves));
+            Set<Leaves> set = new LinkedHashSet<>(List.of(leaves));
             set.forEach(entry -> WoodSetProperties.LEAVES_CREATIVE_ENTRIES.put(Pair.of(id, entry.prefix), entry.precedingCreativeItem));
             settings.leaves = set;
             return self();
