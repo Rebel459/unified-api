@@ -1,6 +1,7 @@
 package net.rebel459.unified.impl.data.set;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 import net.rebel459.unified.api.data.set.WoodSet;
@@ -17,7 +18,7 @@ public class WoodSetProperties {
     public static Map<Identifier, CreativeEntryGenerator> CREATIVE_ENTRY_GENERATORS = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, BlockConversionGenerator> BLOCK_CONVERSION_GENERATORS = Collections.synchronizedMap(new HashMap<>());
     public static Map<Identifier, Supplier<? extends ItemLike>> SAPLING_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
-    public static Map<Identifier, Either<String, Supplier<? extends ItemLike>>> LEAVES_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
+    public static Map<Pair<Identifier, String>, Either<String, Supplier<? extends ItemLike>>> LEAVES_CREATIVE_ENTRIES = Collections.synchronizedMap(new HashMap<>());
 
     public static void init(List<WoodSet> woodSets) {
         creativeEntries(woodSets);
@@ -59,12 +60,12 @@ public class WoodSetProperties {
             builder.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLog());
 
             if (woodSet.hasAnyLeaves()) {
-                Either<String, Supplier<? extends ItemLike>> item = LEAVES_CREATIVE_ENTRIES.get(woodSet.getId());
-                if (item != null) {
-                    List<WoodSet.Leaves> reversed = new ArrayList<>(woodSet.getAllLeaves());
-                    Collections.reverse(reversed);
-                    Set<WoodSet.Leaves> reversedSet = new LinkedHashSet<>(reversed);
-                    for (WoodSet.Leaves leaves : reversedSet) {
+                List<WoodSet.Leaves> reversed = new ArrayList<>(woodSet.getAllLeaves());
+                Collections.reverse(reversed);
+                Set<WoodSet.Leaves> reversedSet = new LinkedHashSet<>(reversed);
+                for (WoodSet.Leaves leaves : reversedSet) {
+                    Either<String, Supplier<? extends ItemLike>> item = LEAVES_CREATIVE_ENTRIES.get(Pair.of(woodSet.getId(), leaves.getPrefix()));
+                    if (item != null) {
                         if (item.left().isPresent()) builder.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, woodSet.getLeavesVariant(item.left().get()), woodSet.getLeavesVariant(leaves));
                         if (item.right().isPresent()) builder.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, item.right().get().get(), woodSet.getLeavesVariant(leaves));
                     }

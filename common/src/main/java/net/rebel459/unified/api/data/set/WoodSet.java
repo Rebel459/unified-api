@@ -410,6 +410,7 @@ public class WoodSet {
                         .data(data -> data
                                 .tag(logTag)
                                 .dropSelf()
+                                .recipes(getSettings().logRecipe)
                         )
                         .itemProperties(item -> {
                             if (settings.isFlammable) item.component(UnifiedDataComponents.FURNACE_FUEL.get(), 300);
@@ -1217,9 +1218,7 @@ public class WoodSet {
 
         public RegistryBuilder createLeaves(Leaves... leaves) {
             Set<Leaves> set = new HashSet<>(List.of(leaves));
-            set.forEach(entry -> {
-                if (entry.precedingCreativeItem != null) WoodSetProperties.LEAVES_CREATIVE_ENTRIES.put(id, entry.precedingCreativeItem);
-            });
+            set.forEach(entry -> WoodSetProperties.LEAVES_CREATIVE_ENTRIES.put(Pair.of(id, entry.prefix), entry.precedingCreativeItem));
             settings.leaves = set;
             return self();
         }
