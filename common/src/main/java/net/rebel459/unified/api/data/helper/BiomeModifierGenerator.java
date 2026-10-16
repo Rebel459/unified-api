@@ -52,7 +52,7 @@ public final class BiomeModifierGenerator extends HelperGenerator {
         private final EnvironmentAttributeMap.Builder modifyAttributes = EnvironmentAttributeMap.builder();
 
         private Builder(String name, Function<HolderLookup.Provider, HolderSet<Biome>> targets, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(name, modId, requirement);
+            super(name, modId, namespace, requirement);
             CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/biome_modifiers/" + name), requirement, (provider, ops) ->
                     BiomeModifiers.Definition.CODEC.encodeStart(ops,
                             new BiomeModifiers.Definition(
