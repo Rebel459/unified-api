@@ -24,12 +24,12 @@ import java.util.Optional;
 
 public final class MobVariantGenerator extends HelperGenerator {
 
-    public MobVariantGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public MobVariantGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public Builder create(String name, EntityType<?> target) {
-        return new Builder(name, target, modId, requirement);
+        return new Builder(name, target, modId, namespace, requirement);
     }
     
     public static final class Builder extends HelperGenerator.Builder {
@@ -48,9 +48,9 @@ public final class MobVariantGenerator extends HelperGenerator {
         private Optional<Boolean> burnInDaylight = Optional.empty();
         private Optional<ResourceKey<LootTable>> lootTable = Optional.empty();
 
-        Builder(String name, EntityType<?> target, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/mob_variants/" + name), requirement, MobVariants.Definition.CODEC,
+        Builder(String name, EntityType<?> target, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(name, modId, namespace, requirement);
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/mob_variants/" + name), requirement, MobVariants.Definition.CODEC,
                     () -> new MobVariants.Definition(Optional.of(BuiltInRegistries.ENTITY_TYPE.getKey(target)), texture, babyTexture, new MobVariants.Sounds(ambientSound, hurtSound, eatSound, deathSound, stepSound), new SpawnPrioritySelectors(spawnConditions), spawnChance, attributes, attackEffects, burnInDaylight, lootTable));
         }
 

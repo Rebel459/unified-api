@@ -20,7 +20,7 @@ public final class UnifiedData {
     private final Sets sets;
 
     private UnifiedData(String modId, String namespace, DataProviders.GenerationSettings settings) {
-        this.helpers = new Helpers(modId, settings.metadata().requirement());
+        this.helpers = new Helpers(modId, namespace, settings.metadata().requirement());
         this.registries = new Registries(modId, namespace, settings, this.helpers.tags(), this.helpers.recipes());
         this.sets = new Sets(namespace, this.registries, this.helpers);
         settings.injectedTranslations().ifPresent(ignored -> DataProviders.LANGUAGES.add(modId, new DataProviders.LanguageRequest(settings, Optional.empty())));
@@ -166,17 +166,17 @@ public final class UnifiedData {
         private final SimpleBabyArmorGenerator simpleBabyArmor;
         private final TagGenerator tags;
 
-        private Helpers(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            this.biomeModifiers = new BiomeModifierGenerator(modId, requirement);
-            this.blockConversions = new BlockConversionGenerator(modId, requirement);
-            this.componentModifiers = new ComponentModifierGenerator(modId, requirement);
-            this.creativeEntries = new CreativeEntryGenerator(modId, requirement);
-            this.equipmentAssets = new EquipmentAssetGenerator(modId, requirement);
-            this.lootInjections = new LootInjectionGenerator(modId, requirement);
-            this.mobVariants = new MobVariantGenerator(modId, requirement);
-            this.recipes = new RecipeGenerator(modId, requirement);
-            this.simpleBabyArmor = new SimpleBabyArmorGenerator(modId, requirement);
-            this.tags = new TagGenerator(modId, requirement);
+        private Helpers(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            this.biomeModifiers = new BiomeModifierGenerator(modId, namespace, requirement);
+            this.blockConversions = new BlockConversionGenerator(modId, namespace, requirement);
+            this.componentModifiers = new ComponentModifierGenerator(modId, namespace, requirement);
+            this.creativeEntries = new CreativeEntryGenerator(modId, namespace, requirement);
+            this.equipmentAssets = new EquipmentAssetGenerator(modId, namespace, requirement);
+            this.lootInjections = new LootInjectionGenerator(modId, namespace, requirement);
+            this.mobVariants = new MobVariantGenerator(modId, namespace, requirement);
+            this.recipes = new RecipeGenerator(modId, namespace, requirement);
+            this.simpleBabyArmor = new SimpleBabyArmorGenerator(modId, namespace, requirement);
+            this.tags = new TagGenerator(modId, namespace, requirement);
         }
 
         public BiomeModifierGenerator biomeModifiers() {

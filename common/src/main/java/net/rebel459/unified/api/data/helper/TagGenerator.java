@@ -15,16 +15,16 @@ import java.util.Optional;
 
 public final class TagGenerator extends HelperGenerator {
 
-    public TagGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public TagGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public <T> Builder<T> create(TagKey<T> tag) {
-        return new Builder<>(tag, modId, requirement);
+        return new Builder<>(tag, modId, namespace, requirement);
     }
 
     public BlockItemBuilder create(BlockItemTagId tag) {
-        return new BlockItemBuilder(tag, modId, requirement);
+        return new BlockItemBuilder(tag, modId, namespace, requirement);
     }
 
     public static final class Builder<T> extends HelperGenerator {
@@ -33,8 +33,8 @@ public final class TagGenerator extends HelperGenerator {
         private final List<TagKey<T>> tags = new ArrayList<>();
         private final List<TagKey<T>> optionalTags = new ArrayList<>();
 
-        Builder(TagKey<T> tag, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(modId, requirement);
+        Builder(TagKey<T> tag, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(modId, namespace, requirement);
             DataProviders.TAGS.add(modId, new DataProviders.TagRequest<>(tag.registry(), provider -> {
                 entries.forEach(entry -> provider.add(tag, castKey(entry)));
                 optionalEntries.forEach(entry -> provider.addOptional(tag, castKey(entry)));
@@ -73,10 +73,10 @@ public final class TagGenerator extends HelperGenerator {
         private final TagGenerator.Builder<Block> blocks;
         private final TagGenerator.Builder<Item> items;
 
-        BlockItemBuilder(BlockItemTagId tag, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(modId, requirement);
-            blocks = new TagGenerator.Builder<>(tag.block(), modId, requirement);
-            items = new TagGenerator.Builder<>(tag.item(), modId, requirement);
+        BlockItemBuilder(BlockItemTagId tag, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(modId, namespace, requirement);
+            blocks = new TagGenerator.Builder<>(tag.block(), modId, namespace, requirement);
+            items = new TagGenerator.Builder<>(tag.item(), modId, namespace, requirement);
         }
 
         public BlockItemBuilder add(BlockItemId entry) {

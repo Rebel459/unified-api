@@ -13,8 +13,8 @@ import java.util.function.Supplier;
 
 public final class EquipmentAssetGenerator extends HelperGenerator {
 
-    public EquipmentAssetGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public EquipmentAssetGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
 
     public void add(ResourceKey<EquipmentAsset> asset, EquipmentClientInfo info) {
