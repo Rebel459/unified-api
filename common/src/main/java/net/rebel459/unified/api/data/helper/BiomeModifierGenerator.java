@@ -25,12 +25,12 @@ import java.util.function.Function;
 
 public final class BiomeModifierGenerator extends HelperGenerator {
 
-    public BiomeModifierGenerator(String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-        super(modId, requirement);
+    public BiomeModifierGenerator(String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+        super(modId, namespace, requirement);
     }
     
     public Builder create(String name, Function<HolderLookup.Provider, HolderSet<Biome>> targets) {
-        return new Builder(name, targets, modId, requirement);
+        return new Builder(name, targets, modId, namespace, requirement);
     }
 
     public static final class Builder extends HelperGenerator.Builder {
@@ -58,9 +58,9 @@ public final class BiomeModifierGenerator extends HelperGenerator {
         private final List<BiomeModifiers.ChargeEntry> addCharges = new ArrayList<>();
         private final List<EntityType<?>> removeCharges = new ArrayList<>();
 
-        private Builder(String name, Function<HolderLookup.Provider, HolderSet<Biome>> targets, String modId, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
-            super(name, modId, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(modId, "unified/biome_modifiers/" + name), requirement, (provider, ops) ->
+        private Builder(String name, Function<HolderLookup.Provider, HolderSet<Biome>> targets, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
+            super(name, modId, namespace, requirement);
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/biome_modifiers/" + name), requirement, (provider, ops) ->
                     BiomeModifiers.Definition.CODEC.encodeStart(ops,
                             new BiomeModifiers.Definition(
                                     targets.apply(provider),
