@@ -60,10 +60,7 @@ public class WoodSetProperties {
             builder.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, precedingItems.natural().get(), woodSet.getLog());
 
             if (woodSet.hasAnyLeaves()) {
-                List<WoodSet.Leaves> reversed = new ArrayList<>(woodSet.getAllLeaves());
-                Collections.reverse(reversed);
-                Set<WoodSet.Leaves> reversedSet = new LinkedHashSet<>(reversed);
-                for (WoodSet.Leaves leaves : reversedSet) {
+                for (WoodSet.Leaves leaves : woodSet.getAllLeaves()) {
                     Either<String, Supplier<? extends ItemLike>> item = LEAVES_CREATIVE_ENTRIES.get(Pair.of(woodSet.getId(), leaves.getPrefix()));
                     if (item != null) {
                         if (item.left().isPresent()) builder.insertAfter(CreativeModeTabIds.NATURAL_BLOCKS, woodSet.getLeavesVariant(item.left().get()), woodSet.getLeavesVariant(leaves));
