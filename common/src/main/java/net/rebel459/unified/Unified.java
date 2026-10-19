@@ -34,6 +34,7 @@ public class Unified {
         VanillaSpawnPlacementCodecs.init();
         VanillaSpawnPredicateCodecs.init();
         VanillaEntityCodecs.init();
+        VanillaEntityAttributeCodecs.init();
         UnifiedMapColorCodecs.init();
         UnifiedLightEmissionCodecs.init();
         UnifiedBlockPredicateCodecs.init();
