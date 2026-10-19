@@ -63,10 +63,12 @@ public class EntityGenerator {
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
         Supplier<EntityRegistry.Definition> definition = () -> {
             Properties builderProperties = finalBuilder.properties;
+            List<MobVariants.TextureReplacement> replacements = new ArrayList<>(builderProperties.textureReplacements);
+            builderProperties.adultTexture.ifPresent(replacements::add);
+            builderProperties.babyTexture.ifPresent(replacements::add);
             return new EntityRegistry.Definition(base, builderProperties.properties, new MobVariants.Definition(
                     Optional.empty(),
-                    builderProperties.texture,
-                    builderProperties.babyTexture,
+                    replacements,
                     new MobVariants.Sounds(builderProperties.ambientSound, builderProperties.hurtSound, builderProperties.eatSound, builderProperties.deathSound, builderProperties.stepSound),
                     SpawnPrioritySelectors.EMPTY,
                     1F,
@@ -97,7 +99,8 @@ public class EntityGenerator {
         private final EntityRegistry.Properties properties = new EntityRegistry.Properties();
         private Optional<Supplier<EntityRegistry.Attributes>> attributes = Optional.empty();
 
-        private Optional<MobVariants.TextureReplacement> texture = Optional.empty();
+        private List<MobVariants.TextureReplacement> textureReplacements = new ArrayList<>();
+        private Optional<MobVariants.TextureReplacement> adultTexture = Optional.empty();
         private Optional<MobVariants.TextureReplacement> babyTexture = Optional.empty();
         private Optional<SoundEvent> ambientSound = Optional.empty();
         private Optional<SoundEvent> hurtSound = Optional.empty();
@@ -136,21 +139,16 @@ public class EntityGenerator {
             return this;
         }
 
-        public Properties texture(Identifier replacement) {
-            texture = Optional.of(new MobVariants.TextureReplacement(Optional.empty(), replacement));
+        public Properties addTextureReplacement(Identifier original, Identifier replacement) {
+            textureReplacements.add(new MobVariants.TextureReplacement(new MobVariants.TextureReplacementTypes.ReplaceTexture(original), replacement));
             return this;
         }
-        public Properties texture(Identifier target, Identifier replacement) {
-            texture = Optional.of(new MobVariants.TextureReplacement(Optional.of(target), replacement));
+        public Properties adultTexture(Identifier replacement) {
+            adultTexture = Optional.of(new MobVariants.TextureReplacement(new MobVariants.TextureReplacementTypes.ReplaceAdultTexture(), replacement));
             return this;
         }
-
         public Properties babyTexture(Identifier replacement) {
-            babyTexture = Optional.of(new MobVariants.TextureReplacement(Optional.empty(), replacement));
-            return this;
-        }
-        public Properties babyTexture(Identifier target, Identifier replacement) {
-            babyTexture = Optional.of(new MobVariants.TextureReplacement(Optional.of(target), replacement));
+            babyTexture = Optional.of(new MobVariants.TextureReplacement(new MobVariants.TextureReplacementTypes.ReplaceBabyTexture(), replacement));
             return this;
         }
 
