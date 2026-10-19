@@ -94,8 +94,7 @@ public class ItemGenerator {
         return finalProperties;
     }
 
-    private static Map<DataComponentType<?>, Object> componentValues(Consumer<Item.Properties> properties,
-            ResourceKey<Item> key, HolderLookup.Provider registries) {
+    private static Map<DataComponentType<?>, Object> componentValues(Consumer<Item.Properties> properties, ResourceKey<Item> key, HolderLookup.Provider registries) {
         Item.Properties finalProperties = itemProperties(properties);
         DataComponentMap.Builder componentBuilder = DataComponentMap.builder();
         finalProperties.componentInitializer.run(componentBuilder, registries, key);

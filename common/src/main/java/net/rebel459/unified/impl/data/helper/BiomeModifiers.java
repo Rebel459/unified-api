@@ -40,7 +40,7 @@ public final class BiomeModifiers {
 
     public static void init() {
         UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(
-                HolderSet.direct(List.of()),
+                HolderSet.empty(),
                 0,
                 Worldgen.EMPTY,
                 Effects.EMPTY,

@@ -1,6 +1,5 @@
 package net.rebel459.unified.impl.data.helper;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,6 +15,7 @@ import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -43,18 +43,8 @@ public class MobVariants {
     public static void init() {
         UnifiedHelpers.DATA_REGISTRIES.registerSynced(
                 KEY,
-                UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Sounds.EMPTY
-                )),
-                UnifiedCodecs.loadRequirements(Definition.NETWORK_CODEC, () -> new Definition(
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Sounds.EMPTY
-                ))
+                UnifiedCodecs.loadRequirements(Definition.CODEC, () -> Definition.EMPTY),
+                UnifiedCodecs.loadRequirements(Definition.NETWORK_CODEC, () -> Definition.EMPTY)
         );
     }
 
@@ -70,8 +60,7 @@ public class MobVariants {
 
     public record Definition(
             Optional<Identifier> target,
-            Optional<TextureReplacement> texture,
-            Optional<TextureReplacement> babyTexture,
+            List<TextureReplacement> textureReplacements,
             Sounds sounds,
             SpawnPrioritySelectors spawnConditions,
             float spawnChance,
@@ -82,24 +71,21 @@ public class MobVariants {
     ) implements PriorityProvider<SpawnContext, SpawnCondition> {
 
         public static final Codec<Definition> CODEC = create(
-                Identifier.CODEC.xmap(Optional::of, target -> target.orElseThrow(() -> new IllegalStateException("Mob Variant target is required"))).fieldOf("target"),
+                Identifier.CODEC.xmap(Optional::of, target -> target.orElseThrow(() -> new IllegalStateException("Mob Variant targets is required"))).fieldOf("targets"),
                 SpawnPrioritySelectors.CODEC.optionalFieldOf("spawn_conditions", SpawnPrioritySelectors.EMPTY),
                 ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("spawn_chance", 1F),
                 ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table"),
                 AttributeEntry.CODEC.listOf().optionalFieldOf("attributes", List.of())
         ).codec();
 
-        public static final Definition EMPTY = new Definition(
-                Optional.empty(), Optional.empty(), Optional.empty(), Sounds.EMPTY,
-                SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty()
-        );
+        public static final Definition EMPTY = new Definition(Optional.empty(), List.of(), Sounds.EMPTY, SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty());
+
         public static final MapCodec<Definition> PROPERTIES_CODEC = create(MapCodec.unit(Optional.empty()), MapCodec.unit(SpawnPrioritySelectors.EMPTY), MapCodec.unit(1F), MapCodec.unit(Optional.empty()), MapCodec.unit(List.of()));
 
         private static MapCodec<Definition> create(MapCodec<Optional<Identifier>> target, MapCodec<SpawnPrioritySelectors> spawnConditions, MapCodec<Float> spawnChance, MapCodec<Optional<ResourceKey<LootTable>>> lootTable, MapCodec<List<AttributeEntry>> attributes) {
             return RecordCodecBuilder.mapCodec(instance -> instance.group(
                     target.forGetter(Definition::target),
-                    TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Definition::texture),
-                    TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Definition::babyTexture),
+                    UnifiedCodecs.compactList(TextureReplacement.CODEC).optionalFieldOf("texture_replacements", List.of()).forGetter(Definition::textureReplacements),
                     Sounds.CODEC.optionalFieldOf("sounds", Sounds.EMPTY).forGetter(Definition::sounds),
                     spawnConditions.forGetter(Definition::spawnConditions),
                     spawnChance.forGetter(Definition::spawnChance),
@@ -110,15 +96,14 @@ public class MobVariants {
             ).apply(instance, Definition::new));
         }
 
-        private Definition(Optional<Identifier> target, Optional<TextureReplacement> texture, Optional<TextureReplacement> babyTexture, Sounds sounds) {
-            this(target, texture, babyTexture, sounds, SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty());
+        private Definition(Optional<Identifier> target, List<TextureReplacement> textureReplacements, Sounds sounds) {
+            this(target, textureReplacements, sounds, SpawnPrioritySelectors.EMPTY, 1F, List.of(), List.of(), Optional.empty(), Optional.empty());
         }
 
         public static final Codec<Definition> NETWORK_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-                Identifier.CODEC.optionalFieldOf("target").forGetter(Definition::target),
-                TextureReplacement.CODEC.optionalFieldOf("texture").forGetter(Definition::texture),
-                TextureReplacement.CODEC.optionalFieldOf("baby_texture").forGetter(Definition::babyTexture),
-                Sounds.CODEC.optionalFieldOf("sounds", new Sounds(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).forGetter(Definition::sounds)
+                Identifier.CODEC.optionalFieldOf("targets").forGetter(Definition::target),
+                UnifiedCodecs.compactList(TextureReplacement.CODEC).optionalFieldOf("texture_replacements", List.of()).forGetter(Definition::textureReplacements),
+                Sounds.CODEC.optionalFieldOf("sounds", Sounds.EMPTY).forGetter(Definition::sounds)
         ).apply(instance, Definition::new));
         public static final Codec<Holder<Definition>> REGISTRY_CODEC = RegistryFixedCodec.create(RegistryKeyHolder.KEY);
         public static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<Definition>>> STREAM_CODEC = ByteBufCodecs.optional(
@@ -130,16 +115,11 @@ public class MobVariants {
         }
     }
 
-    public record TextureReplacement(Optional<Identifier> original, Identifier replacement) {
-        private static final Codec<TextureReplacement> OBJECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.optionalFieldOf("original").forGetter(TextureReplacement::original),
+    public record TextureReplacement(TextureReplacementTypes textureReplacementTypes, Identifier replacement) {
+        private static final Codec<TextureReplacement> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                TextureReplacementTypes.CODEC.forGetter(TextureReplacement::textureReplacementTypes),
                 Identifier.CODEC.fieldOf("replacement").forGetter(TextureReplacement::replacement)
         ).apply(instance, TextureReplacement::new));
-
-        public static final Codec<TextureReplacement> CODEC = Codec.either(Identifier.CODEC, OBJECT_CODEC).xmap(
-                either -> either.map(replacement -> new TextureReplacement(Optional.empty(), replacement), textureReplacement -> textureReplacement),
-                textureReplacement -> textureReplacement.original.isPresent() ? Either.right(textureReplacement) : Either.left(textureReplacement.replacement)
-        );
     }
 
     public record AttributeEntry(Holder<Attribute> attribute, AttributeModifier modifier) {
@@ -163,5 +143,66 @@ public class MobVariants {
         );
 
         public static final Sounds EMPTY = new Sounds(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+    }
+
+    public sealed interface TextureReplacementTypes {
+
+        MapCodec<TextureReplacementTypes> CODEC = Type.CODEC.optionalFieldOf("type", Type.REPLACE_TEXTURE).dispatchMap(TextureReplacementTypes::type, TextureReplacementTypes.Type::codec);
+
+        Type type();
+
+        record ReplaceAdultTexture() implements TextureReplacementTypes {
+            public static final MapCodec<ReplaceAdultTexture> CODEC = MapCodec.unit(ReplaceAdultTexture::new);
+
+            @Override
+            public Type type() {
+                return Type.REPLACE_ADULT_TEXTURE;
+            }
+        }
+
+        record ReplaceBabyTexture() implements TextureReplacementTypes {
+            public static final MapCodec<ReplaceBabyTexture> CODEC = MapCodec.unit(ReplaceBabyTexture::new);
+
+            @Override
+            public Type type() {
+                return Type.REPLACE_BABY_TEXTURE;
+            }
+        }
+
+        record ReplaceTexture(Identifier original) implements TextureReplacementTypes {
+            public static final MapCodec<ReplaceTexture> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                    Identifier.CODEC.fieldOf("original").forGetter(ReplaceTexture::original)
+            ).apply(instance, ReplaceTexture::new));
+
+            @Override
+            public Type type() {
+                return Type.REPLACE_TEXTURE;
+            }
+        }
+
+        enum Type implements StringRepresentable {
+            REPLACE_ADULT_TEXTURE("replace_adult_texture", ReplaceAdultTexture.CODEC),
+            REPLACE_BABY_TEXTURE("replace_baby_texture", ReplaceBabyTexture.CODEC),
+            REPLACE_TEXTURE("replace_texture", ReplaceTexture.CODEC);
+
+            public static final Codec<TextureReplacementTypes.Type> CODEC = StringRepresentable.fromEnum(TextureReplacementTypes.Type::values);
+
+            private final String name;
+            private final MapCodec<? extends TextureReplacementTypes> codec;
+
+            Type(String name, MapCodec<? extends TextureReplacementTypes> codec) {
+                this.name = name;
+                this.codec = codec;
+            }
+
+            public MapCodec<? extends TextureReplacementTypes> codec() {
+                return codec;
+            }
+
+            @Override
+            public String getSerializedName() {
+                return name;
+            }
+        }
     }
 }
