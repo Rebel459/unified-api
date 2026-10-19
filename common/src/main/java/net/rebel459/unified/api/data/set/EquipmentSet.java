@@ -146,7 +146,7 @@ public class EquipmentSet {
             else {
                 info.addLayers(EquipmentClientInfo.LayerType.HUMANOID, EquipmentClientInfo.Layer.leatherDyeable(id, settings.isDyeable));
                 info.addLayers(EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, EquipmentClientInfo.Layer.leatherDyeable(id, settings.isDyeable));
-                simpleBabyArmor.add("equipment_sets/" + id.getPath(), getEquipmentAsset());
+                simpleBabyArmor.create("equipment_sets/" + id.getPath(), getEquipmentAsset());
             }
 
             if (hasAnimalArmor()) {
