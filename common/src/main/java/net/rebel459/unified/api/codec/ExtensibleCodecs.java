@@ -2,6 +2,7 @@ package net.rebel459.unified.api.codec;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacementType;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -49,6 +50,8 @@ public class ExtensibleCodecs {
     public static final ExtensiblePredicateCodec<Boolean> LOAD_REQUIREMENT = new ExtensiblePredicateCodec<>(evaluation -> evaluation.evaluate(Boolean::booleanValue));
 
     public static final ExtensibleCodec<SpawnPlacementType> SPAWN_PLACEMENT = new ExtensibleCodec<>();
+
+    public static final ExtensibleCodec<AttributeSupplier> ENTITY_ATTRIBUTES = new ExtensibleCodec<>();
 
     public static final ExtensibleSpawnPredicate SPAWN_PREDICATE = new ExtensibleSpawnPredicate();
 

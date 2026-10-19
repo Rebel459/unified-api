@@ -1,6 +1,5 @@
 package net.rebel459.unified.api.data.registry;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -11,7 +10,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacementType;
 import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.variant.SpawnPrioritySelectors;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -120,14 +118,10 @@ public class EntityGenerator {
         }
 
         public Properties attributes(Supplier<AttributeSupplier> attributes) {
-            this.attributes = Optional.of(() -> {
-                AttributeSupplier supplier = attributes.get();
-                List<EntityRegistry.AttributeEntry> entries = new ArrayList<>();
-                for (Holder<Attribute> attribute : supplier.instances.keySet()) {
-                    entries.add(new EntityRegistry.AttributeEntry(attribute, Optional.of(supplier.getBaseValue(attribute))));
-                }
-                return new EntityRegistry.Attributes(Optional.empty(), entries);
-            });
+            return attributes(ExtensibleCodecs.ENTITY_ATTRIBUTES.register(Identifier.fromNamespaceAndPath(modId, "entity/" + path), attributes).create());
+        }
+        public Properties attributes(ExtensibleCodec.Entry<AttributeSupplier> attributes) {
+            this.attributes = Optional.of(() -> new EntityRegistry.Attributes(Optional.empty(), Optional.of(attributes), List.of()));
             return this;
         }
 
