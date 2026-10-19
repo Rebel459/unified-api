@@ -6,6 +6,7 @@ import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
@@ -18,6 +19,7 @@ import net.rebel459.unified.api.core.StagedRegistry;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class UnifiedCodecs {
@@ -150,4 +152,11 @@ public final class UnifiedCodecs {
             either -> either.map(Item::getDefaultInstance, ItemStack::copy),
             Either::right
     );
+
+    public static <T> Codec<List<T>> compactList(Codec<T> codec) {
+        return Codec.either(codec, codec.listOf()).xmap(
+                either -> either.map(List::of, Function.identity()),
+                list -> list.size() == 1 ? Either.left(list.getFirst()) : Either.right(list)
+        );
+    }
 }

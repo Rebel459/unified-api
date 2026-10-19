@@ -1,15 +1,16 @@
 package net.rebel459.unified.impl.data.helper;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedEvents;
@@ -21,21 +22,20 @@ import net.rebel459.unified.impl.event.LootTableProvider;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 public class LootInjections {
 
     public static final ResourceKey<Registry<Definition>> KEY = ResourceKey.createRegistryKey(Unified.id("loot_injections"));
 
     public static void init() {
-        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(Identifier.withDefaultNamespace("empty"), List.of(), List.of())));
+        UnifiedHelpers.DATA_REGISTRIES.register(KEY, UnifiedCodecs.loadRequirements(Definition.CODEC, () -> new Definition(List.of(), List.of(), List.of())));
         UnifiedEvents.LootTables.modify((table, key, provider) -> {
             provider.lookup(KEY).ifPresent(injections ->
                     injections.listElements().forEach(holder -> {
-                        Definition definition = holder.value();
 
-                        if (!key.identifier().equals(definition.target())) {
-                            return;
-                        }
+                        Definition definition = holder.value();
+                        if (!definition.targets().contains(key)) return;
 
                         applyInjection(table, definition);
                     })
@@ -54,9 +54,9 @@ public class LootInjections {
         }
     }
 
-    public record Definition(Identifier target, List<LootPool> pools, List<Modifier> modifiers) {
+    public record Definition(List<ResourceKey<LootTable>> targets, List<LootPool> pools, List<Modifier> modifiers) {
         public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("target").forGetter(Definition::target),
+                UnifiedCodecs.compactList(ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("targets").forGetter(Definition::targets),
                 LootPool.CODEC.listOf().optionalFieldOf("pools", List.of()).forGetter(Definition::pools),
                 Modifier.CODEC.listOf().optionalFieldOf("modifiers", List.of()).forGetter(Definition::modifiers)
         ).apply(instance, Definition::new));
