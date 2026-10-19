@@ -32,18 +32,9 @@ public class SoundEventGenerator {
 
     private Supplied<SoundEvent> register(String path, Optional<Float> fixedRange) {
         Identifier id = Identifier.fromNamespaceAndPath(namespace, path);
-        Supplier<SoundEventRegistry.Definition> definition = definition(fixedRange);
+        Supplier<SoundEventRegistry.Definition> definition = () -> new SoundEventRegistry.Definition(fixedRange);
         Supplied<SoundEvent> sound = SoundEventRegistry.registerDefinition(id, definition);
-        generate(id, definition);
+        CodecGenerator.registry(modId, id, "sound_events", settings.metadata().priority(), settings.metadata().requirement(), SoundEventRegistry.CODEC, definition);
         return sound;
-    }
-
-    private Supplier<SoundEventRegistry.Definition> definition(Optional<Float> fixedRange) {
-        return () -> new SoundEventRegistry.Definition(fixedRange);
-    }
-
-    private void generate(Identifier id, Supplier<SoundEventRegistry.Definition> definition) {
-        CodecGenerator.registry(modId, id, "sound_events", settings.metadata().priority(), settings.metadata().requirement(),
-                SoundEventRegistry.CODEC, definition);
     }
 }

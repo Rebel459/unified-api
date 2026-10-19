@@ -36,7 +36,8 @@
     "client.LivingEntityRendererMixin",
     "client.LivingEntityRenderStateMixin",
     "client.LocalPlayerMixin",
-    "client.MinecraftMixin"
+    "client.MinecraftMixin",
+    "client.RenderLayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

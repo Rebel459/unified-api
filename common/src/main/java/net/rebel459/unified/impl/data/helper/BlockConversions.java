@@ -35,7 +35,7 @@ public class BlockConversions {
                 ExtensibleCodecs.ITEM_PREDICATE.codec().fieldOf("predicate").forGetter(Definition::predicate),
                 BuiltInRegistries.BLOCK.byNameCodec().fieldOf("original_block").forGetter(Definition::original),
                 BuiltInRegistries.BLOCK.byNameCodec().fieldOf("converted_block").forGetter(Definition::converted),
-                ExtensibleCodecs.USE_CONTEXT.codec().listOf().optionalFieldOf("use_context", List.of()).forGetter(Definition::useContext)
+                UnifiedCodecs.compactList(ExtensibleCodecs.USE_CONTEXT.codec()).optionalFieldOf("use_context", List.of()).forGetter(Definition::useContext)
         ).apply(instance, Definition::new));
 
         public static Codec<List<Definition>> LIST_CODEC = Codec.list(CODEC).fieldOf("entries").codec();

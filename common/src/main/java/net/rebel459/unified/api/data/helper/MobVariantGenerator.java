@@ -34,7 +34,8 @@ public final class MobVariantGenerator extends HelperGenerator {
     
     public static final class Builder extends HelperGenerator.Builder {
 
-        private Optional<MobVariants.TextureReplacement> texture = Optional.empty();
+        private List<MobVariants.TextureReplacement> textureReplacements = new ArrayList<>();
+        private Optional<MobVariants.TextureReplacement> adultTexture = Optional.empty();
         private Optional<MobVariants.TextureReplacement> babyTexture = Optional.empty();
         private Optional<SoundEvent> ambientSound = Optional.empty();
         private Optional<SoundEvent> hurtSound = Optional.empty();
@@ -50,25 +51,34 @@ public final class MobVariantGenerator extends HelperGenerator {
 
         Builder(String name, EntityType<?> target, String modId, String namespace, Optional<ExtensibleCodec.Entry<Boolean>> requirement) {
             super(name, modId, namespace, requirement);
-            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/mob_variants/" + name), requirement, MobVariants.Definition.CODEC,
-                    () -> new MobVariants.Definition(Optional.of(BuiltInRegistries.ENTITY_TYPE.getKey(target)), texture, babyTexture, new MobVariants.Sounds(ambientSound, hurtSound, eatSound, deathSound, stepSound), new SpawnPrioritySelectors(spawnConditions), spawnChance, attributes, attackEffects, burnInDaylight, lootTable));
+            CodecGenerator.data(modId, Identifier.fromNamespaceAndPath(namespace, "unified/mob_variants/" + name), requirement, MobVariants.Definition.CODEC, () -> {
+                List<MobVariants.TextureReplacement> replacements = new ArrayList<>(this.textureReplacements);
+                adultTexture.ifPresent(replacements::add);
+                babyTexture.ifPresent(replacements::add);
+                return new MobVariants.Definition(
+                        Optional.of(BuiltInRegistries.ENTITY_TYPE.getKey(target)),
+                        replacements,
+                        new MobVariants.Sounds(ambientSound, hurtSound, eatSound, deathSound, stepSound),
+                        new SpawnPrioritySelectors(spawnConditions),
+                        spawnChance,
+                        attributes,
+                        attackEffects,
+                        burnInDaylight,
+                        lootTable
+                );
+            });
         }
 
-        public MobVariantGenerator.Builder setTexture(Identifier replacement) {
-            texture = Optional.of(new MobVariants.TextureReplacement(Optional.empty(), replacement));
+        public MobVariantGenerator.Builder addTextureReplacement(Identifier original, Identifier replacement) {
+            textureReplacements.add(new MobVariants.TextureReplacement(new MobVariants.TextureReplacementTypes.ReplaceTexture(original), replacement));
             return this;
         }
-        public MobVariantGenerator.Builder setTexture(Identifier target, Identifier replacement) {
-            texture = Optional.of(new MobVariants.TextureReplacement(Optional.of(target), replacement));
+        public MobVariantGenerator.Builder setAdultTexture(Identifier replacement) {
+            adultTexture = Optional.of(new MobVariants.TextureReplacement(new MobVariants.TextureReplacementTypes.ReplaceAdultTexture(), replacement));
             return this;
         }
-
         public MobVariantGenerator.Builder setBabyTexture(Identifier replacement) {
-            babyTexture = Optional.of(new MobVariants.TextureReplacement(Optional.empty(), replacement));
-            return this;
-        }
-        public MobVariantGenerator.Builder setBabyTexture(Identifier target, Identifier replacement) {
-            babyTexture = Optional.of(new MobVariants.TextureReplacement(Optional.of(target), replacement));
+            babyTexture = Optional.of(new MobVariants.TextureReplacement(new MobVariants.TextureReplacementTypes.ReplaceBabyTexture(), replacement));
             return this;
         }
 

@@ -104,7 +104,7 @@ public class CreativeEntries extends SimpleJsonResourceReloadListener<List<Creat
 
         record Before(Either<Item, ItemStack> target) implements Insertion {
             public static final MapCodec<Before> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    ENTRY_CODEC.fieldOf("target").forGetter(Before::target)
+                    ENTRY_CODEC.fieldOf("targets").forGetter(Before::target)
             ).apply(instance, Before::new));
 
             @Override
@@ -115,7 +115,7 @@ public class CreativeEntries extends SimpleJsonResourceReloadListener<List<Creat
 
         record After(Either<Item, ItemStack> target) implements Insertion {
             public static final MapCodec<After> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    ENTRY_CODEC.fieldOf("target").forGetter(After::target)
+                    ENTRY_CODEC.fieldOf("targets").forGetter(After::target)
             ).apply(instance, After::new));
 
             @Override
