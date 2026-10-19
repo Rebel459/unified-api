@@ -22,11 +22,11 @@ import net.rebel459.unified.api.codec.ExtensibleSpawnPredicate;
 import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.impl.data.helper.MobVariants;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Definition> {
 
@@ -92,18 +92,24 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
     }
 
     private static AttributeSupplier createAttributes(Attributes attributes) {
-        AttributeSupplier.Builder builder = AttributeSupplier.builder();
-        Set<Holder<Attribute>> overrides = attributes.values().stream().map(AttributeEntry::attribute).collect(Collectors.toSet());
-
+        Map<Holder<Attribute>, Optional<Double>> values = new LinkedHashMap<>();
         if (attributes.baseAttributes.isPresent()) {
             AttributeSupplier base = DefaultAttributes.getSupplier((EntityType<? extends LivingEntity>) BuiltInRegistries.ENTITY_TYPE.getValue(attributes.baseAttributes.get()));
-            BuiltInRegistries.ATTRIBUTE.listElements().filter(base::hasAttribute).filter(attribute -> !overrides.contains(attribute)).forEach(attribute -> builder.add(attribute, base.getBaseValue(attribute)));
+            base.instances.keySet().forEach(attribute -> values.putIfAbsent(attribute, Optional.of(base.getBaseValue(attribute))));
+        }
+        attributes.reference().ifPresent(reference -> {
+            AttributeSupplier base = reference.get();
+            base.instances.keySet().forEach(attribute -> values.putIfAbsent(attribute, Optional.of(base.getBaseValue(attribute))));
+        });
+        for (AttributeEntry entry : attributes.values()) {
+            values.put(entry.attribute(), entry.value());
         }
 
-        for (AttributeEntry entry : attributes.values()) {
-            if (entry.value().isPresent()) builder.add(entry.attribute(), entry.value().get());
-            else builder.add(entry.attribute());
-        }
+        AttributeSupplier.Builder builder = AttributeSupplier.builder();
+        values.forEach((attribute, value) -> {
+            if (value.isPresent()) builder.add(attribute, value.orElseThrow());
+            else builder.add(attribute);
+        });
         return builder.build();
     }
 
@@ -152,9 +158,10 @@ public class EntityRegistry extends RegistryResourceListener<EntityRegistry.Defi
         ).apply(instance, SpawnPlacement::new));
     }
 
-    public record Attributes(Optional<ResourceKey<EntityType<?>>> baseAttributes, List<AttributeEntry> values) {
+    public record Attributes(Optional<ResourceKey<EntityType<?>>> baseAttributes, Optional<ExtensibleCodec.Entry<AttributeSupplier>> reference, List<AttributeEntry> values) {
         public static final Codec<Attributes> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                         ResourceKey.codec(Registries.ENTITY_TYPE).optionalFieldOf("copy_from").forGetter(Attributes::baseAttributes),
+                        ExtensibleCodecs.ENTITY_ATTRIBUTES.codec().optionalFieldOf("reference").forGetter(Attributes::reference),
                         AttributeEntry.CODEC.listOf().optionalFieldOf("attributes", List.of()).forGetter(Attributes::values)
                 ).apply(instance, Attributes::new));
     }
