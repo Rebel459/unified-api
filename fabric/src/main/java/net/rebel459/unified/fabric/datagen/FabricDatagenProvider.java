@@ -116,7 +116,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
                         .forEach(language -> pack.addProvider((output, registries) ->
                                 new LanguageProvider(output, registries, modId, requests, language))));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.MODELS, (pack, modId, requests) ->
-                pack.addProvider((FabricDataGenerator.Pack.Factory<ModelsProvider>) output -> new ModelsProvider(output, modId, requests)));
+                pack.addProvider(output -> new ModelsProvider(output, modId, requests)));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.BLOCK_LOOT, (pack, modId, requests) ->
                 pack.addProvider((output, registries) -> new BlockLootProvider(output, registries, modId, requests)));
         FabricUnifiedDatagen.registerDataProvider(DataProviders.ENTITY_LOOT, (pack, modId, requests) ->
