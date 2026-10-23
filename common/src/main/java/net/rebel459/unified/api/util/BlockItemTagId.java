@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.util;
+package net.rebel459.unified.api.util;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;

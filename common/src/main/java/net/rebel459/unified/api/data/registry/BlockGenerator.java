@@ -31,8 +31,8 @@ import net.rebel459.unified.api.util.RecipeProvider;
 import net.rebel459.unified.impl.asset.BlockAssetRequest;
 import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.impl.data.registry.BlockRegistry;
-import net.rebel459.unified.impl.util.BlockItemId;
-import net.rebel459.unified.impl.util.BlockItemTagId;
+import net.rebel459.unified.api.util.BlockItemId;
+import net.rebel459.unified.api.util.BlockItemTagId;
 
 import java.util.ArrayList;
 import java.util.Arrays;

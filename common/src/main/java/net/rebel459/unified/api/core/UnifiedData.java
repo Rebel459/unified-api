@@ -8,7 +8,7 @@ import net.rebel459.unified.api.data.helper.*;
 import net.rebel459.unified.api.data.registry.*;
 import net.rebel459.unified.api.data.set.*;
 import net.rebel459.unified.impl.core.DataProviders;
-import net.rebel459.unified.impl.util.BlockItemTagId;
+import net.rebel459.unified.api.util.BlockItemTagId;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -78,12 +78,6 @@ public final class UnifiedData {
 
         public Builder autoName() {
             autoName = true;
-            return this;
-        }
-        @Deprecated(forRemoval = true)
-        public Builder autoName(String injectedTranslations) {
-            autoName = true;
-            this.injectedTranslations = Optional.of(injectedTranslations);
             return this;
         }
 
