@@ -109,25 +109,30 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.MACE, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.FLAT_HANDHELD_MACE_ITEM));
         FabricUnifiedDatagen.registerItemAsset(ItemAssets.SPEAR, context -> context.generator().generateFlatItem(context.item(), ModelTemplates.SPEAR_IN_HAND));
 
-        FabricUnifiedDatagen.registerDataProvider(CodecRequest.FILES, (pack, modId, requests) ->
-                pack.addProvider((output, registries) -> new JsonProvider(output, registries, modId, requests)));
+        FabricUnifiedDatagen.registerDataProvider(CodecRequest.FILES, (pack, modId, requests) -> pack
+                .addProvider((output, registries) -> new JsonProvider(output, registries, modId, requests))
+        );
         FabricUnifiedDatagen.registerDataProvider(DataProviders.LANGUAGES, (pack, modId, requests) ->
                 requests.requests(modId).stream().map(request -> request.settings().language()).distinct()
-                        .forEach(language -> pack.addProvider((output, registries) ->
-                                new LanguageProvider(output, registries, modId, requests, language))));
+                        .forEach(language -> pack.addProvider((output, registries) -> new LanguageProvider(output, registries, modId, requests, language)))
+        );
         FabricUnifiedDatagen.registerDataProvider(DataProviders.MODELS, (pack, modId, requests) ->
-                pack.addProvider(output -> new ModelsProvider(output, modId, requests)));
+                pack.addProvider(output -> new ModelsProvider(output, modId, requests))
+        );
         FabricUnifiedDatagen.registerDataProvider(DataProviders.BLOCK_LOOT, (pack, modId, requests) ->
-                pack.addProvider((output, registries) -> new BlockLootProvider(output, registries, modId, requests)));
+                pack.addProvider((output, registries) -> new BlockLootProvider(output, registries, modId, requests))
+        );
         FabricUnifiedDatagen.registerDataProvider(DataProviders.ENTITY_LOOT, (pack, modId, requests) ->
-                pack.addProvider((output, registries) -> new EntityLootProvider(output, registries, modId, requests)));
+                pack.addProvider((output, registries) -> new EntityLootProvider(output, registries, modId, requests))
+        );
         FabricUnifiedDatagen.registerDataProvider(DataProviders.RECIPES, (pack, modId, requests) ->
-                pack.addProvider((output, registries) -> new RecipesProvider(output, registries, modId, requests)));
-        FabricUnifiedDatagen.registerDataProvider(DataProviders.TAGS, (pack, modId, requests) ->
-                requests.requests(modId).stream()
-                        .map(DataProviders.TagRequest::registry)
-                        .distinct()
-                        .forEach(registry -> registerTagProvider(pack, modId, registry, requests)));
+                pack.addProvider((output, registries) -> new RecipesProvider(output, registries, modId, requests))
+        );
+        FabricUnifiedDatagen.registerDataProvider(DataProviders.TAGS, (pack, modId, requests) -> requests.requests(modId).stream()
+                .map(DataProviders.TagRequest::registry)
+                .distinct()
+                .forEach(registry -> registerTagProvider(pack, modId, registry, requests))
+        );
     }
 
     private static final Map<FabricDataGenerator, FabricUnifiedDatagen.Pack> PACKS = new WeakHashMap<>();
