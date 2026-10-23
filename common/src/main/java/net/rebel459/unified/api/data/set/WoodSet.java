@@ -160,9 +160,9 @@ public class WoodSet {
         if (getSettings().isOverworld) tags.create(BlockTags.OVERWORLD_NATURAL_LOGS).add(this.logTag.block());
         else tags.create(BlockTags.LOGS).add(this.logTag.block());
 
-        if (settings.isFlammable) tags.create(ItemTags.LOGS_THAT_BURN).add(this.logTag.item());
+        if (settings.isFlammable) tags.create(new BlockItemTagId(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN)).add(this.logTag);
         if (!settings.isFlammable) {
-            tags.create(ItemTags.LOGS).add(this.logTag.item());
+            tags.create(new BlockItemTagId(BlockTags.LOGS, ItemTags.LOGS)).add(this.logTag);
             var nonFlammableTag = tags.create(ItemTags.NON_FLAMMABLE_WOOD);
             for (SuppliedItem item : registeredItems) {
                 nonFlammableTag.add(item.key());
