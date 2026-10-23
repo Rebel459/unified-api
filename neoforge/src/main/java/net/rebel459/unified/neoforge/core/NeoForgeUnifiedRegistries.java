@@ -29,7 +29,6 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 import net.rebel459.unified.api.core.*;
 import net.rebel459.unified.api.core.StagedRegistry;
 import net.rebel459.unified.api.util.BlockLike;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

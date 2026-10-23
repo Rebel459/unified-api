@@ -80,12 +80,6 @@ public final class UnifiedData {
             autoName = true;
             return this;
         }
-        @Deprecated(forRemoval = true)
-        public Builder autoName(String injectedTranslations) {
-            autoName = true;
-            this.injectedTranslations = Optional.of(injectedTranslations);
-            return this;
-        }
 
         public Builder injectTranslations(String path) {
             injectedTranslations = Optional.of(path);
