@@ -157,7 +157,7 @@ public class WoodSet {
             chestBoatItem = createChestBoatItem();
         }
 
-        if (getSettings().isOverworld) tags.create(BlockTags.OVERWORLD_NATURAL_LOGS).add(this.logTag.block());
+        if (getSettings().isOverworld) tags.create(BlockTags.OVERWORLD_NATURAL_LOGS).add(this.getLog());
 
         if (settings.isFlammable) tags.create(BlockItemTags.LOGS_THAT_BURN).add(this.logTag);
         else {
