@@ -4,10 +4,10 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider.TranslationBuilder;
 import net.rebel459.unified.api.asset.BlockAsset;
 import net.rebel459.unified.api.asset.ItemAsset;
-import net.rebel459.unified.impl.core.DataProvider;
-import net.rebel459.unified.impl.core.DataProviders;
 import net.rebel459.unified.fabric.datagen.DatagenPack;
 import net.rebel459.unified.fabric.datagen.FabricDatagenProvider;
+import net.rebel459.unified.impl.core.DataProvider;
+import net.rebel459.unified.impl.core.DataProviders;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
