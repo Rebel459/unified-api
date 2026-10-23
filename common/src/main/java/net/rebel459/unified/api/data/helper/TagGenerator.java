@@ -1,5 +1,7 @@
 package net.rebel459.unified.api.data.helper;
 
+import net.rebel459.unified.api.core.Supplied;
+import net.rebel459.unified.api.core.SuppliedBlock;
 import net.rebel459.unified.api.util.BlockItemId;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -43,6 +45,14 @@ public final class TagGenerator extends HelperGenerator {
             }));
         }
 
+        public TagGenerator.Builder<T> add(Supplied<? extends T> entry) {
+            return add(entry.key());
+        }
+
+        public TagGenerator.Builder<T> addOptional(Supplied<? extends T> entry) {
+            return addOptional(entry.key());
+        }
+
         public TagGenerator.Builder<T> add(ResourceKey<? extends T> entry) {
             entries.add(entry);
             return this;
@@ -77,6 +87,14 @@ public final class TagGenerator extends HelperGenerator {
             super(modId, namespace, requirement);
             blocks = new TagGenerator.Builder<>(tag.block(), modId, namespace, requirement);
             items = new TagGenerator.Builder<>(tag.item(), modId, namespace, requirement);
+        }
+
+        public BlockItemBuilder add(SuppliedBlock entry) {
+            return add(entry.blockItemId());
+        }
+
+        public BlockItemBuilder addOptional(SuppliedBlock entry) {
+            return addOptional(entry.blockItemId());
         }
 
         public BlockItemBuilder add(BlockItemId entry) {

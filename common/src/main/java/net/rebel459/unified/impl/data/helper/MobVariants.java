@@ -71,7 +71,7 @@ public class MobVariants {
     ) implements PriorityProvider<SpawnContext, SpawnCondition> {
 
         public static final Codec<Definition> CODEC = create(
-                Identifier.CODEC.xmap(Optional::of, target -> target.orElseThrow(() -> new IllegalStateException("Mob Variant targets is required"))).fieldOf("targets"),
+                Identifier.CODEC.xmap(Optional::of, target -> target.orElseThrow(() -> new IllegalStateException("Mob Variant target is required"))).fieldOf("target"),
                 SpawnPrioritySelectors.CODEC.optionalFieldOf("spawn_conditions", SpawnPrioritySelectors.EMPTY),
                 ExtraCodecs.NON_NEGATIVE_FLOAT.optionalFieldOf("spawn_chance", 1F),
                 ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("loot_table"),
@@ -101,7 +101,7 @@ public class MobVariants {
         }
 
         public static final Codec<Definition> NETWORK_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-                Identifier.CODEC.optionalFieldOf("targets").forGetter(Definition::target),
+                Identifier.CODEC.optionalFieldOf("target").forGetter(Definition::target),
                 UnifiedCodecs.compactList(TextureReplacement.CODEC).optionalFieldOf("texture_replacements", List.of()).forGetter(Definition::textureReplacements),
                 Sounds.CODEC.optionalFieldOf("sounds", Sounds.EMPTY).forGetter(Definition::sounds)
         ).apply(instance, Definition::new));
