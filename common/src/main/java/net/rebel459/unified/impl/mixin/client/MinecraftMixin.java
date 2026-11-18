@@ -13,6 +13,7 @@ import net.rebel459.unified.impl.client.core.CommonClientEvents;
 import net.rebel459.unified.impl.client.helper.StructureMusicImpl;
 import net.rebel459.unified.impl.core.CommonEvents;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
+import net.rebel459.unified.impl.util.MarkedBlocks;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -71,6 +72,7 @@ public abstract class MinecraftMixin {
     @WrapOperation(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;onDisconnected()V"))
     private void stopClientLevel(Gui gui, Operation<Void> original) {
         StructurePacketImpl.resetClientStructures();
+        MarkedBlocks.resetClient();
         if (this.level != null) {
             CommonClientEvents.Instance.passOnLevelUnload(this.level);
             CommonEvents.Levels.passOnUnload(this.level);
