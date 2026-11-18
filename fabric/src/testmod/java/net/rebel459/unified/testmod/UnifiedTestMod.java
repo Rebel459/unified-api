@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
 import net.rebel459.unified.api.core.SuppliedBlock;
+import net.rebel459.unified.api.core.SuppliedItem;
 import net.rebel459.unified.api.core.UnifiedData;
 import net.rebel459.unified.api.core.UnifiedRegistries;
 import net.rebel459.unified.api.data.set.WoodPreset;
