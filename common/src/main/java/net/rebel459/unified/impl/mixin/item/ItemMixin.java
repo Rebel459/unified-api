@@ -7,6 +7,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.rebel459.unified.impl.core.CommonEvents;
+import net.rebel459.unified.impl.util.ProcessorStick;
 import net.rebel459.unified.api.event.EventTiming;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,5 +30,11 @@ public class ItemMixin {
     @Inject(at = @At("HEAD"), method = "useOn")
     private void passAfterUse(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
         CommonEvents.Items.passOnUseOn(context);
+    }
+
+    @Inject(at = @At("HEAD"), method = "useOn", cancellable = true)
+    private void useProcessorStick(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
+        InteractionResult result = ProcessorStick.useOn(context);
+        if (result != null) cir.setReturnValue(result);
     }
 }
