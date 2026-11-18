@@ -17,6 +17,7 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
@@ -29,7 +30,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public record TemplatePoolFeature(
         Holder<StructureTemplatePool> startPool,
-        Optional<Identifier> startJigsaw,
+        Optional<Identifier> startJigsawName,
         int size,
         JigsawStructure.MaxDistance maxDistanceFromCenter,
         Optional<Rotation> rotation,
@@ -53,9 +53,9 @@ public record TemplatePoolFeature(
 
     public static final MapCodec<TemplatePoolFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(TemplatePoolFeature::startPool),
-            Identifier.CODEC.optionalFieldOf("start_jigsaw").forGetter(TemplatePoolFeature::startJigsaw),
-            Codec.intRange(0, 20).optionalFieldOf("size", 7).forGetter(TemplatePoolFeature::size),
-            JigsawStructure.MaxDistance.CODEC.optionalFieldOf("max_distance_from_center", new JigsawStructure.MaxDistance(32, 64)).forGetter(TemplatePoolFeature::maxDistanceFromCenter),
+            Identifier.CODEC.optionalFieldOf("start_jigsaw_name").forGetter(TemplatePoolFeature::startJigsawName),
+            Codec.intRange(0, 20).optionalFieldOf("size", 0).forGetter(TemplatePoolFeature::size),
+            JigsawStructure.MaxDistance.CODEC.optionalFieldOf("max_distance_from_center", new JigsawStructure.MaxDistance(16, DimensionType.Y_SIZE)).forGetter(TemplatePoolFeature::maxDistanceFromCenter),
             Rotation.CODEC.optionalFieldOf("rotation").forGetter(TemplatePoolFeature::rotation),
             LiquidSettings.CODEC.optionalFieldOf("liquid_settings", JigsawStructure.DEFAULT_LIQUID_SETTINGS).forGetter(TemplatePoolFeature::liquidSettings),
             Codec.BOOL.optionalFieldOf("ignore_air", false).forGetter(TemplatePoolFeature::ignoreAir),
@@ -78,8 +78,8 @@ public record TemplatePoolFeature(
         Rotation rotation = this.rotation.orElseGet(() -> Rotation.getRandom(random));
         List<StructureTemplate.JigsawBlockInfo> jigsaws = start.getShuffledJigsawBlocks(templates, origin, rotation, random);
         BlockPos position;
-        if (this.startJigsaw.isPresent()) {
-            Identifier name = this.startJigsaw.get();
+        if (this.startJigsawName.isPresent()) {
+            Identifier name = this.startJigsawName.get();
             BlockPos anchor = null;
             for (StructureTemplate.JigsawBlockInfo jigsaw : jigsaws) {
                 if (name.equals(jigsaw.name())) {
