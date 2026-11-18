@@ -24,7 +24,8 @@
     "item.ItemStackMixin",
     "registry.BootstrapMixin",
     "registry.MappedRegistryMixin",
-    "registry.ResourceManagerRegistryLoadTaskMixin"
+    "registry.ResourceManagerRegistryLoadTaskMixin",
+    "worldgen.StructureTemplateMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin",

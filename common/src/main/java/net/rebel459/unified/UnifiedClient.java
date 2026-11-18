@@ -1,6 +1,7 @@
 package net.rebel459.unified;
 
 import net.rebel459.unified.api.client.core.UnifiedClientHelpers;
+import net.rebel459.unified.impl.client.util.MarkedBlocksOverlay;
 import net.rebel459.unified.impl.client.helper.SimpleBabyArmorImpl;
 import net.rebel459.unified.impl.client.registry.VanillaEntityRenderers;
 import net.rebel459.unified.impl.data.helper.CreativeEntries;
@@ -10,6 +11,7 @@ public class UnifiedClient {
 
     public static void init() {
         SimpleBabyArmorImpl.init();
+        MarkedBlocksOverlay.init();
         UnifiedClientHelpers.RELOAD_LISTENERS.addListener(CreativeEntries.ID, new CreativeEntries());
         UnifiedClientHelpers.RELOAD_LISTENERS.addListener(SimpleBabyArmor.ID, new SimpleBabyArmor());
         VanillaEntityRenderers.init();

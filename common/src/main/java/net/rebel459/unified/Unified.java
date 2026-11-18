@@ -15,6 +15,8 @@ import net.rebel459.unified.impl.data.registry.*;
 import net.rebel459.unified.impl.data.set.*;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
 import net.rebel459.unified.impl.tag.PersistentCooldowns;
+import net.rebel459.unified.impl.util.MarkedBlocks;
+import net.rebel459.unified.impl.util.ProcessorStick;
 
 import java.util.ServiceLoader;
 
@@ -53,6 +55,7 @@ public class Unified {
         ComponentModifiers.init();
         MobVariants.init();
         BiomeModifiers.init();
+        MarkedBlocks.initRegistries();
         new SoundEventRegistry().init();
         new BlockSetTypeRegistry().init();
         new WoodTypeRegistry().init();
@@ -76,6 +79,8 @@ public class Unified {
         PersistentCooldowns.init();
         BlockRegistry.runLateProperties();
         StructurePacketImpl.init();
+        MarkedBlocks.init();
+        ProcessorStick.init();
         if (UnifiedPlatform.getModLoader() == ModLoader.NEOFORGE) {
             WoodSetProperties.init(WoodSet.WOOD_SETS);
             StoneSetProperties.init(StoneSet.BLOCK_SETS);
