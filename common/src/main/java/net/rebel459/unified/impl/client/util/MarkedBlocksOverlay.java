@@ -8,7 +8,7 @@ import net.minecraft.gizmos.Gizmos;
 import net.minecraft.world.phys.AABB;
 import net.rebel459.unified.api.client.core.UnifiedClientEvents;
 import net.rebel459.unified.api.event.EventTiming;
-import net.rebel459.unified.impl.util.MarkedBlocks;
+import net.rebel459.unified.impl.worldgen.MarkedBlocks;
 import net.rebel459.unified.impl.util.ProcessorStick;
 
 public final class MarkedBlocksOverlay {

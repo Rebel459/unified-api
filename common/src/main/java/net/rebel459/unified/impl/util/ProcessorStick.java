@@ -16,7 +16,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.core.UnifiedEvents;
-import org.jspecify.annotations.Nullable;
+import net.rebel459.unified.impl.worldgen.MarkedBlocks;
 
 public final class ProcessorStick {
 
@@ -32,20 +32,11 @@ public final class ProcessorStick {
     }
 
     public static void init() {
+        UnifiedEvents.Items.onUseOn(ProcessorStick::useOn);
         UnifiedEvents.Entities.onEquipmentChange((entity, slot, oldStack, newStack) -> {
             if (!newStack.is(Items.STICK) || !(entity instanceof ServerPlayer player) || !player.canUseGameMasterBlocks() || !is(newStack)) return;
             MarkedBlocks.reveal(player);
         });
-        UnifiedEvents.CreativeEntries.modifyForTab(CreativeModeTabs.OP_BLOCKS, context -> context.insertAfter(Items.DEBUG_STICK, create()));
-    }
-
-    public static ItemStack create() {
-        ItemStack stack = new ItemStack(Items.STICK);
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(TAG));
-        stack.set(DataComponents.ITEM_NAME, Component.literal("Processor Stick"));
-        stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-        stack.set(DataComponents.RARITY, Rarity.EPIC);
-        return stack;
     }
 
     public static boolean is(ItemStack stack) {
@@ -58,13 +49,13 @@ public final class ProcessorStick {
         return is(entity.getMainHandItem()) || is(entity.getOffhandItem());
     }
 
-    public static @Nullable InteractionResult useOn(UseOnContext context) {
+    private static InteractionResult useOn(UseOnContext context) {
         ItemStack stack = context.getItemInHand();
-        if (!stack.is(Items.STICK)) return null;
+        if (!stack.is(Items.STICK)) return InteractionResult.PASS;
         Player user = context.getPlayer();
-        if (user == null || !user.canUseGameMasterBlocks() || !is(stack)) return null;
+        if (user == null || !user.canUseGameMasterBlocks() || !is(stack)) return InteractionResult.PASS;
         InteractionHand otherHand = context.getHand() == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-        if (user.getItemInHand(otherHand).getItem() instanceof BlockItem) return null;
+        if (user.getItemInHand(otherHand).getItem() instanceof BlockItem) return InteractionResult.PASS;
         if (!(user instanceof ServerPlayer player) || !(context.getLevel() instanceof ServerLevel level)) return InteractionResult.SUCCESS;
         MarkedBlocks.reveal(player);
         BlockPos pos = context.getClickedPos();

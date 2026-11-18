@@ -148,11 +148,6 @@ public final class UnifiedCodecs {
         );
     }
 
-    public static final Codec<ItemStack> ITEM_OR_STACK = Codec.either(BuiltInRegistries.ITEM.byNameCodec(), ItemStack.CODEC).xmap(
-            either -> either.map(Item::getDefaultInstance, ItemStack::copy),
-            Either::right
-    );
-
     public static <T> Codec<List<T>> compactList(Codec<T> codec) {
         return Codec.either(codec, codec.listOf()).xmap(
                 either -> either.map(List::of, Function.identity()),

@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.util;
+package net.rebel459.unified.impl.worldgen;
 
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -52,7 +52,7 @@ public final class MarkedBlocks {
         MARKED = UnifiedAttachments.Level.<LongSet>builder(Unified.id("marked_blocks"), () -> LongSets.EMPTY_SET)
                 .persistent(Codec.LONG_STREAM.<LongSet>xmap(stream -> new LongOpenHashSet(stream.toArray()), set -> LongStream.of(set.toLongArray())).fieldOf("positions"))
                 .build();
-        UnifiedRegistries.DeferredRegistry.create(Unified.MOD_ID, BuiltInRegistries.FEATURE_TYPE).register("nbt", () -> NbtFeature.CODEC);
+        UnifiedRegistries.DeferredRegistry.create(Unified.MOD_ID, BuiltInRegistries.FEATURE_TYPE).register("template_pool", () -> TemplatePoolFeature.CODEC);
     }
 
     public static void init() {

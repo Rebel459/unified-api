@@ -7,9 +7,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.rebel459.unified.impl.util.MarkedTemplate;
-import net.rebel459.unified.impl.util.MarkedBlocks;
-import net.rebel459.unified.impl.util.MarkedProcessor;
+import net.rebel459.unified.impl.worldgen.MarkedTemplate;
+import net.rebel459.unified.impl.worldgen.MarkedBlocks;
+import net.rebel459.unified.impl.worldgen.MarkedProcessor;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,7 +40,7 @@ public class StructureTemplateMixin implements MarkedTemplate {
     }
 
     @Unique
-    private void unified$setMarked(long[] marked) {
+    private void setMarked(long[] marked) {
         BitSet bits = null;
         int sizeX = this.size.getX();
         int sizeY = this.size.getY();
@@ -58,18 +58,18 @@ public class StructureTemplateMixin implements MarkedTemplate {
     }
 
     @Inject(method = "fillFromWorld", at = @At("TAIL"))
-    private void unified$fillMarked(Level level, BlockPos position, Vec3i size, boolean includeEntities, List<Block> ignoreBlocks, CallbackInfo ci) {
+    private void fillMarked(Level level, BlockPos position, Vec3i size, boolean includeEntities, List<Block> ignoreBlocks, CallbackInfo ci) {
         if (size.getX() < 1 || size.getY() < 1 || size.getZ() < 1) return;
-        this.unified$setMarked(MarkedBlocks.collect(level, position, size));
+        this.setMarked(MarkedBlocks.collect(level, position, size));
     }
 
     @Inject(method = "save", at = @At("RETURN"))
-    private void unified$saveMarked(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+    private void saveMarked(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
         if (this.unified$marked.length > 0) cir.getReturnValue().putLongArray(MarkedBlocks.TEMPLATE_KEY, this.unified$marked);
     }
 
     @Inject(method = "load", at = @At("TAIL"))
-    private void unified$loadMarked(HolderGetter<Block> blockLookup, CompoundTag tag, CallbackInfo ci) {
-        this.unified$setMarked(tag.getLongArray(MarkedBlocks.TEMPLATE_KEY).orElse(MarkedBlocks.EMPTY));
+    private void loadMarked(HolderGetter<Block> blockLookup, CompoundTag tag, CallbackInfo ci) {
+        this.setMarked(tag.getLongArray(MarkedBlocks.TEMPLATE_KEY).orElse(MarkedBlocks.EMPTY));
     }
 }

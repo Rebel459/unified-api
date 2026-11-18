@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
@@ -20,20 +20,20 @@ import java.util.Map;
 
 public class UnifiedDisplayItemCodecs {
 
-    public static final ExtensibleCodec.Complex<CreativeModeTab.DisplayItemsGenerator, List<Either<ItemStack, ListEntry>>> DISPLAY_FROM_LIST = ExtensibleCodecs.DISPLAY_ITEMS.register(
+    public static final ExtensibleCodec.Complex<CreativeModeTab.DisplayItemsGenerator, List<Either<ItemStackTemplate, ListEntry>>> DISPLAY_FROM_LIST = ExtensibleCodecs.DISPLAY_ITEMS.register(
             Unified.id("display_from_list"),
-            Codec.either(UnifiedCodecs.ITEM_OR_STACK, ListEntry.CODEC).listOf().fieldOf("items"),
+            Codec.either(ItemStackTemplate.CODEC, ListEntry.CODEC).listOf().fieldOf("items"),
             definition -> ((_, output) -> {
-                for (Either<ItemStack, ListEntry> entry : definition) {
-                    if (entry.left().isPresent()) output.accept(entry.left().get());
-                    if (entry.right().isPresent()) output.accept(entry.right().get().item(), entry.right().get().visibility());
+                for (Either<ItemStackTemplate, ListEntry> entry : definition) {
+                    if (entry.left().isPresent()) output.accept(entry.left().get().create());
+                    if (entry.right().isPresent()) output.accept(entry.right().get().item().create(), entry.right().get().visibility());
                 }
             })
     );
 
-    public record ListEntry(ItemStack item, CreativeModeTab.TabVisibility visibility) {
+    public record ListEntry(ItemStackTemplate item, CreativeModeTab.TabVisibility visibility) {
         public static final Codec<ListEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                UnifiedCodecs.ITEM_OR_STACK.fieldOf("item").forGetter(ListEntry::item),
+                ItemStackTemplate.CODEC.fieldOf("item").forGetter(ListEntry::item),
                 UnifiedCodecs.named(CreativeModeTab.TabVisibility.class).optionalFieldOf("visibility", CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS).forGetter(ListEntry::visibility)
         ).apply(instance, ListEntry::new));
     }

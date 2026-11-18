@@ -13,9 +13,10 @@ import net.rebel459.unified.api.registry.*;
 import net.rebel459.unified.impl.data.helper.*;
 import net.rebel459.unified.impl.data.registry.*;
 import net.rebel459.unified.impl.data.set.*;
+import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import net.rebel459.unified.impl.network.StructurePacketImpl;
 import net.rebel459.unified.impl.tag.PersistentCooldowns;
-import net.rebel459.unified.impl.util.MarkedBlocks;
+import net.rebel459.unified.impl.worldgen.MarkedBlocks;
 import net.rebel459.unified.impl.util.ProcessorStick;
 
 import java.util.ServiceLoader;
@@ -82,6 +83,7 @@ public class Unified {
         StructurePacketImpl.init();
         MarkedBlocks.init();
         ProcessorStick.init();
+        BlockConversionsImpl.init();
         if (UnifiedPlatform.getModLoader() == ModLoader.NEOFORGE) {
             WoodSetProperties.init(WoodSet.WOOD_SETS);
             StoneSetProperties.init(StoneSet.BLOCK_SETS);

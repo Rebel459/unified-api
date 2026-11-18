@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.util;
+package net.rebel459.unified.impl.worldgen;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -28,6 +28,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -36,31 +37,35 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public record NbtFeature(
+public record TemplatePoolFeature(
         Holder<StructureTemplatePool> startPool,
-        Optional<Identifier> startJigsawName,
+        Optional<Identifier> startJigsaw,
         int size,
         JigsawStructure.MaxDistance maxDistanceFromCenter,
         Optional<Rotation> rotation,
         LiquidSettings liquidSettings,
+        boolean ignoreAir,
+        boolean naturalLeaves,
         List<Holder<StructureProcessorList>> markedProcessors
 ) implements Feature {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Set<Identifier> MISSING_JIGSAWS = ConcurrentHashMap.newKeySet();
 
-    public static final MapCodec<NbtFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(NbtFeature::startPool),
-            Identifier.CODEC.optionalFieldOf("start_jigsaw_name").forGetter(NbtFeature::startJigsawName),
-            Codec.intRange(0, 20).optionalFieldOf("size", 7).forGetter(NbtFeature::size),
-            JigsawStructure.MaxDistance.CODEC.optionalFieldOf("max_distance_from_center", new JigsawStructure.MaxDistance(32, 64)).forGetter(NbtFeature::maxDistanceFromCenter),
-            Rotation.CODEC.optionalFieldOf("rotation").forGetter(NbtFeature::rotation),
-            LiquidSettings.CODEC.optionalFieldOf("liquid_settings", JigsawStructure.DEFAULT_LIQUID_SETTINGS).forGetter(NbtFeature::liquidSettings),
-            StructureProcessorType.LIST_CODEC.listOf().optionalFieldOf("marked_processors", List.of()).forGetter(NbtFeature::markedProcessors)
-    ).apply(instance, NbtFeature::new));
+    public static final MapCodec<TemplatePoolFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(TemplatePoolFeature::startPool),
+            Identifier.CODEC.optionalFieldOf("start_jigsaw").forGetter(TemplatePoolFeature::startJigsaw),
+            Codec.intRange(0, 20).optionalFieldOf("size", 7).forGetter(TemplatePoolFeature::size),
+            JigsawStructure.MaxDistance.CODEC.optionalFieldOf("max_distance_from_center", new JigsawStructure.MaxDistance(32, 64)).forGetter(TemplatePoolFeature::maxDistanceFromCenter),
+            Rotation.CODEC.optionalFieldOf("rotation").forGetter(TemplatePoolFeature::rotation),
+            LiquidSettings.CODEC.optionalFieldOf("liquid_settings", JigsawStructure.DEFAULT_LIQUID_SETTINGS).forGetter(TemplatePoolFeature::liquidSettings),
+            Codec.BOOL.optionalFieldOf("ignore_air", false).forGetter(TemplatePoolFeature::ignoreAir),
+            Codec.BOOL.optionalFieldOf("natural_leaves", false).forGetter(TemplatePoolFeature::naturalLeaves),
+            StructureProcessorType.LIST_CODEC.listOf().optionalFieldOf("marked_processors", List.of()).forGetter(TemplatePoolFeature::markedProcessors)
+    ).apply(instance, TemplatePoolFeature::new));
 
     @Override
-    public MapCodec<NbtFeature> codec() {
+    public MapCodec<TemplatePoolFeature> codec() {
         return CODEC;
     }
 
@@ -74,8 +79,8 @@ public record NbtFeature(
         Rotation rotation = this.rotation.orElseGet(() -> Rotation.getRandom(random));
         List<StructureTemplate.JigsawBlockInfo> jigsaws = start.getShuffledJigsawBlocks(templates, origin, rotation, random);
         BlockPos position;
-        if (this.startJigsawName.isPresent()) {
-            Identifier name = this.startJigsawName.get();
+        if (this.startJigsaw.isPresent()) {
+            Identifier name = this.startJigsaw.get();
             BlockPos anchor = null;
             for (StructureTemplate.JigsawBlockInfo jigsaw : jigsaws) {
                 if (name.equals(jigsaw.name())) {
@@ -100,8 +105,11 @@ public record NbtFeature(
         }
 
         BoundingBox bounds = writableBounds(level);
+        NaturalLeavesProcessor leafProcessor = this.naturalLeaves ? new NaturalLeavesProcessor() : null;
         if (this.size <= 0 || !canExpand(jigsaws)) {
-            return this.placeElement(start, level, chunkGenerator, templates, position, origin, rotation, bounds, random);
+            boolean placed = this.placeElement(start, level, chunkGenerator, templates, position, origin, rotation, bounds, random, leafProcessor);
+            if (leafProcessor != null) leafProcessor.finish(level);
+            return placed;
         }
 
         BoundingBox startBox = start.getBoundingBox(templates, position, rotation);
@@ -138,25 +146,29 @@ public record NbtFeature(
 
         boolean placed = false;
         for (PoolElementStructurePiece piece : pieces) {
-            placed |= this.placeElement(piece.getElement(), level, chunkGenerator, templates, piece.getPosition(), origin, piece.getRotation(), bounds, random);
+            placed |= this.placeElement(piece.getElement(), level, chunkGenerator, templates, piece.getPosition(), origin, piece.getRotation(), bounds, random, leafProcessor);
         }
+        if (leafProcessor != null) leafProcessor.finish(level);
         return placed;
     }
 
-    private boolean placeElement(StructurePoolElement element, WorldGenLevel level, ChunkGenerator chunkGenerator, StructureTemplateManager templates, BlockPos position, BlockPos origin, Rotation rotation, BoundingBox bounds, RandomSource random) {
+    private boolean placeElement(StructurePoolElement element, WorldGenLevel level, ChunkGenerator chunkGenerator, StructureTemplateManager templates, BlockPos position, BlockPos origin, Rotation rotation, BoundingBox bounds, RandomSource random, @Nullable NaturalLeavesProcessor leafProcessor) {
         if (element instanceof SinglePoolElement single) {
             StructureTemplate template = single.getTemplate(templates);
             StructurePlaceSettings settings = single.getSettings(rotation, bounds, this.liquidSettings, false);
+            if (this.ignoreAir) settings.getProcessors().addFirst(BlockIgnoreProcessor.AIR);
             if (!this.markedProcessors.isEmpty()) {
                 MarkedProcessor processor = MarkedProcessor.create(template, this.markedProcessors);
                 if (processor != null) settings.addProcessor(processor);
             }
+            settings.addProcessor(KeepOriginalProcessor.INSTANCE);
+            if (leafProcessor != null) settings.addProcessor(leafProcessor);
             return template.placeInWorld(level, position, origin, settings, random, 18);
         }
         if (element instanceof ListPoolElement list) {
             boolean placed = false;
             for (StructurePoolElement child : list.getElements()) {
-                placed |= this.placeElement(child, level, chunkGenerator, templates, position, origin, rotation, bounds, random);
+                placed |= this.placeElement(child, level, chunkGenerator, templates, position, origin, rotation, bounds, random, leafProcessor);
             }
             return placed;
         }

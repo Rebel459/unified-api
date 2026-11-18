@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.rebel459.unified.api.codec.CodecGenerator;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
@@ -53,11 +54,11 @@ public final class CreativeEntryGenerator extends HelperGenerator {
         }
 
         public CreativeEntryGenerator.Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemLike... items) {
-            return add(tab, new CreativeEntries.Insertion.After(Either.right(target.copy())), items(items));
+            return add(tab, new CreativeEntries.Insertion.After(Either.right(ItemStackTemplate.fromNonEmptyStack(target))), items(items));
         }
 
         public CreativeEntryGenerator.Builder insertAfter(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemStack... items) {
-            return add(tab, new CreativeEntries.Insertion.After(Either.right(target.copy())), itemStacks(items));
+            return add(tab, new CreativeEntries.Insertion.After(Either.right(ItemStackTemplate.fromNonEmptyStack(target))), itemStacks(items));
         }
 
         public CreativeEntryGenerator.Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemLike target, ItemLike... items) {
@@ -69,24 +70,24 @@ public final class CreativeEntryGenerator extends HelperGenerator {
         }
 
         public CreativeEntryGenerator.Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemLike... items) {
-            return add(tab, new CreativeEntries.Insertion.Before(Either.right(target.copy())), items(items));
+            return add(tab, new CreativeEntries.Insertion.Before(Either.right(ItemStackTemplate.fromNonEmptyStack(target))), items(items));
         }
 
         public CreativeEntryGenerator.Builder insertBefore(ResourceKey<CreativeModeTab> tab, ItemStack target, ItemStack... items) {
-            return add(tab, new CreativeEntries.Insertion.Before(Either.right(target.copy())), itemStacks(items));
+            return add(tab, new CreativeEntries.Insertion.Before(Either.right(ItemStackTemplate.fromNonEmptyStack(target))), itemStacks(items));
         }
 
-        private CreativeEntryGenerator.Builder add(ResourceKey<CreativeModeTab> tab, CreativeEntries.Insertion insertion, List<Either<Item, ItemStack>> items) {
+        private CreativeEntryGenerator.Builder add(ResourceKey<CreativeModeTab> tab, CreativeEntries.Insertion insertion, List<Either<Item, ItemStackTemplate>> items) {
             entries.add(new CreativeEntries.Definition(tab, insertion, items));
             return this;
         }
 
-        private static List<Either<Item, ItemStack>> items(ItemLike[] items) {
-            return Arrays.stream(items).map(item -> Either.<Item, ItemStack>left(item.asItem())).toList();
+        private static List<Either<Item, ItemStackTemplate>> items(ItemLike[] items) {
+            return Arrays.stream(items).map(item -> Either.<Item, ItemStackTemplate>left(item.asItem())).toList();
         }
 
-        private static List<Either<Item, ItemStack>> itemStacks(ItemStack[] items) {
-            return Arrays.stream(items).map(ItemStack::copy).map(Either::<Item, ItemStack>right).toList();
+        private static List<Either<Item, ItemStackTemplate>> itemStacks(ItemStack[] items) {
+            return Arrays.stream(items).map(ItemStackTemplate::fromNonEmptyStack).map(Either::<Item, ItemStackTemplate>right).toList();
         }
     }
 }
