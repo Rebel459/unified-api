@@ -49,7 +49,6 @@ public record TemplatePoolFeature(
         List<Holder<StructureProcessorList>> markedProcessors
 ) implements Feature {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Set<Identifier> MISSING_JIGSAWS = ConcurrentHashMap.newKeySet();
 
     public static final MapCodec<TemplatePoolFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -90,7 +89,7 @@ public record TemplatePoolFeature(
             }
             if (anchor == null) {
                 if (MISSING_JIGSAWS.add(name)) {
-                    LOGGER.error("No starting jigsaw {} found in start pool {}", name, this.startPool.unwrapKey().map(key -> key.identifier().toString()).orElse("<unregistered>"));
+                    LogUtils.getLogger().error("No starting jigsaw {} found in start pool {}", name, this.startPool.unwrapKey().map(key -> key.identifier().toString()).orElse("<unregistered>"));
                 }
                 return false;
             }
