@@ -27,11 +27,11 @@ import net.rebel459.unified.impl.core.CommonPlatform;
 import net.rebel459.unified.impl.helper.BlockConversionsImpl;
 import net.rebel459.unified.impl.platform.PlatformHandler;
 
+import java.nio.file.Path;
+import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.nio.file.Path;
-import java.util.List;
 
 public class FabricPlatformHandler implements PlatformHandler {
 

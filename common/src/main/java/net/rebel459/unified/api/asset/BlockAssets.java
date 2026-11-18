@@ -14,6 +14,7 @@ public final class BlockAssets {
     public static final BlockAsset<Void> LANTERN = create("lantern");
     public static final BlockAsset<Void> DOOR = create("door");
     public static final BlockAsset<Void> TRAPDOOR = create("trapdoor");
+    public static final BlockAsset<Void> ORIENTABLE_TRAPDOOR = create("orientable_trapdoor");
     public static final BlockAsset<Void> CHAIN = create("chain");
     public static final BlockAsset<Void> TINTED_DOUBLE_PLANT = create("tinted_double_plant");
     public static final BlockAsset<Void> PARTICLE_ONLY = create("particle_only");

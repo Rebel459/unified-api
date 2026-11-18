@@ -346,6 +346,11 @@ public class BlockGenerator {
             definition.flammability = Optional.of(new BlockRegistry.Flammability(igniteOdds, burnOdds));
             return this;
         }
+
+        public Properties oxidizesInto(ResourceKey<Block> block) {
+            definition.oxidizesInto = Optional.of(block);
+            return this;
+        }
     }
 
     public static final class Assets {
