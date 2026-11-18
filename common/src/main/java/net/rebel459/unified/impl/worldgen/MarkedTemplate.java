@@ -1,4 +1,4 @@
-package net.rebel459.unified.impl.util;
+package net.rebel459.unified.impl.worldgen;
 
 import org.jspecify.annotations.Nullable;
 
