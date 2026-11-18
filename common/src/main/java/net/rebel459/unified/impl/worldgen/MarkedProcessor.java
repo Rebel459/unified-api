@@ -7,6 +7,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.jspecify.annotations.Nullable;
@@ -14,12 +15,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.BitSet;
 import java.util.List;
 
-public final class MarkedProcessor implements StructureProcessor {
+public final class MarkedProcessor extends StructureProcessor {
 
     private final BitSet marked;
     private final int sizeX;
     private final int sizeZ;
     private final List<Holder<StructureProcessorList>> processors;
+    private final StructureProcessorType<MarkedProcessor> type = () -> MapCodec.unit(this);
 
     private MarkedProcessor(BitSet marked, Vec3i size, List<Holder<StructureProcessorList>> processors) {
         this.marked = marked;
@@ -38,13 +40,14 @@ public final class MarkedProcessor implements StructureProcessor {
     }
 
     @Override
-    public StructureTemplate.@Nullable StructureBlockInfo processBlock(LevelReader level, BlockPos targetPosition, BlockPos referencePos, BlockPos templateRelativePos, StructureTemplate.StructureBlockInfo processedBlockInfo, StructurePlaceSettings settings) {
+    public StructureTemplate.@Nullable StructureBlockInfo processBlock(LevelReader level, BlockPos targetPosition, BlockPos referencePos, StructureTemplate.StructureBlockInfo originalBlockInfo, StructureTemplate.StructureBlockInfo processedBlockInfo, StructurePlaceSettings settings) {
+        BlockPos templateRelativePos = originalBlockInfo.pos();
         if (!this.marked.get(index(templateRelativePos.getX(), templateRelativePos.getY(), templateRelativePos.getZ(), this.sizeX, this.sizeZ))) {
             return processedBlockInfo;
         }
         for (Holder<StructureProcessorList> list : this.processors) {
             for (StructureProcessor processor : list.value().list()) {
-                processedBlockInfo = processor.processBlock(level, targetPosition, referencePos, templateRelativePos, processedBlockInfo, settings);
+                processedBlockInfo = processor.processBlock(level, targetPosition, referencePos, originalBlockInfo, processedBlockInfo, settings);
                 if (processedBlockInfo == null) return null;
             }
         }
@@ -52,7 +55,7 @@ public final class MarkedProcessor implements StructureProcessor {
     }
 
     @Override
-    public MapCodec<MarkedProcessor> codec() {
-        return MapCodec.unit(this);
+    protected StructureProcessorType<?> getType() {
+        return this.type;
     }
 }

@@ -194,7 +194,7 @@ public record TemplatePoolFeature(
     private static BoundingBox writableBounds(WorldGenLevel level) {
         if (!(level instanceof WorldGenRegion region)) return BoundingBox.infinite();
         ChunkPos center = region.getCenter();
-        int radius = region.writeRadius;
+        int radius = region.generatingStep.blockStateWriteRadius();
         return new BoundingBox(
                 (center.x() - radius) << 4,
                 level.getMinY(),

@@ -13,12 +13,13 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.jspecify.annotations.Nullable;
 
-public final class NaturalLeavesProcessor implements StructureProcessor {
+public final class NaturalLeavesProcessor extends StructureProcessor {
 
-    private final MapCodec<NaturalLeavesProcessor> codec = MapCodec.unit(this);
+    private final StructureProcessorType<NaturalLeavesProcessor> type = () -> MapCodec.unit(this);
     private final Long2IntOpenHashMap leaves = new Long2IntOpenHashMap();
     private final LongArrayList sources = new LongArrayList();
 
@@ -27,7 +28,7 @@ public final class NaturalLeavesProcessor implements StructureProcessor {
     }
 
     @Override
-    public StructureTemplate.@Nullable StructureBlockInfo processBlock(LevelReader level, BlockPos targetPosition, BlockPos referencePos, BlockPos templateRelativePos, StructureTemplate.StructureBlockInfo processedBlockInfo, StructurePlaceSettings settings) {
+    public StructureTemplate.@Nullable StructureBlockInfo processBlock(LevelReader level, BlockPos targetPosition, BlockPos referencePos, StructureTemplate.StructureBlockInfo originalBlockInfo, StructureTemplate.StructureBlockInfo processedBlockInfo, StructurePlaceSettings settings) {
         BlockState state = processedBlockInfo.state();
         BlockPos pos = processedBlockInfo.pos();
         if (!isLeaf(state)) {
@@ -40,8 +41,8 @@ public final class NaturalLeavesProcessor implements StructureProcessor {
     }
 
     @Override
-    public MapCodec<NaturalLeavesProcessor> codec() {
-        return this.codec;
+    protected StructureProcessorType<?> getType() {
+        return this.type;
     }
 
     public void finish(WorldGenLevel level) {
