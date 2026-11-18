@@ -18,6 +18,8 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.*;
@@ -47,7 +49,7 @@ public record TemplatePoolFeature(
         boolean ignoreAir,
         boolean naturalLeaves,
         List<Holder<StructureProcessorList>> markedProcessors
-) implements Feature {
+) implements FeatureConfiguration {
 
     private static final Set<Identifier> MISSING_JIGSAWS = ConcurrentHashMap.newKeySet();
 
@@ -55,7 +57,7 @@ public record TemplatePoolFeature(
             StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(TemplatePoolFeature::startPool),
             Identifier.CODEC.optionalFieldOf("start_jigsaw").forGetter(TemplatePoolFeature::startJigsaw),
             Codec.intRange(0, 20).optionalFieldOf("size", 7).forGetter(TemplatePoolFeature::size),
-            JigsawStructure.MaxDistance.CODEC.optionalFieldOf("max_distance_from_center", new JigsawStructure.MaxDistance(32, 64)).forGetter(TemplatePoolFeature::maxDistanceFromCenter),
+            JigsawStructure.MaxDistance.CODEC.optionalFieldOf("max_distance_from_center", new JigsawStructure.MaxDistance(16, 64)).forGetter(TemplatePoolFeature::maxDistanceFromCenter),
             Rotation.CODEC.optionalFieldOf("rotation").forGetter(TemplatePoolFeature::rotation),
             LiquidSettings.CODEC.optionalFieldOf("liquid_settings", JigsawStructure.DEFAULT_LIQUID_SETTINGS).forGetter(TemplatePoolFeature::liquidSettings),
             Codec.BOOL.optionalFieldOf("ignore_air", false).forGetter(TemplatePoolFeature::ignoreAir),
@@ -63,15 +65,21 @@ public record TemplatePoolFeature(
             StructureProcessorType.LIST_CODEC.listOf().optionalFieldOf("marked_processors", List.of()).forGetter(TemplatePoolFeature::markedProcessors)
     ).apply(instance, TemplatePoolFeature::new));
 
-    @Override
-    public MapCodec<TemplatePoolFeature> codec() {
-        return CODEC;
+    public static final class Type extends Feature<TemplatePoolFeature> {
+
+        public Type() {
+            super(CODEC.codec());
+        }
+
+        @Override
+        public boolean place(FeaturePlaceContext<TemplatePoolFeature> context) {
+            return context.config().place(context.level(), context.chunkGenerator(), context.random(), context.origin());
+        }
     }
 
-    @Override
     public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
         ServerLevel serverLevel = level.getLevel();
-        StructureTemplateManager templates = serverLevel.getStructureTemplateManager();
+        StructureTemplateManager templates = serverLevel.getStructureManager();
         StructurePoolElement start = this.startPool.value().getRandomTemplate(random);
         if (start == EmptyPoolElement.INSTANCE) return false;
 
@@ -83,7 +91,7 @@ public record TemplatePoolFeature(
             BlockPos anchor = null;
             for (StructureTemplate.JigsawBlockInfo jigsaw : jigsaws) {
                 if (name.equals(jigsaw.name())) {
-                    anchor = jigsaw.pos();
+                    anchor = jigsaw.info().pos();
                     break;
                 }
             }
