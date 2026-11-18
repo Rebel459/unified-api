@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -30,6 +31,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class UnifiedEvents {
@@ -127,11 +129,19 @@ public class UnifiedEvents {
 
         private Items() {}
 
-        public static void onUse(EventTiming type, TriConsumer<Level, Player, InteractionHand> listener) {
-            CommonEvents.Items.USE_LISTENERS.get(type).add(listener);
+        public interface UseListener {
+            InteractionResult use(Level level, Player player, InteractionHand hand);
         }
 
-        public static void onUseOn(Consumer<UseOnContext> listener) {
+        public static void onUse(UseListener listener) {
+            CommonEvents.Items.USE_LISTENERS.add(listener);
+        }
+
+        public static void afterUse(QuadConsumer<Level, Player, InteractionHand, InteractionResult> listener) {
+            CommonEvents.Items.AFTER_USE_LISTENERS.add(listener);
+        }
+
+        public static void onUseOn(Function<UseOnContext, InteractionResult> listener) {
             CommonEvents.Items.USE_ON_LISTENERS.add(listener);
         }
     }
@@ -140,11 +150,15 @@ public class UnifiedEvents {
 
         private Blocks() {}
 
-        public static void onPlace(EventTiming type, Consumer<BlockPlaceContext> listener) {
-            CommonEvents.Blocks.PLACE_LISTENERS.get(type).add(listener);
+        public static void onPlace(Function<BlockPlaceContext, InteractionResult> listener) {
+            CommonEvents.Blocks.PLACE_LISTENERS.add(listener);
         }
 
-        public static void onUseOn(Consumer<UseOnContext> listener) {
+        public static void afterPlace(BiConsumer<BlockPlaceContext, InteractionResult> listener) {
+            CommonEvents.Blocks.AFTER_PLACE_LISTENERS.add(listener);
+        }
+
+        public static void onUseOn(Function<UseOnContext, InteractionResult> listener) {
             CommonEvents.Blocks.USE_ON_LISTENERS.add(listener);
         }
     }

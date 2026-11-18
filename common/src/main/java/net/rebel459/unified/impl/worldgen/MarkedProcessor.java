@@ -1,11 +1,10 @@
-package net.rebel459.unified.impl.util;
+package net.rebel459.unified.impl.worldgen;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
@@ -49,7 +48,7 @@ public final class MarkedProcessor implements StructureProcessor {
                 if (processedBlockInfo == null) return null;
             }
         }
-        return processedBlockInfo.state().is(Blocks.STRUCTURE_VOID) ? null : processedBlockInfo;
+        return processedBlockInfo;
     }
 
     @Override

@@ -465,7 +465,7 @@ public abstract class CodecDocsTask extends DefaultTask {
                 String owner = key.contains(".") ? key.substring(0, key.lastIndexOf('.')) : "";
                 if (leaf.equals("CODEC") && owner.equals("Identifier")) return Value.of("<identifier>");
                 if (leaf.equals("CODEC") && owner.equals("ColorRGBA")) return Value.of("<int>");
-                if (leaf.equals("CODEC") && owner.equals("ItemStack")) return Value.object(List.of(
+                if (leaf.equals("CODEC") && (owner.equals("ItemStack") || owner.equals("ItemStackTemplate"))) return Value.object(List.of(
                         new Field("id", "<identifier>", "", List.of()),
                         new Field("count", "<int>", "optional, defaults to `1`, range: `1` to `99`", List.of()),
                         new Field("components", "{<identifier>: <value>}", "optional, defaults to `{}`", List.of())));

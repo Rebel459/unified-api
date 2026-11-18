@@ -20,7 +20,6 @@
     "registry.MappedRegistryMixin",
     "registry.ResourceManagerRegistryLoadTaskMixin",
     "item.BlockItemMixin",
-    "item.ItemMixin",
     "item.ItemStackMixin",
     "registry.BootstrapMixin",
     "registry.MappedRegistryMixin",

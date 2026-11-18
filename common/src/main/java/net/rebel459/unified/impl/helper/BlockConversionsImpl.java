@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.util.BlockLike;
 import net.rebel459.unified.impl.data.helper.BlockConversions;
 
@@ -24,10 +25,16 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class BlockConversionsImpl {
-    public static InteractionResult useOn(UseOnContext context) {
+
+    public static void init() {
+        UnifiedEvents.Items.onUseOn(BlockConversionsImpl::useOn);
+    }
+
+    private static InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Player player = context.getPlayer();
+        if (player == null) return InteractionResult.PASS;
         if (context.getHand().equals(InteractionHand.MAIN_HAND) && player.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS) && !player.isSecondaryUseActive()) {
             return InteractionResult.PASS;
         } else {

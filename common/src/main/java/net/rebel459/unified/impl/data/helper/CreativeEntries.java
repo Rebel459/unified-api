@@ -17,6 +17,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.UnifiedCodecs;
 import net.rebel459.unified.api.core.UnifiedEvents;
@@ -30,9 +31,9 @@ import java.util.Map;
 public class CreativeEntries extends SimpleJsonResourceReloadListener<List<CreativeEntries.Definition>> {
 
     public static final Identifier ID = Unified.id("creative_entries");
-    private static final Codec<Either<Item, ItemStack>> ENTRY_CODEC = Codec.either(
+    private static final Codec<Either<Item, ItemStackTemplate>> ENTRY_CODEC = Codec.either(
             BuiltInRegistries.ITEM.byNameCodec(),
-            ItemStack.CODEC
+            ItemStackTemplate.CODEC
     );
 
     private volatile List<Definition> definitions = List.of();
@@ -58,24 +59,24 @@ public class CreativeEntries extends SimpleJsonResourceReloadListener<List<Creat
             }
 
             ItemStack[] items = definition.items.stream()
-                    .map(entry -> entry.map(Item::getDefaultInstance, ItemStack::copy))
+                    .map(entry -> entry.map(Item::getDefaultInstance, ItemStackTemplate::create))
                     .toArray(ItemStack[]::new);
 
             switch (definition.insertion) {
                 case Insertion.Insert ignored -> context.insert(items);
                 case Insertion.After after -> {
                     after.target.left().ifPresent(item -> context.insertAfter(item, items));
-                    after.target.right().ifPresent(stack -> context.insertAfter(stack, items));
+                    after.target.right().ifPresent(template -> context.insertAfter(template.create(), items));
                 }
                 case Insertion.Before before -> {
                     before.target.left().ifPresent(item -> context.insertBefore(item, items));
-                    before.target.right().ifPresent(stack -> context.insertBefore(stack, items));
+                    before.target.right().ifPresent(template -> context.insertBefore(template.create(), items));
                 }
             }
         }
     }
 
-    public record Definition(ResourceKey<CreativeModeTab> tab, Insertion insertion, List<Either<Item, ItemStack>> items) {
+    public record Definition(ResourceKey<CreativeModeTab> tab, Insertion insertion, List<Either<Item, ItemStackTemplate>> items) {
         public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceKey.codec(Registries.CREATIVE_MODE_TAB).fieldOf("tab").forGetter(Definition::tab),
                 Insertion.CODEC.forGetter(Definition::insertion),
@@ -102,7 +103,7 @@ public class CreativeEntries extends SimpleJsonResourceReloadListener<List<Creat
             }
         }
 
-        record Before(Either<Item, ItemStack> target) implements Insertion {
+        record Before(Either<Item, ItemStackTemplate> target) implements Insertion {
             public static final MapCodec<Before> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                     ENTRY_CODEC.fieldOf("target").forGetter(Before::target)
             ).apply(instance, Before::new));
@@ -113,7 +114,7 @@ public class CreativeEntries extends SimpleJsonResourceReloadListener<List<Creat
             }
         }
 
-        record After(Either<Item, ItemStack> target) implements Insertion {
+        record After(Either<Item, ItemStackTemplate> target) implements Insertion {
             public static final MapCodec<After> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                     ENTRY_CODEC.fieldOf("target").forGetter(After::target)
             ).apply(instance, After::new));

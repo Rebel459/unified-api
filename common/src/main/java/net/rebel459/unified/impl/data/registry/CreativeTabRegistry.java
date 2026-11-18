@@ -10,6 +10,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.rebel459.unified.Unified;
 import net.rebel459.unified.api.codec.ExtensibleCodec;
 import net.rebel459.unified.api.codec.ExtensibleCodecs;
@@ -25,13 +26,11 @@ import java.util.function.Supplier;
 
 public class CreativeTabRegistry extends RegistryResourceListener<CreativeTabRegistry.Definition> {
 
-    private static final Codec<Supplier<ItemStack>> SUPPLIED_STACK_CODEC = ItemStack.CODEC.xmap(stack -> stack::copy, Supplier::get);
-
     public static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UnifiedCodecs.named(CreativeModeTab.Row.class).optionalFieldOf("row", CreativeModeTab.Row.TOP).forGetter(Definition::row),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("column", 0).forGetter(Definition::column),
             ComponentSerialization.CODEC.optionalFieldOf("title", Component.empty()).forGetter(Definition::title),
-            UnifiedCodecs.ITEM_OR_STACK.xmap(stack -> (Supplier<ItemStack>) stack::copy, Supplier::get)
+            ItemStackTemplate.CODEC.xmap(template -> (Supplier<ItemStack>) template::create, icon -> ItemStackTemplate.fromNonEmptyStack(icon.get()))
                     .optionalFieldOf("icon", () -> ItemStack.EMPTY).forGetter(Definition::icon),
             ExtensibleCodecs.DISPLAY_ITEMS.codec().listOf().optionalFieldOf("display_items", List.of()).forGetter(Definition::displayItems),
             Codec.BOOL.optionalFieldOf("can_scroll", true).forGetter(Definition::canScroll),

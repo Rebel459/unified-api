@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.*;
+import net.rebel459.unified.api.core.UnifiedEvents;
 import net.rebel459.unified.api.event.CreativeEntryContext;
 import net.rebel459.unified.api.event.EventTiming;
 import net.rebel459.unified.api.event.LootEntry;
@@ -40,6 +42,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class CommonEvents {
@@ -418,23 +421,32 @@ public class CommonEvents {
 
         private Items() {}
 
-        public static final EnumMap<EventTiming, List<TriConsumer<Level, Player, InteractionHand>>> USE_LISTENERS = new EnumMap<>(Map.of(
-                EventTiming.PRE, new ArrayList<>(),
-                EventTiming.POST, new ArrayList<>()
-        ));
+        public static final List<UnifiedEvents.Items.UseListener> USE_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void passOnUse(EventTiming type, Level level, Player player, InteractionHand hand) {
-            for (TriConsumer<Level, Player, InteractionHand> listener : USE_LISTENERS.get(type)) {
-                listener.accept(level, player, hand);
+        public static InteractionResult passOnUse(Level level, Player player, InteractionHand hand) {
+            for (UnifiedEvents.Items.UseListener listener : USE_LISTENERS) {
+                InteractionResult result = listener.use(level, player, hand);
+                if (result != null && result != InteractionResult.PASS) return result;
+            }
+            return InteractionResult.PASS;
+        }
+
+        public static final List<QuadConsumer<Level, Player, InteractionHand, InteractionResult>> AFTER_USE_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void passAfterUse(Level level, Player player, InteractionHand hand, InteractionResult result) {
+            for (QuadConsumer<Level, Player, InteractionHand, InteractionResult> listener : AFTER_USE_LISTENERS) {
+                listener.accept(level, player, hand, result);
             }
         }
 
-        public static final List<Consumer<UseOnContext>> USE_ON_LISTENERS = new CopyOnWriteArrayList<>();
+        public static final List<Function<UseOnContext, InteractionResult>> USE_ON_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void passOnUseOn(UseOnContext context) {
-            for (Consumer<UseOnContext> listener : USE_ON_LISTENERS) {
-                listener.accept(context);
+        public static InteractionResult passOnUseOn(UseOnContext context) {
+            for (Function<UseOnContext, InteractionResult> listener : USE_ON_LISTENERS) {
+                InteractionResult result = listener.apply(context);
+                if (result != null && result != InteractionResult.PASS) return result;
             }
+            return InteractionResult.PASS;
         }
     }
 
@@ -442,23 +454,32 @@ public class CommonEvents {
 
         private Blocks() {}
 
-        public static final EnumMap<EventTiming, List<Consumer<BlockPlaceContext>>> PLACE_LISTENERS = new EnumMap<>(Map.of(
-                EventTiming.PRE, new ArrayList<>(),
-                EventTiming.POST, new ArrayList<>()
-        ));
+        public static final List<Function<BlockPlaceContext, InteractionResult>> PLACE_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void passOnPlace(EventTiming type, BlockPlaceContext context) {
-            for (Consumer<BlockPlaceContext> listener : PLACE_LISTENERS.get(type)) {
-                listener.accept(context);
+        public static InteractionResult passOnPlace(BlockPlaceContext context) {
+            for (Function<BlockPlaceContext, InteractionResult> listener : PLACE_LISTENERS) {
+                InteractionResult result = listener.apply(context);
+                if (result != null && result != InteractionResult.PASS) return result;
+            }
+            return InteractionResult.PASS;
+        }
+
+        public static final List<BiConsumer<BlockPlaceContext, InteractionResult>> AFTER_PLACE_LISTENERS = new CopyOnWriteArrayList<>();
+
+        public static void passAfterPlace(BlockPlaceContext context, InteractionResult result) {
+            for (BiConsumer<BlockPlaceContext, InteractionResult> listener : AFTER_PLACE_LISTENERS) {
+                listener.accept(context, result);
             }
         }
 
-        public static final List<Consumer<UseOnContext>> USE_ON_LISTENERS = new CopyOnWriteArrayList<>();
+        public static final List<Function<UseOnContext, InteractionResult>> USE_ON_LISTENERS = new CopyOnWriteArrayList<>();
 
-        public static void passOnUseOn(UseOnContext context) {
-            for (Consumer<UseOnContext> listener : USE_ON_LISTENERS) {
-                listener.accept(context);
+        public static InteractionResult passOnUseOn(UseOnContext context) {
+            for (Function<UseOnContext, InteractionResult> listener : USE_ON_LISTENERS) {
+                InteractionResult result = listener.apply(context);
+                if (result != null && result != InteractionResult.PASS) return result;
             }
+            return InteractionResult.PASS;
         }
     }
 
