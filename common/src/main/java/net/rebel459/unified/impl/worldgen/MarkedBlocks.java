@@ -52,7 +52,7 @@ public final class MarkedBlocks {
         MARKED = UnifiedAttachments.Level.<LongSet>builder(Unified.id("marked_blocks"), () -> LongSets.EMPTY_SET)
                 .persistent(Codec.LONG_STREAM.<LongSet>xmap(stream -> new LongOpenHashSet(stream.toArray()), set -> LongStream.of(set.toLongArray())).fieldOf("positions"))
                 .build();
-        UnifiedRegistries.DeferredRegistry.create(Unified.MOD_ID, BuiltInRegistries.FEATURE_TYPE).register("template_pool", () -> TemplatePoolFeature.CODEC);
+        UnifiedRegistries.DeferredRegistry.create(Unified.MOD_ID, BuiltInRegistries.FEATURE).register("template_pool", TemplatePoolFeature.Type::new);
     }
 
     public static void init() {
