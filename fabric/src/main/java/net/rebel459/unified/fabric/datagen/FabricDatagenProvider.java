@@ -80,6 +80,7 @@ public final class FabricDatagenProvider implements DataGeneratorEntrypoint {
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.LANTERN, context -> context.generator().createLantern(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.DOOR, context -> context.generator().createDoor(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.TRAPDOOR, context -> context.generator().createTrapdoor(context.block));
+        FabricUnifiedDatagen.registerBlockAsset(BlockAssets.ORIENTABLE_TRAPDOOR, context -> context.generator().createOrientableTrapdoor(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.CHAIN, context -> context.generator().createAxisAlignedPillarBlockCustomModel(context.block(), BlockModelGenerators.plainVariant(TexturedModel.CHAIN.create(context.block(), context.generator().modelOutput))));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.TINTED_DOUBLE_PLANT, context -> context.generator().createTintedDoublePlant(context.block));
         FabricUnifiedDatagen.registerBlockAsset(BlockAssets.PARTICLE_ONLY, context -> context.generator().createParticleOnlyBlock(context.block));

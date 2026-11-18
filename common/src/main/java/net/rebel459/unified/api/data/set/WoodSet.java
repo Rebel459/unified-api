@@ -819,6 +819,9 @@ public class WoodSet {
         );
     }
     private SuppliedBlock createTrapDoor() {
+        BlockAsset<Void> trapdoor;
+        if (getSettings().isTrapdoorOrientable) trapdoor = BlockAssets.ORIENTABLE_TRAPDOOR;
+        else trapdoor = BlockAssets.TRAPDOOR;
         return registerBlock(
                 this.getId().getPath() + "_trapdoor",
                 VanillaBlockCodecs.TRAPDOOR.create(() -> getWoodType().get().setType()),
@@ -830,7 +833,7 @@ public class WoodSet {
                                 .validSpawn(ExtensibleCodecs.ENTITY_PREDICATE.never().create())
                         )
                         .assets(assets -> assets
-                                .model(BlockAssets.TRAPDOOR)
+                                .model(trapdoor)
                         )
                         .data(data -> data
                                 .tag(BlockItemTags.WOODEN_TRAPDOORS)
@@ -1128,6 +1131,7 @@ public class WoodSet {
         private @Nullable PrecedingCreativeEntries precedingCreativeEntries = null;
 
         private boolean isOverworld = true;
+        private boolean isTrapdoorOrientable = true;
         private BiConsumer<Item, RecipeProvider> logRecipe = (_, _) -> {};
         private BlockAsset<Void> logModel = BlockAssets.LOG;
         private int planksFromLog = 4;
@@ -1417,6 +1421,11 @@ public class WoodSet {
 
         public T isOverworld(boolean isOverworld) {
             settings.isOverworld = isOverworld;
+            return self();
+        }
+
+        public T isTrapdoorOrientable(boolean isTrapdoorOrientable) {
+            settings.isTrapdoorOrientable = isTrapdoorOrientable;
             return self();
         }
 
